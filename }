@@ -1,0 +1,128 @@
+import 'package:xml/xml.dart';
+
+import '../../../../docx.dart';
+import '../../../core/extensions/string_ext.dart';
+
+class PageBreak extends ComponentContainer<Iterable<TextRunBase>> {
+  PageBreak({
+    required Iterable<TextRunBase> data,
+  })  : _type = 'nextPage',
+        super(parent: null, data: data) {
+    for (final TextRunBase content in data) {
+      content.parent = this;
+    }
+  }
+
+  PageBreak.continuous({
+    required Iterable<TextRunBase> data,
+  })  : _type = 'continuous',
+        super(parent: null, data: data) {
+    for (final TextRunBase content in data) {
+      content.parent = this;
+    }
+  }
+
+  PageBreak.even({
+    required Iterable<TextRunBase> data,
+  })  : _type = 'evenPage',
+        super(parent: null, data: data) {
+    for (final TextRunBase content in data) {
+      content.parent = this;
+    }
+  }
+
+  PageBreak.odd({
+    required Iterable<TextRunBase> data,
+  })  : _type = 'oddPage',
+        super(parent: null, data: data) {
+    for (final TextRunBase content in data) {
+      content.parent = this;
+    }
+  }
+
+  String _type;
+
+  @override
+  XmlElement buildXml({required DocxComponentContext context}) {
+    return XmlElement.tag(
+      xmlParagraphNode,
+      children: [
+        ...buildXmlStyle(context: context),
+      ],
+      isSelfClosing: false,
+    );
+  }
+
+  @override
+  List<XmlElement> buildXmlStyle({required DocxComponentContext context}) {
+    return <XmlElement>[
+      XmlElement.tag(
+        xmlParagraphBlockAttrsNode,
+        children: <XmlNode>[
+          XmlDefaults.sectPr(
+            elements: [
+              XmlElement.tag(
+                'w:type',
+                attributes: <XmlAttribute>[
+                  XmlAttribute(
+                    'w:val'.toName(),
+                    _type,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+        isSelfClosing: false,
+      ),
+    ];
+  }
+
+  @override
+  PageBreak get copy => PageBreak(
+        data: data,
+      );
+
+  @override
+  TextRunBase? visitElement(
+    bool Function(DocxContent element) shouldGetElement, {
+    bool visitChildrenIfNeeded = false,
+  }) {
+    for (final element in data) {
+      if (shouldGetElement(element)) {
+        return element;
+      } else if (visitChildrenIfNeeded) {
+        final TextRunBase? foundedEl = element.visitElement(
+          shouldGetElement,
+        );
+        if (foundedEl != null) {
+          return foundedEl;
+        }
+      }
+    }
+    return null;
+  }
+
+  @override
+  List<TextRunBase>? visitAllElement(
+    bool Function(DocxContent element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    if (data.isEmpty) return <TextRunBase>[];
+    final List<TextRunBase> elements = <TextRunBase>[];
+    for (final TextRunBase element in data) {
+      if (shouldGetElement(element)) {
+        elements.add(element);
+      } else if (visitChildrenIfNeeded) {
+        final List<TextRunBase>? foundedEl = element.visitAllElement(
+          shouldGetElement,
+          visitChildrenIfNeeded: true,
+        );
+        if (foundedEl != null) {
+          elements.addAll(foundedEl);
+        }
+      }
+    }
+    return elements;
+  }
+}

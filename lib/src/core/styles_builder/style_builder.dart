@@ -15,8 +15,10 @@ class StyleBuilder {
   String _name;
   final String type;
 
+  String? _pageBreak;
   String? _basedOn;
   String? _next;
+  bool _widowControl = false;
   bool? _defaultValue;
   int? _uiPriority;
   bool _qFormat = false;
@@ -51,6 +53,52 @@ class StyleBuilder {
 
   StyleBuilder basedOn(String styleId) {
     _basedOn = styleId;
+    return this;
+  }
+
+  StyleBuilder pageBreakAfter() {
+    if (type == 'character') return this;
+    _pageBreak = 'after';
+    return this;
+  }
+
+  StyleBuilder pageBreakBefore() {
+    if (type == 'character') return this;
+    _pageBreak = 'before';
+    return this;
+  }
+
+  /// Without widowControl (problem):
+  /// text
+  /// ┌─────────────────┐ ┌─────────────────┐
+  /// │ PAGE 1          │ │ PAGE 2          │
+  /// │ ...paragraph    │ │                 │
+  /// │ text that       │ │ Chapter 1:      │ ← Orphan
+  /// │ continues on    │ │ Introduction    │
+  /// │ the next page   │ │ The complete    │
+  /// │                 │ │ content here    │
+  /// │ End of the      │ │                 │
+  /// │ previous text.  │ │                 │
+  /// │ Chapter 1:      │ │                 │
+  /// └─────────────────┘ └─────────────────┘
+  /// With widowControl (corrected):
+  /// text
+  /// ┌─────────────────┐ ┌─────────────────┐
+  /// │ PAGE 1          │ │ PAGE 2          │
+  /// │ ...paragraph    │ │ Chapter 1:      │
+  /// │ text that       │ │ Introduction    │
+  /// │ continues on    │ │ The complete    │
+  /// │ the next page   │ │ content here    │
+  /// │                 │ │                 │
+  /// │ End of the      │ │                 │
+  /// │ previous text.  │ │                 │
+  /// └─────────────────┘ └─────────────────┘
+  ///                  ↑
+  ///        Moves "Chapter 1:" to page 2
+  ///
+  /// Useful when you're creating an writing app
+  StyleBuilder activateWindowControl() {
+    _widowControl = true;
     return this;
   }
 
@@ -276,6 +324,38 @@ class StyleBuilder {
               configurators: spacingConfigs,
             ),
           );
+        }
+      }
+
+      if (_widowControl) {
+        paragraphConfigs.add(
+          StyleConfigurator.selfClosing(
+            prefix: 'w',
+            propertyName: 'widowControl',
+            value: true,
+          ),
+        );
+      }
+
+      if (_pageBreak != null) {
+        switch (_pageBreak) {
+          case 'before':
+            paragraphConfigs.add(
+              StyleConfigurator.selfClosing(
+                prefix: 'w',
+                propertyName: 'pageBreakBefore',
+                value: null,
+              ),
+            );
+            break;
+          default:
+            paragraphConfigs.add(
+              StyleConfigurator.selfClosing(
+                prefix: 'w',
+                propertyName: 'pageBreakBefore',
+                value: null,
+              ),
+            );
         }
       }
 

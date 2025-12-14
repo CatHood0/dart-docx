@@ -15,6 +15,9 @@ class EasyStyles {
   static Style get listParagraph => StyleBuilder.paragraph('ListParagraph')
       .name('List  Paragraph')
       .basedOn('Normal')
+      .keepNext(true)
+      .keepLines(true)
+      .activateWindowControl()
       .indent(left: 720, hanging: 360)
       .build();
 

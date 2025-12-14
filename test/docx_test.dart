@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:docx/docx.dart';
+import 'package:docx/src/docx_sdk/components/containers/page_break.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -51,6 +52,21 @@ void main() {
                     BoldAttribute(),
                   ],
                 ),
+              ),
+            ],
+          ),
+          PageBreak.next(),
+          Paragraph(
+            data: <TextRunBase<dynamic>>[
+              TextRun(
+                data: TextPart(text: 'Yeah, we are in a 2nd page'),
+              ),
+              HyperlinkRun(
+                data: HyperlinkTextPart(
+                  hyperlink: 'https://pub.dev/packages/docx_transformer',
+                  text: ' and now, can we do about?',
+                ),
+                style: Style.reference(styleId: 'Hyperlink'),
               ),
             ],
           ),

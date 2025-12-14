@@ -17,7 +17,7 @@ XmlDocument generateDocumentXml(
               'w:body',
               children: [
                 ...contents,
-                XmlDefaults.sectPr(properties: context.options),
+                XmlDefaults.documentSectPr(properties: context.options),
               ],
             ),
           ],

@@ -25,6 +25,7 @@ class Paragraph extends ComponentContainer<Iterable<TextRunBase>> {
         context.options.docStyles.getStyleById(paragraphStyleId);
 
     if (resultStyle != null && !resultStyle.isInvalid) {
+      final trueStyle = resultStyle.getDeepStyleRelation(context.options.docStyles);
       pPrChildren.addAll(resultStyle.toBlockStyleNodes());
     }
 

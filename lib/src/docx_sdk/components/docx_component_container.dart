@@ -37,7 +37,7 @@ class DocxComponentContainer {
                     return e.buildXml(context: context);
                   },
                 ),
-                XmlDefaults.sectPr(properties: context.options),
+                XmlDefaults.documentSectPr(properties: context.options),
               ],
             ),
           ],

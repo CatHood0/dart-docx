@@ -189,9 +189,17 @@ class XmlDefaults {
     );
   }
 
-  static XmlElement sectPr({required DocumentOptions properties}) {
+  static XmlElement sectPr({required List<XmlElement> elements}) {
     return XmlElement.tag(
-      'w:sectPr',
+      xmlSectPr,
+      children: elements,
+      isSelfClosing: true,
+    );
+  }
+
+  static XmlElement documentSectPr({required DocumentOptions properties}) {
+    return XmlElement.tag(
+      xmlSectPr,
       children: [
         XmlElement.tag(
           'w:pgSz',

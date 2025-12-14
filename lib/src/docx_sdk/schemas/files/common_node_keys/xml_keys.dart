@@ -6,6 +6,8 @@ const String xmlParagraphNode = 'w:p';
 // block
 const String xmlParagraphBlockAttrsNode = 'w:pPr';
 
+const String xmlSectPr = 'w:sectPr';
+
 /// this is a node that specifies to the Word editor
 /// that this sentence or paragraph has misspelled words
 ///
@@ -53,6 +55,13 @@ const String xmlDirectionalNode = 'w:bidi';
 //
 // it can be inline and block level
 const String xmlBackgroundCharacterColorNode = 'w:shd'; // w:val="hex"
+
+const String xmlParagraphPageBreakBefore = 'w:pageBreakBefore';
+const String xmlParagraphPageBreakAfter = 'w:pageBreakAfter';
+// maintain applying the current style to the next
+const String xmlParagraphKeepNext = 'w:keepNext';
+// does not break the text runs when moves them to a new page
+const String xmlParagraphKeepLines = 'w:keepLines';
 
 /// represents the indentation of the list
 const String xmlListIndentLevelNode = 'w:ilvl'; // w:val="number" = default "0"

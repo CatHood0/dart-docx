@@ -18,6 +18,11 @@ List<Style> convertXmlStylesToStyles(
     // relationship id
     final String rsId =
         styleElement.getElement('w:rsId')?.getAttribute('w:val') ?? '';
+    assert(
+      rsId.isNotEmpty,
+      'rsId cannot be empty when should '
+      'be registered in styles.xml',
+    );
     final xml.XmlElement? nameElement = styleElement.getElement('w:name');
     final String styleName = nameElement?.getAttribute('w:val') ?? '';
 
