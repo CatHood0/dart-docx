@@ -1,16 +1,15 @@
-import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:async';
+import 'dart:io';
 
 import 'package:meta/meta.dart';
-import 'package:xml/src/xml/utils/node_list.dart';
 import 'package:xml/xml.dart' as xml;
+
 import '../../docx_transformer.dart';
-import '../common/color.dart';
-import '../common/extensions/node_to_configurator.dart';
-import '../common/extensions/string_ext.dart';
-import '../common/internals_vars.dart';
-import '../common/schemas/common_node_keys/xml_keys.dart';
-import '../constants.dart';
+import '../core/color.dart';
+import '../core/extensions/node_to_configurator.dart';
+import '../core/extensions/string_ext.dart';
+import '../core/internals_vars.dart';
+import 'parser_events.dart';
 
 abstract class Parser<T, R, O extends ParserOptions> {
   Parser({
@@ -18,17 +17,19 @@ abstract class Parser<T, R, O extends ParserOptions> {
   });
   final O options;
 
-  R build({required T data});
+  final StreamController<ParserEvent<R>> _eventController =
+      StreamController<ParserEvent<R>>.broadcast();
+
+  File? file;
+
+  Stream<ParserEvent<R>> get events => _eventController.stream;
 
   @protected
-  Uint8List stringToBytes(String source) {
-    return utf8.encode(source);
+  void emitEvent(ParserEvent<R> event) {
+    _eventController.add(event);
   }
 
-  @protected
-  String bytesToString(Uint8List source) {
-    return utf8.decode(source, allowMalformed: false);
-  }
+  Future<R> build({required T data});
 
   @protected
   void buildRelations(
@@ -36,7 +37,8 @@ abstract class Parser<T, R, O extends ParserOptions> {
     required void Function(String, String, String) objectBuilder,
   }) {
     if (documentRels == null) return;
-    final Iterable<xml.XmlElement> elements = documentRels.findAllElements('Relationship');
+    final Iterable<xml.XmlElement> elements =
+        documentRels.findAllElements('Relationship');
     for (final xml.XmlElement ele in elements) {
       final String id = ele.getAttribute('Id')!;
       final String type = ele.getAttribute('Type')!;
@@ -72,7 +74,8 @@ abstract class Parser<T, R, O extends ParserOptions> {
         // or like: 1.440 / 720 => 2
         final int indentValue = (tabStop / kDefaultTabStop).truncate();
         if (indentValue.floor() > 0) {
-          final bool shouldAcceptSpacing = options.acceptSpacingValueWhen?.call(indentValue) ?? true;
+          final bool shouldAcceptSpacing =
+              options.acceptSpacingValueWhen?.call(indentValue) ?? true;
           if (shouldAcceptSpacing) {
             // we need to ensure that the indent must be into the range of 1 to 5
             blockAttributes['indent'] = indentValue.floor();
@@ -93,7 +96,8 @@ abstract class Parser<T, R, O extends ParserOptions> {
         // or like: 1.418 / 708 => 2.xx
         final int indentValue = (rawCurrentIndent / kDefaultTabStop).truncate();
         if (indentValue.floor() > 0) {
-          final bool shouldAcceptSpacing = options.acceptSpacingValueWhen?.call(indentValue) ?? true;
+          final bool shouldAcceptSpacing =
+              options.acceptSpacingValueWhen?.call(indentValue) ?? true;
           if (shouldAcceptSpacing) {
             blockAttributes['indent'] = indentValue.floor();
           }
@@ -112,7 +116,7 @@ abstract class Parser<T, R, O extends ParserOptions> {
       }
     }
     if (containsBorder) {
-      final XmlNodeList<xml.XmlNode> children = borderNode.children;
+      final children = borderNode.children;
       for (final xml.XmlNode child in children) {
         if (child is xml.XmlElement) {
           if (child.localName == 'left') {
@@ -139,11 +143,13 @@ abstract class Parser<T, R, O extends ParserOptions> {
       }
     }
     if (containsSpacing) {
-      final int? userParse = options.parseXmlSpacing?.call(spacingNode.toConfigurator);
+      final int? userParse =
+          options.parseXmlSpacing?.call(spacingNode.toConfigurator);
       if (userParse != null) {
         blockAttributes['line-height'] = userParse;
       } else {
-        final double? rawLine = double.tryParse(spacingNode.getAttribute('w:line') ?? '');
+        final double? rawLine =
+            double.tryParse(spacingNode.getAttribute('w:line') ?? '');
         if (rawLine != null) {
           double effectiveSpacing = rawLine / kDefaultSpacing1;
           if (effectiveSpacing > 1.0 && effectiveSpacing < 1.50) {
@@ -160,13 +166,17 @@ abstract class Parser<T, R, O extends ParserOptions> {
       }
     }
     if (isList) {
-      final String? codeNum = listNode.getElement(xmlListTypeNode)!.getAttribute('w:val');
-      final String? numberIndentLevel = listNode.getElement(xmlListIndentLevelNode)!.getAttribute('w:val');
+      final String? codeNum =
+          listNode.getElement(xmlListTypeNode)!.getAttribute('w:val');
+      final String? numberIndentLevel =
+          listNode.getElement(xmlListIndentLevelNode)!.getAttribute('w:val');
       if (codeNum != null && (codeNum == '2' || codeNum == '3')) {
         blockAttributes['list'] = codeNum == '2' ? 'bullet' : 'ordered';
       }
       if (numberIndentLevel != null) {
-        final int indent = int.tryParse(numberIndentLevel.isEmpty ? '0' : numberIndentLevel) ?? 0;
+        final int indent =
+            int.tryParse(numberIndentLevel.isEmpty ? '0' : numberIndentLevel) ??
+                0;
         if (indent > 0) {
           blockAttributes['indent'] = indent;
         }
@@ -183,34 +193,42 @@ abstract class Parser<T, R, O extends ParserOptions> {
   ) {
     // family
     final xml.XmlElement? fontFamilyNode =
-        textPartInlineAttributes?.getElement(xmlFontsNode) ?? paragraphInlineAttributes?.getElement(xmlFontsNode);
+        textPartInlineAttributes?.getElement(xmlFontsNode) ??
+            paragraphInlineAttributes?.getElement(xmlFontsNode);
     final xml.XmlElement? fontSizeNode =
-        textPartInlineAttributes?.getElement(xmlFontsNode) ?? paragraphInlineAttributes?.getElement(xmlFontsNode);
+        textPartInlineAttributes?.getElement(xmlFontsNode) ??
+            paragraphInlineAttributes?.getElement(xmlFontsNode);
     // italic
-    final xml.XmlElement? italicNode = textPartInlineAttributes?.getElement(xmlItalicNode) ??
-        paragraphInlineAttributes?.getElement(xmlItalicNode);
+    final xml.XmlElement? italicNode =
+        textPartInlineAttributes?.getElement(xmlItalicNode) ??
+            paragraphInlineAttributes?.getElement(xmlItalicNode);
     // bold
     final xml.XmlElement? boldNode =
-        textPartInlineAttributes?.getElement(xmlBoldNode) ?? paragraphInlineAttributes?.getElement(xmlBoldNode);
+        textPartInlineAttributes?.getElement(xmlBoldNode) ??
+            paragraphInlineAttributes?.getElement(xmlBoldNode);
     // underline
-    final xml.XmlElement? underlineNode = textPartInlineAttributes?.getElement(xmlUnderlineNode) ??
-        paragraphInlineAttributes?.getElement(xmlUnderlineNode);
+    final xml.XmlElement? underlineNode =
+        textPartInlineAttributes?.getElement(xmlUnderlineNode) ??
+            paragraphInlineAttributes?.getElement(xmlUnderlineNode);
     // script
-    final xml.XmlElement? scriptNode = textPartInlineAttributes?.getElement(xmlScriptNode) ??
-        paragraphInlineAttributes?.getElement(xmlScriptNode);
+    final xml.XmlElement? scriptNode =
+        textPartInlineAttributes?.getElement(xmlScriptNode) ??
+            paragraphInlineAttributes?.getElement(xmlScriptNode);
     // strike
-    final xml.XmlElement? strikethroughNode = textPartInlineAttributes?.getElement(xmlStrikethroughNode) ??
-        paragraphInlineAttributes?.getElement(xmlStrikethroughNode);
+    final xml.XmlElement? strikethroughNode =
+        textPartInlineAttributes?.getElement(xmlStrikethroughNode) ??
+            paragraphInlineAttributes?.getElement(xmlStrikethroughNode);
     // text color
-    final xml.XmlElement? colorNode = textPartInlineAttributes?.getElement(xmlCharacterColorNode) ??
-        paragraphInlineAttributes?.getElement(xmlCharacterColorNode);
+    final xml.XmlElement? colorNode =
+        textPartInlineAttributes?.getElement(xmlCharacterColorNode) ??
+            paragraphInlineAttributes?.getElement(xmlCharacterColorNode);
     // background color
-    final xml.XmlElement? backgroundColorNode =
-        textPartInlineAttributes?.getElement(xmlBackgroundCharacterColorNode) ??
-            paragraphInlineAttributes?.getElement(xmlBackgroundCharacterColorNode);
+    final xml.XmlElement? backgroundColorNode = textPartInlineAttributes
+            ?.getElement(xmlBackgroundCharacterColorNode) ??
+        paragraphInlineAttributes?.getElement(xmlBackgroundCharacterColorNode);
     // nodes values
-    final String? sizeAttr =
-        fontSizeNode?.getAttribute(xmlSizeFontNode) ?? fontSizeNode?.getAttribute(xmlSizeComplexScriptFontNode);
+    final String? sizeAttr = fontSizeNode?.getAttribute(xmlSizeFontNode) ??
+        fontSizeNode?.getAttribute(xmlSizeComplexScriptFontNode);
     final String? familyAttr = fontFamilyNode?.getAttribute('w:ascii') ??
         fontFamilyNode?.getAttribute('w:hAnsi') ??
         fontFamilyNode?.getAttribute('w:cs') ??
@@ -221,7 +239,8 @@ abstract class Parser<T, R, O extends ParserOptions> {
     final String? scriptValue = scriptNode?.getAttribute('w:val');
     // check if we will accept this family
     if (familyAttr != null && fontFamilyNode != null) {
-      final bool acceptFamily = options.acceptFontValueWhen?.call(familyAttr) ?? false;
+      final bool acceptFamily =
+          options.acceptFontValueWhen?.call(familyAttr) ?? false;
       if (acceptFamily) {
         inlineAttributes['font'] = familyAttr;
       }
@@ -239,7 +258,7 @@ abstract class Parser<T, R, O extends ParserOptions> {
         }
         if (size.isNotEmpty) {
           final int? numSize = int.tryParse(size);
-          if(numSize != null) {
+          if (numSize != null) {
             inlineAttributes['size'] = numSize;
           }
         }
@@ -265,7 +284,8 @@ abstract class Parser<T, R, O extends ParserOptions> {
       }
     }
     if (color != null) {
-      final bool shouldAcceptColor = options.checkColor?.call(color) ?? isValidColor(color);
+      final bool shouldAcceptColor =
+          options.checkColor?.call(color) ?? isValidColor(color);
       if (!shouldAcceptColor && !options.ignoreColorWhenNoSupported) {
         throw Exception(
           'The color with the value: $color is not supported currently. '
@@ -274,19 +294,22 @@ abstract class Parser<T, R, O extends ParserOptions> {
       }
       if (shouldAcceptColor) {
         if (options.colorBuilder == null) {
-          inlineAttributes['color'] = color.startsWith('#') ? color : '#$color'.toUpperCase();
+          inlineAttributes['color'] =
+              color.startsWith('#') ? color : '#$color'.toUpperCase();
         } else if (options.colorBuilder != null) {
           final String? newColorV = options.colorBuilder!.call(color);
           if (newColorV != null && newColorV.trim().isNotEmpty) {
-            inlineAttributes['color'] =
-                newColorV.startsWith('#') ? newColorV.toUpperCase() : '#$newColorV'.toUpperCase();
+            inlineAttributes['color'] = newColorV.startsWith('#')
+                ? newColorV.toUpperCase()
+                : '#$newColorV'.toUpperCase();
           }
         }
       }
     }
     if (backgroundColor != null) {
       final bool shouldAcceptColor =
-          options.checkColor?.call(backgroundColor) ?? isValidColor(backgroundColor.toUpperCase());
+          options.checkColor?.call(backgroundColor) ??
+              isValidColor(backgroundColor.toUpperCase());
       if (!shouldAcceptColor && !options.ignoreColorWhenNoSupported) {
         throw Exception(
           'The color with the value: $backgroundColor is not supported currently. '
@@ -295,13 +318,15 @@ abstract class Parser<T, R, O extends ParserOptions> {
       }
       if (shouldAcceptColor) {
         if (options.colorBuilder == null) {
-          inlineAttributes['background'] =
-              backgroundColor.startsWith('#') ? backgroundColor.toUpperCase() : '#$backgroundColor'.toUpperCase();
+          inlineAttributes['background'] = backgroundColor.startsWith('#')
+              ? backgroundColor.toUpperCase()
+              : '#$backgroundColor'.toUpperCase();
         } else if (options.colorBuilder != null) {
           final String? newColorV = options.colorBuilder?.call(backgroundColor);
           if (newColorV != null && newColorV.trim().isNotEmpty) {
-            inlineAttributes['background'] =
-                newColorV.startsWith('#') ? newColorV.toUpperCase() : '#$newColorV'.toUpperCase();
+            inlineAttributes['background'] = newColorV.startsWith('#')
+                ? newColorV.toUpperCase()
+                : '#$newColorV'.toUpperCase();
           }
         }
       }

@@ -6,15 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:xml/xml.dart' as xml;
 
 import '../../../docx_transformer.dart';
-import '../../common/extensions/styles_extension.dart';
-import '../../common/generators/convert_xml_styles_to_doc.dart';
-import '../../common/internals_vars.dart';
-import '../../common/schemas/common_node_keys/word_files_common.dart';
-import '../../common/schemas/common_node_keys/xml_keys.dart';
-import '../../common/styles.dart';
-import '../../constants.dart';
+import '../../core/extensions/styles_extension.dart';
+import '../../core/internals_vars.dart';
 
-class DeltaFromDocxParser extends Parser<Uint8List, Future<Delta?>?, DeltaParserOptions> {
+class DeltaFromDocxParser extends Parser<Uint8List, Delta?, DeltaParserOptions> {
   DeltaFromDocxParser({
     required super.options,
   });
@@ -22,7 +17,7 @@ class DeltaFromDocxParser extends Parser<Uint8List, Future<Delta?>?, DeltaParser
   ZipDecoder? _zipDecoder;
 
   @override
-  Future<Delta?>? build({required Uint8List data}) async {
+  Future<Delta?> build({required Uint8List data}) async {
     final Delta delta = Delta();
     _zipDecoder ??= ZipDecoder();
 

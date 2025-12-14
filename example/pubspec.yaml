@@ -14,11 +14,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_quill: ^11.0.0
   flutter_quill_extensions: ^11.0.0
+  quill_native_bridge: ^11.1.0
   dart_quill_delta_simplify: ^10.8.7 
   path_provider: 
   path:
   file_selector: 
-  docx_transformer:
+  docx:
     path: ../
 
 dev_dependencies:
@@ -27,5 +28,4 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
-
   uses-material-design: true

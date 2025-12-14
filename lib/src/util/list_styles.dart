@@ -1,4 +1,5 @@
-import 'package:docx_transformer/src/constants.dart';
+
+import '../docx_sdk/sdk.dart';
 
 String getListStyleType(listType) {
   switch (listType) {

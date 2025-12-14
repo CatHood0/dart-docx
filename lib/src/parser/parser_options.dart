@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
 import '../../docx_transformer.dart';
-import '../constants.dart';
 import '../util/predicate.dart';
 
 enum ParseTo {
   odt,
   docx,
+  doc,
 }
 
 class ContentParserOptions extends ParserOptions {
@@ -20,7 +20,8 @@ class ContentParserOptions extends ParserOptions {
     this.keywords = const <String>[],
     this.revisions = 1,
     this.properties,
-  })  : supportedFileExtensions = supportedFileExtensions ?? kDefaultAcceptedFileExtensions,
+  })  : supportedFileExtensions =
+            supportedFileExtensions ?? kDefaultAcceptedFileExtensions,
         super(
           ignoreColorWhenNoSupported: false,
           onDetectImage: null,
@@ -33,7 +34,7 @@ class ContentParserOptions extends ParserOptions {
   final String lastModifiedBy;
   final List<String> keywords;
   final int revisions;
-  final DocumentProperties? properties;
+  final DocumentOptions? properties;
 }
 
 class BasicParserOptions extends ParserOptions {
@@ -46,8 +47,10 @@ class BasicParserOptions extends ParserOptions {
     this.lastModifiedBy = '',
     this.keywords = const <String>[],
     this.revisions = 1,
-    this.properties,
-  }) : super(ignoreColorWhenNoSupported: false);
+    DocumentOptions? properties,
+  })  : properties = properties ?? defaultDocumentProperties(title: title),
+        super(ignoreColorWhenNoSupported: false);
+
   final String title;
   final String owner;
   final String subject;
@@ -55,7 +58,7 @@ class BasicParserOptions extends ParserOptions {
   final String lastModifiedBy;
   final List<String> keywords;
   final int revisions;
-  final DocumentProperties? properties;
+  final DocumentOptions? properties;
 }
 
 abstract class ParserOptions {
@@ -132,7 +135,8 @@ class DocxParserOptions extends ParserOptions {
           onDetectImage: _defaultOnDetectImage,
           parseXmlSpacing: null,
         );
-  final DocumentProperties documentProperties;
+  final DocumentOptions documentProperties;
 }
 
-Future<String?> _defaultOnDetectImage(Uint8List bytes, String name) async => null;
+Future<String?> _defaultOnDetectImage(Uint8List bytes, String name) async =>
+    null;
