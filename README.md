@@ -109,7 +109,8 @@ import 'dart:io';
 import 'package:docx_transformer/docx_transformer.dart';
 
 Future<void> generateDocumentWithStream() async {
-  final DocumentOptions options = DocumentOptions(title: 'Stream Document');
+  final DocumentOptions options =
+      DocumentOptions.blank(title: 'Stream Document');
   final DocxComponentContainer documentContent = DocxComponentContainer(
     contents: [
       Paragraph(data: [TextRun(data: TextPart(text: 'Test content.'))])
@@ -118,36 +119,33 @@ Future<void> generateDocumentWithStream() async {
 
   final DocxDocumentSdk docxSdk = DocxDocumentSdk(options: options);
   final String outputPath = 'stream_document.docx';
-  
+
   await for (final event in docxSdk.createDocumentStream(
     documentContent,
     supportedFileExtensions: {'png'},
   )) {
-    switch (event.type) {
-      case DocxEventType.start:
-        print('Starting document generation...');
-        break;
-      case DocxEventType.progress:
-        print('Progress: ${event.current}/${event.total} - ${event.subject}');
-        break;
-      case DocxEventType.searching:
-        print(event.subject);
-        break;
-      case DocxEventType.end:
-        if (event.error != null) {
-          print('Error generating document: ${event.error}');
-        } else {
-          print('Document generated successfully.');
-          // You can save the Uint8List if needed
-          final Uint8List? bytes = event.result;
-          if (bytes != null) {
-            await File(outputPath).writeAsBytes(bytes);
-            print('Document saved at: $outputPath');
-          }
-        }
-        break;
+    if (event is StartEvent) {
+      print('Starting document generation...');
     }
-  }
+    if (event is ProgressEvent) {
+      print('Progress: ${event.current}/${event.total} - ${event.subject}');
+    }
+    if (event is SearchingEvent) {
+      print(event.subject);
+    }
+    if (event is EndEvent) {
+      if (event.error != null) {
+        print('Error generating document: ${event.error}');
+      } else {
+        print('Document generated successfully.');
+        // You can save the Uint8List if needed
+        final Uint8List? bytes = Uint8List.fromList(event.result!);
+        if (bytes != null) {
+          await File(outputPath).writeAsBytes(bytes);
+          print('Document saved at: $outputPath');
+        }
+      }
+    }
 }
 ````
 
