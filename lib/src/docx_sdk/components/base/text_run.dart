@@ -3,8 +3,8 @@ import 'package:xml/xml.dart';
 import '../../exceptions/content_not_processed_exception.dart';
 import '../../sdk.dart';
 
-abstract class TextRunBase<T> extends DocxContent<T> with PrintableMixin {
-  TextRunBase({
+abstract class RunBase<T> extends DocxContent<T> with PrintableMixin {
+  RunBase({
     required super.data,
     super.parent,
   });
@@ -64,7 +64,7 @@ abstract class TextRunBase<T> extends DocxContent<T> with PrintableMixin {
   }
 
   @override
-  TextRunBase? visitElement(
+  RunBase? visitElement(
     bool Function(DocxContent element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
@@ -72,10 +72,10 @@ abstract class TextRunBase<T> extends DocxContent<T> with PrintableMixin {
   }
 
   @override
-  List<TextRunBase>? visitAllElement(
+  List<RunBase>? visitAllElement(
     bool Function(DocxContent element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return shouldGetElement(this) ? <TextRunBase>[this] : null;
+    return shouldGetElement(this) ? <RunBase>[this] : null;
   }
 }

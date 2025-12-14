@@ -34,7 +34,7 @@ void main() {
       DocxComponentContainer(
         contents: <ComponentContainer<dynamic>>[
           Paragraph(
-            data: <TextRunBase<dynamic>>[
+            data: <RunBase<dynamic>>[
               TextRun(
                 data: TextPart(text: ' your can use'),
               ),
@@ -54,10 +54,17 @@ void main() {
                 ),
               ),
             ],
+            styles: <Style>[
+              StyleBuilder.paragraph('Breaker')
+                  .name('Page Breaker')
+                  .pageBreakAfter()
+                  .basedOn('Normal')
+                  .build(),
+            ],
           ),
           PageBreak.next(),
           Paragraph(
-            data: <TextRunBase<dynamic>>[
+            data: <RunBase<dynamic>>[
               TextRun(
                 data: TextPart(text: 'Yeah, we are in a 2nd page'),
               ),

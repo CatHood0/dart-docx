@@ -148,7 +148,7 @@ class DocxDocumentSdk {
       supportedFileExtensions,
     );
     yield DocxEvent.searching(subject: 'Searching hyperlinks');
-    final List<TextRunBase> hyperlinks = _getAllHyperlinks(
+    final List<RunBase> hyperlinks = _getAllHyperlinks(
       data,
     );
 
@@ -417,7 +417,7 @@ class DocxDocumentSdk {
   }
 
   List<RelationShip> _buildRelationShips({
-    required List<TextRunBase> hyperlinks,
+    required List<RunBase> hyperlinks,
     required Map<String, ComponentContainer> images,
     required Map<String, String> registeredMediaNames,
     required int lastId,
@@ -448,7 +448,7 @@ class DocxDocumentSdk {
           );
         },
       ),
-      ...hyperlinks.map<RelationShip>((TextRunBase hyperlink) {
+      ...hyperlinks.map<RelationShip>((RunBase hyperlink) {
         lastId++;
         hyperlink.rId ??= 'rId$lastId';
         return RelationShip(
@@ -461,15 +461,15 @@ class DocxDocumentSdk {
     ];
   }
 
-  List<TextRunBase> _getAllHyperlinks(DocxComponentContainer data) {
-    final List<TextRunBase> hyperlinks = <TextRunBase>[];
+  List<RunBase> _getAllHyperlinks(DocxComponentContainer data) {
+    final List<RunBase> hyperlinks = <RunBase>[];
     for (final ComponentContainer parent in data.contents) {
-      final List<TextRunBase> hyperlink = List<TextRunBase>.from(
+      final List<RunBase> hyperlink = List<RunBase>.from(
         parent.visitAllElement(
               (DocxContent el) => el is HyperlinkRun,
               visitChildrenIfNeeded: true,
             ) ??
-            <TextRunBase>[],
+            <RunBase>[],
       );
       if (hyperlink.isNotEmpty) {
         hyperlinks.addAll(hyperlink);

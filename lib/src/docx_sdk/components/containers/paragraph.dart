@@ -3,55 +3,39 @@ import 'package:xml/xml.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
 
-class Paragraph extends ComponentContainer<Iterable<TextRunBase>> {
+class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   Paragraph({
-    required Iterable<TextRunBase> data,
-    this.style,
+    required Iterable<RunBase> data,
+    this.styles = const [],
   }) : super(parent: null, data: data) {
-    for (final TextRunBase content in data) {
+    for (final RunBase content in data) {
       content.parent = this;
     }
   }
 
-  final Style? style;
+  final List<Style> styles;
 
   @override
   XmlElement buildXml({required DocxComponentContext context}) {
     final List<XmlNode> paragraphChildren = [];
-    final List<XmlElement> pPrChildren = [];
+    final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
 
-    final String paragraphStyleId = style?.styleId ?? 'Normal';
-    final Style? resultStyle =
-        context.options.docStyles.getStyleById(paragraphStyleId);
-
-    if (resultStyle != null && !resultStyle.isInvalid) {
-      final trueStyle = resultStyle.getDeepStyleRelation(context.options.docStyles);
-      pPrChildren.addAll(resultStyle.toBlockStyleNodes());
-    }
-
-    // Añadir el w:pPr construido al párrafo
-    // Si el pPrChildren es vacío, no añadimos w:pPr.
-    // Pero para un párrafo, <w:pPr> con <w:pStyle> es casi siempre necesario.
-    if (pPrChildren.isNotEmpty) {
+    if (paragraphStyles.isNotEmpty) {
       paragraphChildren.add(
         XmlElement.tag(
           xmlParagraphBlockAttrsNode,
-          children: pPrChildren,
+          children: paragraphStyles,
           isSelfClosing: false,
         ),
       );
     }
 
-    // 2. Añadir los contenidos inline (TextContent, HyperlinkContent, ImageContent)
-    // Cada uno de estos debería generar un <w:r> o <w:hyperlink>
-    for (final TextRunBase e in data) {
+    for (final RunBase e in data) {
       final XmlNode element = e.buildXml(context: context);
       if (element.children.isEmpty || e.isEmptyData) continue;
       paragraphChildren.add(element);
     }
 
-    // Si el párrafo está completamente vacío y no tiene estilo, podría ser solo un salto de línea
-    // o un párrafo vacío que Word puede manejar, pero para seguridad siempre generamos el <w:p>
     return super.runParent(
       attributes: <XmlAttribute>[],
       children: paragraphChildren,
@@ -61,17 +45,42 @@ class Paragraph extends ComponentContainer<Iterable<TextRunBase>> {
 
   @override
   List<XmlElement> buildXmlStyle({required DocxComponentContext context}) {
-    return <XmlElement>[];
+    final List<XmlElement> pPrChildren = [];
+    // to avoid applying the same styles every time, we prefer
+    // having something like a memoizer to avoid expensive calls
+    //
+    // For example, you can have 3 styles that area based on 'Normal'
+    // style, so...
+    // do you want to apply the 'Normal' style 3 times?
+    // right, you don't!
+    final Map<String, Style> appliedStyles = <String, Style>{};
+    for (final Style style in styles) {
+      final String paragraphStyleId = style.styleId;
+      Style resultStyle = style;
+      // references  has not values to be used, so, we will need to get a usable version
+      if (style.isReference) {
+        resultStyle = context.options.docStyles.getStyleById(paragraphStyleId)!;
+      }
+      if (resultStyle.isInvalid ||
+          appliedStyles.containsKey(resultStyle.styleId)) {
+        continue;
+      }
+      final Style fullStyle =
+          resultStyle.getDeepStyleRelation(context.options.docStyles);
+      appliedStyles[fullStyle.styleId] = fullStyle;
+      pPrChildren.addAll(fullStyle.toBlockStyleNodes());
+    }
+    return <XmlElement>[...pPrChildren];
   }
 
   @override
   Paragraph get copy => Paragraph(
         data: data,
-        style: style,
+        styles: styles,
       );
 
   @override
-  TextRunBase? visitElement(
+  RunBase? visitElement(
     bool Function(DocxContent element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
@@ -79,7 +88,7 @@ class Paragraph extends ComponentContainer<Iterable<TextRunBase>> {
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final TextRunBase? foundedEl = element.visitElement(
+        final RunBase? foundedEl = element.visitElement(
           shouldGetElement,
         );
         if (foundedEl != null) {
@@ -91,17 +100,17 @@ class Paragraph extends ComponentContainer<Iterable<TextRunBase>> {
   }
 
   @override
-  List<TextRunBase>? visitAllElement(
+  List<RunBase>? visitAllElement(
     bool Function(DocxContent element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (data.isEmpty) return <TextRunBase>[];
-    final List<TextRunBase> elements = <TextRunBase>[];
-    for (final TextRunBase element in data) {
+    if (data.isEmpty) return <RunBase>[];
+    final List<RunBase> elements = <RunBase>[];
+    for (final RunBase element in data) {
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<TextRunBase>? foundedEl = element.visitAllElement(
+        final List<RunBase>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

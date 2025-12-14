@@ -3,7 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../sdk.dart';
 
-class TextRun extends TextRunBase<TextPart> {
+class TextRun extends RunBase<TextPart> {
   TextRun({
     required super.data,
     super.parent,

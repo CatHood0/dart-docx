@@ -81,10 +81,8 @@ extension StyleToNode on Style {
   }
 
   List<XmlElement> toBlockStyleNodes() {
-    final StyleConfigurator runConfigs = getConfigurator(
-      xmlParagraphBlockAttrsNode,
-      fullName: true,
-    );
+    final StyleConfigurator runConfigs =
+        getConfigurator(xmlParagraphBlockAttrsNode);
 
     return [
       XmlElement.tag(

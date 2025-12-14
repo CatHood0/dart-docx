@@ -4,7 +4,7 @@ import '../../../core/extensions/style_to_from_node.dart';
 import '../../../core/styles_builder/easy_styles.dart';
 import '../../sdk.dart';
 
-class HyperlinkRun extends TextRunBase<HyperlinkTextPart> {
+class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   HyperlinkRun({
     required super.data,
     super.parent,

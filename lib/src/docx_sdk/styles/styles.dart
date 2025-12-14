@@ -58,6 +58,9 @@ class Style extends IterableConfigurators {
   /// will be showed by the Word Editor
   final String styleName;
 
+  /// Whether this [Style] is based on another [Style]
+  bool get isBasedOn => getConfiguratorOrNull('w:basedOn') != null;
+
   Style? getStyleWhereBaseOn(DocumentStylesSheet styles) {
     final StyleConfigurator? basedOnConfigurator =
         getConfiguratorOrNull('w:basedOn');
@@ -72,8 +75,131 @@ class Style extends IterableConfigurators {
   /// Returns the final style version this style using
   /// w:basedOn mark as the way to get the other properties
   Style getDeepStyleRelation(DocumentStylesSheet styles) {
-    final List<Style> collection = <Style>[];
-    return Style.invalid();
+    const int maxAttemps = 10000;
+    final List<Style> styleHierarchy = [this];
+    Style? currentStyleInChain = this;
+    int attemp = 0;
+
+    // Build the hierarchy from the most base style up to the current style.
+    // Insert at the beginning to have the oldest ancestor first.
+    while (currentStyleInChain!.isBasedOn && attemp < maxAttemps) {
+      final Style? basedOn = currentStyleInChain.getStyleWhereBaseOn(
+        styles,
+      );
+      if (basedOn != null &&
+          !styleHierarchy.any(
+            (Style s) => s.id == basedOn.id,
+          )) {
+        styleHierarchy.insert(0, basedOn);
+        currentStyleInChain = basedOn;
+      } else {
+        break; // No more base styles or detected a loop
+      }
+      attemp++;
+    }
+
+    // Initialize merged properties maps for top-level, paragraph properties (pPr),
+    // and run properties (rPr).
+    final Map<String, StyleConfigurator> mergedTopLevelConfigurators = {};
+    final Map<String, StyleConfigurator> mergedPPrChildren = {};
+    final Map<String, StyleConfigurator> mergedRPrChildren = {};
+
+    // Helper to convert an iterable of StyleConfigurator to a map for easier merging.
+    Map<String, StyleConfigurator> listToMap(
+            Iterable<StyleConfigurator> list) =>
+        {
+          for (final c in list) c.qualifiedName: c,
+        };
+
+    // Recursive helper to merge children configurators.
+    // It takes a base map and a list of overrides, returning a new merged map.
+    Map<String, StyleConfigurator> mergeChildren(
+        Map<String, StyleConfigurator> base,
+        Iterable<StyleConfigurator> overrides) {
+      final Map<String, StyleConfigurator> result = Map.from(base);
+      for (final overrideConfig in overrides) {
+        final StyleConfigurator? existingConfig =
+            result[overrideConfig.qualifiedName];
+        if (existingConfig != null &&
+            existingConfig.hasChildren &&
+            overrideConfig.hasChildren) {
+          // If both are containers, recursively merge their children.
+          final Map<String, StyleConfigurator> mergedInnerChildren =
+              mergeChildren(
+            listToMap(existingConfig.configurators),
+            overrideConfig.configurators,
+          );
+          // Create a new StyleConfigurator for the merged container.
+          // Its value and attributes are taken from the overrideConfig.
+          result[overrideConfig.qualifiedName] =
+              StyleConfigurator.noSelfClosing(
+            propertyName: overrideConfig.propertyName,
+            prefix: overrideConfig.prefix,
+            value: overrideConfig.value,
+            attributes: overrideConfig.attributes,
+            configurators: mergedInnerChildren.values.toList(),
+          );
+        } else {
+          // Otherwise, simply replace the existing configurator or add the new one.
+          result[overrideConfig.qualifiedName] = overrideConfig;
+        }
+      }
+      return result;
+    }
+
+    // Iterate through the style hierarchy (from base to current) and merge properties.
+    for (final Style style in styleHierarchy) {
+      for (final StyleConfigurator config in style.configurators) {
+        if (config.qualifiedName == xmlParagraphInlineAttsrNode) {
+          // Merge children of w:pPr
+          mergedPPrChildren
+              .addAll(mergeChildren(mergedPPrChildren, config.configurators));
+        } else if (config.qualifiedName == xmlParagraphInlineAttsrNode) {
+          // Merge children of w:rPr
+          mergedRPrChildren
+              .addAll(mergeChildren(mergedRPrChildren, config.configurators));
+        } else {
+          // For other top-level configurators, the more specific style overrides.
+          mergedTopLevelConfigurators[config.qualifiedName] = config;
+        }
+      }
+    }
+
+    // Construct the final list of configurators for the new Style instance.
+    final List<StyleConfigurator> finalConfigurators =
+        mergedTopLevelConfigurators.values.toList();
+
+    // Add the merged w:pPr and w:rPr back as top-level configurators if they exist.
+    if (mergedPPrChildren.isNotEmpty) {
+      finalConfigurators.add(
+        StyleConfigurator.noSelfClosing(
+          prefix: 'w',
+          propertyName: 'pPr',
+          configurators: mergedPPrChildren.values.toList(),
+        ),
+      );
+    }
+    if (mergedRPrChildren.isNotEmpty) {
+      finalConfigurators.add(
+        StyleConfigurator.noSelfClosing(
+          prefix: 'w',
+          propertyName: 'rPr',
+          configurators: mergedRPrChildren.values.toList(),
+        ),
+      );
+    }
+
+    // Create and return a new Style instance with all combined properties.
+    // The top-level metadata (type, styleId, styleName, defaultValue, id)
+    // should originate from the style on which this method was called (`this`).
+    return Style(
+      type: type,
+      styleId: styleId,
+      styleName: styleName,
+      defaultValue: defaultValue,
+      configurators: finalConfigurators,
+      id: id,
+    );
   }
 
   String toPrettyString() {
