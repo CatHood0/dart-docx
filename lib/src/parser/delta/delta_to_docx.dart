@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:flutter_quill_delta_easy_parser/flutter_quill_delta_easy_parser.dart';
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 
 class DeltaToDocx extends Parser<Delta, Uint8List?, DocxParserOptions> {
   DeltaToDocx({

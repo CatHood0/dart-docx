@@ -33,7 +33,7 @@ Here is an example of how to create a simple document with a paragraph and an im
 
 ```dart
 import 'dart:io';
-import 'package:docx_transformer/docx_transformer.dart';
+import 'package:docx/docx.dart';
 
 Future<void> main() async {
   // 1. Set up document options
@@ -106,7 +106,7 @@ For larger document operations or to display progress to the user, you can use `
 
 ````dart
 import 'dart:io';
-import 'package:docx_transformer/docx_transformer.dart';
+import 'package:docx/docx.dart';
 
 Future<void> generateDocumentWithStream() async {
   final DocumentOptions options =
@@ -171,7 +171,7 @@ Future<void> generateDocumentWithStream() async {
 Creating a styles can sound difficult, but, it can be so easy using our `StyleBuilder` class. You just need to specify what you want and call `build` to use it!
 
 ```dart
-import 'package:docx_transformer/docx_transformer.dart';
+import 'package:docx/docx.dart';
 
 // Build your styles easily using our builder 
 final Style customRedCenteredParagraph = StyleBuilder.paragraph('CustomRedCentered')

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:xml/xml.dart';
 
-import '../../../../docx_transformer.dart';
+import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
 
 class LazyImage extends ComponentContainer<LazyImageData> {

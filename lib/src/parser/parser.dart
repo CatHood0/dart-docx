@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart' as xml;
 
-import '../../docx_transformer.dart';
+import '../../docx.dart';
 import '../core/color.dart';
 import '../core/extensions/node_to_configurator.dart';
 import '../core/extensions/string_ext.dart';

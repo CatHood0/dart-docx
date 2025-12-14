@@ -1,6 +1,6 @@
 import 'package:xml/xml.dart';
 
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 import '../namespaces.dart';
 
 /// These are all the default xml nodes that are used

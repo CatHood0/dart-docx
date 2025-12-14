@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart' as xml;
 
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 import '../core/extensions/string_ext.dart';
 import 'events/docx_event.dart';
 

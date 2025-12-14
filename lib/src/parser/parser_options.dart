@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import '../../docx_transformer.dart';
+import '../../docx.dart';
 import '../util/predicate.dart';
 
 enum ParseTo {

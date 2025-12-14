@@ -1,5 +1,4 @@
-import '../../../docx_transformer.dart';
-import 'style_builder.dart';
+import '../../../docx.dart';
 
 class EasyStyles {
   static Style get normal => StyleBuilder.paragraph('Normal')

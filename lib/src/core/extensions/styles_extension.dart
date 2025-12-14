@@ -1,4 +1,4 @@
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 import '../color.dart';
 import 'string_ext.dart';
 

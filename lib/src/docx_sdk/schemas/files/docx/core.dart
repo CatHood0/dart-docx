@@ -1,9 +1,7 @@
 import 'package:xml/xml.dart';
-import '../../../../../docx_transformer.dart';
+import '../../../../../docx.dart';
 import '../../../../core/extensions/num_extensions.dart';
 import '../../../../core/extensions/string_ext.dart';
-import '../../../../core/namespaces.dart';
-import '../../../sdk.dart';
 
 /// Correspond to file docProps/core.xml
 XmlDocument generateCoreXml(DocumentOptions options) => XmlDocument(

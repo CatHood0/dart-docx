@@ -1,4 +1,4 @@
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 
 class StyleBuilder {
   StyleBuilder._(this.id, this.type, [this._name = '']);
@@ -167,7 +167,7 @@ class StyleBuilder {
 
     if (_basedOn != null) {
       configurators.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'basedOn',
           value: _basedOn!,
@@ -177,7 +177,7 @@ class StyleBuilder {
 
     if (_next != null) {
       configurators.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'next',
           value: _next!,
@@ -187,7 +187,7 @@ class StyleBuilder {
 
     if (_uiPriority != null) {
       configurators.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'uiPriority',
           value: _uiPriority!.toString(),
@@ -197,7 +197,7 @@ class StyleBuilder {
 
     if (_qFormat) {
       configurators.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'qFormat',
         ),
@@ -206,7 +206,7 @@ class StyleBuilder {
 
     if (_semiHidden) {
       configurators.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'semiHidden',
         ),
@@ -215,7 +215,7 @@ class StyleBuilder {
 
     if (_unhideWhenUsed) {
       configurators.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'unhideWhenUsed',
         ),
@@ -232,7 +232,7 @@ class StyleBuilder {
 
         if (_spacingBefore != null) {
           spacingConfigs.add(
-            StyleConfigurator.autoClosure(
+            StyleConfigurator.selfClosing(
               prefix: 'w',
               propertyName: 'before',
               value: _spacingBefore.toString(),
@@ -242,7 +242,7 @@ class StyleBuilder {
 
         if (_spacingAfter != null) {
           spacingConfigs.add(
-            StyleConfigurator.autoClosure(
+            StyleConfigurator.selfClosing(
               prefix: 'w',
               propertyName: 'after',
               value: _spacingAfter.toString(),
@@ -253,14 +253,14 @@ class StyleBuilder {
         if (_lineSpacing != null) {
           spacingConfigs
             ..add(
-              StyleConfigurator.autoClosure(
+              StyleConfigurator.selfClosing(
                 prefix: 'w',
                 propertyName: 'line',
                 value: _lineSpacing.toString(),
               ),
             )
             ..add(
-              StyleConfigurator.autoClosure(
+              StyleConfigurator.selfClosing(
                 prefix: 'w',
                 propertyName: 'lineRule',
                 value: 'auto',
@@ -270,7 +270,7 @@ class StyleBuilder {
 
         if (spacingConfigs.isNotEmpty) {
           paragraphConfigs.add(
-            StyleConfigurator.noAutoClosure(
+            StyleConfigurator.noSelfClosing(
               prefix: 'w',
               propertyName: 'spacing',
               configurators: spacingConfigs,
@@ -281,7 +281,7 @@ class StyleBuilder {
 
       if (_alignment != null) {
         paragraphConfigs.add(
-          StyleConfigurator.autoClosure(
+          StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'jc',
             value: _alignmentToValue(_alignment!),
@@ -296,7 +296,7 @@ class StyleBuilder {
 
         if (_firstLineIndent != null) {
           indentConfigs.add(
-            StyleConfigurator.autoClosure(
+            StyleConfigurator.selfClosing(
               prefix: 'w',
               propertyName: 'firstLine',
               value: _firstLineIndent.toString(),
@@ -306,7 +306,7 @@ class StyleBuilder {
 
         if (_leftIndent != null) {
           indentConfigs.add(
-            StyleConfigurator.autoClosure(
+            StyleConfigurator.selfClosing(
               prefix: 'w',
               propertyName: 'left',
               value: _leftIndent.toString(),
@@ -316,7 +316,7 @@ class StyleBuilder {
 
         if (_hangingIndent != null) {
           indentConfigs.add(
-            StyleConfigurator.autoClosure(
+            StyleConfigurator.selfClosing(
               prefix: 'w',
               propertyName: 'hanging',
               value: _hangingIndent.toString(),
@@ -326,7 +326,7 @@ class StyleBuilder {
 
         if (indentConfigs.isNotEmpty) {
           paragraphConfigs.add(
-            StyleConfigurator.noAutoClosure(
+            StyleConfigurator.noSelfClosing(
               prefix: 'w',
               propertyName: 'ind',
               configurators: indentConfigs,
@@ -337,7 +337,7 @@ class StyleBuilder {
 
       if (_keepNext) {
         paragraphConfigs.add(
-          StyleConfigurator.autoClosure(
+          StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'keepNext',
           ),
@@ -346,7 +346,7 @@ class StyleBuilder {
 
       if (_keepLines) {
         paragraphConfigs.add(
-          StyleConfigurator.autoClosure(
+          StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'keepLines',
           ),
@@ -355,7 +355,7 @@ class StyleBuilder {
 
       if (_outlineLevel != null) {
         paragraphConfigs.add(
-          StyleConfigurator.autoClosure(
+          StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'outlineLvl',
             value: _outlineLevel.toString(),
@@ -365,7 +365,7 @@ class StyleBuilder {
 
       if (paragraphConfigs.isNotEmpty) {
         configurators.add(
-          StyleConfigurator.noAutoClosure(
+          StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'pPr',
             configurators: paragraphConfigs,
@@ -378,7 +378,7 @@ class StyleBuilder {
 
     if (_fontFamily != null) {
       textConfigs.add(
-        StyleConfigurator.noAutoClosure(
+        StyleConfigurator.noSelfClosing(
           prefix: 'w',
           propertyName: 'rFonts',
           attributes: {
@@ -395,14 +395,14 @@ class StyleBuilder {
       final halfPoints = (_fontSize! * 2).toInt();
       textConfigs
         ..add(
-          StyleConfigurator.autoClosure(
+          StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'sz',
             value: halfPoints.toString(),
           ),
         )
         ..add(
-          StyleConfigurator.autoClosure(
+          StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'szCs',
             value: halfPoints.toString(),
@@ -412,7 +412,7 @@ class StyleBuilder {
 
     if (_color != null) {
       textConfigs.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'color',
           value: _color,
@@ -422,7 +422,7 @@ class StyleBuilder {
 
     if (_highlightColor != null) {
       textConfigs.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'highlight',
           value: _highlightColor,
@@ -432,7 +432,7 @@ class StyleBuilder {
 
     if (isBold) {
       textConfigs.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'b',
         ),
@@ -441,7 +441,7 @@ class StyleBuilder {
 
     if (isItalic) {
       textConfigs.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'i',
         ),
@@ -450,7 +450,7 @@ class StyleBuilder {
 
     if (isUnderline) {
       textConfigs.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'u',
           value: 'single',
@@ -460,7 +460,7 @@ class StyleBuilder {
 
     if (_language != null) {
       textConfigs.add(
-        StyleConfigurator.autoClosure(
+        StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'lang',
           attributes: {'w:val': _language},
@@ -470,7 +470,7 @@ class StyleBuilder {
 
     if (textConfigs.isNotEmpty) {
       configurators.add(
-        StyleConfigurator.noAutoClosure(
+        StyleConfigurator.noSelfClosing(
           prefix: 'w',
           propertyName: 'rPr',
           configurators: textConfigs,

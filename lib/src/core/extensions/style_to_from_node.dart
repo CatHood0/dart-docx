@@ -1,6 +1,6 @@
 import 'package:xml/xml.dart';
 
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 import 'node_to_configurator.dart';
 import 'string_ext.dart';
 

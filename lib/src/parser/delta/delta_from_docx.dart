@@ -5,7 +5,7 @@ import 'package:dart_quill_delta/dart_quill_delta.dart';
 import 'package:flutter/foundation.dart';
 import 'package:xml/xml.dart' as xml;
 
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 import '../../core/extensions/styles_extension.dart';
 import '../../core/internals_vars.dart';
 

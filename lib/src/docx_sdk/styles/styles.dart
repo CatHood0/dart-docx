@@ -52,6 +52,17 @@ class Style extends IterableConfigurators {
   /// will be showed by the Word Editor
   final String styleName;
 
+  Style? getStyleWhereBaseOn(DocumentStylesSheet styles) {
+    final StyleConfigurator? basedOnConfigurator =
+        getConfiguratorOrNull('w:basedOn');
+    if (basedOnConfigurator == null) return null;
+    final Style? style =
+        styles.getStyleById(basedOnConfigurator.value as String);
+    if (style == null) return null;
+    assert(style.styleId == basedOnConfigurator.value, '');
+    return style;
+  }
+
   String toPrettyString() {
     return 'Style => $id\n'
         'Type: ${type.isEmpty ? 'no-type' : type},\n'
@@ -85,20 +96,20 @@ class StyleConfigurator extends IterableConfigurators {
   /// ```xml
   ///  <w:spacing />
   /// ```
-  StyleConfigurator.autoClosure({
+  StyleConfigurator.selfClosing({
     required this.propertyName,
     this.prefix,
     this.value,
     this.attributes,
-    super.configurators = const <StyleConfigurator>[],
-  }) : isAutoClosure = true;
+  })  : isSelfClosing = true,
+        super(configurators: const []);
 
   StyleConfigurator.invalid()
       : propertyName = 'invalid',
         prefix = '',
         value = null,
         attributes = null,
-        isAutoClosure = false,
+        isSelfClosing = false,
         super(configurators: const <StyleConfigurator>[]);
 
   /// Returns a StyleConfigurator that tells to the parser that this should be a start and end XmlNode between its children
@@ -106,13 +117,13 @@ class StyleConfigurator extends IterableConfigurators {
   /// ```xml
   ///  <w:spacing>children</w:spacing>
   /// ```
-  StyleConfigurator.noAutoClosure({
+  StyleConfigurator.noSelfClosing({
     required this.propertyName,
     this.prefix,
     this.value,
     this.attributes,
     super.configurators = const <StyleConfigurator>[],
-  })  : isAutoClosure = false,
+  })  : isSelfClosing = false,
         assert(prefix == null || prefix.isNotEmpty, 'Prefix cannot be empty'),
         assert(
           propertyName.isNotEmpty,
@@ -124,7 +135,7 @@ class StyleConfigurator extends IterableConfigurators {
   final Object? value;
   // the attributes of the node
   final Map<String, dynamic>? attributes;
-  final bool isAutoClosure;
+  final bool isSelfClosing;
 
   String get qualifiedName =>
       prefix == null ? propertyName : '$prefix:$propertyName';
@@ -135,7 +146,7 @@ class StyleConfigurator extends IterableConfigurators {
           value == null &&
           (attributes == null || attributes!.isEmpty) &&
           configurators.isEmpty &&
-          isAutoClosure;
+          isSelfClosing;
   bool get hasChildren => configurators.isNotEmpty;
 
   @override
@@ -162,7 +173,7 @@ class StyleConfigurator extends IterableConfigurators {
             )
             .join();
 
-    if (isAutoClosure) {
+    if (isSelfClosing) {
       return '<$qualifiedName$allAttributes/>';
     } else {
       return '<$qualifiedName$allAttributes>$xmlChildren</$qualifiedName>';
@@ -203,7 +214,7 @@ abstract class IterableConfigurators {
     if (configurators.isEmpty) return null;
     final StyleConfigurator result = configurators.firstWhere(
         (StyleConfigurator e) => fullName
-            ? '${e.prefix}:${e.propertyName}' == matcher
+            ? e.qualifiedName == matcher
             : e.propertyName == matcher,
         orElse: StyleConfigurator.invalid);
     return result.isInvalid ? null : result;
@@ -213,7 +224,7 @@ abstract class IterableConfigurators {
     if (configurators.isEmpty) return StyleConfigurator.invalid();
     return configurators.firstWhere(
         (StyleConfigurator e) => fullName || matcher.contains(':')
-            ? '${e.prefix}:${e.propertyName}' == matcher
+            ? e.qualifiedName == matcher
             : e.propertyName == matcher,
         orElse: StyleConfigurator.invalid);
   }

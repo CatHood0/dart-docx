@@ -1,4 +1,4 @@
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 import '../styles_builder/easy_styles.dart';
 
 class DefaultDocumentStyles {

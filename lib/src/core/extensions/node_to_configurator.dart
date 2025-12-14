@@ -1,27 +1,22 @@
 import 'package:xml/xml.dart';
 
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 
 extension XmlNodeToStyleConfigurator on XmlElement {
   StyleConfigurator get toConfigurator {
     final Map<String, dynamic> attributes = <String, dynamic>{};
-    for (final attr in this.attributes) {
+    for (final XmlAttribute attr in this.attributes) {
       if (attr.localName == 'val') continue;
       attributes[attr.qualifiedName] = attr.value;
     }
     return isSelfClosing
-        ? StyleConfigurator.autoClosure(
+        ? StyleConfigurator.selfClosing(
             propertyName: name.local,
             prefix: name.prefix,
             value: getAttribute('w:val'),
             attributes: attributes,
-            configurators: <StyleConfigurator>[
-              ...children.whereType<XmlElement>().map(
-                    (XmlElement node) => node.toConfigurator,
-                  ),
-            ],
           )
-        : StyleConfigurator.noAutoClosure(
+        : StyleConfigurator.noSelfClosing(
             propertyName: name.local,
             attributes: attributes,
             prefix: name.prefix,
@@ -68,7 +63,7 @@ extension StyleConfiguratorToXmlNode on StyleConfigurator {
         .whereType<XmlElement>()
         .toList();
 
-    final bool shouldBeSelfClosing = isAutoClosure && childrenNodes.isEmpty;
+    final bool shouldBeSelfClosing = isSelfClosing && childrenNodes.isEmpty;
 
     return XmlElement(
       XmlName.fromString(

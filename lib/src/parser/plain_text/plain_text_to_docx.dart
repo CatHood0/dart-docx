@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import '../../../docx_transformer.dart';
+import '../../../docx.dart';
 import '../parser_events.dart';
 
 class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:docx/docx_transformer.dart';
+import 'package:docx/docx.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
