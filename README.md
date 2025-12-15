@@ -1,14 +1,21 @@
-## Generate Word Documents (DOCX) easily with Dart
+## DOCX: Easily generate .docx files with Dart
 
 **Docx** is a powerful and versatile parser designed to allow us to create documents using a high level API. It also converts from/to different formats, including **HTML**, **Markdown**, **plain text**, and **Quill Delta**. We can seamlessly transform content across popular formats and Word documents while preserving structure, formatting, and the richness of the original content.
+
+> [!IMPORTANT]
+> I'm working yet to make more easy the API to build docx components and customize them. 
+>
+> The other formats will be builded soon.
+>
+> For the modification capabilities, I guess them can be maded later.
 
 ## Key Features
 
 *   **Programmatic DOCX Generation:** Create `.docx` files from scratch using an object-based Dart API.
-*   **Rich Content Support:** Insert paragraphs, formatted text (bold, italic, etc.), images, and hyperlinks.
+*   **Rich Content Support:** Insert paragraphs, formatted text (bold, italic, etc.), images, hyperlinks, page breaks and tables.
 *   **Customizable Styles:** Define and apply custom paragraph and character styles to your content.
-*   **Document Properties Management:** Configure metadata such as title, author, subject, and more.
-*   **Media Handling:** Embed images into your document, with support for multiple file extensions.
+*   **Document Properties Management:** Configure metadata such as title, author, subject, and more with no efforts.
+*   **Media Handling:** Forget about saving images manually! Just pass them as `Byte`s or `File`s, and let us make our job in the background.
 *   **Stream-Based Generation Events:** Generate documents asynchronously and monitor progress via a `Stream` of events.
 
 ## Installation
@@ -36,14 +43,14 @@ import 'dart:io';
 import 'package:docx/docx.dart';
 
 Future<void> main() async {
-  // 1. Set up document options
   final DocumentOptions options = DocumentOptions(
     title: 'My First DOCX Document',
     author: 'CodeCompanion',
     subject: 'docx_transformer example',
   );
 
-  // 2. Define the document content
+  final DocxDocumentSdk docxSdk = DocxDocumentSdk(options: options);
+
   final DocxComponentContainer documentContent = DocxComponentContainer(
     contents: [
       Paragraph(
@@ -65,12 +72,15 @@ Future<void> main() async {
               data: TextPart(text: ' and here the paragraph ends.'),
             ),
         ],
+        styles: <Style>[], 
+        // decides where break the page
+        pageBreak: ParagraphPageBreak.none,
       ),
       Paragraph(
         data: [
-            TextRun(
-              data: TextPart(text: 'Here is a line break.'),
-            ),
+          TextRun(
+            data: TextPart(text: 'Here is a line break.'),
+          ),
         ],
       ),
       // loads and shows the image if exists or if it can be used
@@ -85,10 +95,6 @@ Future<void> main() async {
     ],
   );
 
-  // 3. Create an instance of DocxDocumentSdk
-  final DocxDocumentSdk docxSdk = DocxDocumentSdk(options: options);
-
-  // 4. Generate the document and save it
   final String outputPath = 'generated_document.docx';
   await docxSdk.save(
     documentContent,
@@ -185,15 +191,25 @@ final Style customRedCenteredParagraph = StyleBuilder.paragraph('CustomRedCenter
     .spacing(before: 200, after: 200)
     .qFormat(true) // show in the gallery of styles
     .build();
+
+final paragraph = Paragraph(
+    data: <TextBlockContainer>[
+      TextRun(
+        data: TextPart(text: 'This text uses my custom style.'),
+      ),
+    ],
+    styles: <Style>[customRedCenteredParagraph],
+  ),
+),
 ```
 
-To use this style, you would add it to your DocumentStylesSheet
-and then reference 'CustomRedCentered' in your Paragraph component.
+**Optionally**, you can register this `Style` in a `DocumentStylesSheet` to avoid use the same instance every time. Just register it and use `Style.reference` constructor to reference the style and let to the component decided how get and build it.
 
 ```dart
 DocumentStylesSheet myCustomStyles = DocumentStylesSheet(
   styles: [
-    ...DefaultDocumentStyles.kDefaultDocumentStyleSheet.styles, // Optional: keep default styles
+    // Optional: keep default styles
+    ...DefaultDocumentStyles.kDefaultDocumentStyleSheet.styles,
     customRedCenteredParagraph,
   ],
 );
@@ -205,9 +221,7 @@ final DocumentOptions options = DocumentOptions(
 );
 
 final paragraph = Paragraph(
-  // use reference constructor to allow to the sdk searching the style
-  // into styles.xml or DocumentStylesSheet
-  styles: Style.reference(styleId: 'CustomRedCentered', styleName: ''),
+  styles: <Style>[Style.reference('CustomRedCentered')],
   data: <TextBlockContainer>[
       TextRun(
         data: TextPart(text: 'This text uses my custom style.'),

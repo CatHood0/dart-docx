@@ -20,7 +20,7 @@ class StyleBuilder {
   /// [id] is the internal ID for the style.
   /// [name] is the display name of the style. If not provided, [id] is used.
   factory StyleBuilder.paragraph(String id, {String? name}) {
-    return StyleBuilder._(id, name ?? id, 'paragraph');
+    return StyleBuilder._(id, 'paragraph', name ?? '');
   }
 
   /// Creates a [StyleBuilder] for a character style.
@@ -28,7 +28,7 @@ class StyleBuilder {
   /// [id] is the internal ID for the style.
   /// [name] is the display name of the style. If not provided, [id] is used.
   factory StyleBuilder.character(String id, {String? name}) {
-    return StyleBuilder._(id, name ?? id, 'character');
+    return StyleBuilder._(id, 'character', name ?? id);
   }
 
   /// The internal identifier of the style, used in `w:styleId`.
@@ -41,7 +41,6 @@ class StyleBuilder {
   final String type;
 
   // Paragraph properties
-  String? _pageBreak;
   String? _basedOn;
   String? _next;
   bool _widowControl = false;
@@ -100,24 +99,6 @@ class StyleBuilder {
   /// [styleId] is the `w:styleId` of the base style.
   StyleBuilder basedOn(String styleId) {
     _basedOn = styleId;
-    return this;
-  }
-
-  /// Configures a page break to occur after the paragraph.
-  ///
-  /// This setting is applicable only to paragraph styles.
-  StyleBuilder pageBreakAfter() {
-    if (type == 'character') return this;
-    _pageBreak = 'after';
-    return this;
-  }
-
-  /// Configures a page break to occur before the paragraph.
-  ///
-  /// This setting is applicable only to paragraph styles.
-  StyleBuilder pageBreakBefore() {
-    if (type == 'character') return this;
-    _pageBreak = 'before';
     return this;
   }
 
@@ -521,28 +502,6 @@ class StyleBuilder {
         );
       }
 
-      if (_pageBreak != null) {
-        switch (_pageBreak) {
-          case 'before':
-            paragraphConfigs.add(
-              StyleConfigurator.selfClosing(
-                prefix: 'w',
-                propertyName: 'pageBreakBefore',
-                value: null,
-              ),
-            );
-            break;
-          default:
-            paragraphConfigs.add(
-              StyleConfigurator.selfClosing(
-                prefix: 'w',
-                propertyName: 'pageBreakBefore',
-                value: null,
-              ),
-            );
-        }
-      }
-
       if (_alignment != null) {
         paragraphConfigs.add(
           StyleConfigurator.selfClosing(
@@ -768,6 +727,7 @@ class StyleBuilder {
       );
     }
 
+    assert(_name.isNotEmpty, 'Name must be provided before build');
     return Style(
       type: type,
       styleId: id,

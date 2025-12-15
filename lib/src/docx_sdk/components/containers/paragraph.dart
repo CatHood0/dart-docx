@@ -1,12 +1,21 @@
 import 'package:xml/xml.dart';
 
+import '../../../../docx.dart';
+import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
+
+enum ParagraphPagebreak {
+  after,
+  before,
+  none,
+}
 
 class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   Paragraph({
     required Iterable<RunBase> data,
     this.styles = const [],
+    this.pageBreak = ParagraphPagebreak.none,
   }) : super(parent: null, data: data) {
     for (final RunBase content in data) {
       content.parent = this;
@@ -14,6 +23,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   }
 
   final List<Style> styles;
+  final ParagraphPagebreak pageBreak;
 
   @override
   XmlElement buildXml({required DocxComponentContext context}) {
@@ -30,10 +40,18 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       );
     }
 
+    if (pageBreak == ParagraphPagebreak.before) {
+      paragraphChildren.add(_brPageBreak);
+    }
+
     for (final RunBase e in data) {
       final XmlNode element = e.buildXml(context: context);
       if (element.children.isEmpty || e.isEmptyData) continue;
       paragraphChildren.add(element);
+    }
+
+    if (pageBreak == ParagraphPagebreak.after) {
+      paragraphChildren.add(_brPageBreak);
     }
 
     return super.runParent(
@@ -42,6 +60,16 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       isSelfClosing: false,
     );
   }
+
+  XmlElement get _brPageBreak => XmlElement.tag(
+        'w:br',
+        attributes: [
+          XmlAttribute(
+            'w:type'.toName(),
+            'page',
+          ),
+        ],
+      );
 
   @override
   List<XmlElement> buildXmlStyle({required DocxComponentContext context}) {
@@ -53,6 +81,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     // style, so...
     // do you want to apply the 'Normal' style 3 times?
     // right, you don't!
+    //TODO: we need to register configurators
     final Map<String, Style> appliedStyles = <String, Style>{};
     for (final Style style in styles) {
       final String paragraphStyleId = style.styleId;
@@ -65,10 +94,18 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
           appliedStyles.containsKey(resultStyle.styleId)) {
         continue;
       }
-      final Style fullStyle =
-          resultStyle.getDeepStyleRelation(context.options.docStyles);
+      Style fullStyle = resultStyle;
+      // when a style isnt in DocumentStylesSheet, we prefer ignoring its
+      // w:pStyle ref
+      final bool shouldShowStyleRef =
+          context.options.docStyles.getStyleById(style.styleId) != null;
+      if (fullStyle.basedOn != null) {
+        fullStyle = resultStyle.getDeepStyleRelation(context.options.docStyles);
+      }
       appliedStyles[fullStyle.styleId] = fullStyle;
-      pPrChildren.addAll(fullStyle.toBlockStyleNodes());
+      pPrChildren.addAll(fullStyle.toBlockStyleNodes(
+        shouldShowStyleRef: shouldShowStyleRef,
+      ));
     }
     return <XmlElement>[...pPrChildren];
   }

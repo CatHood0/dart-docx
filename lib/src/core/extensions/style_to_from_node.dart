@@ -80,21 +80,22 @@ extension StyleToNode on Style {
     ];
   }
 
-  List<XmlElement> toBlockStyleNodes() {
+  List<XmlElement> toBlockStyleNodes({bool shouldShowStyleRef = true}) {
     final StyleConfigurator runConfigs =
         getConfigurator(xmlParagraphBlockAttrsNode);
 
     return [
-      XmlElement.tag(
-        xmlParagraphStyleNode,
-        attributes: [
-          XmlAttribute(
-            'w:val'.toName(),
-            styleName,
-          ),
-        ],
-        isSelfClosing: true,
-      ),
+      if (!shouldShowStyleRef)
+        XmlElement.tag(
+          xmlParagraphStyleNode,
+          attributes: [
+            XmlAttribute(
+              'w:val'.toName(),
+              styleName,
+            ),
+          ],
+          isSelfClosing: true,
+        ),
       ...runConfigs.toNodes,
       // add values of the style
       ...configurators

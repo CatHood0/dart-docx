@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:docx/docx.dart';
-import 'package:docx/src/docx_sdk/components/containers/page_break.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -54,15 +53,9 @@ void main() {
                 ),
               ),
             ],
-            styles: <Style>[
-              StyleBuilder.paragraph('Breaker')
-                  .name('Page Breaker')
-                  .pageBreakAfter()
-                  .basedOn('Normal')
-                  .build(),
-            ],
+            styles: <Style>[],
+            pageBreak: ParagraphPagebreak.after,
           ),
-          PageBreak.next(),
           Paragraph(
             data: <RunBase<dynamic>>[
               TextRun(
