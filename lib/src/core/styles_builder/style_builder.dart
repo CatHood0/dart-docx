@@ -1,20 +1,46 @@
 import '../../../docx.dart';
 
+/// A builder class for creating and configuring [Style] objects.
+///
+/// This class provides a fluent API to define various paragraph and character
+/// style properties such as font, size, color, alignment, spacing, and borders.
+///
+/// TODO: refactor this file and separate elements in granular parts
+/// TODO: we need to make this immutable
 class StyleBuilder {
+  /// Internal constructor for [StyleBuilder].
+  ///
+  /// [id] is the unique identifier for the style (w:styleId).
+  /// [type] specifies if it's a 'paragraph' or 'character' style.
+  /// [_name] is the display name of the style in Word.
   StyleBuilder._(this.id, this.type, [this._name = '']);
 
+  /// Creates a [StyleBuilder] for a paragraph style.
+  ///
+  /// [id] is the internal ID for the style.
+  /// [name] is the display name of the style. If not provided, [id] is used.
   factory StyleBuilder.paragraph(String id, {String? name}) {
     return StyleBuilder._(id, name ?? id, 'paragraph');
   }
 
+  /// Creates a [StyleBuilder] for a character style.
+  ///
+  /// [id] is the internal ID for the style.
+  /// [name] is the display name of the style. If not provided, [id] is used.
   factory StyleBuilder.character(String id, {String? name}) {
     return StyleBuilder._(id, name ?? id, 'character');
   }
 
+  /// The internal identifier of the style, used in `w:styleId`.
   final String id;
+
+  /// The display name of the style, used in `w:name`.
   String _name;
+
+  /// The type of the style, either 'paragraph' or 'character'.
   final String type;
 
+  // Paragraph properties
   String? _pageBreak;
   String? _basedOn;
   String? _next;
@@ -25,6 +51,7 @@ class StyleBuilder {
   bool _semiHidden = false;
   bool _unhideWhenUsed = false;
 
+  // Run properties (character formatting)
   double? _fontSize;
   String? _fontFamily;
   String? _color;
@@ -32,6 +59,8 @@ class StyleBuilder {
   bool isBold = false;
   bool isItalic = false;
   bool isUnderline = false;
+
+  // Paragraph properties (continued)
   Alignment? _alignment;
   int? _spacingBefore;
   int? _spacingAfter;
@@ -42,147 +71,221 @@ class StyleBuilder {
   bool _keepNext = false;
   bool _keepLines = false;
   int? _outlineLevel;
+
+  // Language setting for runs
   String? _language;
 
+  /// Stores the configuration for paragraph borders.
+  ///
+  /// The map keys represent border sides ('top', 'bottom', 'left', 'right').
+  /// The nested map contains border attributes like 'val' (style), 'sz' (size),
+  /// and 'color' (hex code).
+  /// E.g., `{'top': {'val': 'single', 'sz': '4', 'color': 'auto'}}`
+  final Map<String, Map<String, String>> _borders =
+      <String, Map<String, String>>{};
+
+  /// Sets the display name for the style.
+  ///
+  /// [styleName] is the name that will be shown in the Word editor.
   StyleBuilder name(String styleName) {
     _name = styleName;
     return this;
   }
 
+  /// Gets the current display name of the style.
   String get getName => _name;
 
+  /// Specifies the ID of the style on which this style is based.
+  ///
+  /// [styleId] is the `w:styleId` of the base style.
   StyleBuilder basedOn(String styleId) {
     _basedOn = styleId;
     return this;
   }
 
+  /// Configures a page break to occur after the paragraph.
+  ///
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder pageBreakAfter() {
     if (type == 'character') return this;
     _pageBreak = 'after';
     return this;
   }
 
+  /// Configures a page break to occur before the paragraph.
+  ///
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder pageBreakBefore() {
     if (type == 'character') return this;
     _pageBreak = 'before';
     return this;
   }
 
+  /// Activates Widow/Orphan control for the paragraph.
+  ///
+  /// Widow/Orphan control prevents single lines of a paragraph from being left
+  /// alone at the top or bottom of a page.
+  ///
+  /// Example:
   /// Without widowControl (problem):
-  /// text
+  /// ```
   /// ┌─────────────────┐ ┌─────────────────┐
   /// │ PAGE 1          │ │ PAGE 2          │
   /// │ ...paragraph    │ │                 │
   /// │ text that       │ │ Chapter 1:      │ ← Orphan
   /// │ continues on    │ │ Introduction    │
-  /// │ the next page   │ │ The complete    │
-  /// │                 │ │ content here    │
-  /// │ End of the      │ │                 │
-  /// │ previous text.  │ │                 │
-  /// │ Chapter 1:      │ │                 │
   /// └─────────────────┘ └─────────────────┘
+  /// ```
   /// With widowControl (corrected):
-  /// text
+  /// ```
   /// ┌─────────────────┐ ┌─────────────────┐
   /// │ PAGE 1          │ │ PAGE 2          │
   /// │ ...paragraph    │ │ Chapter 1:      │
   /// │ text that       │ │ Introduction    │
-  /// │ continues on    │ │ The complete    │
-  /// │ the next page   │ │ content here    │
-  /// │                 │ │                 │
-  /// │ End of the      │ │                 │
-  /// │ previous text.  │ │                 │
   /// └─────────────────┘ └─────────────────┘
-  ///                  ↑
-  ///        Moves "Chapter 1:" to page 2
-  ///
-  /// Useful when you're creating an writing app
+  /// ```
+  /// Useful when creating a writing application to improve readability.
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder activateWindowControl() {
     _widowControl = true;
     return this;
   }
 
+  /// Specifies the `w:styleId` of the style that is applied to the next paragraph
+  /// when the current paragraph ends.
+  ///
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder next(String styleId) {
     _next = styleId;
     return this;
   }
 
+  /// Sets whether this style is a default style for the document.
+  ///
+  /// [isDefault] true if it's a default style, false otherwise.
   StyleBuilder defaultValue(bool isDefault) {
     _defaultValue = isDefault;
     return this;
   }
 
+  /// Specifies the UI priority of the style in the Word interface.
+  ///
+  /// Styles with lower priority values are displayed first.
+  /// [priority] is an integer representing the priority level.
   StyleBuilder uiPriority(int priority) {
     _uiPriority = priority;
     return this;
   }
 
+  /// Specifies whether this style should be included in the Quick Style gallery.
+  ///
+  /// [enabled] true to include in Quick Styles, false otherwise.
   StyleBuilder qFormat(bool enabled) {
     _qFormat = enabled;
     return this;
   }
 
+  /// Specifies whether this style should be hidden from the user interface.
+  ///
+  /// [hidden] true to hide the style, false to show it.
   StyleBuilder semiHidden(bool hidden) {
     _semiHidden = hidden;
     return this;
   }
 
+  /// Specifies whether this style should become visible in the UI when it is used.
+  ///
+  /// [unhide] true to unhide when used, false otherwise.
   StyleBuilder unhideWhenUsed(bool unhide) {
     _unhideWhenUsed = unhide;
     return this;
   }
 
+  /// Sets the font size for the style.
+  ///
+  /// [size] is the font size in points (e.g., 12.0).
   StyleBuilder fontSize(double size) {
     _fontSize = size;
     return this;
   }
 
+  /// Sets the font family for the style.
+  ///
+  /// [family] is the name of the font family (e.g., 'Times New Roman').
   StyleBuilder fontFamily(String family) {
     _fontFamily = family;
     return this;
   }
 
+  /// Sets the text color for the style.
+  ///
+  /// [hexColor] is the hexadecimal color code (e.g., 'FF0000' for red).
   StyleBuilder color(String hexColor) {
     _color = hexColor;
     return this;
   }
 
+  /// Sets the highlight color for the text in the style.
+  ///
+  /// [hexColor] is the hexadecimal color code.
   StyleBuilder highlight(String hexColor) {
     _highlightColor = hexColor;
     return this;
   }
 
+  /// Applies bold formatting to the text.
   StyleBuilder bold() {
     isBold = true;
     return this;
   }
 
+  /// Applies italic formatting to the text.
   StyleBuilder italic() {
     isItalic = true;
     return this;
   }
 
+  /// Applies underline formatting to the text.
   StyleBuilder underline() {
     isUnderline = true;
     return this;
   }
 
+  /// Sets the paragraph alignment.
+  ///
+  /// [align] specifies the horizontal alignment (e.g., [Alignment.left]).
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder alignment(Alignment align) {
     _alignment = align;
     return this;
   }
 
+  /// Sets the spacing before and after the paragraph.
+  ///
+  /// [before] is spacing before the paragraph in twips (1/20th of a point).
+  /// [after] is spacing after the paragraph in twips.
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder spacing({int? before, int? after}) {
     if (before != null) _spacingBefore = before;
     if (after != null) _spacingAfter = after;
     return this;
   }
 
+  /// Sets the line spacing for the paragraph.
+  ///
+  /// [value] is the line spacing in twips.
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder lineSpacing(int value) {
     _lineSpacing = value;
     return this;
   }
 
+  /// Sets the paragraph indentation.
+  ///
+  /// [firstLine] is the indentation for the first line of the paragraph in twips.
+  /// [left] is the left indentation for the paragraph in twips.
+  /// [hanging] is the hanging indentation for the paragraph in twips.
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder indent({int? firstLine, int? left, int? hanging}) {
     if (firstLine != null) _firstLineIndent = firstLine;
     if (left != null) _leftIndent = left;
@@ -190,26 +293,107 @@ class StyleBuilder {
     return this;
   }
 
+  /// Specifies that the paragraph should be kept with the next paragraph
+  /// on the same page.
+  ///
+  /// [keep] true to keep with next, false otherwise.
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder keepNext(bool keep) {
     _keepNext = keep;
     return this;
   }
 
+  /// Specifies that all lines of the paragraph should be kept together
+  /// on the same page.
+  ///
+  /// [keep] true to keep lines together, false otherwise.
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder keepLines(bool keep) {
     _keepLines = keep;
     return this;
   }
 
+  /// Sets the outline level for the paragraph.
+  ///
+  /// [level] is an integer from 0 to 8 (0 for Body Text, 1-8 for heading levels).
+  /// This setting is applicable only to paragraph styles.
   StyleBuilder outlineLevel(int level) {
     _outlineLevel = level;
     return this;
   }
 
+  /// Sets the language for the text.
+  ///
+  /// [langCode] is the language code (e.g., 'en-US', 'es-MX').
   StyleBuilder lang(String langCode) {
     _language = langCode;
     return this;
   }
 
+  /// Configures the borders for the paragraph.
+  ///
+  /// This method is applicable only to paragraph styles.
+  ///
+  /// - [top], [bottom], [left], [right] specify the [BorderStyle] for each side.
+  /// - [topSize], [bottomSize], [leftSize], [rightSize] specify the border thickness
+  ///   in eighths of a point (e.g., 4 for 0.5pt, 8 for 1pt). Default is 4.
+  /// - [topColor], [bottomColor], [leftColor], [rightColor] specify the border color
+  ///   as a hexadecimal string (e.g., '000000' for black). Default is 'auto'.
+  StyleBuilder borders({
+    BorderStyle? top,
+    int? topSize,
+    String? topColor,
+    BorderStyle? bottom,
+    int? bottomSize,
+    String? bottomColor,
+    BorderStyle? left,
+    int? leftSize,
+    String? leftColor,
+    BorderStyle? right,
+    int? rightSize,
+    String? rightColor,
+  }) {
+    // Borders apply to paragraph blocks, not characters.
+    if (type != 'paragraph') {
+      return this;
+    }
+
+    if (top != null) {
+      _borders['top'] = {
+        'val': top.value,
+        'sz': (topSize ?? 4).toString(), // Default 0.5pt
+        'color': topColor ?? 'auto',
+      };
+    }
+    if (bottom != null) {
+      _borders['bottom'] = {
+        'val': bottom.value,
+        'sz': (bottomSize ?? 4).toString(),
+        'color': bottomColor ?? 'auto',
+      };
+    }
+    if (left != null) {
+      _borders['left'] = {
+        'val': left.value,
+        'sz': (leftSize ?? 4).toString(),
+        'color': leftColor ?? 'auto',
+      };
+    }
+    if (right != null) {
+      _borders['right'] = {
+        'val': right.value,
+        'sz': (rightSize ?? 4).toString(),
+        'color': rightColor ?? 'auto',
+      };
+    }
+    return this;
+  }
+
+  /// Builds and returns the final [Style] object based on the configurations
+  /// set in the builder.
+  ///
+  /// This method aggregates all configured properties into a list of
+  /// [StyleConfigurator] objects and creates a new [Style] instance.
   Style build() {
     final List<StyleConfigurator> configurators = <StyleConfigurator>[];
 
@@ -443,6 +627,32 @@ class StyleBuilder {
         );
       }
 
+      // Generate border configurators if any border is set
+      if (_borders.isNotEmpty) {
+        final List<StyleConfigurator> borderConfigs = <StyleConfigurator>[];
+        _borders.forEach((
+          String key,
+          Map<String, String> value,
+        ) {
+          borderConfigs.add(
+            StyleConfigurator.selfClosing(
+              prefix: 'w',
+              // 'top', 'bottom', 'left', 'right'
+              propertyName: key,
+              // {'val': 'single', 'sz': '4', 'color': 'auto'}
+              attributes: value,
+            ),
+          );
+        });
+        paragraphConfigs.add(
+          StyleConfigurator.noSelfClosing(
+            prefix: 'w',
+            propertyName: 'pBdr', // Paragraph Borders container
+            configurators: borderConfigs,
+          ),
+        );
+      }
+
       if (paragraphConfigs.isNotEmpty) {
         configurators.add(
           StyleConfigurator.noSelfClosing(
@@ -567,6 +777,7 @@ class StyleBuilder {
     );
   }
 
+  /// Converts an [Alignment] enum value to its corresponding WordML string.
   String _alignmentToValue(Alignment alignment) {
     switch (alignment) {
       case Alignment.left:
@@ -581,4 +792,43 @@ class StyleBuilder {
   }
 }
 
+/// Represents the horizontal alignment options for a paragraph.
 enum Alignment { left, center, right, justify }
+
+/// Represents the possible border styles for a paragraph.
+enum BorderStyle {
+  single('single'),
+  dashDot('dashDot'),
+  dashDotStroked('dashDotStroked'),
+  dashed('dashed'),
+  dotDash('dotDash'),
+  dotDotDash('dotDotDash'),
+  dotted('dotted'),
+  double('double'),
+  doubleWave('doubleWave'),
+  inset('inset'),
+  nil('nil'), // No border
+  none('none'), // No border
+  outset('outset'),
+  thick('thick'),
+  thickThinLargeGap('thickThinLargeGap'),
+  thickThinMediumGap('thickThinMediumGap'),
+  thickThinSmallGap('thickThinSmallGap'),
+  thinThickLargeGap('thinThickLargeGap'),
+  thinThickMediumGap('thinThickMediumGap'),
+  thinThickSmallGap('thinThickSmallGap'),
+  thinThickThinLargeGap('thinThickThinLargeGap'),
+  thinThickThinMediumGap('thinThickThinMediumGap'),
+  thinThickThinSmallGap('thinThickThinSmallGap'),
+  threeDColumn('threeDColumn'),
+  threeDEmboss('threeDEmboss'),
+  threeDEngrave('threeDEngrave'),
+  triple('triple'),
+  wave('wave');
+
+  /// The WordML string value for the border style.
+  final String value;
+
+  /// Creates a [BorderStyle] with its corresponding WordML value.
+  const BorderStyle(this.value);
+}
