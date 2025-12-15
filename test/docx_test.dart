@@ -20,7 +20,7 @@ void main() {
   });
 
   test('Should create a minimal DocxDocument and save it', () async {
-    final DocxDocumentSdk parser = DocxDocumentSdk(
+    final DocxSdk parser = DocxSdk(
       options: DocumentOptions.blank(
         title: 'documento',
         styles: DefaultDocumentStyles.kDefaultDocumentStyleSheet,
@@ -30,8 +30,8 @@ void main() {
     await parser.save(
       supportedFileExtensions: <String>{},
       filePath: docPathFile.path,
-      DocxComponentContainer(
-        contents: <ComponentContainer<dynamic>>[
+      DocxDocument(
+        sections: <ComponentContainer<dynamic>>[
           Paragraph(
             data: <RunBase<dynamic>>[
               TextRun(

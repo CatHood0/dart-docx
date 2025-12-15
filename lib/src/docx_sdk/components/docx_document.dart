@@ -2,23 +2,12 @@ import 'package:xml/xml.dart';
 
 import '../sdk.dart';
 
-class DocxComponentContainer {
-  DocxComponentContainer({
-    required this.contents,
+class DocxDocument {
+  DocxDocument({
+    required this.sections,
   });
 
-  final Iterable<ComponentContainer<dynamic>> contents;
-
-  String toPlainText() {
-    final StringBuffer buffer = StringBuffer();
-    for (final Paragraph pr in contents.whereType<Paragraph>()) {
-      for (final PrintableMixin content
-          in pr.data.whereType<PrintableMixin>()) {
-        buffer.write(content.toPlainText());
-      }
-    }
-    return '$buffer';
-  }
+  final Iterable<ComponentContainer<dynamic>> sections;
 
   XmlDocument toXml({required DocxComponentContext context}) {
     return XmlDocument(
@@ -31,7 +20,7 @@ class DocxComponentContainer {
             XmlElement.tag(
               'w:body',
               children: <XmlNode>[
-                ...contents.map(
+                ...sections.map(
                   (ComponentContainer e) {
                     context.currentContentPart = e;
                     return e.buildXml(context: context);
@@ -46,4 +35,16 @@ class DocxComponentContainer {
       ],
     );
   }
+
+  String toPlainText() {
+    final StringBuffer buffer = StringBuffer();
+    for (final Paragraph pr in sections.whereType<Paragraph>()) {
+      for (final PrintableMixin content
+          in pr.data.whereType<PrintableMixin>()) {
+        buffer.write(content.toPlainText());
+      }
+    }
+    return '$buffer';
+  }
+
 }

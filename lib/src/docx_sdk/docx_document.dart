@@ -9,14 +9,15 @@ import '../core/extensions/string_ext.dart';
 import 'events/docx_event.dart';
 
 //TODO: add insert, delete, and replacement capabilities
-class DocxDocumentSdk {
-  DocxDocumentSdk({
+class DocxSdk {
+  DocxSdk({
     required this.options,
-    DocxComponentContainer? object,
+    DocxDocument? object,
   }) : lastDocumentObject = object;
 
+  //NOTE: probably we will move these to DocxDocument class
   final DocumentOptions options;
-  DocxComponentContainer? lastDocumentObject;
+  DocxDocument? lastDocumentObject;
 
   //
   final Archive _archive = Archive();
@@ -29,10 +30,10 @@ class DocxDocumentSdk {
   void delete() {}
 
   Future<Uint8List?> createDocument(
-    DocxComponentContainer data, {
+    DocxDocument data, {
     required Set<String> supportedFileExtensions,
   }) async {
-    if (data.contents.isEmpty) return null;
+    if (data.sections.isEmpty) return null;
     await _archive.clear();
 
     final (
@@ -123,10 +124,10 @@ class DocxDocumentSdk {
   }
 
   Stream<DocxEvent> createDocumentStream(
-    DocxComponentContainer data, {
+    DocxDocument data, {
     required Set<String> supportedFileExtensions,
   }) async* {
-    if (data.contents.isEmpty) {
+    if (data.sections.isEmpty) {
       yield DocxEvent.end(error: 'Document content is empty');
       return;
     }
@@ -262,7 +263,7 @@ class DocxDocumentSdk {
   }
 
   Future<void> save(
-    DocxComponentContainer data, {
+    DocxDocument data, {
     required Set<String> supportedFileExtensions,
     required String filePath,
   }) async {
@@ -461,9 +462,9 @@ class DocxDocumentSdk {
     ];
   }
 
-  List<RunBase> _getAllHyperlinks(DocxComponentContainer data) {
+  List<RunBase> _getAllHyperlinks(DocxDocument data) {
     final List<RunBase> hyperlinks = <RunBase>[];
-    for (final ComponentContainer parent in data.contents) {
+    for (final ComponentContainer parent in data.sections) {
       final List<RunBase> hyperlink = List<RunBase>.from(
         parent.visitAllElement(
               (DocxContent el) => el is HyperlinkRun,
@@ -479,12 +480,12 @@ class DocxDocumentSdk {
   }
 
   (Map<String, ComponentContainer>, Set<String>) _getAllMedia(
-    DocxComponentContainer data,
+    DocxDocument data,
     Set<String> supportedFileExtensions,
   ) {
     final Map<String, ComponentContainer> images = <String, Image>{};
     final Set<String> knowedExtensions = <String>{};
-    for (final ComponentContainer parent in data.contents) {
+    for (final ComponentContainer parent in data.sections) {
       if (parent is Paragraph) {
         final ComponentContainer? image = parent.visitElement(
           (DocxContent el) =>

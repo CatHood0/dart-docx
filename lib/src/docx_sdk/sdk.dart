@@ -9,7 +9,7 @@ export 'components/containers/image.dart';
 export 'components/containers/lazy_image.dart';
 export 'components/containers/paragraph.dart';
 export 'components/containers/table.dart';
-export 'components/docx_component_container.dart';
+export 'components/docx_document.dart';
 export 'components/runs/hyperlink_run.dart';
 export 'components/runs/text_run.dart';
 export 'document/document_margins.dart';

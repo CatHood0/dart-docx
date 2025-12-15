@@ -22,7 +22,7 @@ class DeltaToDocx extends Parser<Delta, Uint8List?, DocxParserOptions> {
     return null;
   }
 
-  DocxComponentContainer deltaToComponents(Delta delta) {
-    return DocxComponentContainer(contents: <ComponentContainer<dynamic>>[]);
+  DocxDocument deltaToComponents(Delta delta) {
+    return DocxDocument(contents: <ComponentContainer<dynamic>>[]);
   }
 }
