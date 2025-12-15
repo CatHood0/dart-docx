@@ -58,9 +58,6 @@ class Style extends IterableConfigurators {
   /// will be showed by the Word Editor
   final String styleName;
 
-  /// Whether this [Style] is based on another [Style]
-  bool get isBasedOn => getConfiguratorOrNull('w:basedOn') != null;
-
   Style? getStyleWhereBaseOn(DocumentStylesSheet styles) {
     final StyleConfigurator? basedOnConfigurator =
         getConfiguratorOrNull('w:basedOn');
@@ -75,17 +72,16 @@ class Style extends IterableConfigurators {
   /// Returns the final style version this style using
   /// w:basedOn mark as the way to get the other properties
   Style getDeepStyleRelation(DocumentStylesSheet styles) {
-    const int maxAttemps = 10000;
+    const int maxAttemps = 200;
     final List<Style> styleHierarchy = [this];
     Style? currentStyleInChain = this;
     int attemp = 0;
 
     // Build the hierarchy from the most base style up to the current style.
     // Insert at the beginning to have the oldest ancestor first.
-    while (currentStyleInChain!.isBasedOn && attemp < maxAttemps) {
-      final Style? basedOn = currentStyleInChain.getStyleWhereBaseOn(
-        styles,
-      );
+    while (currentStyleInChain!.basedOn != null && attemp < maxAttemps) {
+      final Style? basedOn =
+          styles.getStyleById(currentStyleInChain.basedOn!.value as String);
       if (basedOn != null &&
           !styleHierarchy.any(
             (Style s) => s.id == basedOn.id,
@@ -114,10 +110,13 @@ class Style extends IterableConfigurators {
     // Recursive helper to merge children configurators.
     // It takes a base map and a list of overrides, returning a new merged map.
     Map<String, StyleConfigurator> mergeChildren(
-        Map<String, StyleConfigurator> base,
-        Iterable<StyleConfigurator> overrides) {
-      final Map<String, StyleConfigurator> result = Map.from(base);
-      for (final overrideConfig in overrides) {
+      Map<String, StyleConfigurator> base,
+      Iterable<StyleConfigurator> overrides,
+    ) {
+      final Map<String, StyleConfigurator> result =
+          Map<String, StyleConfigurator>.from(base);
+      //TODO: we need to take a look why on test, some parts are not being applied
+      for (final StyleConfigurator overrideConfig in overrides) {
         final StyleConfigurator? existingConfig =
             result[overrideConfig.qualifiedName];
         if (existingConfig != null &&
@@ -150,14 +149,23 @@ class Style extends IterableConfigurators {
     // Iterate through the style hierarchy (from base to current) and merge properties.
     for (final Style style in styleHierarchy) {
       for (final StyleConfigurator config in style.configurators) {
-        if (config.qualifiedName == xmlParagraphInlineAttsrNode) {
+        if (config.qualifiedName == 'w:basedOn' ||
+            config.qualifiedName == 'w:rsId') {
+          continue;
+        }
+
+        if (config.qualifiedName == xmlParagraphBlockAttrsNode) {
           // Merge children of w:pPr
-          mergedPPrChildren
-              .addAll(mergeChildren(mergedPPrChildren, config.configurators));
+          mergedPPrChildren.addAll(mergeChildren(
+            mergedPPrChildren,
+            config.configurators,
+          ));
         } else if (config.qualifiedName == xmlParagraphInlineAttsrNode) {
           // Merge children of w:rPr
-          mergedRPrChildren
-              .addAll(mergeChildren(mergedRPrChildren, config.configurators));
+          mergedRPrChildren.addAll(mergeChildren(
+            mergedRPrChildren,
+            config.configurators,
+          ));
         } else {
           // For other top-level configurators, the more specific style overrides.
           mergedTopLevelConfigurators[config.qualifiedName] = config;
@@ -336,9 +344,11 @@ abstract class IterableConfigurators {
 
   StyleConfigurator? get basedOn {
     if (configurators.isEmpty) return null;
-    return configurators.firstWhere(
-        (StyleConfigurator e) => e.propertyName == 'basedOn',
-        orElse: StyleConfigurator.invalid);
+    final StyleConfigurator result = configurators.firstWhere(
+      (StyleConfigurator e) => e.qualifiedName == 'w:basedOn',
+      orElse: StyleConfigurator.invalid,
+    );
+    return result.isInvalid ? null : result;
   }
 
   StyleConfigurator? get name {
@@ -348,12 +358,14 @@ abstract class IterableConfigurators {
         orElse: StyleConfigurator.invalid);
   }
 
-  StyleConfigurator? getConfiguratorOrNull(String matcher,
-      {bool fullName = false}) {
-    if (configurators.isEmpty) return null;
+  StyleConfigurator? getConfiguratorOrNull(
+    String matcher, {
+    bool fullName = false,
+  }) {
     final StyleConfigurator result = configurators.firstWhere(
-        (StyleConfigurator e) =>
-            fullName ? e.qualifiedName == matcher : e.propertyName == matcher,
+        (StyleConfigurator e) => (fullName || matcher.contains(':')
+            ? e.qualifiedName == matcher
+            : e.propertyName == matcher),
         orElse: StyleConfigurator.invalid);
     return result.isInvalid ? null : result;
   }
@@ -370,7 +382,9 @@ abstract class IterableConfigurators {
   Iterable<StyleConfigurator> findAllElements(String matcher) {
     if (configurators.isEmpty) return <StyleConfigurator>[];
     return configurators.where(
-      (StyleConfigurator e) => e.propertyName == matcher,
+      (StyleConfigurator e) => matcher.contains(':')
+          ? e.qualifiedName == matcher
+          : e.propertyName == matcher,
     );
   }
 }
