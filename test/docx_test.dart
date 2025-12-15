@@ -20,17 +20,16 @@ void main() {
   });
 
   test('Should create a minimal DocxDocument and save it', () async {
-    final DocxSdk parser = DocxSdk(
-      options: DocumentOptions.blank(
-        title: 'documento',
-        styles: DefaultDocumentStyles.kDefaultDocumentStyleSheet,
-      ),
-    );
+    final DocxSdk parser = DocxSdk();
     final File docPathFile = File('test_resources/minimal_document.docx');
-    await parser.save(
+    await parser.writeInFile(
       supportedFileExtensions: <String>{},
       filePath: docPathFile.path,
       DocxDocument(
+        options: DocumentOptions.blank(
+          title: 'documento',
+          styles: DefaultDocumentStyles.kDefaultDocumentStyleSheet,
+        ),
         sections: <ComponentContainer<dynamic>>[
           Paragraph(
             data: <RunBase<dynamic>>[

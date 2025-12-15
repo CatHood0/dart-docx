@@ -5,9 +5,13 @@ import '../sdk.dart';
 class DocxDocument {
   DocxDocument({
     required this.sections,
+    required this.options,
   });
 
   final Iterable<ComponentContainer<dynamic>> sections;
+
+  //NOTE: probably we will move these to DocxDocument class
+  final DocumentOptions options;
 
   XmlDocument toXml({required DocxComponentContext context}) {
     return XmlDocument(

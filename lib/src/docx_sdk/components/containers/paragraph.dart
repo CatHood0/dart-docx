@@ -15,6 +15,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   Paragraph({
     required Iterable<RunBase> data,
     this.styles = const [],
+    this.runStyles = const [],
     this.pageBreak = ParagraphPagebreak.none,
   }) : super(parent: null, data: data) {
     for (final RunBase content in data) {
@@ -22,7 +23,11 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     }
   }
 
+  /// All the styles applied to the paragraph
   final List<Style> styles;
+
+  /// All the styles applied to the run
+  final List<Style> runStyles;
   final ParagraphPagebreak pageBreak;
 
   @override

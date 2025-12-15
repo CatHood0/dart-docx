@@ -19,7 +19,7 @@ export 'document/editor/page_settings.dart';
 export 'document/options/document_properties.dart';
 export 'document/styles/document_styles.dart';
 export 'docx_component_context.dart';
-export 'docx_document.dart';
+export 'docx_sdk.dart';
 export 'mixins/applicable_attribute_mixin.dart';
 export 'mixins/printable_mixin.dart';
 export 'schemas/entities/relation_ship.dart';

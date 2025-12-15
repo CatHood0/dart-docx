@@ -7,16 +7,17 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
   PlainTextToDocx({
     required super.options,
   })  : assert(options.properties != null, 'DocumentOptions cannot be null'),
-        _sdk = DocxSdk(options: options.properties!);
+        _sdk = DocxSdk();
 
   final DocxSdk _sdk;
 
   @override
   Future<List<int>> build({required String data}) async {
     emitEvent(StartEvent());
-    final bytes = await _sdk.createDocument(
+    final bytes = await _sdk.toBytes(
       DocxDocument(
         sections: _documentContentBuilder(data: data).cast(),
+        options: options.properties!,
       ),
       supportedFileExtensions: {},
     );

@@ -4,43 +4,31 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart' as xml;
 
-import '../../../docx.dart';
+import '../../docx.dart';
 import '../core/extensions/string_ext.dart';
 import 'events/docx_event.dart';
 
-//TODO: add insert, delete, and replacement capabilities
-class DocxSdk {
-  DocxSdk({
-    required this.options,
-    DocxDocument? object,
-  }) : lastDocumentObject = object;
+class DocxCompiler {
+  DocxCompiler._();
 
-  //NOTE: probably we will move these to DocxDocument class
-  final DocumentOptions options;
-  DocxDocument? lastDocumentObject;
+  static final DocxCompiler instance = DocxCompiler._();
 
-  //
-  final Archive _archive = Archive();
-  final ZipEncoder _encoder = ZipEncoder();
+  late final Archive _archive = Archive();
+  late final ZipEncoder _encoder = ZipEncoder();
 
-  // to allow modifying certain parts of the docx result
-  // we can implement these methods
-  void insert() {}
-  void replace() {}
-  void delete() {}
-
-  Future<Uint8List?> createDocument(
-    DocxDocument data, {
+  Future<Uint8List?> toBytes(
+    DocxDocument document, {
     required Set<String> supportedFileExtensions,
   }) async {
-    if (data.sections.isEmpty) return null;
+    if (document.sections.isEmpty) return null;
     await _archive.clear();
+    final DocumentOptions options = document.options;
 
     final (
       Map<String, ComponentContainer> images,
       Set<String> knowedExtensions
     ) = _getAllMedia(
-      data,
+      document,
       supportedFileExtensions,
     );
     //TODO: register all extensions in Content_Types
@@ -52,7 +40,7 @@ class DocxSdk {
       documentXmlRelsFilePath,
       () => generateDocumentXmlRels(
         (int lastId) => _buildRelationShips(
-          hyperlinks: _getAllHyperlinks(data),
+          hyperlinks: _getAllHyperlinks(document),
           images: images,
           registeredMediaNames: registeredMediaNames,
           lastId: lastId,
@@ -73,7 +61,7 @@ class DocxSdk {
     _addXmlToArchive(
       _archive,
       documentFilePath,
-      () => data.toXml(context: documentContext),
+      () => document.toXml(context: documentContext),
     );
     _addXmlToArchive(
       _archive,
@@ -114,26 +102,24 @@ class DocxSdk {
 
     _addMediaFilesToArchive(_archive, mediaRegistered);
 
-    // just assign the value if all is right
-    lastDocumentObject = data;
-
     return _encoder.encodeBytes(
       _archive,
       autoClose: true,
     );
   }
 
-  Stream<DocxEvent> createDocumentStream(
-    DocxDocument data, {
+  Stream<DocxEvent> toBytesWithEventStream(
+    DocxDocument document, {
     required Set<String> supportedFileExtensions,
   }) async* {
-    if (data.sections.isEmpty) {
+    if (document.sections.isEmpty) {
       yield DocxEvent.end(error: 'Document content is empty');
       return;
     }
 
     yield DocxEvent.start();
     await _archive.clear();
+    final DocumentOptions options = document.options;
 
     //TODO: register all extensions in Content_Types
     final Map<String, String> registeredMediaNames = <String, String>{};
@@ -145,12 +131,12 @@ class DocxSdk {
       Map<String, ComponentContainer> images,
       Set<String> knowedExtensions
     ) = _getAllMedia(
-      data,
+      document,
       supportedFileExtensions,
     );
     yield DocxEvent.searching(subject: 'Searching hyperlinks');
     final List<RunBase> hyperlinks = _getAllHyperlinks(
-      data,
+      document,
     );
 
     // this part register all the media to registeredMediaNames
@@ -205,7 +191,7 @@ class DocxSdk {
     _addXmlToArchive(
       _archive,
       documentFilePath,
-      () => data.toXml(context: documentContext),
+      () => document.toXml(context: documentContext),
     );
     _addXmlToArchive(
       _archive,
@@ -249,8 +235,6 @@ class DocxSdk {
       mediaRegistered,
     );
 
-    // just assign the value if all is right
-    lastDocumentObject = data;
     try {
       final Uint8List result = _encoder.encodeBytes(
         _archive,
@@ -262,18 +246,19 @@ class DocxSdk {
     }
   }
 
-  Future<void> save(
-    DocxDocument data, {
+  Future<void> writeToFile(
+    DocxDocument document, {
     required Set<String> supportedFileExtensions,
     required String filePath,
   }) async {
     await _archive.clear();
+    final DocumentOptions options = document.options;
 
     final (
       Map<String, ComponentContainer> images,
       Set<String> knowedExtensions
     ) = _getAllMedia(
-      data,
+      document,
       supportedFileExtensions,
     );
     //TODO: register all extensions in Content_Types
@@ -294,7 +279,7 @@ class DocxSdk {
       documentXmlRelsFilePath,
       () => generateDocumentXmlRels(
         (int lastId) => _buildRelationShips(
-          hyperlinks: _getAllHyperlinks(data),
+          hyperlinks: _getAllHyperlinks(document),
           images: images,
           registeredMediaNames: registeredMediaNames,
           lastId: lastId,
@@ -305,7 +290,7 @@ class DocxSdk {
     _addXmlToArchive(
       _archive,
       documentFilePath,
-      () => data.toXml(context: documentContext),
+      () => document.toXml(context: documentContext),
     );
     _addXmlToArchive(
       _archive,
@@ -345,9 +330,6 @@ class DocxSdk {
     _addXmlToArchive(_archive, webSettingsXmlFilePath, generateWebSettingsXML);
 
     _addMediaFilesToArchive(_archive, mediaRegistered);
-
-    // just assign the value if all is right
-    lastDocumentObject = data;
 
     final OutputFileStream stream = OutputFileStream(filePath);
 
