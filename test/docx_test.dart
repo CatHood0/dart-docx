@@ -69,6 +69,12 @@ void main() {
               ),
             ],
           ),
+          LazyImage(
+            data: ImageData(
+              buffer: File('test_resources/logo.jpg'),
+              extension: 'jpg',
+            ),
+          ),
         ],
       ),
     )

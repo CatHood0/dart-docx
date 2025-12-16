@@ -1,7 +1,9 @@
 name: docx 
 description: "Transform content across popular formats to/from Word documents while preserving formatting, and the richness"
 version: 1.0.0
-homepage:
+homepage: https://github.com/CatHood0/dart-docx
+documentation: https://github.com/CatHood0/dart-docx
+issue_tracker: https://github.com/CatHood0/dart-docx/issues
 
 environment:
   sdk: ^3.6.1
@@ -14,7 +16,8 @@ dependencies:
   xml: ^6.5.0
   meta: ^1.15.0
   flutter_quill_delta_easy_parser: ^1.1.8 
-
+  image_size_getter: ^2.4.1
+  #TODO: remove any use of flutter
 dev_dependencies:
   flutter_test:
     sdk: flutter

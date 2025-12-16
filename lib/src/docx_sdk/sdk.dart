@@ -6,6 +6,7 @@ export 'components/base/text_run.dart';
 export 'components/component_attributes/attribute.dart';
 export 'components/component_attributes/inline.dart';
 export 'components/containers/image.dart';
+export 'components/containers/image/image_data.dart';
 export 'components/containers/lazy_image.dart';
 export 'components/containers/paragraph.dart';
 export 'components/containers/table.dart';

@@ -7,6 +7,13 @@ const String kDefaultBorderColor = 'bf4f15';
 const int commonBorderSize = 4;
 const int commonBorderSpace = 6;
 
+const int emuPerInch = 914400; // 1 inch = 914400 EMUs
+const int emuPerCm = 360000; // 1 cm = 360000 EMUs
+const int emuPerMm = 36000; // 1 mm = 36000 EMUs
+const int emuPerPt = 12700; // 1 point = 12700 EMUs
+const int emuPerTwip = 635; // 1 TWIP = 635 EMUs
+int imageDpi = 150;
+
 /// These are the default supported image file extensions in Word
 ///
 /// _Some of the extensions are not fully supported on older versions of Word editor_
