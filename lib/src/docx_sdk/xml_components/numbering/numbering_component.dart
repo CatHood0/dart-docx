@@ -1,3 +1,6 @@
+// I want to thanks to the author of https://github.com/dolanmiu/docx
+// since his/her implementation inspired me to make the API
+// of dart-docx with the same target: be easy for developers
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
@@ -67,6 +70,7 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
       ..concreteNum = ((String ref) => concreteNumberingMap[ref]);
   }
 
+  // every paragraph should manage its own ref instances
   void registerConcreteInstance(String ref, int numRefId) {
     final XmlAbstractNumComponent? abstractN = abstractNumberingMap[ref];
     if (abstractN == null) return;
