@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:docx/docx.dart';
+import 'package:docx/src/docx_sdk/packer/docx_metadata_packer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -20,11 +21,10 @@ void main() {
   });
 
   test('Should create a minimal DocxDocument and save it', () async {
-    final DocxSdk parser = DocxSdk();
+    final DocxMetadataPacker parser = DocxMetadataPacker();
     final File docPathFile = File('test_resources/minimal_document.docx');
-    await parser.writeInFile(
-      supportedFileExtensions: <String>{},
-      filePath: docPathFile.path,
+    parser
+        .bytes(
       DocxDocument(
         options: DocumentOptions.blank(
           title: 'documento',
@@ -71,7 +71,11 @@ void main() {
           ),
         ],
       ),
-    );
+    )
+        .then((bytes) {
+      assert(bytes != null, 'bytes should not be null');
+      docPathFile.writeAsBytes(bytes!);
+    });
   });
 
   test('Should create a minimal DocxDocument', () async {

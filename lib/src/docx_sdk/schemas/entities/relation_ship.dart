@@ -39,5 +39,3 @@ class RelationShip {
     );
   }
 }
-
-typedef RelationShipsBuilder = List<RelationShip> Function(int lastId);

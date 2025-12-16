@@ -14,13 +14,13 @@ class TableContent extends ComponentContainer<Iterable<TableRow>> {
   final TableProperties properties;
 
   @override
-  XmlElement buildXml({required DocxComponentContext context}) {
+  XmlElement buildXml({required DocumentContext context}) {
     final List<XmlElement> _gridCols = [];
     if (properties.gridColWidthBuilder != null) {
       for (int i = 0; i < data.length; i++) {
         final TableRow tr = data.elementAt(i);
         final double width =
-            computeTwip(properties.gridColWidthBuilder!(tr, i)).toDouble();
+            inchToFromTwip(properties.gridColWidthBuilder!(tr, i)).toDouble();
         _gridCols.add(
           XmlElement.tag(
             'w:gridCol',
@@ -61,7 +61,7 @@ class TableContent extends ComponentContainer<Iterable<TableRow>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocxComponentContext context}) {
+  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
     return <XmlNode>[
       XmlElement.tag(
         'w:tblPr',

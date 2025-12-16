@@ -1,25 +1,24 @@
 import 'dart:convert';
 
 import '../../../docx.dart';
+import '../../docx_sdk/packer/docx_metadata_packer.dart';
 import '../parser_events.dart';
 
 class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
   PlainTextToDocx({
     required super.options,
-  })  : assert(options.properties != null, 'DocumentOptions cannot be null'),
-        _sdk = DocxSdk();
+  }) : assert(options.properties != null, 'DocumentOptions cannot be null');
 
-  final DocxSdk _sdk;
+  final DocxMetadataPacker packer = DocxMetadataPacker.instance;
 
   @override
   Future<List<int>> build({required String data}) async {
     emitEvent(StartEvent());
-    final bytes = await _sdk.toBytes(
+    final bytes = await packer.bytes(
       DocxDocument(
         sections: _documentContentBuilder(data: data).cast(),
         options: options.properties!,
       ),
-      supportedFileExtensions: {},
     );
     emitEvent(CompleteEvent(bytes));
     return bytes!;

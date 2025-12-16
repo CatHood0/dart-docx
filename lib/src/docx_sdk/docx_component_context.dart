@@ -1,40 +1,31 @@
 import 'dart:typed_data';
 import 'sdk.dart';
+import 'xml_components/numbering/abstract_numbering_component.dart';
+import 'xml_components/numbering/concrete_numbering_component.dart';
 
-class DocxComponentContext {
-  DocxComponentContext({
+class DocumentContext {
+  DocumentContext({
     required this.options,
-    required Map<String, MediaData> media,
-  }) : _media = media;
+    required this.store,
+    required this.hyperlinkStore,
+  });
 
+
+  final MediaStore store;
   final DocumentOptions options;
+  final HyperlinkStore hyperlinkStore;
+
+  // 
+  late void Function(String ref, int numId)? registerInstance;
+  late Iterable<XmlAbstractNumComponent> Function()? getAbstractNumberingTemplates;
+  late Iterable<XmlConcreteNumberingComponent> Function()? getConcreteNumber;
+  late XmlAbstractNumComponent? Function(String ref)? abstractNum;
+  late XmlConcreteNumberingComponent? Function(String ref)? concreteNum;
 
   DocumentStylesSheet get styles => options.docStyles;
 
   // all the media are saved
   // {filename: rid}
-  final Map<String, MediaData> _media;
-
-  Map<String, MediaData> get media =>
-      Map<String, MediaData>.unmodifiable(_media);
-
-  int _lastIdGenerated = 1;
-
-  int? getMediaIdForImage(String imageRefId) {
-    for (final MediaData media in _media.values) {
-      if (media.imageRefId == imageRefId) {
-        return media.id;
-      }
-    }
-    return null;
-  }
-
-  int generateMediaId() {
-    if (media.isEmpty) return 1;
-    _lastIdGenerated = media.entries.last.value.id;
-    return _lastIdGenerated;
-  }
-
   DocxContent? _currentContentPart;
   DocxContent? get currentContentPart => _currentContentPart?.copy;
   set currentContentPart(DocxContent? content) {

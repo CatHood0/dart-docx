@@ -31,6 +31,18 @@ class StyleBuilder {
     return StyleBuilder._(id, 'character', name ?? id);
   }
 
+  /// Creates a [StyleBuilder] for a paragraph style
+  /// that is not in DocumentStylesSheet
+  factory StyleBuilder.singularP({String? name}) {
+    return StyleBuilder._(nanoid(5), 'paragraph', name ?? '');
+  }
+
+  /// Creates a [StyleBuilder] for a character style
+  /// that is not in DocumentStylesSheet
+  factory StyleBuilder.singularC({String? name}) {
+    return StyleBuilder._(nanoid(5), 'character', name ?? '');
+  }
+
   /// The internal identifier of the style, used in `w:styleId`.
   final String id;
 
@@ -507,7 +519,7 @@ class StyleBuilder {
           StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'jc',
-            value: _alignmentToValue(_alignment!),
+            value: _alignment!.name,
           ),
         );
       }
@@ -727,7 +739,6 @@ class StyleBuilder {
       );
     }
 
-    assert(_name.isNotEmpty, 'Name must be provided before build');
     return Style(
       type: type,
       styleId: id,
@@ -736,24 +747,10 @@ class StyleBuilder {
       configurators: configurators,
     );
   }
-
-  /// Converts an [Alignment] enum value to its corresponding WordML string.
-  String _alignmentToValue(Alignment alignment) {
-    switch (alignment) {
-      case Alignment.left:
-        return 'left';
-      case Alignment.center:
-        return 'center';
-      case Alignment.right:
-        return 'right';
-      case Alignment.justify:
-        return 'both';
-    }
-  }
 }
 
 /// Represents the horizontal alignment options for a paragraph.
-enum Alignment { left, center, right, justify }
+enum Alignment { left, center, right, both }
 
 /// Represents the possible border styles for a paragraph.
 enum BorderStyle {

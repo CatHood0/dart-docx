@@ -3,6 +3,7 @@ part 'docx_searching_event.dart';
 part 'docx_media_processed_event.dart';
 part 'docx_progress_event.dart';
 part 'docx_end_event.dart';
+part 'docx_unknown_progress.dart';
 
 sealed class DocxEvent {
   const DocxEvent();
@@ -18,6 +19,10 @@ sealed class DocxEvent {
     required String type,
   }) = MediaProcessedEvent;
 
+  factory DocxEvent.unknownProgress({
+    required String subject,
+  }) = UnknownProgress;
+
   factory DocxEvent.progress({
     required String subject,
     required int current,
@@ -25,7 +30,7 @@ sealed class DocxEvent {
   }) = ProgressEvent;
 
   factory DocxEvent.end({
-    List<int>? result,
+    Object? result,
     Object? error,
   }) = EndEvent;
 }

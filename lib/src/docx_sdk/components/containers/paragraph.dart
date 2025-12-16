@@ -31,7 +31,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   final ParagraphPagebreak pageBreak;
 
   @override
-  XmlElement buildXml({required DocxComponentContext context}) {
+  XmlElement buildXml({required DocumentContext context}) {
     final List<XmlNode> paragraphChildren = [];
     final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
 
@@ -77,7 +77,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       );
 
   @override
-  List<XmlElement> buildXmlStyle({required DocxComponentContext context}) {
+  List<XmlElement> buildXmlStyle({required DocumentContext context}) {
     final List<XmlElement> pPrChildren = [];
     // to avoid applying the same styles every time, we prefer
     // having something like a memoizer to avoid expensive calls

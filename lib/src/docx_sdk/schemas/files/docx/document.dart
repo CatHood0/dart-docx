@@ -3,7 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../sdk.dart';
 
 XmlDocument generateDocumentXml(
-  DocxComponentContext context, {
+  DocumentContext context, {
   required Iterable<XmlElement> contents,
 }) =>
     XmlDocument(

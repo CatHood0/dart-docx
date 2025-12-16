@@ -33,7 +33,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
       );
 
   @override
-  XmlElement buildXml({required DocxComponentContext context}) {
+  XmlElement buildXml({required DocumentContext context}) {
     return super.runParent(
       runProperties: buildXmlStyle(context: context),
       nodes: [
@@ -50,7 +50,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required DocxComponentContext context}) {
+  List<XmlElement> buildXmlStyle({required DocumentContext context}) {
     final List<TextRunAttribution> styles = <TextRunAttribution>[...data.styles];
     if (styles.any((TextRunAttribution e) => e.scope != Scope.portion)) {
       throw Exception('The styles passed in $runtimeType are invalid. '

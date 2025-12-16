@@ -10,7 +10,7 @@ const int commonBorderSpace = 6;
 /// These are the default supported image file extensions in Word
 ///
 /// _Some of the extensions are not fully supported on older versions of Word editor_
-final List<String> kDefaultAcceptedFileExtensions = List.unmodifiable([
+final Set<String> kDefaultAcceptedFileExtensions = Set.unmodifiable([
   ...<String>['jpg', 'jpeg'],
   ...<String>['tiff', 'tif'],
   'png',
@@ -57,13 +57,44 @@ final RegExp linkDetectorMatcher = RegExp(
 /// 240 * 1440 => 345600
 const int kDefaultTwipsValue = 1440;
 
-num computeTwip(
+/// Computes the values to/from twip
+///
+/// * [increase]: defines if the values will be increased on twip units or decreased
+/// * [defaultTwipsValue]: defines the default unit of a twip
+num inchToFromTwip(
   num value, {
-  bool toWord = true,
+  bool increase = true,
   int defaultTwipsValue = kDefaultTwipsValue,
 }) {
-  return toWord ? value * defaultTwipsValue : value / defaultTwipsValue;
+  return increase ? value * defaultTwipsValue : value / defaultTwipsValue;
 }
+
+int cmToTwip(num cm) => (cm * 567).round();
+
+double twipToCm(num twip) => twip / 567;
+
+typedef UniqueNumericIdCreator = int Function();
+
+int _uniqueNumId = 0;
+int _abstractUniqueNumId = 1;
+int _concreteUniqueNumId = 1;
+
+void reloadIds() {
+  _uniqueNumId = 0;
+  _abstractUniqueNumId = 1;
+}
+
+int uniqueNumericIdCreator(int num) {
+  return ++num;
+}
+
+int abstractNumUniqueNumericIdGen() =>
+    uniqueNumericIdCreator(_abstractUniqueNumId);
+
+int concreteNumUniqueNumericIdGen() =>
+    uniqueNumericIdCreator(_concreteUniqueNumId);
+
+int docPropertiesUniqueNumericIdGen() => uniqueNumericIdCreator(_uniqueNumId);
 
 const String defaultFont = 'Times New Roman';
 const int defaultFontSize = 22;

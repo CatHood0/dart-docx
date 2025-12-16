@@ -32,7 +32,7 @@ class TextRun extends RunBase<TextPart> {
       );
 
   @override
-  XmlElement buildXml({required DocxComponentContext context}) {
+  XmlElement buildXml({required DocumentContext context}) {
     final List<String> lines = tokenizeWithNewLines(data.text);
     if (lines.length > 1) {
       return super.runParent(
@@ -63,7 +63,7 @@ class TextRun extends RunBase<TextPart> {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required DocxComponentContext context}) {
+  List<XmlElement> buildXmlStyle({required DocumentContext context}) {
     final List<TextRunAttribution> styles = <TextRunAttribution>[...data.styles];
     if (styles.any((TextRunAttribution e) => e.scope != Scope.portion)) {
       throw Exception('The styles passed in $runtimeType are invalid. '

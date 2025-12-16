@@ -13,31 +13,15 @@ class DocxDocument {
   //NOTE: probably we will move these to DocxDocument class
   final DocumentOptions options;
 
-  XmlDocument toXml({required DocxComponentContext context}) {
-    return XmlDocument(
-      <XmlNode>[
-        XmlDefaults.declaration,
-        XmlElement.tag(
-          'w:document',
-          attributes: XmlDefaults.documentAttributes,
-          children: <XmlNode>[
-            XmlElement.tag(
-              'w:body',
-              children: <XmlNode>[
-                ...sections.map(
-                  (ComponentContainer e) {
-                    context.currentContentPart = e;
-                    return e.buildXml(context: context);
-                  },
-                ),
-                XmlDefaults.documentSectPr(properties: context.options),
-              ],
-            ),
-          ],
-          isSelfClosing: false,
-        ),
-      ],
-    );
+  List<XmlElement> buildXml({required DocumentContext context}) {
+    return <XmlElement>[
+      ...sections.map(
+        (ComponentContainer e) {
+          context.currentContentPart = e;
+          return e.buildXml(context: context) as XmlElement;
+        },
+      ),
+    ];
   }
 
   String toPlainText() {
@@ -50,5 +34,4 @@ class DocxDocument {
     }
     return '$buffer';
   }
-
 }

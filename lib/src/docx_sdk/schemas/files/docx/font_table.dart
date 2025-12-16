@@ -4,7 +4,7 @@ import '../../../../core/namespaces.dart';
 import '../../../sdk.dart';
 
 /// Font data available here: https://fossies.org/linux/pandoc/data/docx/word/fontTable.xml
-XmlDocument generateFontTableXML({DocxComponentContext? context}) => XmlDocument(
+XmlDocument generateFontTableXML({DocumentContext? context}) => XmlDocument(
       [
         XmlDefaults.declaration,
         XmlElement(

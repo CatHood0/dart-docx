@@ -53,6 +53,32 @@ extension StyleToNode on Style {
     );
   }
 
+  XmlElement? toParagraphStyleNode() {
+    final StyleConfigurator runConfigs =
+        getConfigurator(xmlParagraphBlockAttrsNode);
+    if (runConfigs.isInvalid) return null;
+    return XmlElement.tag(
+      'w:pPr',
+      children: [
+        ...runConfigs.toNodes,
+      ],
+      isSelfClosing: false,
+    );
+  }
+
+  XmlElement? toRunStyleNode() {
+    final StyleConfigurator runConfigs =
+        getConfigurator(xmlParagraphInlineAttsrNode);
+    if (runConfigs.isInvalid) return null;
+    return XmlElement.tag(
+      'w:rPr',
+      children: [
+        ...runConfigs.toNodes,
+      ],
+      isSelfClosing: false,
+    );
+  }
+
   List<XmlElement> toRunStyleNodes() {
     final StyleConfigurator runConfigs = getConfigurator(
       xmlParagraphInlineAttsrNode,

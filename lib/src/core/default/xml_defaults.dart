@@ -197,6 +197,7 @@ class XmlDefaults {
     );
   }
 
+  //TODO: probably we will move this to be a version of XmlComponentBase
   static XmlElement documentSectPr({required DocumentOptions properties}) {
     return XmlElement.tag(
       xmlSectPr,

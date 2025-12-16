@@ -4,8 +4,9 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
+import 'image/image_data.dart';
 
-class LazyImage extends ComponentContainer<LazyImageData> {
+class LazyImage extends ComponentContainer<ImageData<File>> {
   LazyImage({
     required super.data,
     super.parent,
@@ -13,24 +14,25 @@ class LazyImage extends ComponentContainer<LazyImageData> {
 
   @override
   LazyImage get copy => LazyImage(
-        data: LazyImageData(
-          file: File(data.file.path),
+        data: ImageData(
+          buffer: File(data.buffer.path),
           extension: data.extension,
           styles: data.styles,
           width: data.width,
           height: data.height,
+          name: data.name,
         ),
       );
 
   String get getImageName => data.name ?? '';
-  
+
   /// Whether we can use this image to any operation
-  Future<bool> get canLoad async {
-    return await data.file.exists();
+  bool get canLoad {
+    return data.buffer.existsSync();
   }
 
   @override
-  XmlElement buildXml({required DocxComponentContext context}) {
+  XmlElement buildXml({required DocumentContext context}) {
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
@@ -38,8 +40,8 @@ class LazyImage extends ComponentContainer<LazyImageData> {
         'founded into the DocxComponentContext',
       );
     }
-    final int docPrId =
-        context.getMediaIdForImage(rId!) ?? context.generateMediaId();
+    final int docPrId = context.store.getMediaIdForRef(rId!) ??
+        context.store.generateMediaId();
 
     // Convert width/height to EMUs. Assuming data.width/height are in pixels or a known unit.
     // If they are in pixels, a common conversion to EMUs is to multiply by a factor (e.g., 914400 / 96 dpi to convert
@@ -132,14 +134,20 @@ class LazyImage extends ComponentContainer<LazyImageData> {
                                   'pic:cNvPr',
                                   isSelfClosing: true,
                                   attributes: [
-                                    XmlAttribute(XmlName.fromString('id'),
-                                        docPrId.toString()),
-                                    XmlAttribute(XmlName.fromString('name'),
-                                        imageName.removeAllWhitespaces()),
+                                    XmlAttribute(
+                                      XmlName.fromString('id'),
+                                      docPrId.toString(),
+                                    ),
+                                    XmlAttribute(
+                                      XmlName.fromString('name'),
+                                      imageName.removeAllWhitespaces(),
+                                    ),
                                   ],
                                 ),
-                                XmlElement.tag('pic:cNvPicPr',
-                                    isSelfClosing: true),
+                                XmlElement.tag(
+                                  'pic:cNvPicPr',
+                                  isSelfClosing: true,
+                                ),
                               ],
                             ),
                             XmlElement.tag(
@@ -149,6 +157,8 @@ class LazyImage extends ComponentContainer<LazyImageData> {
                                 XmlElement.tag(
                                   'a:blip',
                                   attributes: [
+                                    // establish connection with the relations
+                                    // file
                                     XmlAttribute(
                                       XmlName.fromString('r:embed'),
                                       rId!,
@@ -160,8 +170,10 @@ class LazyImage extends ComponentContainer<LazyImageData> {
                                   'a:stretch',
                                   isSelfClosing: false,
                                   children: [
-                                    XmlElement.tag('a:fillRect',
-                                        isSelfClosing: true),
+                                    XmlElement.tag(
+                                      'a:fillRect',
+                                      isSelfClosing: true,
+                                    ),
                                   ],
                                 ),
                               ],
@@ -214,9 +226,10 @@ class LazyImage extends ComponentContainer<LazyImageData> {
                                     ),
                                   ],
                                   children: [
-                                    XmlElement.tag('a:avLst',
-                                        isSelfClosing:
-                                            true), // a:avLst es autocerrado
+                                    XmlElement.tag(
+                                      'a:avLst',
+                                      isSelfClosing: true,
+                                    ),
                                   ],
                                 ),
                               ],
@@ -236,7 +249,7 @@ class LazyImage extends ComponentContainer<LazyImageData> {
   }
 
   @override
-  List<XmlAttribute> buildXmlStyle({required DocxComponentContext context}) {
+  List<XmlAttribute> buildXmlStyle({required DocumentContext context}) {
     return [];
   }
 
@@ -259,27 +272,5 @@ class LazyImage extends ComponentContainer<LazyImageData> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <LazyImage>[this] : null;
-  }
-}
-
-class LazyImageData {
-  LazyImageData({
-    required this.file,
-    required this.extension,
-    required this.width,
-    required this.height,
-    this.styles = const <TextRunAttribution>[],
-  });
-
-  final File file;
-  final String extension;
-  final double width;
-  final double height;
-  final List<TextRunAttribution> styles;
-  String? name;
-
-  @override
-  String toString() {
-    return 'ImageData(file: ${file.path}, extension: img.$extension, options: [width: $width, height: $height], styles: $styles)';
   }
 }

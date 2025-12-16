@@ -3,8 +3,9 @@ import 'package:xml/xml.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/namespaces.dart';
 import '../../sdk.dart';
+import 'image/image_data.dart';
 
-class Image extends ComponentContainer<ImageData> {
+class Image extends ComponentContainer<ImageData<Uint8List>> {
   Image({
     required super.data,
     super.parent,
@@ -12,8 +13,8 @@ class Image extends ComponentContainer<ImageData> {
 
   @override
   Image get copy => Image(
-        data: ImageData(
-          bytes: data.bytes,
+        data: ImageData<Uint8List>(
+          buffer: Uint8List.fromList(data.buffer),
           extension: data.extension,
           styles: data.styles,
           width: data.width,
@@ -24,7 +25,7 @@ class Image extends ComponentContainer<ImageData> {
   String get getImageName => data.name ?? '';
 
   @override
-  XmlElement buildXml({required DocxComponentContext context}) {
+  XmlElement buildXml({required DocumentContext context}) {
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
@@ -32,8 +33,9 @@ class Image extends ComponentContainer<ImageData> {
         'founded into the DocxComponentContext',
       );
     }
-    final int docPrId =
-        context.getMediaIdForImage(rId!) ?? context.generateMediaId();
+    final int docPrId = context.store.getMediaIdForRef(super.id) ??
+        context.store.getMediaIdForRef(rId!) ??
+        context.store.generateMediaId();
 
     // Convert width/height to EMUs. Assuming data.width/height are in pixels or a known unit.
     // If they are in pixels, a common conversion to EMUs is to multiply by a factor (e.g., 914400 / 96 dpi to convert
@@ -230,7 +232,7 @@ class Image extends ComponentContainer<ImageData> {
   }
 
   @override
-  List<XmlAttribute> buildXmlStyle({required DocxComponentContext context}) {
+  List<XmlAttribute> buildXmlStyle({required DocumentContext context}) {
     return [];
   }
 
@@ -253,27 +255,5 @@ class Image extends ComponentContainer<ImageData> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <Image>[this] : null;
-  }
-}
-
-class ImageData {
-  ImageData({
-    required this.bytes,
-    required this.extension,
-    required this.width,
-    required this.height,
-    this.styles = const <TextRunAttribution>[],
-  });
-
-  final Uint8List bytes;
-  final String extension;
-  final double width;
-  final double height;
-  final List<TextRunAttribution> styles;
-  String? name;
-
-  @override
-  String toString() {
-    return 'ImageData(bytes: ${bytes.elementSizeInBytes}, extension: img.$extension, options: [width: $width, height: $height], styles: $styles)';
   }
 }

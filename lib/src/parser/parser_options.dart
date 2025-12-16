@@ -12,7 +12,7 @@ enum ParseTo {
 class ContentParserOptions extends ParserOptions {
   ContentParserOptions({
     required this.title,
-    List<String>? supportedFileExtensions,
+    Set<String>? supportedFileExtensions,
     this.subject = '',
     this.owner = '',
     this.description = '',
@@ -26,7 +26,7 @@ class ContentParserOptions extends ParserOptions {
           ignoreColorWhenNoSupported: false,
           onDetectImage: null,
         );
-  final List<String> supportedFileExtensions;
+  final Set<String> supportedFileExtensions;
   final String title;
   final String owner;
   final String subject;

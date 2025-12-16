@@ -2,7 +2,7 @@ part of 'docx_event.dart';
 
 class EndEvent extends DocxEvent {
   const EndEvent({this.result, this.error});
-  final List<int>? result;
+  final Object? result;
   final Object? error;
 
   @override

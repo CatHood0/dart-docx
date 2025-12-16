@@ -9,12 +9,16 @@ abstract class DocxContent<T> {
   }) : id = nanoid(7);
 
   final T data;
+
+  /// The xml relations id of this component
   String? rId;
+
+  /// The internal random id of this component
   final String id;
   ComponentContainer? parent;
   DocxContent<T> get copy;
-  XmlNode buildXml({required DocxComponentContext context});
-  List<XmlNode> buildXmlStyle({required DocxComponentContext context});
+  XmlNode buildXml({required DocumentContext context});
+  List<XmlNode> buildXmlStyle({required DocumentContext context});
   DocxContent? visitElement(
     bool Function(DocxContent element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,

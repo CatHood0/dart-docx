@@ -21,6 +21,7 @@ typedef FileExtension = String;
 // Note: we will need to add to the ContentTypes media supported
 // from this to avoid any error.
 // probably we will need to create elements like: <Default Extension="jpeg" ContentType="image/jpeg" />
+//TODO: delete this
 Map<String, FileCreator> mediaCreator(
   List<Operation> operationWithEmbeds,
   (Uint8List, FileName, FileExtension) Function(Operation) buildFileFromEmbed, {

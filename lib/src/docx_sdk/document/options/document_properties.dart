@@ -24,9 +24,12 @@ class DocumentOptions {
     required this.editorSettings,
     required this.orientation,
     DocumentMargins? margins,
+    Set<String>? supportedFileExtensions,
     List<String> keywords = const <String>[],
     DocumentStylesSheet? styles,
-  })  : docStyles = styles ?? DocumentStylesSheet.base(),
+  })  : supportedFileExtensions =
+            supportedFileExtensions ?? kDefaultAcceptedFileExtensions,
+        docStyles = styles ?? DocumentStylesSheet.base(),
         standalone = 'yes',
         keywords = keywords.join(','),
         encoding = 'UTF-8' {
@@ -38,16 +41,15 @@ class DocumentOptions {
   }
 
   factory DocumentOptions.blank({
-    required String title,
+    String? title,
     String? owner,
     DocumentStylesSheet? styles,
   }) {
-    assert(title.isNotEmpty, 'title cannot be empty');
     return DocumentOptions(
-      lastModifiedBy: owner ?? '',
+      lastModifiedBy: owner ?? 'Unnamed',
       owner: owner ?? '',
       subject: '',
-      title: title,
+      title: title ?? 'Unnamed',
       revisions: 1,
       modifiedAt: DateTime.now(),
       description: '',
@@ -80,6 +82,7 @@ class DocumentOptions {
   final DocumentStylesSheet docStyles;
   final EditorOptions editorSettings;
   final int revisions;
+  final Set<String> supportedFileExtensions;
 
   late final DocumentMargins margins;
 

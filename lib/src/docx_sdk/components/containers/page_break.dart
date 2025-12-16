@@ -27,7 +27,7 @@ class PageBreak extends ComponentContainer {
   final String _type;
 
   @override
-  XmlElement buildXml({required DocxComponentContext context}) {
+  XmlElement buildXml({required DocumentContext context}) {
     return XmlElement.tag(
       xmlParagraphNode,
       children: [
@@ -38,7 +38,7 @@ class PageBreak extends ComponentContainer {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required DocxComponentContext context}) {
+  List<XmlElement> buildXmlStyle({required DocumentContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         xmlParagraphBlockAttrsNode,

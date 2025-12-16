@@ -1,3 +1,8 @@
+class DocxPaths {
+  const DocxPaths._();
+
+  //TODO: i'll move them later
+}
 // Root/
 /// content types file
 const String contentTypesPath = '[Content_Types].xml';

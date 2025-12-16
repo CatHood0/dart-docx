@@ -1,270 +1,232 @@
-import 'package:xml/xml.dart';
+import '../../../../../docx.dart';
+import '../../../xml_components/numbering/formats.dart';
+import '../../../xml_components/numbering/level_options.dart';
 
-import '../../../../core/namespaces.dart';
-import '../../../sdk.dart';
-
-XmlDocument generateNumberingXMLTemplate() => XmlDocument(
-      <XmlNode>[
-        XmlDefaults.declaration,
-        XmlElement.tag(
-          'w:numbering',
-          attributes: <XmlAttribute>[
-            XmlAttribute(
-              XmlName.fromString('xmlns:w'),
-              namespaces['w']!,
-            ),
-            XmlAttribute(
-              XmlName.fromString('xmlns:ve'),
-              namespaces['ve']!,
-            ),
-            XmlAttribute(
-              XmlName.fromString('xmlns:o'),
-              namespaces['o']!,
-            ),
-            XmlAttribute(
-              XmlName.fromString('xmlns:r'),
-              namespaces['r']!,
-            ),
-            XmlAttribute(
-              XmlName.fromString('xmlns:v'),
-              namespaces['v']!,
-            ),
-            XmlAttribute(
-              XmlName.fromString('xmlns:wp'),
-              namespaces['wp']!,
-            ),
-            XmlAttribute(
-              XmlName.fromString('xmlns:w10'),
-              namespaces['w10']!,
-            ),
-            XmlAttribute(
-              XmlName.fromString('xmlns:wne'),
-              namespaces['wne']!,
-            ),
-          ],
-          children: <XmlNode>[
-            XmlElement.tag(
-              'w:abstractNum',
-              attributes: <XmlAttribute>[
-                XmlAttribute(
-                  XmlName('w:abstractNumId'),
-                  '0',
-                ),
-              ],
-              children: <XmlNode>[
-                XmlElement.tag(
-                  'w:nsid',
-                  attributes: [
-                    XmlAttribute(
-                      XmlName('w:val'),
-                      '00000000',
-                    ),
-                  ],
-                ),
-                XmlElement.tag(
-                  'w:multiLevelType',
-                  attributes: [
-                    XmlAttribute(
-                      XmlName('w:val'),
-                      'hybridMultilevel',
-                    )
-                  ],
-                ),
-                XmlElement.tag(
-                  'w:tmpl',
-                  attributes: [
-                    XmlAttribute(
-                        XmlName(
-                          'w:val',
-                        ),
-                        'B06C0C46'),
-                  ],
-                ),
-                XmlElement.tag(
-                  'w:lvl',
-                  attributes: <XmlAttribute>[
-                    XmlAttribute(XmlName('w:ilvl'), '0'),
-                  ],
-                  children: <XmlNode>[
-                    XmlElement.tag(
-                      'w:start',
-                      attributes: [
-                        XmlAttribute(XmlName('w:val'), '1'),
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'w:numFmt',
-                      attributes: [
-                        XmlAttribute(
-                          XmlName('w:val'),
-                          'bullet',
-                        ),
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'w:lvlText',
-                      attributes: [
-                        XmlAttribute(
-                          XmlName('w:val'),
-                          '•',
-                        ),
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'w:lvlJc',
-                      attributes: [
-                        XmlAttribute(
-                          XmlName('w:val'),
-                          'left',
-                        ),
-                      ],
-                    ),
-                    XmlElement.tag('w:pPr', children: [
-                      XmlElement.tag('w:ind', attributes: [
-                        XmlAttribute(XmlName('w:left'), '720'),
-                        XmlAttribute(XmlName('w:hanging'), '360'),
-                      ]),
-                    ]),
-                  ],
-                ),
-              ],
-            ),
-            XmlElement.tag(
-              'w:abstractNum',
-              attributes: <XmlAttribute>[
-                XmlAttribute(XmlName('w:abstractNumId'), '1'),
-              ],
-              children: <XmlNode>[
-                XmlElement.tag(
-                  'w:nsid',
-                  attributes: [
-                    XmlAttribute(
-                      XmlName('w:val'),
-                      '00000001',
-                    ),
-                  ],
-                ),
-                XmlElement.tag(
-                  'w:multiLevelType',
-                  attributes: [
-                    XmlAttribute(
-                      XmlName('w:val'),
-                      'hybridMultilevel',
-                    )
-                  ],
-                ),
-                XmlElement.tag(
-                  'w:tmpl',
-                  attributes: [
-                    XmlAttribute(
-                      XmlName('w:val'),
-                      '98E846A0',
-                    ),
-                  ],
-                ),
-                XmlElement.tag(
-                  'w:lvl',
-                  attributes: <XmlAttribute>[
-                    XmlAttribute(XmlName('w:ilvl'), '0'),
-                  ],
-                  children: <XmlNode>[
-                    XmlElement.tag(
-                      'w:start',
-                      attributes: [
-                        XmlAttribute(
-                          XmlName('w:val'),
-                          '1',
-                        ),
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'w:numFmt',
-                      attributes: [
-                        XmlAttribute(
-                          XmlName('w:val'),
-                          'decimal',
-                        )
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'w:lvlText',
-                      attributes: [
-                        XmlAttribute(
-                          XmlName('w:val'),
-                          '%1.',
-                        ),
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'w:lvlJc',
-                      attributes: [
-                        XmlAttribute(
-                          XmlName('w:val'),
-                          'left',
-                        ),
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'w:pPr',
-                      children: [
-                        XmlElement.tag(
-                          'w:ind',
-                          attributes: [
-                            XmlAttribute(
-                              XmlName('w:left'),
-                              '720',
-                            ),
-                            XmlAttribute(
-                              XmlName('w:hanging'),
-                              '360',
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            XmlElement.tag(
-              'w:num',
-              attributes: <XmlAttribute>[
-                XmlAttribute(XmlName('w:numId'), '1'),
-              ],
-              children: <XmlNode>[
-                XmlElement.tag(
-                  'w:abstractNumId',
-                  attributes: [
-                    XmlAttribute(
-                      XmlName('w:val'),
-                      '0',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            XmlElement.tag(
-              'w:num',
-              attributes: <XmlAttribute>[
-                XmlAttribute(
-                  XmlName('w:numId'),
-                  '2',
-                ),
-              ],
-              children: <XmlNode>[
-                XmlElement.tag(
-                  'w:abstractNumId',
-                  attributes: [
-                    XmlAttribute(
-                      XmlName('w:val'),
-                      '1',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-          isSelfClosing: false,
-        ),
-      ],
-    );
+List<NumberingOptions> genDefaultNumberingOptions() => <NumberingOptions>[
+      NumberingOptions(
+        refKey: 'unordered',
+        levels: <LevelOptions>[
+          LevelOptions(
+            level: 0,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: inchToFromTwip(0.5).toInt(),
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 1,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: inchToFromTwip(1).toInt(),
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 2,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 2160,
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 3,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 2880,
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 4,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 3600,
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 5,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 4320,
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 6,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 5040,
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 7,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 5760,
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 8,
+            format: LevelFormat.bullet,
+            text: '\u25CF',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 6480,
+                  hanging: inchToFromTwip(0.25).toInt(),
+                )
+                .build(),
+          ),
+        ],
+      ),
+      NumberingOptions(
+        refKey: 'ordered',
+        levels: <LevelOptions>[
+          LevelOptions(
+            level: 0,
+            format: LevelFormat.decimal,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 720,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 1,
+            format: LevelFormat.lowerLetter,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 1440,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 2,
+            format: LevelFormat.lowerRoman,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 2160,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 3,
+            format: LevelFormat.decimal,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 2880,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 4,
+            format: LevelFormat.lowerLetter,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 3600,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 5,
+            format: LevelFormat.lowerRoman,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 4320,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 6,
+            format: LevelFormat.decimal,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 5040,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 7,
+            format: LevelFormat.lowerLetter,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 5760,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+          LevelOptions(
+            level: 8,
+            format: LevelFormat.lowerRoman,
+            text: '%1.',
+            start: 1,
+            paragraphStyle: StyleBuilder.singularP()
+                .indent(
+                  left: 6480,
+                  hanging: 360,
+                )
+                .build(),
+          ),
+        ],
+      ),
+    ];
