@@ -1,9 +1,13 @@
-## DOCX: Easily generate .docx files with Dart
+## Dart-DOCX: Easily generate .docx files with Dart
 
-**Docx** is a powerful and versatile parser designed to allow us to create documents using a high level API. It also converts from/to different formats, including **HTML**, **Markdown**, **plain text**, and **Quill Delta**. We can seamlessly transform content across popular formats and Word documents while preserving structure, formatting, and the richness of the original content.
+**Docx** is a powerful and versatile parser designed to allow us to create documents using a high level API. 
+
+We designed also multiple parsers to be from/to formats, **HTML**, **Markdown**, **plain text**, and **Quill Delta**, are the planed ones. 
+
+We can seamlessly transform content across popular formats and Word documents while preserving structure, formatting, and the richness of the original content (as well as we can, since, multiple formats does not support paginations, positioning, or some complex features that comes from word).
 
 > [!IMPORTANT]
-> I'm working yet to make more easy the API to build docx components and customize them. 
+> I'm working yet to make easy the API to build docx components and customize them. 
 >
 > The other formats will be builded soon.
 >
@@ -30,11 +34,9 @@ dependencies:
 
 ## Basic Usage
 
-The core of the library is the `DocxDocumentSdk` class, which orchestrates the creation of all internal XML components of a `.docx` file from a `DocxComponentContainer`.
-
 ### 1. Define the Document Content
 
-Your document content is structured using classes that extend `DocxContent` and `ComponentContainer`. `DocxComponentContainer` is the root container, and within it you can add `Paragraph`s, `TextRun`s, `Image`s, `HyperlinkRun`s, etc.
+Your document content is structured using classes that extend `DocxContent` and `ComponentContainer`. `DocxDocument` is the, and within it you can add `Paragraph`s, `TextRun`s, `Image`s, `HyperlinkRun`s, etc.
 
 Here is an example of how to create a simple document with a paragraph and an image:
 
@@ -43,18 +45,15 @@ import 'dart:io';
 import 'package:docx/docx.dart';
 
 Future<void> main() async {
-  final DocumentOptions options = DocumentOptions(
-    title: 'My First DOCX Document',
-    author: 'CodeCompanion',
-    subject: 'docx_transformer example',
-  );
-
-  final DocxDocumentSdk docxSdk = DocxDocumentSdk(options: options);
-
-  final DocxComponentContainer documentContent = DocxComponentContainer(
-    contents: [
+  final DocxDocument document = DocxDocument(
+    options: DocumentOptions(
+        title: 'My First DOCX Document',
+        author: 'CodeCompanion',
+        subject: 'docx_transformer example',
+    ),
+    sections: <ComponentContainer<dynamic>>[
       Paragraph(
-        data: <TextRunBase>[ 
+        data: <RunBase>[ 
             TextRun(
               data: TextPart(
                 text: 'This is a paragraph with bold text. ',
@@ -77,7 +76,7 @@ Future<void> main() async {
         pageBreak: ParagraphPageBreak.none,
       ),
       Paragraph(
-        data: [
+        data: <RunBase>[
           TextRun(
             data: TextPart(text: 'Here is a line break.'),
           ),
@@ -95,12 +94,9 @@ Future<void> main() async {
     ],
   );
 
-  final String outputPath = 'generated_document.docx';
-  await docxSdk.save(
-    documentContent,
-    filePath: outputPath,
-    supportedFileExtensions: {'jpg', 'png'}, // Supported image extensions
-  );
+  final File file = File('generated_document.docx');
+  final bytes = await DocxMetadataPacker.instance.bytes(documentContent);
+  await file.writeAsBytes(bytes!);
 
   print('DOCX document generated at: $outputPath');
 }
@@ -108,52 +104,54 @@ Future<void> main() async {
 
 ### 2. Stream-Based Document Generation
 
-For larger document operations or to display progress to the user, you can use `createDocumentStream` which returns a `Stream<DocxEvent>`:
+For larger document operations or to display progress to the user, you can use `stream` which returns a `Stream<DocxEvent>`:
 
-````dart
-import 'dart:io';
-import 'package:docx/docx.dart';
+_I'll fix this section later, when stream implementation be corrected_
 
-Future<void> generateDocumentWithStream() async {
-  final DocumentOptions options =
-      DocumentOptions.blank(title: 'Stream Document');
-  final DocxComponentContainer documentContent = DocxComponentContainer(
-    contents: [
-      Paragraph(data: [TextRun(data: TextPart(text: 'Test content.'))])
-    ],
-  );
-
-  final DocxDocumentSdk docxSdk = DocxDocumentSdk(options: options);
-  final String outputPath = 'stream_document.docx';
-
-  await for (final event in docxSdk.createDocumentStream(
-    documentContent,
-    supportedFileExtensions: {'png'},
-  )) {
-    if (event is StartEvent) {
-      print('Starting document generation...');
-    }
-    if (event is ProgressEvent) {
-      print('Progress: ${event.current}/${event.total} - ${event.subject}');
-    }
-    if (event is SearchingEvent) {
-      print(event.subject);
-    }
-    if (event is EndEvent) {
-      if (event.error != null) {
-        print('Error generating document: ${event.error}');
-      } else {
-        print('Document generated successfully.');
-        // You can save the Uint8List if needed
-        final Uint8List? bytes = Uint8List.fromList(event.result!);
-        if (bytes != null) {
-          await File(outputPath).writeAsBytes(bytes);
-          print('Document saved at: $outputPath');
-        }
-      }
-    }
-}
-````
+<!-- ````dart -->
+<!-- import 'dart:io'; -->
+<!-- import 'package:docx/docx.dart'; -->
+<!---->
+<!-- Future<void> generateDocumentWithStream() async { -->
+<!--   final DocumentOptions options = -->
+<!--       DocumentOptions.blank(title: 'Stream Document'); -->
+<!--     final DocxDocument document =   -->
+<!--     contents: [ -->
+<!--       Paragraph(data: [TextRun(data: TextPart(text: 'Test content.'))]) -->
+<!--     ], -->
+<!--   ); -->
+<!---->
+<!--   final DocxDocumentSdk docxSdk = DocxDocumentSdk(options: options); -->
+<!--   final String outputPath = 'stream_document.docx'; -->
+<!---->
+<!--   await for (final event in docxSdk.createDocumentStream( -->
+<!--     documentContent, -->
+<!--     supportedFileExtensions: {'png'}, -->
+<!--   )) { -->
+<!--     if (event is StartEvent) { -->
+<!--       print('Starting document generation...'); -->
+<!--     } -->
+<!--     if (event is ProgressEvent) { -->
+<!--       print('Progress: ${event.current}/${event.total} - ${event.subject}'); -->
+<!--     } -->
+<!--     if (event is SearchingEvent) { -->
+<!--       print(event.subject); -->
+<!--     } -->
+<!--     if (event is EndEvent) { -->
+<!--       if (event.error != null) { -->
+<!--         print('Error generating document: ${event.error}'); -->
+<!--       } else { -->
+<!--         print('Document generated successfully.'); -->
+<!--         // You can save the Uint8List if needed -->
+<!--         final Uint8List? bytes = Uint8List.fromList(event.result!); -->
+<!--         if (bytes != null) { -->
+<!--           await File(outputPath).writeAsBytes(bytes); -->
+<!--           print('Document saved at: $outputPath'); -->
+<!--         } -->
+<!--       } -->
+<!--     } -->
+<!-- } -->
+<!-- ```` -->
 
 ## Style Customization
 
