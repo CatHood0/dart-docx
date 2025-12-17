@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
+import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
-import '../../../core/namespaces.dart';
 import '../../sdk.dart';
 import '../../utils/image_utils.dart';
 
@@ -25,10 +25,10 @@ class Image extends ComponentContainer<ImageData<Uint8List>> {
           alt: data.alt,
           name: data.name,
           unit: data.unit,
-          verticalOffset: data.verticalOffset,
-          verticalAlign: data.verticalAlign,
-          horizontalOffset: data.horizontalOffset,
-          horizontalAlign: data.horizontalAlign,
+          frameAlignY: data.frameAlignY,
+          frameOffsetY: data.frameOffsetY,
+          frameOffsetX: data.frameOffsetX,
+          frameAlignX: data.frameAlignX,
         ),
       );
 
@@ -43,6 +43,14 @@ class Image extends ComponentContainer<ImageData<Uint8List>> {
         'founded into the DocxComponentContext',
       );
     }
+    final String wrapType = data.wrapType();
+
+    final int? zIndex = data.positioning == ImagePositioning.behindText
+        ? -1
+        : data.positioning == ImagePositioning.inFrontOfText
+            ? 1
+            : null;
+
     final int docPrId = context.store.getMediaIdForRef(super.id) ??
         context.store.getMediaIdForRef(rId!) ??
         context.store.generateMediaId();
@@ -56,8 +64,8 @@ class Image extends ComponentContainer<ImageData<Uint8List>> {
       imgHeightEmu = data.height!.toEmuFromUnit(data.unit);
     }
 
-    //TODO: we will need to create our own decoders for different 
-    // image extensions than jpeg, gif, png, webp, bmp. 
+    //TODO: we will need to create our own decoders for different
+    // image extensions than jpeg, gif, png, webp, bmp.
     if (imgWidthEmu == null && imgHeightEmu == null) {
       final Uint8List bytes = data.buffer;
       final Size size = ImageSizeGetter.getSizeResult(MemoryInput(bytes)).size;
@@ -80,15 +88,58 @@ class Image extends ComponentContainer<ImageData<Uint8List>> {
                 XmlAttribute(XmlName.fromString('distB'), '0'),
                 XmlAttribute(XmlName.fromString('distL'), '0'),
                 XmlAttribute(XmlName.fromString('distR'), '0'),
+                XmlAttribute(XmlName.fromString('simplePos'), '0'),
+                XmlAttribute(XmlName.fromString('relativeHeight'), '0'),
+                XmlAttribute(
+                  XmlName.fromString('behindDoc'),
+                  data.positioning == ImagePositioning.behindText ? '1' : '0',
+                ),
+                XmlAttribute(XmlName.fromString('locked'), '0'),
+                XmlAttribute(XmlName.fromString('layoutInCell'), '1'),
+                XmlAttribute(XmlName.fromString('allowOverlap'), '1'),
               ],
               children: <XmlNode>[
+                XmlElement.tag(
+                  'wp:simplePos',
+                  attributes: [
+                    XmlAttribute(XmlName.fromString('x'), '0'),
+                    XmlAttribute(XmlName.fromString('y'), '0'),
+                  ],
+                  isSelfClosing: true,
+                ),
+                // external offsets
+                XmlOffsetPosition(
+                  x: true,
+                  alignment: data.frameAlignX,
+                  offset: data.offsetX,
+                ).buildXml(context),
+                XmlOffsetPosition(
+                  x: false,
+                  alignment: data.frameAlignY,
+                  offset: data.offsetY,
+                ).buildXml(context),
+                XmlElement.tag(
+                  'wp:wrap${wrapType.capitalize()}',
+                  isSelfClosing: true,
+                  attributes: [
+                    if (wrapType == 'square' || wrapType == 'tight')
+                      XmlAttribute(
+                        XmlName.fromString('wrapText'),
+                        'bothSides',
+                      ),
+                  ],
+                ),
                 XmlElement.tag(
                   'wp:extent',
                   attributes: [
                     XmlAttribute(
-                        XmlName.fromString('cx'), imgWidthEmu.toString()),
+                      XmlName.fromString('cx'),
+                      imgWidthEmu.toString(),
+                    ),
                     XmlAttribute(
-                        XmlName.fromString('cy'), imgHeightEmu.toString()),
+                      XmlName.fromString('cy'),
+                      imgHeightEmu.toString(),
+                    ),
                   ],
                   isSelfClosing: true,
                 ),
@@ -102,144 +153,156 @@ class Image extends ComponentContainer<ImageData<Uint8List>> {
                       XmlName.fromString('descr'),
                       data.alt ?? imageName,
                     ),
+                    if (zIndex != null)
+                      XmlAttribute(
+                        XmlName.fromString('relativeHeight'),
+                        zIndex.toString(),
+                      ),
                   ],
                 ),
                 XmlElement.tag(
-                  'a:graphic',
+                  'wp:cNvGraphicFramePr',
+                  isSelfClosing: true,
+                ),
+                _buildGraphicContent(
+                  docPrId: docPrId,
+                  imageName: imageName,
+                  imgWidthEmu: imgWidthEmu!,
+                  imgHeightEmu: imgHeightEmu!,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  XmlElement _buildGraphicContent({
+    required int docPrId,
+    required String imageName,
+    required num imgWidthEmu,
+    required num imgHeightEmu,
+  }) {
+    return XmlElement.tag(
+      'a:graphic',
+      isSelfClosing: false,
+      children: [
+        XmlElement.tag(
+          'a:graphicData',
+          isSelfClosing: false,
+          attributes: [
+            XmlAttribute(
+              XmlName.fromString('uri'),
+              namespaces['pic']!,
+            ),
+          ],
+          children: [
+            XmlElement.tag(
+              'pic:pic',
+              isSelfClosing: false,
+              children: [
+                XmlElement.tag(
+                  'pic:nvPicPr',
                   isSelfClosing: false,
-                  attributes: [
-                    XmlAttribute(
-                        XmlName.fromString('xmlns:a'), namespaces['a']!),
-                  ],
                   children: [
                     XmlElement.tag(
-                      'a:graphicData',
+                      'pic:cNvPr',
+                      isSelfClosing: true,
+                      attributes: [
+                        XmlAttribute(
+                          XmlName.fromString('id'),
+                          docPrId.toString(),
+                        ),
+                        XmlAttribute(
+                          XmlName.fromString('name'),
+                          imageName,
+                        ),
+                      ],
+                    ),
+                    XmlElement.tag(
+                      'pic:cNvPicPr',
+                      isSelfClosing: true,
+                    ),
+                  ],
+                ),
+                XmlElement.tag(
+                  'pic:blipFill',
+                  isSelfClosing: false,
+                  children: [
+                    XmlElement.tag(
+                      'a:blip',
+                      attributes: [
+                        XmlAttribute(
+                          XmlName.fromString('r:embed'),
+                          rId!,
+                        ),
+                      ],
+                      isSelfClosing: true,
+                    ),
+                    XmlElement.tag(
+                      'a:stretch',
+                      isSelfClosing: false,
+                      children: [
+                        XmlElement.tag(
+                          'a:fillRect',
+                          isSelfClosing: true,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                XmlElement.tag(
+                  'pic:spPr',
+                  isSelfClosing: false,
+                  children: [
+                    XmlElement.tag(
+                      'a:xfrm',
+                      isSelfClosing: false,
+                      children: [
+                        XmlElement.tag(
+                          'a:off',
+                          isSelfClosing: true,
+                          attributes: [
+                            XmlAttribute(
+                              XmlName.fromString('x'),
+                              data.frameOffsetX.toString(),
+                            ),
+                            XmlAttribute(
+                              XmlName.fromString('y'),
+                              data.frameOffsetY.toString(),
+                            ),
+                          ],
+                        ),
+                        XmlElement.tag(
+                          'a:ext',
+                          isSelfClosing: true,
+                          attributes: [
+                            XmlAttribute(
+                              XmlName.fromString('cx'),
+                              imgWidthEmu.toString(),
+                            ),
+                            XmlAttribute(
+                              XmlName.fromString('cy'),
+                              imgHeightEmu.toString(),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    XmlElement.tag(
+                      'a:prstGeom',
                       isSelfClosing: false,
                       attributes: [
                         XmlAttribute(
-                          XmlName.fromString('uri'),
-                          'http://schemas.openxmlformats.org/drawingml/2006/picture',
+                          XmlName.fromString('prst'),
+                          'rect',
                         ),
                       ],
                       children: [
                         XmlElement.tag(
-                          'pic:pic',
-                          isSelfClosing: false,
-                          attributes: [
-                            XmlAttribute(
-                              XmlName.fromString('xmlns:pic'),
-                              'http://schemas.openxmlformats.org/drawingml/2006/picture',
-                            ),
-                          ],
-                          children: [
-                            XmlElement.tag(
-                              'pic:nvPicPr',
-                              isSelfClosing: false,
-                              children: [
-                                XmlElement.tag(
-                                  'pic:cNvPr',
-                                  isSelfClosing: true,
-                                  attributes: [
-                                    XmlAttribute(
-                                      XmlName.fromString('id'),
-                                      docPrId.toString(),
-                                    ),
-                                    XmlAttribute(
-                                      XmlName.fromString('name'),
-                                      imageName.removeAllWhitespaces(),
-                                    ),
-                                  ],
-                                ),
-                                XmlElement.tag('pic:cNvPicPr',
-                                    isSelfClosing: true),
-                              ],
-                            ),
-                            XmlElement.tag(
-                              'pic:blipFill',
-                              isSelfClosing: false,
-                              children: [
-                                XmlElement.tag(
-                                  'a:blip',
-                                  attributes: [
-                                    XmlAttribute(
-                                      XmlName.fromString('r:embed'),
-                                      rId!,
-                                    ),
-                                  ],
-                                  isSelfClosing: true,
-                                ),
-                                XmlElement.tag(
-                                  'a:stretch',
-                                  isSelfClosing: false,
-                                  children: [
-                                    XmlElement.tag(
-                                      'a:fillRect',
-                                      isSelfClosing: true,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            XmlElement.tag(
-                              'pic:spPr',
-                              isSelfClosing: false,
-                              children: [
-                                XmlElement.tag(
-                                  'a:xfrm',
-                                  isSelfClosing: false,
-                                  children: [
-                                    XmlElement.tag(
-                                      'a:off',
-                                      isSelfClosing: true,
-                                      attributes: [
-                                        XmlAttribute(
-                                          XmlName.fromString('x'),
-                                          data.hasOffset
-                                              ? data.offsetX.toString()
-                                              : '0',
-                                        ),
-                                        XmlAttribute(
-                                          XmlName.fromString('y'),
-                                          data.hasOffset
-                                              ? data.offsetY.toString()
-                                              : '0',
-                                        ),
-                                      ],
-                                    ),
-                                    XmlElement.tag(
-                                      'a:ext',
-                                      isSelfClosing: true,
-                                      attributes: [
-                                        XmlAttribute(
-                                          XmlName.fromString('cx'),
-                                          imgWidthEmu.toString(),
-                                        ),
-                                        XmlAttribute(
-                                          XmlName.fromString('cy'),
-                                          imgHeightEmu.toString(),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                XmlElement.tag(
-                                  'a:prstGeom',
-                                  isSelfClosing: false,
-                                  attributes: [
-                                    XmlAttribute(
-                                      XmlName.fromString('prst'),
-                                      'rect',
-                                    ),
-                                  ],
-                                  children: [
-                                    XmlElement.tag('a:avLst',
-                                        isSelfClosing:
-                                            true), // a:avLst es autocerrado
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
+                          'a:avLst',
+                          isSelfClosing: true,
                         ),
                       ],
                     ),
@@ -277,5 +340,36 @@ class Image extends ComponentContainer<ImageData<Uint8List>> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <Image>[this] : null;
+  }
+}
+
+class XmlOffsetPosition extends XmlComponentBase<void> {
+  XmlOffsetPosition({
+    required bool x,
+    required this.alignment,
+    required this.offset,
+  }) : super(
+          xmlKey: x ? 'w:positionH' : 'w:positionV',
+          value: null,
+        );
+  final num offset;
+  final String alignment;
+
+  @override
+  XmlElement buildXml(DocumentContext context) {
+    return XmlElement.tag(
+      xmlKey,
+      isSelfClosing: false,
+      children: [
+        XmlElement.tag(
+          alignment == 'center' ? 'wp:align' : 'wp:posOffset',
+          children: [
+            XmlText(
+              alignment == 'center' ? 'center' : offset.toString(),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

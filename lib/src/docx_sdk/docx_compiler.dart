@@ -128,7 +128,6 @@ class DocxCompiler {
     //TODO: we need to pass these methods to XmlComponentBase
     // implementations
 
-
     _addXmlToArchive(
       archive,
       stylesXmlFilePath,

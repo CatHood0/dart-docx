@@ -1,6 +1,11 @@
 import 'package:xml/xml.dart';
 
 extension AlignString on String {
+  String capitalize() {
+    if (isEmpty) return this;
+    return this[0].toUpperCase() + substring(1);
+  }
+
   /// Compare if the string is equals to [compare] String passed
   ///
   /// if it is, then just return the replacement

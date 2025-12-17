@@ -32,10 +32,10 @@ class ImageData<T extends Object> {
     this.name,
     this.offsetX = -1,
     this.offsetY = -1,
-    this.verticalOffset,
-    this.horizontalOffset,
-    this.horizontalAlign,
-    this.verticalAlign,
+    this.frameOffsetY,
+    this.frameOffsetX,
+    this.frameAlignX = 'left',
+    this.frameAlignY = 'top',
   });
 
   String? name;
@@ -44,18 +44,42 @@ class ImageData<T extends Object> {
   final String extension;
   final double? width;
   final double? height;
+
   final List<Style> styles;
+
+  /// Global horizontal offset applied to the whole document
   final int offsetX;
+
+  /// Global vertical offset applied to the whole document
   final int offsetY;
 
   final ImagePositioning positioning = ImagePositioning.inline;
-  final int? verticalOffset; //
-  final int? horizontalOffset; //
-  final String? verticalAlign;
-  final String? horizontalAlign;
+
+  /// Internal Vertical offset applied only to the box where the image is painted
+  final int? frameOffsetY;
+
+  /// Internal Horizontal offset applied only to the box where the image is
+  final int? frameOffsetX;
+
+  /// Internal Vertical alignment applied to the box where the image is
+  final String frameAlignY;
+
+  /// Internal Horizontal alignment applied to the box where the image is
+  final String frameAlignX;
   final Unit unit;
 
-  bool get hasOffset => offsetX >= 0 && offsetY >= 0;
+  bool get hasGlobalOffset => offsetX >= 0 && offsetY >= 0;
+
+  String wrapType() {
+    return switch (positioning) {
+      ImagePositioning.square => 'square',
+      ImagePositioning.tight => 'tight',
+      ImagePositioning.behindText => 'none',
+      ImagePositioning.inFrontOfText => 'none',
+      ImagePositioning.topAndBottom => 'topAndBottom',
+      _ => 'square',
+    };
+  }
 
   @override
   String toString() {
