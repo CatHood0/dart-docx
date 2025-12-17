@@ -1,45 +1,59 @@
 import 'package:xml/xml.dart' as xml;
+import '../../../core/styles_builder/style_builder.dart';
 import '../../sdk.dart';
+import '../../utils/language_codes.dart';
 
 /// Represents the common styles used by the document
 ///
 /// Note: **all the styles into this class will be writted into [styles.xml]**
 class DocumentStylesSheet {
-  const DocumentStylesSheet({
+  DocumentStylesSheet({
     required this.styles,
-    DocDefaultParagraphStyles? docDefaultParagraphStyles,
-    DocDefaultInlineStyles? docDefaultInlineStyles,
-  })  : _docDefaultParagraphStyles = docDefaultParagraphStyles,
-        _docDefaultInlineStyles = docDefaultInlineStyles;
+    List<Style>? docDefaultParagraphStyles,
+    List<Style>? docDefaultInlineStyles,
+  })  : _docDefaultParagraphStyles = docDefaultParagraphStyles ?? <Style>[],
+        _docDefaultInlineStyles = docDefaultInlineStyles ?? <Style>[];
 
-  factory DocumentStylesSheet.fromXmlStyles(
-    xml.XmlDocument styleDoc, {
-    DocDefaultParagraphStyles? docDefaultParagraphStyles,
-    DocDefaultInlineStyles? docDefaultInlineStyles,
-  }) {
+  factory DocumentStylesSheet.fromXmlStyles(xml.XmlDocument styleDoc) {
+    //TODO: we need to get docDefaults to get appropiated configurators
     return DocumentStylesSheet(
       styles: convertXmlStylesToStyles(styleDoc),
-      docDefaultParagraphStyles: docDefaultParagraphStyles,
-      docDefaultInlineStyles: docDefaultInlineStyles,
+      docDefaultParagraphStyles: <Style>[],
+      docDefaultInlineStyles: <Style>[],
     );
   }
 
-  DocumentStylesSheet.base()
+  DocumentStylesSheet.base({EditorOptions? options})
       : styles = DefaultDocumentStyles.kDefaultDocumentStyleSheet.styles,
-        _docDefaultParagraphStyles = DocDefaultParagraphStyles.base(),
-        _docDefaultInlineStyles = DocDefaultInlineStyles.base();
+        _docDefaultParagraphStyles = [
+          StyleBuilder.singularP()
+              .spacing(after: 120, line: 240, rule: LineRule.atLeast)
+              .build(),
+        ],
+        _docDefaultInlineStyles = [
+          StyleBuilder.singularC()
+              .fontFamily(options?.fontFamily ?? 'Times New Roman')
+              .fontSize(
+                (options?.fontSize ?? 12).toDouble(),
+                options?.complexScriptFontSize.toDouble(),
+              )
+              .lang(options?.language ??
+                  DocxLanguage(language: LanguageCodes.englishUS))
+              .spacing(after: 120, line: 240, rule: LineRule.atLeast)
+              .build(),
+        ];
 
   /// There are the default values for the paragraphs styles used in styles.xml
-  final DocDefaultParagraphStyles? _docDefaultParagraphStyles;
+  final List<Style> _docDefaultParagraphStyles;
 
   /// There are the default values for the inline text of the paragraphs used in styles.xml
-  final DocDefaultInlineStyles? _docDefaultInlineStyles;
+  final List<Style> _docDefaultInlineStyles;
 
-  DocDefaultParagraphStyles get docDefaultParagraphStyles =>
-      _docDefaultParagraphStyles ?? DocDefaultParagraphStyles.base();
+  List<Style> get docDefaultParagraphStyles =>
+      List<Style>.from(_docDefaultParagraphStyles);
 
-  DocDefaultInlineStyles docDefaultInlineStyles() =>
-      _docDefaultInlineStyles ?? DocDefaultInlineStyles.base();
+  List<Style> get docDefaultRunParagraphStyles =>
+      List<Style>.from(_docDefaultInlineStyles);
 
   /// These are the global styles
   final List<Style> styles;

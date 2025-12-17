@@ -49,6 +49,28 @@ abstract class XmlComponentBase<T> {
       throw Exception('Not delete implemented yet for $runtimeType');
 }
 
+class XmlTextElementComponent<T> extends XmlComponentBase<T> {
+  XmlTextElementComponent({
+    required super.xmlKey,
+    required super.value,
+    super.attrs,
+  });
+
+  @override
+  XmlElement buildXml(DocumentContext context) {
+    return XmlElement.tag(
+      xmlKey,
+      attributes: attributes.buildXml(),
+      children: <XmlNode>[
+        XmlDefaults.text(
+          value.toString(),
+        ),
+      ],
+      isSelfClosing: true,
+    );
+  }
+}
+
 class XmlElementComponent<T> extends XmlComponentBase<T> {
   XmlElementComponent({
     required super.xmlKey,

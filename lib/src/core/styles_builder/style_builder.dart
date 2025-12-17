@@ -63,7 +63,13 @@ class StyleBuilder {
   bool _unhideWhenUsed = false;
 
   // Run properties (character formatting)
+  /// Usually used for w:sz that settings the size of
+  /// most of the common characters
   double? _fontSize;
+
+  /// Usually used for w:szCs that settings the size of
+  /// chinese, japanase and Korean characters
+  double? _fontEastAsiaSize;
   String? _fontFamily;
   String? _color;
   String? _highlightColor;
@@ -75,6 +81,7 @@ class StyleBuilder {
   Alignment? _alignment;
   int? _spacingBefore;
   int? _spacingAfter;
+  LineRule? _lineRule;
   int? _lineSpacing;
   int? _firstLineIndent;
   int? _leftIndent;
@@ -84,7 +91,7 @@ class StyleBuilder {
   int? _outlineLevel;
 
   // Language setting for runs
-  String? _language;
+  DocxLanguage? _language;
 
   /// Stores the configuration for paragraph borders.
   ///
@@ -197,8 +204,9 @@ class StyleBuilder {
   /// Sets the font size for the style.
   ///
   /// [size] is the font size in points (e.g., 12.0).
-  StyleBuilder fontSize(double size) {
+  StyleBuilder fontSize(double size, [double? eastAsiaSize]) {
     _fontSize = size;
+    _fontEastAsiaSize = eastAsiaSize ?? size;
     return this;
   }
 
@@ -258,9 +266,16 @@ class StyleBuilder {
   /// [before] is spacing before the paragraph in twips (1/20th of a point).
   /// [after] is spacing after the paragraph in twips.
   /// This setting is applicable only to paragraph styles.
-  StyleBuilder spacing({int? before, int? after}) {
+  StyleBuilder spacing({
+    int? before,
+    int? after,
+    int? line,
+    LineRule rule = LineRule.auto,
+  }) {
     if (before != null) _spacingBefore = before;
     if (after != null) _spacingAfter = after;
+    if (line != null) _lineSpacing = after;
+    _lineRule = rule;
     return this;
   }
 
@@ -318,8 +333,8 @@ class StyleBuilder {
   /// Sets the language for the text.
   ///
   /// [langCode] is the language code (e.g., 'en-US', 'es-MX').
-  StyleBuilder lang(String langCode) {
-    _language = langCode;
+  StyleBuilder lang(DocxLanguage language) {
+    _language = language;
     return this;
   }
 
@@ -488,7 +503,7 @@ class StyleBuilder {
               StyleConfigurator.selfClosing(
                 prefix: 'w',
                 propertyName: 'lineRule',
-                value: 'auto',
+                value: _lineRule!.name,
               ),
             );
         }
@@ -642,7 +657,7 @@ class StyleBuilder {
         StyleConfigurator.noSelfClosing(
           prefix: 'w',
           propertyName: 'rFonts',
-          attributes: {
+          attributes: <String, dynamic>{
             'w:ascii': _fontFamily,
             'w:hAnsi': _fontFamily,
             'w:eastAsia': _fontFamily,
@@ -653,7 +668,8 @@ class StyleBuilder {
     }
 
     if (_fontSize != null) {
-      final halfPoints = (_fontSize! * 2).toInt();
+      final int halfPoints = (_fontSize! * 2).toInt();
+      final int halfPointsCs = (_fontEastAsiaSize! * 2).toInt();
       textConfigs
         ..add(
           StyleConfigurator.selfClosing(
@@ -666,7 +682,7 @@ class StyleBuilder {
           StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'szCs',
-            value: halfPoints.toString(),
+            value: halfPointsCs.toString(),
           ),
         );
     }
@@ -720,12 +736,26 @@ class StyleBuilder {
     }
 
     if (_language != null) {
-      textConfigs.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'lang',
-          attributes: {'w:val': _language},
-        ),
+      textConfigs.addAll(
+        [
+          StyleConfigurator.selfClosing(
+            prefix: 'w',
+            propertyName: 'lang',
+            attributes: {'w:val': _language!.language},
+          ),
+          if (_language!.eastAsia.isNotEmpty)
+            StyleConfigurator.selfClosing(
+              prefix: 'w',
+              propertyName: 'eastAsia',
+              attributes: {'w:val': _language!.eastAsia},
+            ),
+          if (_language!.bidi.isNotEmpty)
+            StyleConfigurator.selfClosing(
+              prefix: 'w',
+              propertyName: 'bidi',
+              attributes: {'w:val': _language!.bidi},
+            ),
+        ],
       );
     }
 
@@ -751,6 +781,18 @@ class StyleBuilder {
 
 /// Represents the horizontal alignment options for a paragraph.
 enum Alignment { left, center, right, both }
+
+enum LineRule {
+  atLeast('atLeast'),
+  exact('exact'),
+  auto('auto');
+
+  /// Creates a [LineRule] with its corresponding WordML value.
+  const LineRule(this.value);
+
+  /// The WordML string value for the spacing style.
+  final String value;
+}
 
 /// Represents the possible border styles for a paragraph.
 enum BorderStyle {
@@ -783,9 +825,9 @@ enum BorderStyle {
   triple('triple'),
   wave('wave');
 
-  /// The WordML string value for the border style.
-  final String value;
-
   /// Creates a [BorderStyle] with its corresponding WordML value.
   const BorderStyle(this.value);
+
+  /// The WordML string value for the border style.
+  final String value;
 }

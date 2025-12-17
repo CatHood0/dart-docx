@@ -8,8 +8,10 @@ import 'package:xml/xml.dart' as xml;
 import '../../docx.dart';
 import 'events/docx_event.dart';
 import 'xml_components/docProps/xml_app_component.dart';
+import 'xml_components/docProps/xml_core_component.dart';
 import 'xml_components/rels/xml_document_rels_component.dart';
 import 'xml_components/rels/xml_rels_component.dart';
+import 'xml_components/styles/xml_styles_component.dart';
 
 /// [DocxCompiler] is responsible for compiling a [DocxDocument] object
 /// into a .docx file (a ZIP archive containing XML and media files).
@@ -113,7 +115,8 @@ class DocxCompiler {
         )
       ),
       (relsFilePath, XmlRelsComponent()),
-      (coreFilePath, XmlRelsComponent()),
+      (coreFilePath, XmlCoreComponent(options: document.options)),
+      (stylesXmlFilePath, XmlStylesComponent())
     ];
 
     for (int i = 0; i < components.length; i++) {
@@ -128,16 +131,6 @@ class DocxCompiler {
     //TODO: we need to pass these methods to XmlComponentBase
     // implementations
 
-    _addXmlToArchive(
-      archive,
-      stylesXmlFilePath,
-      () => generateStylesXML(documentContext.options),
-    );
-    _addXmlToArchive(
-      archive,
-      coreFilePath,
-      () => generateCoreXml(options),
-    );
     _addXmlToArchive(
       archive,
       contentTypesPath,

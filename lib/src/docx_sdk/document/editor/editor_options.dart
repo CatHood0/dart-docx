@@ -1,6 +1,20 @@
 import '../../utils/constants.dart';
+import '../../utils/language_codes.dart';
+import '../../xml_components/numbering/formats.dart';
 import 'editor_metadata.dart';
 import 'page_settings.dart';
+
+class DocxLanguage {
+  DocxLanguage({
+    required this.language,
+    this.eastAsia = '',
+    this.bidi = '',
+  });
+
+  final String language;
+  final String eastAsia;
+  final String bidi;
+}
 
 class EditorOptions {
   EditorOptions({
@@ -20,22 +34,29 @@ class EditorOptions {
     required this.complexScriptFontSize,
     required this.metadata,
   });
+
   factory EditorOptions.standard({
     PageSettings? size,
     EditorMetadata? metadata,
+    DocxLanguage? language,
   }) {
     return EditorOptions(
       fontFamily: defaultFont,
       fontSize: defaultFontSize,
       complexScriptFontSize: defaultFontSize,
+      //TODO:  we need to work of headers and footers
       headerType: 'default',
+      footerType: 'default',
       metadata: metadata ?? EditorMetadata.zero(),
       showHeader: false,
-      footerType: 'default',
       showFooter: false,
       pageSize: size ?? PageSettings.a4,
-      language: defaultLang,
-      defaultOrderedListStyleType: 'decimal',
+      language: language ?? DocxLanguage(
+        language: LanguageCodes.englishUS,
+        eastAsia: LanguageCodes.chineseCN,
+        bidi: LanguageCodes.arabicSA,
+      ),
+      defaultOrderedListStyleType: LevelFormat.decimal.name,
       showPageNumber: false,
       showLineNumber: false,
       lineNumberOptions: <String, dynamic>{
@@ -49,7 +70,7 @@ class EditorOptions {
   String fontFamily;
   String headerType;
   String footerType;
-  String language;
+  DocxLanguage language;
   String defaultOrderedListStyleType;
   bool showHeader;
   bool showFooter;

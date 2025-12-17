@@ -1,5 +1,6 @@
 import '../../core/extensions/string_ext.dart';
 import '../sdk.dart';
+import 'language_codes.dart';
 
 const String noColor = '000000';
 const String noVal = 'none';
@@ -105,7 +106,7 @@ int docPropertiesUniqueNumericIdGen() => uniqueNumericIdCreator(_uniqueNumId);
 
 const String defaultFont = 'Times New Roman';
 const int defaultFontSize = 22;
-const String defaultLang = 'en-US';
+const String defaultLang = LanguageCodes.englishUS;
 
 const String defaultOrderedListStyleType = 'decimal';
 

@@ -5,7 +5,7 @@ import '../../../../docx.dart';
 class XmlRelsComponent extends XmlComponentBase<List<RelationShip>> {
   XmlRelsComponent()
       : super(
-          xmlKey: '',
+          xmlKey: 'Relationships',
           value: [
             RelationShip(
               rId: 'rId1',
@@ -30,7 +30,7 @@ class XmlRelsComponent extends XmlComponentBase<List<RelationShip>> {
   @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
-      'RelationShip',
+      xmlKey,
       children: [
         ...value.map((el) => el.toXml()),
       ],

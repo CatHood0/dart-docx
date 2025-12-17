@@ -108,7 +108,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
         fullStyle = resultStyle.getDeepStyleRelation(context.options.docStyles);
       }
       appliedStyles[fullStyle.styleId] = fullStyle;
-      pPrChildren.addAll(fullStyle.toBlockStyleNodes(
+      pPrChildren.addAll(fullStyle.toParagraphStyleNodes(
         shouldShowStyleRef: shouldShowStyleRef,
       ));
     }

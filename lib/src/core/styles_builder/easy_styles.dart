@@ -1,4 +1,5 @@
 import '../../../docx.dart';
+import '../../docx_sdk/utils/language_codes.dart';
 
 class EasyStyles {
   static Style get normal => StyleBuilder.paragraph('Normal')
@@ -8,7 +9,7 @@ class EasyStyles {
       .alignment(Alignment.left)
       .spacing(before: 0, after: 160)
       .lineSpacing(240)
-      .lang('en-US')
+      .lang(DocxLanguage(language: LanguageCodes.englishUS))
       .qFormat(true)
       .build();
 

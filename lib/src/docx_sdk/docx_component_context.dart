@@ -22,7 +22,7 @@ class DocumentContext {
   late XmlAbstractNumComponent? Function(String ref)? abstractNum;
   late XmlConcreteNumberingComponent? Function(String ref)? concreteNum;
 
-  DocumentStylesSheet get styles => options.docStyles;
+  DocumentStylesSheet get docStyleSheet => options.docStyles;
 
   // all the media are saved
   // {filename: rid}
