@@ -1,5 +1,5 @@
-import 'package:docx/docx.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:docx/docx.dart';
 
 void main() {
   group('Style.getDeepStyleRelation', () {

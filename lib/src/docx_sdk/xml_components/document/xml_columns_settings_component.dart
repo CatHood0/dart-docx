@@ -50,7 +50,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnSettings> {
 
     // w:equalWidth attribute
     // Only add if explicitly false, or if true but numColumns is not set (Word default is 1)
-    if (value.equalWidth == false) {
+    if (!value.equalWidth) {
       attributes.add(
         XmlAttribute('w:equalWidth'.toName(), '0'),
       );

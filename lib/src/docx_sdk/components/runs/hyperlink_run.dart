@@ -4,7 +4,7 @@ import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
 
 //NOTE: probably we will need to implement internal
-// link relations. See http://officeopenxml.com/WPhyperlink.php 
+// link relations. See http://officeopenxml.com/WPhyperlink.php
 class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   HyperlinkRun({
     required super.data,
@@ -52,16 +52,17 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     final List<XmlElement> xmlStyles = <XmlElement>[];
     for (final Object style in styles) {
       if (style is Style && style.isInvalid) continue;
-      final XmlElement? styleXml = style is TextRunAttribution
-          ? style.toXml()
-          : (style as Style)
-              .toRunStyleNodes(
-                // only not reference styles have configurators
-                useConfigurators: !style.isReference,
-                shouldShowStyleRef: style.isReference,
-              )
-              .single;
-      if (styleXml != null) xmlStyles.add(styleXml);
+      if (style is TextRunAttribution) {
+        final el = style.toXml();
+        if (el != null) xmlStyles.add(el);
+      } else {
+        final List<XmlElement> elements = (style as Style).toRunStyleNodes(
+          // only not reference styles have configurators
+          useConfigurators: !style.isReference,
+          shouldShowStyleRef: style.isReference,
+        );
+        xmlStyles.addAll(elements);
+      }
     }
     return xmlStyles;
   }

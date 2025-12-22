@@ -107,25 +107,20 @@ double twipToCm(num twip) => twip / 567;
 typedef UniqueNumericIdCreator = int Function();
 
 int _uniqueNumId = 0;
-int _abstractUniqueNumId = 1;
-int _concreteUniqueNumId = 1;
+int _abstractUniqueNumId = 0;
+int _concreteUniqueNumId = 0;
 
 void reloadIds() {
   _uniqueNumId = 0;
-  _abstractUniqueNumId = 1;
+  _abstractUniqueNumId = 0;
+  _concreteUniqueNumId = 0;
 }
 
-int uniqueNumericIdCreator(int num) {
-  return ++num;
-}
+int abstractNumUniqueNumericIdGen() => ++_abstractUniqueNumId;
 
-int abstractNumUniqueNumericIdGen() =>
-    uniqueNumericIdCreator(_abstractUniqueNumId);
+int concreteNumUniqueNumericIdGen() => ++_concreteUniqueNumId;
 
-int concreteNumUniqueNumericIdGen() =>
-    uniqueNumericIdCreator(_concreteUniqueNumId);
-
-int docPropertiesUniqueNumericIdGen() => uniqueNumericIdCreator(_uniqueNumId);
+int docPropertiesUniqueNumericIdGen() => ++_uniqueNumId;
 
 const String defaultFont = 'Times New Roman';
 const int defaultFontSize = 22;

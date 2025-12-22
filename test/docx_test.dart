@@ -71,7 +71,6 @@ void main() {
               level: 0,
             ),
           ),
-          ColumnBreak(),
           Paragraph(
             data: <RunBase<dynamic>>[
               TextRun(
@@ -87,34 +86,6 @@ void main() {
                 ),
               ),
             ],
-          ),
-          TextFrame(
-            data: <DocxContent<dynamic>>[
-              TextRun(
-                data: TextPart(
-                  text: '',
-                ),
-              ),
-            ],
-            border: StyleBuilder.singularP()
-                .borders(
-                  leftColor: '#0000FF',
-                  rightColor: '#FFFF00',
-                  left: BorderStyle.dashDotStroked,
-                  right: BorderStyle.dashDotStroked,
-                )
-                .build(),
-            width: 500,
-            height: 500,
-            xAlign: FrameHorizontalAlignment.left,
-            // general text will be wrapped around this frame
-            wrap: FrameWrap.square,
-            // pinned horizontally
-            hAnchor: FrameAnchor.page,
-            // pinned vertically
-            vAnchor: FrameAnchor.page,
-            // put to top
-            yAlign: FrameVerticalAlignment.top,
           ),
           LazyImage(
             data: ImageData(

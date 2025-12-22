@@ -44,6 +44,15 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
       );
       referenceConfigMap[con.refKey] = con.levels;
     }
+    // we need to check if the id is not duplicated
+    final Set<num> temp = {};
+    for (final XmlAbstractNumComponent comp in abstractNumberingMap.values) {
+      if (temp.contains(comp.id)) {
+        throw 'Duplicate abstract id("${comp.id}") in $temp'
+            'found during XmlNumberingComponent build';
+      }
+      temp.add(comp.id);
+    }
   }
 
   // to allow to context getting these styles from just ref ids

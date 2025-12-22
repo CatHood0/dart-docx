@@ -97,6 +97,11 @@ extension StyleToNode on Style {
             xmlParagraphInlineAttsrNode,
             fullName: true,
           );
+    assert(
+      styleId.isNotEmpty,
+      'styleId must not '
+      'have empty string at this build phase.'
+    );
 
     return [
       if (shouldShowStyleRef)
@@ -105,7 +110,7 @@ extension StyleToNode on Style {
           attributes: [
             XmlAttribute(
               'w:val'.toName(),
-              styleName,
+              styleId,
             ),
           ],
           isSelfClosing: true,

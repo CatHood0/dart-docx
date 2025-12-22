@@ -26,7 +26,9 @@ class XmlDocumentSectionSettingsComponent
                 value: themeId,
               ),
             // Add column settings if present in DocumentOptions
-            if (options.columns != null)
+            if (options.columns != null &&
+                options.columns!.numColumns != null &&
+                options.columns!.numColumns! > 1)
               XmlColumnsSettingsComponent(
                 settings: options.columns!,
               ),
