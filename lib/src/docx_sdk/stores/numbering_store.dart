@@ -85,6 +85,9 @@ class NumberingStore {
                         0.25.toTwipsFromInches(), // 0.25 inch hanging indent
                   )
                   .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions(
               level: 1,
@@ -96,6 +99,9 @@ class NumberingStore {
                     left: 1.0.toTwipsFromInches(),
                     hanging: 0.25.toTwipsFromInches(),
                   )
+                  .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
                   .build(),
             ),
             LevelOptions(
@@ -109,6 +115,9 @@ class NumberingStore {
                     hanging: 0.25.toTwipsFromInches(),
                   )
                   .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions(
               level: 3,
@@ -120,6 +129,9 @@ class NumberingStore {
                     left: 2.0.toTwipsFromInches(),
                     hanging: 0.25.toTwipsFromInches(),
                   )
+                  .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
                   .build(),
             ),
             LevelOptions(
@@ -133,6 +145,9 @@ class NumberingStore {
                     hanging: 0.25.toTwipsFromInches(),
                   )
                   .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions(
               level: 5,
@@ -144,6 +159,9 @@ class NumberingStore {
                     left: 3.0.toTwipsFromInches(),
                     hanging: 0.25.toTwipsFromInches(),
                   )
+                  .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
                   .build(),
             ),
             LevelOptions(
@@ -157,6 +175,9 @@ class NumberingStore {
                     hanging: 0.25.toTwipsFromInches(),
                   )
                   .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions(
               level: 7,
@@ -169,6 +190,9 @@ class NumberingStore {
                     hanging: 0.25.toTwipsFromInches(),
                   )
                   .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions(
               level: 8,
@@ -180,6 +204,9 @@ class NumberingStore {
                     left: 4.5.toTwipsFromInches(),
                     hanging: 0.25.toTwipsFromInches(),
                   )
+                  .build(),
+              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+                  .fontFamily('Symbol')
                   .build(),
             ),
           ],

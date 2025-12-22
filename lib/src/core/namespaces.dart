@@ -112,6 +112,9 @@ final UnmodifiableMapView<String, String> namespaces = UnmodifiableMapView(
           'application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml',
       'webSettingsType':
           'application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml',
+      'appType':
+          'application/vnd.openxmlformats-officedocument.extended-properties+xml',
+      'coreType': 'application/vnd.openxmlformats-package.core-properties+xml',
     },
   ),
 );

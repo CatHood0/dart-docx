@@ -4,8 +4,10 @@ import '../../../docx.dart';
 
 class XmlContentTypeComponent
     extends XmlComponentBase<Iterable<XmlComponentBase>> {
-  XmlContentTypeComponent({required Iterable<String> extensions})
-      : super(
+  XmlContentTypeComponent({
+    required bool applyCustomTheme,
+    required Iterable<String> extensions,
+  }) : super(
           xmlKey: 'Types',
           attrs: XmlComponentAttributes(
             xmlAttributes: <String, Object>{
@@ -38,6 +40,14 @@ class XmlContentTypeComponent
               contentType: namespaces['documentType']!,
             ),
             XmlOverrideElementTypeComponent(
+              part: '/$appFilePath',
+              contentType: namespaces['appType']!,
+            ),
+            XmlOverrideElementTypeComponent(
+              part: '/$coreFilePath',
+              contentType: namespaces['coreType']!,
+            ),
+            XmlOverrideElementTypeComponent(
               part: '/$stylesXmlFilePath',
               contentType: namespaces['stylesType']!,
             ),
@@ -51,14 +61,11 @@ class XmlContentTypeComponent
             ),
             //NOTE: any new theme need to be added
             // in content type
-            XmlOverrideElementTypeComponent(
-              part: '/$theme1XmlFilePath',
-              contentType: namespaces['themeType']!,
-            ),
-            XmlOverrideElementTypeComponent(
-              part: '/$coreFilePath',
-              contentType: namespaces['corePropsType']!,
-            ),
+            if (applyCustomTheme)
+              XmlOverrideElementTypeComponent(
+                part: '/$theme1XmlFilePath',
+                contentType: namespaces['themeType']!,
+              ),
             XmlOverrideElementTypeComponent(
               part: '/$settingsXmlFilePath',
               contentType: namespaces['settingsType']!,
@@ -93,7 +100,10 @@ class XmlContentTypeComponent
       xmlKey,
       attributes: attributes.buildXml(),
       children: <XmlNode>[
-        ...value.map<XmlElement>((e) => e.buildXml(context)),
+        ...value.map<XmlElement>((
+          e,
+        ) =>
+            e.buildXml(context)),
       ],
     );
   }

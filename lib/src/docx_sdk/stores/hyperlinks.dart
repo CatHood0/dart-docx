@@ -56,12 +56,11 @@ class HyperlinkStore {
     int startingRId,
     String hyperlinkNamespace,
   ) {
-    int currentRId = startingRId;
     final List<RelationShip> hyperlinkRelationships = [];
 
     for (final HyperlinkRun hyperlink in _hyperlinks) {
-      currentRId++;
-      hyperlink.rId ??= 'rId$currentRId';
+      startingRId++;
+      hyperlink.rId ??= 'rId$startingRId';
       hyperlinkRelationships.add(
         RelationShip(
           rId: hyperlink.rId!,

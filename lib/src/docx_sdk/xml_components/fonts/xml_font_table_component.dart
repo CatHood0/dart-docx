@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
-import '../../../../docx.dart'; // Ensure docx.dart exports XmlComponentBase, XmlDefaults, etc.
-import '../../../core/extensions/skippable_iterations_ext.dart';
+import '../../../../docx.dart';
 import 'xml_font_component.dart';
 
 /// Represents the root `<w:fonts>` element in `fontTable.xml`.

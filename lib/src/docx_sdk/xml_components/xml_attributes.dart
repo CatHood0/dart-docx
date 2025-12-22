@@ -106,6 +106,7 @@ class XmlDocAttributes extends XmlComponentAttributes {
     bool w16sdtdh = false,
     bool w16se = false,
     bool sl = false,
+    bool relations = false,
     String ignorables = '',
     Map<String, String>? extra,
   }) : super(xmlAttributes: <String, Object>{
@@ -132,6 +133,7 @@ class XmlDocAttributes extends XmlComponentAttributes {
           if (dc) 'xmlns:dc': namespaces['dc']!,
           if (dcterms) 'xmlns:dcterms': namespaces['dcterms']!,
           if (dcmitype) 'xmlns:dcmitype': namespaces['dcmitype']!,
+          if (relations) 'xmlns': namespaces['relationship']!, 
           if (xsi) 'xmlns:xsi': namespaces['xsi']!,
           if (cx) 'xmlns:cx': namespaces['cx']!,
           if (cx1) 'xmlns:cx1': namespaces['cx1']!,

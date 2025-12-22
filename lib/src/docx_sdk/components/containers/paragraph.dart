@@ -5,26 +5,6 @@ import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
 
-enum ParagraphPagebreak {
-  after,
-  before,
-  none,
-}
-
-class Numbering {
-  Numbering({required this.reference, this.level = 0, this.instance});
-
-  final String reference;
-  final int level;
-
-  /// Usually you set an instance num
-  /// when you want to separate the current
-  /// element from other lists
-  //NOTE: should we manage these values internally
-  // to make this more easy to maintain?
-  final int? instance;
-}
-
 class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   Paragraph({
     required Iterable<RunBase> data,
@@ -61,13 +41,6 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
         ),
       );
     }
-    // create the references
-    for (final Numbering reference in references) {
-      context.registerInstance!.call(
-        reference.reference,
-        reference.instance ?? 0,
-      );
-    }
 
     if (pageBreak == ParagraphPagebreak.before) {
       paragraphChildren.add(_brPageBreak);
@@ -91,12 +64,17 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   }
 
   XmlElement get _brPageBreak => XmlElement.tag(
-        'w:br',
-        attributes: [
-          XmlAttribute(
-            'w:type'.toName(),
-            'page',
-          ),
+        'w:r',
+        children: [
+          XmlElement.tag(
+            'w:br',
+            attributes: [
+              XmlAttribute(
+                'w:type'.toName(),
+                'page',
+              ),
+            ],
+          )
         ],
       );
 
@@ -108,11 +86,21 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       if (numbering!.level > 9) {
         throw 'Level cannot be greater than 9. Read more here: '
             'https://answers.microsoft.com/en-us/msoffice/forum/'
-            'all/does-word-support-more-than-9-list-levels/d130fdcd-1781-446d-8c84-c6c79124e4d7';
+            'all/does-word-support-more-than-9-list-levels/'
+            'd130fdcd-1781-446d-8c84-c6c79124e4d7';
       }
-      references.add(numbering!);
-      final String numId =
-          '{${numbering!.reference}-${numbering!.instance ?? 0}}';
+      //TODO:  we need to check if the reference exist
+      // in the options
+      assert(
+        context.registerInstance != null,
+        'registerInstance must not be null at this point',
+      );
+      context.registerInstance!.call(
+        numbering!.reference,
+        numbering!.instance ?? 0,
+      );
+      final String reference =
+          '${numbering!.reference}-${numbering!.instance ?? 0}';
       pPrChildren.add(
         XmlElement.tag(
           'w:numPr',
@@ -131,7 +119,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
               attributes: [
                 XmlAttribute(
                   'w:val'.toName(),
-                  numId,
+                  context.getConcreteNumId!(reference)!.toString(),
                 ),
               ],
             ),
@@ -219,4 +207,24 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     }
     return elements;
   }
+}
+
+enum ParagraphPagebreak {
+  after,
+  before,
+  none,
+}
+
+class Numbering {
+  Numbering({required this.reference, this.level = 0, this.instance});
+
+  final String reference;
+  final int level;
+
+  /// Usually you set an instance num
+  /// when you want to separate the current
+  /// element from other lists
+  //NOTE: should we manage these values internally
+  // to make this more easy to maintain?
+  final int? instance;
 }

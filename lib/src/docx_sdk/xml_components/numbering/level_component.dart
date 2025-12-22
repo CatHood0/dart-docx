@@ -91,7 +91,7 @@ class LevelComponent extends XmlComponentBase<List<XmlComponentBase<dynamic>>> {
           ],
           attrs: XmlComponentAttributes(xmlAttributes: {
             'w:ilvl': ensureInteger(options.level),
-            'w15:tentative': 1,
+            'w15:tentative': '1',
           }),
         );
 

@@ -31,9 +31,13 @@ class DocumentContext {
   late void Function(String ref, int numId)? registerInstance;
   late Iterable<XmlAbstractNumComponent> Function()?
       getAbstractNumberingTemplates;
-  late Iterable<XmlConcreteNumberingComponent> Function()? getConcreteNumber;
-  late XmlAbstractNumComponent? Function(String ref)? abstractNum;
-  late XmlConcreteNumberingComponent? Function(String ref)? concreteNum;
+  late Iterable<XmlConcreteNumberingComponent> Function()?
+      getConcreteNumberingInstances;
+  late XmlAbstractNumComponent? Function(String ref)? getAbstractNumbering;
+  late XmlConcreteNumberingComponent? Function(String ref)?
+      getConcreteNumbering;
+  late num? Function(String ref)? getAbstractNumId;
+  late num? Function(String ref)? getConcreteNumId;
 
   DocumentStylesSheet get docStyleSheet => options.docStyles;
 

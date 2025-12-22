@@ -75,9 +75,11 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     context
       ..getAbstractNumberingTemplates = (() => abstractNumberingMap.values)
       ..registerInstance = registerConcreteInstance
-      ..getConcreteNumber = (() => concreteNumberingMap.values)
-      ..abstractNum = ((String ref) => abstractNumberingMap[ref])
-      ..concreteNum = ((String ref) => concreteNumberingMap[ref]);
+      ..getConcreteNumberingInstances = (() => concreteNumberingMap.values)
+      ..getAbstractNumId = ((String ref) => abstractNumberingMap[ref]?.id)
+      ..getConcreteNumId = ((String ref) => concreteNumberingMap[ref]?.numId)
+      ..getAbstractNumbering = ((String ref) => abstractNumberingMap[ref])
+      ..getConcreteNumbering = ((String ref) => concreteNumberingMap[ref]);
   }
 
   // every paragraph should manage its own ref instances
@@ -88,8 +90,7 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     final String effectiveReference = '$ref-$numRefId';
     if (concreteNumberingMap[effectiveReference] != null) return;
 
-    final List<LevelOptions>? referenceConfig =
-        referenceConfigMap[effectiveReference];
+    final List<LevelOptions>? referenceConfig = referenceConfigMap[ref];
     final int? firstLevelStartNumber = referenceConfig?.firstOrNull?.start;
 
     final ConcreteNumberingOptions concreteOptions = ConcreteNumberingOptions(

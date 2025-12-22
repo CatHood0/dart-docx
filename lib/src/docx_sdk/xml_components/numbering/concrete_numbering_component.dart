@@ -52,7 +52,9 @@ class XmlConcreteNumberingComponent
               xmlKey: 'w:abstractNumId',
               value: options.abstractRefId,
             ),
-            ...options.overrides.map((ele) {
+            ...options.overrides.map((
+              ConcreteLevelOverride ele,
+            ) {
               return ConcreteLevelOverrideComponent(
                 indentLevel: ele.indentLevel,
                 startAt: ele.startAt,
@@ -60,7 +62,7 @@ class XmlConcreteNumberingComponent
             }),
           ],
           attrs: XmlComponentAttributes(xmlAttributes: {
-            'v:numId': ensureInteger(options.numId),
+            'w:numId': ensureInteger(options.numId),
           }),
         );
 

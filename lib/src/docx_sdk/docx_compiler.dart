@@ -180,6 +180,7 @@ class DocxCompiler {
       (
         contentTypesPath,
         XmlContentTypeComponent(
+          applyCustomTheme: applyCustomTheme,
           extensions: [
             ...mediaStore.extensions,
             ...fontStore.extensions,
