@@ -1,7 +1,7 @@
 import 'package:archive/archive.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../docx.dart';
+import '../utils/values.dart';
 import '../xml_components/fonts/xml_font_table_component.dart';
 import '../xml_components/rels/xml_document_rels_component.dart';
 
@@ -22,21 +22,25 @@ class FontStore {
   /// The file path for the font table relationships XML.
   static String get relsFilePath => fontTableXmlRelsFilePath;
 
-  final Uuid _uuid = const Uuid(); // For generating GUIDs
-
   /// Stores all [FontProperties] that will be included in `fontTable.xml`.
   final List<FontProperties> _documentFonts = [];
+
+  final Set<String> _availableFamilies = <String>{};
 
   bool get hasFonts => _documentFonts.isNotEmpty;
 
   /// Stores the binary data of embedded fonts, keyed by their `fontKey` (GUID).
-  final Map<String, FontBinaryData> _embeddedFontBinaries = {};
+  final Map<String, FontBinaryData> _embeddedFontBinaries =
+      <String, FontBinaryData>{};
 
   /// Stores relationships for embedded fonts, keyed by rId.
-  final Map<String, RelationShip> _fontRelationships = {};
+  final Map<String, RelationShip> _fontRelationships = <String, RelationShip>{};
 
   /// Collects extensions of embedded font files (e.g., 'odttf').
   final Set<String> extensions = <String>{};
+
+  /// Stores all the families registered in this instance
+  Set<String> get availableFamilies => Set<String>.from(_availableFamilies);
 
   Map<String, RelationShip> get fontRelations => Map.from(_fontRelationships);
 
@@ -48,6 +52,7 @@ class FontStore {
     _documentFonts.clear();
     _embeddedFontBinaries.clear();
     _fontRelationships.clear();
+    _availableFamilies.isNotEmpty;
     extensions.clear();
     _lastFontRId = 0;
   }
@@ -64,8 +69,6 @@ class FontStore {
     // Add predefined fonts from options
     if (document.options.fonts.isNotEmpty) {
       for (final FontProperties fp in document.options.fonts) {
-        // Ensure that any font with binary data is fully added,
-        // and its embedRId is correctly set during addFont.
         addFont(fp);
       }
     }
@@ -76,9 +79,7 @@ class FontStore {
     }
 
     // Ensure default fonts like Calibri/Times New Roman are always present if not overridden
-    if (!_documentFonts.any(
-      (FontProperties font) => font.name == 'Calibri',
-    )) {
+    if (_availableFamilies.contains('Calibri')) {
       addFont(const FontProperties(
         name: 'Calibri',
         family: 'swiss',
@@ -86,9 +87,7 @@ class FontStore {
         pitch: 'variable',
       ));
     }
-    if (!_documentFonts.any(
-      (FontProperties font) => font.name == 'Times New Roman',
-    )) {
+    if (_availableFamilies.contains('Times New Roman')) {
       addFont(const FontProperties(
         name: 'Times New Roman',
         family: 'roman',
@@ -164,6 +163,10 @@ class FontStore {
 
     // Add discovered font names as basic FontProperties
     for (final String fontName in discoveredFontNames) {
+      // ignores all the fonts that are already registered
+      if (_availableFamilies.contains(fontName)) {
+        continue;
+      }
       addFont(FontProperties(
         name: fontName,
         family: 'auto',
@@ -177,6 +180,13 @@ class FontStore {
   /// If the font has [FontBinaryData], it also registers the binary for embedding
   /// and creates a relationship entry in `fontTable.xml.rels`.
   void addFont(FontProperties font) {
+    // Ensure that any font with binary data is fully added,
+    // and its embedRId is correctly set during addFont.
+    if (_availableFamilies.contains(font.name)) {
+      throw '${font.name} is already registered. Please, '
+          'ensure that you are passing '
+          'non duplicated font names';
+    }
     final int existingIndex = _documentFonts.indexWhere(
       (
         FontProperties f,
@@ -185,8 +195,6 @@ class FontStore {
     );
 
     FontProperties finalFont = font;
-    _documentFonts.add(font);
-
     if (font.fontBinaryData != null) {
       final FontBinaryData binary = font.fontBinaryData!;
       // Ensure fontKey is set, generate if null
@@ -226,11 +234,10 @@ class FontStore {
 
       // Add the obfuscated font extension to the set of known extensions
       extensions.add('odttf');
-    }
-
-    if (existingIndex != -1) {
-      _documentFonts[existingIndex] = finalFont;
-      return;
+      if (existingIndex != -1) {
+        _documentFonts[existingIndex] = finalFont;
+        return;
+      }
     }
     _documentFonts.add(finalFont);
   }
@@ -279,6 +286,6 @@ class FontStore {
   }
 
   String generateObfuscationKey() {
-    return _uuid.v4().toUpperCase();
+    return generateFontGuid();
   }
 }

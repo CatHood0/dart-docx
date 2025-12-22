@@ -1,5 +1,6 @@
 import 'package:xml/xml.dart';
 import '../../../../docx.dart'; // Ensure docx.dart exports XmlComponentBase, XmlDefaults, etc.
+import '../../../core/extensions/skippable_iterations_ext.dart';
 import 'xml_font_component.dart';
 
 /// Represents the root `<w:fonts>` element in `fontTable.xml`.
@@ -34,8 +35,9 @@ class XmlFontTableComponent extends XmlComponentBase<List<XmlFontComponent>> {
       attributes: attributes.buildXml(),
       children: value.map((
         XmlFontComponent n,
-      ) =>
-          n.buildXml(context)),
+      ) {
+        return n.buildXml(context);
+      }),
     );
   }
 
@@ -67,9 +69,9 @@ class XmlFontTableComponent extends XmlComponentBase<List<XmlFontComponent>> {
       String? pitch;
       String? sigUsb0, sigUsb1, sigUsb2, sigUsb3, sigCsb0, sigCsb1;
       EmbeddedFontRefOptions? embedRegular;
-      EmbeddedFontRefOptions? embedBold;
-      EmbeddedFontRefOptions? embedItalic;
-      EmbeddedFontRefOptions? embedBoldItalic;
+      // EmbeddedFontRefOptions? embedBold;
+      // EmbeddedFontRefOptions? embedItalic;
+      // EmbeddedFontRefOptions? embedBoldItalic;
 
       for (final XmlNode child in fontElement.children) {
         if (child is XmlElement) {

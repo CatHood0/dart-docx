@@ -9,5 +9,5 @@ int ensureInteger(num number) {
 
 /// Generates a unique GUID string suitable for fontKey.
 String generateFontGuid() {
-  return uuidV4.generate().toUpperCase();
+  return '{${uuidV4.generate().toUpperCase()}}';
 }

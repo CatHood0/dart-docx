@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
+
 import '../../sdk.dart';
 
 /// A data class to hold the properties of a single font defined in the font table.
@@ -175,6 +177,53 @@ class FontProperties {
       fontBinaryData: fontBinaryData, // Keep existing binary data
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! FontProperties) return false;
+
+    return name == other.name &&
+        altName == other.altName &&
+        panose1 == other.panose1 &&
+        charset == other.charset &&
+        family == other.family &&
+        notTrueType == other.notTrueType &&
+        pitch == other.pitch &&
+        sigUsb0 == other.sigUsb0 &&
+        sigUsb1 == other.sigUsb1 &&
+        sigUsb2 == other.sigUsb2 &&
+        sigUsb3 == other.sigUsb3 &&
+        sigCsb0 == other.sigCsb0 &&
+        sigCsb1 == other.sigCsb1 &&
+        embedRegular == other.embedRegular &&
+        embedBold == other.embedBold &&
+        embedItalic == other.embedItalic &&
+        embedBoldItalic == other.embedBoldItalic &&
+        fontBinaryData == other.fontBinaryData;
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        name,
+        altName,
+        panose1,
+        charset,
+        family,
+        notTrueType,
+        pitch,
+        sigUsb0,
+        sigUsb1,
+        sigUsb2,
+        sigUsb3,
+        sigCsb0,
+        sigCsb1,
+        embedRegular,
+        embedBold,
+        embedItalic,
+        embedBoldItalic,
+        fontBinaryData,
+      ]);
 }
 
 /// Options for an embedded font reference within the `<w:font>` element
@@ -196,14 +245,33 @@ class EmbeddedFontRefOptions {
   final bool? subsetted;
 
   // Method to copy and update rId/fontKey if needed by FontStore
-  EmbeddedFontRefOptions copyWith(
-      {String? rId, String? fontKey, bool? subsetted}) {
+  EmbeddedFontRefOptions copyWith({
+    String? rId,
+    String? fontKey,
+    bool? subsetted,
+  }) {
     return EmbeddedFontRefOptions(
       rId: rId ?? this.rId,
       fontKey: fontKey ?? this.fontKey,
       subsetted: subsetted ?? this.subsetted,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! EmbeddedFontRefOptions) return false;
+    if (identical(this, other)) return true;
+    return fontKey == other.fontKey &&
+        rId == other.rId &&
+        subsetted == other.subsetted;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        fontKey,
+        rId,
+        subsetted,
+      );
 }
 
 /// Represents the character set options for a font.
@@ -258,4 +326,22 @@ class FontBinaryData {
 
   /// The file extension of the font (e.g., 'ttf', 'otf').
   final String extension;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! FontBinaryData) return false;
+    if (identical(this, other)) return true;
+    return fontKey == other.fontKey &&
+        extension == other.extension &&
+        listEquals(bytes, other.bytes);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        fontKey,
+        bytes.map(
+          (int n) => n.hashCode,
+        ),
+        extension,
+      );
 }

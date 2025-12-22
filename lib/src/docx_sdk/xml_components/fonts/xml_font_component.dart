@@ -57,7 +57,7 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
     if (value.charset != null) {
       children.add(XmlEmptyElementComponent(
         xmlKey: 'w:charset',
-        value: value.charset!,
+        value: value.charset!.name,
       ).buildXml(context));
     }
 
@@ -110,17 +110,25 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
       ).buildXml(context));
     }
 
-    final XmlElement? embedRegular =
-        _buildEmbeddedFontRef(value.embedRegular, 'w:embedRegular');
+    final XmlElement? embedRegular = _buildEmbeddedFontRef(
+      value.embedRegular,
+      'w:embedRegular',
+    );
     if (embedRegular != null) children.add(embedRegular);
-    final XmlElement? embedBold =
-        _buildEmbeddedFontRef(value.embedBold, 'w:embedBold');
+    final XmlElement? embedBold = _buildEmbeddedFontRef(
+      value.embedBold,
+      'w:embedBold',
+    );
     if (embedBold != null) children.add(embedBold);
-    final XmlElement? embedItalic =
-        _buildEmbeddedFontRef(value.embedItalic, 'w:embedItalic');
+    final XmlElement? embedItalic = _buildEmbeddedFontRef(
+      value.embedItalic,
+      'w:embedItalic',
+    );
     if (embedItalic != null) children.add(embedItalic);
-    final XmlElement? embedBoldItalic =
-        _buildEmbeddedFontRef(value.embedBoldItalic, 'w:embedBoldItalic');
+    final XmlElement? embedBoldItalic = _buildEmbeddedFontRef(
+      value.embedBoldItalic,
+      'w:embedBoldItalic',
+    );
     if (embedBoldItalic != null) children.add(embedBoldItalic);
 
     return XmlElement.tag(
