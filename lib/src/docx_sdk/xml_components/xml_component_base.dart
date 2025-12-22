@@ -71,10 +71,12 @@ class XmlTextElementComponent<T> extends XmlComponentBase<T> {
   }
 }
 
-class XmlElementComponent<T> extends XmlComponentBase<T> {
-  XmlElementComponent({
+class XmlEmptyElementComponent<T> extends XmlComponentBase<T> {
+  final String? attrName;
+  XmlEmptyElementComponent({
     required super.xmlKey,
     required super.value,
+    this.attrName,
   });
 
   @override
@@ -84,7 +86,7 @@ class XmlElementComponent<T> extends XmlComponentBase<T> {
       attributes: [
         if (value != null)
           XmlAttribute(
-            'w:val'.toName(),
+            (attrName ?? 'w:val').toName(),
             value.toString(),
           ),
       ],

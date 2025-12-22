@@ -27,10 +27,19 @@ void main() {
         .bytes(
       DocxDocument(
         options: DocumentOptions.blank(
-          title: 'documento',
-          styles: DefaultDocumentStyles.kDefaultDocumentStyleSheet,
+          title: 'document',
+          orientation: Orientation.landscape,
+          styles: DocumentStylesSheet.kDefaultDocumentStyleSheet.withNewStyles(
+            <Style>[
+              StyleBuilder.character('code')
+                  .name('Inline Code')
+                  .fontFamily('Courier New')
+                  .highlight('D3D3D3')
+                  .build(),
+            ],
+          ),
         ),
-        sections: <ComponentContainer<dynamic>>[
+        sections: <DocxContent<dynamic>>[
           Paragraph(
             data: <RunBase<dynamic>>[
               TextRun(
@@ -40,13 +49,16 @@ void main() {
                 data: HyperlinkTextPart(
                   hyperlink: 'https://pub.dev/packages/docx_transformer',
                   text: ' so, what is this link?',
+                  styles: <Object>[
+                    Style.reference('Hyperlink'),
+                  ],
                 ),
-                style: Style.reference(styleId: 'Hyperlink'),
               ),
               TextRun(
                 data: TextPart(
                   text: ' your can use',
-                  styles: <TextRunAttribution<dynamic>>[
+                  styles: <Object>[
+                    Style.reference('code'),
                     BoldAttribute(),
                   ],
                 ),
@@ -54,7 +66,12 @@ void main() {
             ],
             styles: <Style>[],
             pageBreak: ParagraphPagebreak.after,
+            numbering: Numbering(
+              reference: 'unordered',
+              level: 0,
+            ),
           ),
+          ColumnBreak(),
           Paragraph(
             data: <RunBase<dynamic>>[
               TextRun(
@@ -64,10 +81,40 @@ void main() {
                 data: HyperlinkTextPart(
                   hyperlink: 'https://pub.dev/packages/docx_transformer',
                   text: ' and now, can we do about?',
+                  styles: [
+                    Style.reference('Hyperlink'),
+                  ],
                 ),
-                style: Style.reference(styleId: 'Hyperlink'),
               ),
             ],
+          ),
+          TextFrame(
+            data: <DocxContent<dynamic>>[
+              TextRun(
+                data: TextPart(
+                  text: '',
+                ),
+              ),
+            ],
+            border: StyleBuilder.singularP()
+                .borders(
+                  leftColor: '#0000FF',
+                  rightColor: '#FFFF00',
+                  left: BorderStyle.dashDotStroked,
+                  right: BorderStyle.dashDotStroked,
+                )
+                .build(),
+            width: 500,
+            height: 500,
+            xAlign: FrameHorizontalAlignment.left,
+            // general text will be wrapped around this frame
+            wrap: FrameWrap.square,
+            // pinned horizontally
+            hAnchor: FrameAnchor.page,
+            // pinned vertically
+            vAnchor: FrameAnchor.page,
+            // put to top
+            yAlign: FrameVerticalAlignment.top,
           ),
           LazyImage(
             data: ImageData(
@@ -86,7 +133,11 @@ void main() {
 
   test('Should create a minimal DocxDocument', () async {
     final PlainTextToDocx parser = PlainTextToDocx(
-      options: BasicParserOptions(title: 'title'),
+      options: BasicParserOptions(
+        documentOptions: DocumentOptions.blank(
+          title: 'title',
+        ),
+      ),
     );
     final List<int> bytes = await parser.build(
       data: 'Hello world about\nmy changed world\n\nYeah this is break',

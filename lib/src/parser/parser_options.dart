@@ -19,7 +19,6 @@ class ContentParserOptions extends ParserOptions {
     this.lastModifiedBy = '',
     this.keywords = const <String>[],
     this.revisions = 1,
-    this.properties,
   })  : supportedFileExtensions =
             supportedFileExtensions ?? kDefaultAcceptedFileExtensions,
         super(
@@ -34,31 +33,12 @@ class ContentParserOptions extends ParserOptions {
   final String lastModifiedBy;
   final List<String> keywords;
   final int revisions;
-  final DocumentOptions? properties;
 }
 
 class BasicParserOptions extends ParserOptions {
-  BasicParserOptions({
-    required this.title,
-    super.onDetectImage,
-    this.subject = '',
-    this.owner = '',
-    this.description = '',
-    this.lastModifiedBy = '',
-    this.keywords = const <String>[],
-    this.revisions = 1,
-    DocumentOptions? properties,
-  })  : properties = properties ?? defaultDocumentProperties(title: title),
-        super(ignoreColorWhenNoSupported: false);
-
-  final String title;
-  final String owner;
-  final String subject;
-  final String description;
-  final String lastModifiedBy;
-  final List<String> keywords;
-  final int revisions;
-  final DocumentOptions? properties;
+  BasicParserOptions({required this.documentOptions})
+      : super(ignoreColorWhenNoSupported: false);
+  final DocumentOptions documentOptions;
 }
 
 abstract class ParserOptions {

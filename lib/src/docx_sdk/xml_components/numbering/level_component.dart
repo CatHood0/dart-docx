@@ -3,8 +3,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../utils/values.dart';
-import 'formats.dart';
-import 'level_options.dart';
 
 class NumberFormatComponent extends XmlComponentBase<LevelFormat> {
   NumberFormatComponent(
@@ -74,14 +72,14 @@ class LevelComponent extends XmlComponentBase<List<XmlComponentBase<dynamic>>> {
         super(
           xmlKey: 'w:lvl',
           value: <XmlComponentBase<dynamic>>[
-            XmlElementComponent(xmlKey: 'w:start', value: options.start),
+            XmlEmptyElementComponent(xmlKey: 'w:start', value: options.start),
             NumberFormatComponent(options.format),
             if (options.text.isNotEmpty) LevelTextComponent(options.text),
             LevelAlignmentComponent(options.alignment),
             if (options.suffix != null)
-              XmlElementComponent(xmlKey: 'w:suff', value: options.suffix!),
+              XmlEmptyElementComponent(xmlKey: 'w:suff', value: options.suffix!),
             if (options.isLegalNumberingStyle)
-              XmlElementComponent<void>(xmlKey: 'w:isLgl', value: null),
+              XmlEmptyElementComponent<void>(xmlKey: 'w:isLgl', value: null),
             if (options.paragraphStyle != null)
               RawElement(
                 value: options.paragraphStyle!.toParagraphStyleNode()!,

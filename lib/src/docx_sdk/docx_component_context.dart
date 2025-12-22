@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 import 'sdk.dart';
+import 'stores/font_store.dart';
+import 'stores/numbering_store.dart';
 import 'xml_components/numbering/abstract_numbering_component.dart';
 import 'xml_components/numbering/concrete_numbering_component.dart';
 
@@ -8,16 +10,27 @@ class DocumentContext {
     required this.options,
     required this.store,
     required this.hyperlinkStore,
+    required this.fontStore,
+    required this.numberingStore,
   });
 
+  DocumentContext.base()
+      : store = MediaStore(),
+        hyperlinkStore = HyperlinkStore(),
+        fontStore = FontStore(),
+        numberingStore = NumberingStore(),
+        options = DocumentOptions.blank(title: 'unnamed');
 
   final MediaStore store;
   final DocumentOptions options;
   final HyperlinkStore hyperlinkStore;
+  final FontStore fontStore;
+  final NumberingStore numberingStore;
 
-  // 
+  //
   late void Function(String ref, int numId)? registerInstance;
-  late Iterable<XmlAbstractNumComponent> Function()? getAbstractNumberingTemplates;
+  late Iterable<XmlAbstractNumComponent> Function()?
+      getAbstractNumberingTemplates;
   late Iterable<XmlConcreteNumberingComponent> Function()? getConcreteNumber;
   late XmlAbstractNumComponent? Function(String ref)? abstractNum;
   late XmlConcreteNumberingComponent? Function(String ref)? concreteNum;

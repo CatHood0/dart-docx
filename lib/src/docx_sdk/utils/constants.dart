@@ -1,6 +1,10 @@
+import 'package:uuid/v4.dart';
+
 import '../../core/extensions/string_ext.dart';
 import '../sdk.dart';
 import 'language_codes.dart';
+
+const UuidV4 uuidV4 = UuidV4();
 
 const String noColor = '000000';
 const String noVal = 'none';
@@ -13,6 +17,25 @@ const int emuPerCm = 360000; // 1 cm = 360000 EMUs
 const int emuPerMm = 36000; // 1 mm = 36000 EMUs
 const int emuPerPt = 12700; // 1 point = 12700 EMUs
 const int emuPerTwip = 635; // 1 TWIP = 635 EMUs
+// Constants for Twips (1/20th of a point, or 1/1440th of an inch)
+const int twipsPerInch = 1440;
+const int twipsPerCm = 567; // Approximately 1440 / 2.54 cm per inch
+const int twipsPerMm = 56; // Approximately 1440 / 25.4 mm per inch
+const int twipsPerPt = 20; // 1 point = 20 twips
+
+/// Conversion factor: 1 cm = 567 dxa (should be)
+/// example: 1 cm = 28.3465 pt = 28.3465 * 20 dxa = 566.93 dxa
+const int dxaPerInch = 1440; // 1 inch = 72 points * 20 dxa/point
+const double dxaPerCm =
+    566.92913; // (72 points/inch / 2.54 cm/inch) * 20 dxa/point
+const double dxaPerMm = dxaPerCm / 10;
+const int dxaPerPt = 20;
+// users can change the dpi as they want
+// so, they are responsible for their own
+// errors
+//NOTE: probably we can just put this as a constant
+// and pass to DocumentOptions a dpi property to
+// allow customization
 int imageDpi = 150;
 
 /// These are the default supported image file extensions in Word
@@ -108,7 +131,7 @@ const String defaultFont = 'Times New Roman';
 const int defaultFontSize = 22;
 const String defaultLang = LanguageCodes.englishUS;
 
-const String defaultOrderedListStyleType = 'decimal';
+final String defaultOrderedListStyleType = LevelFormat.decimal.name;
 
 const Orientation defaultOrientation = Orientation.portrait;
 
@@ -127,7 +150,7 @@ const Orientation defaultOrientation = Orientation.portrait;
 const double kDefaultSpacing1 = 240;
 //const double kDefaultSpacing15 = 360;
 //const double kDefaultSpacing2 = 400;
-const DocumentMargins landscapeMargins = DocumentMargins(
+const DocumentMargins kDefaultLandscapeMargins = DocumentMargins(
   top: 1800,
   right: 1440,
   bottom: 1800,
@@ -137,7 +160,7 @@ const DocumentMargins landscapeMargins = DocumentMargins(
   gutter: 0,
 );
 
-const DocumentMargins portraitMargins = DocumentMargins(
+const DocumentMargins kDefaultPortraitMargins = DocumentMargins(
   top: 1440,
   right: 1800,
   bottom: 1440,
@@ -146,33 +169,6 @@ const DocumentMargins portraitMargins = DocumentMargins(
   footer: 720,
   gutter: 0,
 );
-
-DocumentOptions defaultDocumentProperties({
-  required String title,
-  String owner = '',
-  String subject = '',
-  String description = '',
-  String lastModifiedBy = '',
-  List<String> keywords = const <String>[],
-  DocumentStylesSheet? styles,
-  int revisions = 1,
-}) =>
-    DocumentOptions(
-      title: title,
-      owner: owner,
-      subject: subject,
-      description: description,
-      lastModifiedBy: lastModifiedBy,
-      modifiedAt: DateTime.now(),
-      createdAt: DateTime.now(),
-      keywords: keywords,
-      styles: styles ?? DefaultDocumentStyles.kDefaultDocumentStyleSheet,
-      revisions: 1,
-      orientation: defaultOrientation,
-      editorSettings: EditorOptions.standard(
-        size: PageSettings.a4,
-      ),
-    );
 
 EditorMetadata defaultEditorMetadata({
   required String content,

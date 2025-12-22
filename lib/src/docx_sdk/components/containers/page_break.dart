@@ -43,8 +43,9 @@ class PageBreak extends ComponentContainer {
       XmlElement.tag(
         xmlParagraphBlockAttrsNode,
         children: <XmlNode>[
-          XmlDefaults.sectPr(
-            elements: [
+          XmlElement.tag(
+            'w:sectPr',
+            children: [
               XmlElement.tag(
                 'w:type',
                 attributes: <XmlAttribute>[

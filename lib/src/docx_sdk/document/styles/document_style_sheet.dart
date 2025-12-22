@@ -1,4 +1,5 @@
 import 'package:xml/xml.dart' as xml;
+import '../../../../docx.dart';
 import '../../../core/styles_builder/style_builder.dart';
 import '../../sdk.dart';
 import '../../utils/language_codes.dart';
@@ -10,27 +11,27 @@ class DocumentStylesSheet {
   DocumentStylesSheet({
     required this.styles,
     List<Style>? docDefaultParagraphStyles,
-    List<Style>? docDefaultInlineStyles,
+    List<Style>? docDefaultRunStyles,
   })  : _docDefaultParagraphStyles = docDefaultParagraphStyles ?? <Style>[],
-        _docDefaultInlineStyles = docDefaultInlineStyles ?? <Style>[];
+        _docDefaultRunStyles = docDefaultRunStyles ?? <Style>[];
 
   factory DocumentStylesSheet.fromXmlStyles(xml.XmlDocument styleDoc) {
     //TODO: we need to get docDefaults to get appropiated configurators
     return DocumentStylesSheet(
       styles: convertXmlStylesToStyles(styleDoc),
       docDefaultParagraphStyles: <Style>[],
-      docDefaultInlineStyles: <Style>[],
+      docDefaultRunStyles: <Style>[],
     );
   }
 
   DocumentStylesSheet.base({EditorOptions? options})
-      : styles = DefaultDocumentStyles.kDefaultDocumentStyleSheet.styles,
+      : styles = kDefaultDocumentStyleSheet.styles,
         _docDefaultParagraphStyles = [
           StyleBuilder.singularP()
               .spacing(after: 120, line: 240, rule: LineRule.atLeast)
               .build(),
         ],
-        _docDefaultInlineStyles = [
+        _docDefaultRunStyles = [
           StyleBuilder.singularC()
               .fontFamily(options?.fontFamily ?? 'Times New Roman')
               .fontSize(
@@ -43,17 +44,23 @@ class DocumentStylesSheet {
               .build(),
         ];
 
+  static DocumentStylesSheet get kDefaultDocumentStyleSheet =>
+      //TODO: probably we will need to make a copy
+      // of every style
+      DocumentStylesSheet(
+        styles: <Style>[...EasyStyles.standardDocumentStyles],
+      );
+
   /// There are the default values for the paragraphs styles used in styles.xml
   final List<Style> _docDefaultParagraphStyles;
 
   /// There are the default values for the inline text of the paragraphs used in styles.xml
-  final List<Style> _docDefaultInlineStyles;
+  final List<Style> _docDefaultRunStyles;
 
   List<Style> get docDefaultParagraphStyles =>
       List<Style>.from(_docDefaultParagraphStyles);
 
-  List<Style> get docDefaultRunParagraphStyles =>
-      List<Style>.from(_docDefaultInlineStyles);
+  List<Style> get docDefaultRunStyles => List<Style>.from(_docDefaultRunStyles);
 
   /// These are the global styles
   final List<Style> styles;
@@ -112,6 +119,28 @@ class DocumentStylesSheet {
     if (name.isEmpty) return null;
     return styles.firstWhere(
       (Style e) => e.styleName == name,
+    );
+  }
+
+  DocumentStylesSheet copyWith({
+    List<Style>? styles,
+    List<Style>? docDefaultParagraphStyles,
+    List<Style>? docDefaultRunStyles,
+  }) {
+    return DocumentStylesSheet(
+      styles: styles ?? this.styles,
+      docDefaultParagraphStyles:
+          docDefaultParagraphStyles ?? this.docDefaultParagraphStyles,
+      docDefaultRunStyles: docDefaultRunStyles ?? this.docDefaultRunStyles,
+    );
+  }
+
+  DocumentStylesSheet withNewStyles(List<Style> styles) {
+    return copyWith(
+      styles: [
+        ...this.styles,
+        ...styles,
+      ],
     );
   }
 }

@@ -19,9 +19,9 @@ class HyperlinkStore {
   /// This method clears any previously discovered hyperlinks before starting.
   /// [data] is the [DocxDocument] to scan.
   void discoverHyperlinks(DocxDocument data) {
-    _hyperlinks.clear(); 
+    _hyperlinks.clear();
 
-    for (final ComponentContainer parent in data.sections) {
+    for (final DocxContent parent in data.sections) {
       final List<RunBase<HyperlinkTextPart>> foundHyperlinks =
           List<RunBase<HyperlinkTextPart>>.from(
         parent.visitAllElement(
@@ -65,9 +65,12 @@ class HyperlinkStore {
       hyperlinkRelationships.add(
         RelationShip(
           rId: hyperlink.rId!,
-          target: hyperlink.link,
+          //NOTE: hyperlink can be  linked
+          // to a bookmark, that makes it
+          // an internal target
+          target: hyperlink.data.hyperlink,
           type: hyperlinkNamespace,
-          mode: 'External', // Hyperlinks are typically external
+          mode: 'External',
         ),
       );
     }

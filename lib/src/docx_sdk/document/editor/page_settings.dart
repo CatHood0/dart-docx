@@ -1,7 +1,9 @@
+import '../../../../docx.dart';
+
 class PageSettings {
   PageSettings.fromCm(double widthCm, double heightCm)
-      : width = (widthCm * _cmToDxaFactor).roundToDouble(),
-        height = (heightCm * _cmToDxaFactor).roundToDouble() {
+      : width = (widthCm * dxaPerCm).roundToDouble(),
+        height = (heightCm * dxaPerCm).roundToDouble() {
     assert(heightCm > 0, 'El alto debe ser mayor que 0');
     assert(widthCm > 0, 'El ancho debe ser mayor que 0');
   }
@@ -23,18 +25,13 @@ class PageSettings {
   /// The height of the page in dxa unit
   final double height;
 
-  /// Conversion factor: 1 cm = 567 dxa (should be)
-  /// example: 1 cm = 28.3465 pt = 28.3465 * 20 dxa = 566.93 dxa
-  static const double _cmToDxaFactor = 567.0;
-
   static PageSettings get a4 => PageSettings.fromCm(21.0, 29.7);
   static PageSettings get letter => PageSettings.fromCm(21.59, 27.94);
   static PageSettings get legal => PageSettings.fromCm(21.59, 35.56);
   static PageSettings get a5 => PageSettings.fromCm(14.8, 21.0);
   static PageSettings get a3 => PageSettings.fromCm(29.7, 42.0);
 
-  (double, double) get inCm =>
-      (width / _cmToDxaFactor, height / _cmToDxaFactor);
+  (double, double) get inCm => (width / dxaPerCm, height / dxaPerCm);
 
   (double, double) get inMm {
     final (widthCm, heightCm) = inCm;

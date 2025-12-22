@@ -8,20 +8,19 @@ class DocxDocument {
     required this.options,
   });
 
-  final Iterable<ComponentContainer<dynamic>> sections;
+  final Iterable<DocxContent> sections;
 
   //NOTE: probably we will move these to DocxDocument class
   final DocumentOptions options;
 
   List<XmlElement> buildXml({required DocumentContext context}) {
-    return <XmlElement>[
-      ...sections.map(
-        (ComponentContainer e) {
-          context.currentContentPart = e;
-          return e.buildXml(context: context) as XmlElement;
-        },
-      ),
-    ];
+    final List<XmlElement> content = <XmlElement>[];
+    for (final DocxContent<dynamic> section in sections) {
+      if (section is LazyImage && !section.canLoad) continue;
+      context.currentContentPart = section;
+      content.add(section.buildXml(context: context) as XmlElement);
+    }
+    return content;
   }
 
   String toPlainText() {

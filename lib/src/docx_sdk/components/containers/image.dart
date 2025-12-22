@@ -3,8 +3,6 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
-import '../../sdk.dart';
-import '../../utils/image_utils.dart';
 
 class Image extends ComponentContainer<ImageData<Uint8List>> {
   Image({

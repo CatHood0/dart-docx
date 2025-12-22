@@ -1,6 +1,7 @@
 import 'package:flutter_quill_delta_easy_parser/extensions/helpers/string_helper.dart';
 import 'package:xml/xml.dart';
 import '../../../core/extensions/string_ext.dart';
+import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
 
 class TextRun extends RunBase<TextPart> {
@@ -9,18 +10,14 @@ class TextRun extends RunBase<TextPart> {
     super.parent,
   });
 
-  @override
-  bool get isLink {
-    return false;
-  }
+  static final RegExp _consecutiveWhitespacesRegExp = RegExp(r'\s{2,}');
 
   @override
   bool get isEmptyData => data.text.replaceAll('\n', '').isEmpty;
 
-  @override
-  String get link {
-    return '';
-  }
+  bool get requirePreserve => _consecutiveWhitespacesRegExp.hasMatch(
+        data.text,
+      );
 
   @override
   TextRun get copy => TextRun(
@@ -53,6 +50,7 @@ class TextRun extends RunBase<TextPart> {
         if (data.text.isNotEmpty && data.text != '\n')
           XmlElement.tag(
             xmlTextNode,
+            attributes: [],
             children: [
               XmlText(data.text),
             ],
@@ -64,17 +62,25 @@ class TextRun extends RunBase<TextPart> {
 
   @override
   List<XmlElement> buildXmlStyle({required DocumentContext context}) {
-    final List<TextRunAttribution> styles = <TextRunAttribution>[...data.styles];
-    if (styles.any((TextRunAttribution e) => e.scope != Scope.portion)) {
+    final List<Object> styles = <Object>[...data.styles];
+    if (styles.any(
+        (Object e) => e is TextRunAttribution && e.scope != Scope.portion)) {
       throw Exception('The styles passed in $runtimeType are invalid. '
           'All of them must implement "Scope.portion" value');
     }
     final List<XmlElement> xmlStyles = <XmlElement>[];
-    for (final TextRunAttribution style in styles) {
-      final XmlElement? styleXml = style.toXml();
-      if (styleXml != null) {
-        xmlStyles.add(styleXml);
-      }
+    for (final Object style in styles) {
+      if (style is Style && style.isInvalid) continue;
+      final XmlElement? styleXml = style is TextRunAttribution
+          ? style.toXml()
+          : (style as Style)
+              .toRunStyleNodes(
+                // only not reference styles have configurators
+                useConfigurators: !style.isReference,
+                shouldShowStyleRef: style.isReference,
+              )
+              .single;
+      if (styleXml != null) xmlStyles.add(styleXml);
     }
     return <XmlElement>[
       ...xmlStyles,
@@ -95,11 +101,22 @@ class TextRun extends RunBase<TextPart> {
 class TextPart {
   TextPart({
     required this.text,
-    this.styles = const <TextRunAttribution>[],
-  });
+    this.styles = const <Object>[],
+  }) : assert(styles.every(
+          (
+            Object element,
+          ) =>
+              element is Style || element is TextRunAttribution,
+        ));
 
   final String text;
-  final List<TextRunAttribution> styles;
+
+  /// All the related styles with this run
+  ///
+  /// Only two objects are accepted:
+  ///  * Style
+  ///  * TextRunAttribution
+  final List<Object> styles;
 
   @override
   String toString() {

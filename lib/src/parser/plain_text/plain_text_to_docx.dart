@@ -7,7 +7,7 @@ import '../parser_events.dart';
 class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
   PlainTextToDocx({
     required super.options,
-  }) : assert(options.properties != null, 'DocumentOptions cannot be null');
+  });
 
   final DocxMetadataPacker packer = DocxMetadataPacker.instance;
 
@@ -17,7 +17,7 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
     final bytes = await packer.bytes(
       DocxDocument(
         sections: _documentContentBuilder(data: data).cast(),
-        options: options.properties!,
+        options: options.documentOptions,
       ),
     );
     emitEvent(CompleteEvent(bytes));

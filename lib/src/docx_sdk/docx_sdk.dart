@@ -1,28 +1,71 @@
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
+
 import '../../../docx.dart';
-import 'docx_compiler.dart';
-import 'events/docx_event.dart';
 import 'packer/docx_metadata_packer.dart';
+import 'xml_components/settings/entities/settings.dart';
 
 //TODO: add insert, delete, and replacement capabilities
+//TODO: add capabilities to modify styles
+//TODO: add capabilities to set new settings
+/// The class encharged to allow general operations in the library
+///
+/// It's designed to allow granular updated instead generating whole
+/// document files at every new change. This mean that if we insert
+/// the character "a", only the document.xml file will be the unique
+/// updated one
 class DocxSdk {
-  DocxSdk({DocxDocument? object}) : lastDocumentObject = object;
-  DocxDocument? lastDocumentObject;
+  DocxSdk({
+    required this.document,
+    required this.archive,
+  });
+
+  final Archive archive;
+  final DocxDocument document;
+
+  //TODO: implement later granular info of the changes
+  List<Object> operations = <Object>[];
 
   // to allow modifying certain parts of the docx result
   // we can implement these methods
-  void insert(
-    int start,
-    Object data,
+  void insert(int start, Object data) {}
+  void replace(int start, int end, Object data) {}
+  void delete(int start, int end) {}
+
+  void insertStyle(DocumentStylesSheet sheet) {}
+  void removeStyle(String id, {String? name}) {}
+  void updateStyle(String styleId, Style style) {}
+
+  void updateSettings(SettingsOptions settings) {}
+
+  /// New functions for document content and formatting
+  void addParagraph(String text, {Style? style}) {}
+
+  /// Add text to a specified paragraph
+  void addTextToParagraph(
+    int paragraphIndex,
+    int offset,
+    String text,
   ) {}
-  void replace(
-    int start,
-    int end,
-    Object data,
+
+  /// Set a new style to a paragraph
+  void setParagraphStyle(int paragraphIndex, Style style) {}
+
+  void setRunAttributes(
+    int paragraphIndex,
+    int runIndex,
+    List<TextRunAttribution> attributes,
   ) {}
-  void delete(
-    int start,
-    int end,
-  ) {}
+
+  void insertPageBreak(int paragraphIndex) {}
+
+  /// Build the entire new .docx file
+  Future<Uint8List?> bytes() async {
+    return DocxMetadataPacker().bytes(document);
+  }
+
+  Future<Uint8List?> tryChangesSave() async {
+    return DocxMetadataPacker().bytes(document);
+  }
 }

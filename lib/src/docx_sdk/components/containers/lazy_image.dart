@@ -6,7 +6,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
-import '../../utils/image_utils.dart';
 
 class LazyImage extends ComponentContainer<ImageData<File>> {
   LazyImage({
@@ -45,7 +44,8 @@ class LazyImage extends ComponentContainer<ImageData<File>> {
     // if not, just ignore
     try {
       final _ = ImageSizeGetter.getSizeResult(FileInput(data.buffer));
-      return true;
+      // we need to verify even if the file exist
+      return data.buffer.existsSync();
     } catch (ex) {
       return false;
     }
@@ -85,7 +85,8 @@ class LazyImage extends ComponentContainer<ImageData<File>> {
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
     if (imgWidthEmu == null && imgHeightEmu == null) {
-      final Size size = ImageSizeGetter.getSizeResult(FileInput(data.buffer)).size;
+      final Size size =
+          ImageSizeGetter.getSizeResult(FileInput(data.buffer)).size;
       imgWidthEmu = size.width * emuPerInch / imageDpi;
       imgHeightEmu = size.height * emuPerInch / imageDpi;
     }
@@ -332,7 +333,6 @@ class LazyImage extends ComponentContainer<ImageData<File>> {
       ],
     );
   }
-
 
   @override
   List<XmlAttribute> buildXmlStyle({required DocumentContext context}) {

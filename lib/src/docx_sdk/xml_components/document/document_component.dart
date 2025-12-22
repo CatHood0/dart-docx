@@ -1,10 +1,13 @@
 import 'package:xml/xml.dart';
 import '../../sdk.dart';
-import '../xml_component_base.dart';
+import 'xml_body_component.dart';
+import 'xml_section_configuration_component.dart';
 
 class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
-  XmlDocumentComponent({required XmlBodyComponent body})
-      : super(
+  XmlDocumentComponent({
+    required XmlBodyComponent body,
+    this.themeId,
+  }) : super(
           value: body,
           xmlKey: 'w:document',
           attrs: XmlDocAttributes(
@@ -44,6 +47,8 @@ class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
           ),
         );
 
+  final String? themeId;
+
   @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
@@ -51,25 +56,10 @@ class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
       attributes: attributes.buildXml(),
       children: <XmlNode>[
         value.buildXml(context),
-        XmlDefaults.documentSectPr(properties: context.options),
-      ],
-    );
-  }
-}
-
-class XmlBodyComponent extends XmlComponentBase<DocxDocument> {
-  XmlBodyComponent({required DocxDocument document})
-      : super(
-          value: document,
-          xmlKey: 'w:body',
-        );
-
-  @override
-  XmlElement buildXml(DocumentContext context) {
-    return XmlElement.tag(
-      xmlKey,
-      children: [
-        ...value.buildXml(context: context),
+        XmlDocumentSectionSettingsComponent(
+          options: context.options,
+          themeId: themeId,
+        ).buildXml(context),
       ],
     );
   }

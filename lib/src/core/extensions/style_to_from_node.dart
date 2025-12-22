@@ -87,11 +87,16 @@ extension StyleToNode on Style {
     );
   }
 
-  List<XmlElement> toRunStyleNodes({bool shouldShowStyleRef = true}) {
-    final StyleConfigurator runConfigs = getConfigurator(
-      xmlParagraphInlineAttsrNode,
-      fullName: true,
-    );
+  List<XmlElement> toRunStyleNodes({
+    bool shouldShowStyleRef = true,
+    bool useConfigurators = true,
+  }) {
+    final StyleConfigurator runConfigs = !useConfigurators
+        ? StyleConfigurator.invalid()
+        : getConfigurator(
+            xmlParagraphInlineAttsrNode,
+            fullName: true,
+          );
 
     return [
       if (shouldShowStyleRef)
@@ -105,18 +110,25 @@ extension StyleToNode on Style {
           ],
           isSelfClosing: true,
         ),
-      ...runConfigs.toNodes,
+      if (useConfigurators) ...runConfigs.toNodes,
       // add values of the style
-      ...configurators
-          .where((StyleConfigurator n) =>
-              n.propertyName != runConfigs.propertyName)
-          .map((StyleConfigurator n) => n.toXmlNode),
+      if (useConfigurators)
+        ...configurators
+            .where((StyleConfigurator n) =>
+                n.propertyName != runConfigs.propertyName)
+            .map((StyleConfigurator n) => n.toXmlNode),
     ];
   }
 
-  List<XmlElement> toParagraphStyleNodes({bool shouldShowStyleRef = true}) {
-    final StyleConfigurator runConfigs =
-        getConfigurator(xmlParagraphBlockAttrsNode);
+  List<XmlElement> toParagraphStyleNodes({
+    bool shouldShowStyleRef = true,
+    bool useConfigurators = true,
+  }) {
+    final StyleConfigurator runConfigs = !useConfigurators
+        ? StyleConfigurator.invalid()
+        : getConfigurator(
+            xmlParagraphBlockAttrsNode,
+          );
 
     return [
       if (shouldShowStyleRef)
@@ -130,13 +142,14 @@ extension StyleToNode on Style {
           ],
           isSelfClosing: true,
         ),
-      ...runConfigs.toNodes,
+      if (useConfigurators) ...runConfigs.toNodes,
       // add values of the style
-      ...configurators
-          .where((n) => n.propertyName != runConfigs.propertyName)
-          .map(
-            (n) => n.toXmlNode,
-          ),
+      if (useConfigurators)
+        ...configurators
+            .where((n) => n.propertyName != runConfigs.propertyName)
+            .map(
+              (n) => n.toXmlNode,
+            ),
     ];
   }
 }

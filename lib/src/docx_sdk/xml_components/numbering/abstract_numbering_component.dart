@@ -3,7 +3,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../utils/values.dart';
 import 'level_component.dart';
-import 'level_options.dart';
 import 'multi_level_component.dart';
 
 class XmlAbstractNumComponent extends XmlComponentBase<List<XmlComponentBase>> {
@@ -14,7 +13,7 @@ class XmlAbstractNumComponent extends XmlComponentBase<List<XmlComponentBase>> {
           xmlKey: 'w:abstractNum',
           value: <XmlComponentBase<dynamic>>[
             // generates an unique id for word
-            XmlElementComponent(
+            XmlEmptyElementComponent(
               xmlKey: 'w:nsid',
               value: nanoid(
                 8,

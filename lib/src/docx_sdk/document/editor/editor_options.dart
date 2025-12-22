@@ -24,12 +24,10 @@ class EditorOptions {
     required this.showHeader,
     required this.footerType,
     required this.showFooter,
-    required this.pageSize,
     required this.language,
     required this.defaultOrderedListStyleType,
     required this.showPageNumber,
     required this.showLineNumber,
-    required this.lineNumberOptions,
     required this.decodeUnicode,
     required this.complexScriptFontSize,
     required this.metadata,
@@ -50,7 +48,6 @@ class EditorOptions {
       metadata: metadata ?? EditorMetadata.zero(),
       showHeader: false,
       showFooter: false,
-      pageSize: size ?? PageSettings.a4,
       language: language ?? DocxLanguage(
         language: LanguageCodes.englishUS,
         eastAsia: LanguageCodes.chineseCN,
@@ -59,11 +56,6 @@ class EditorOptions {
       defaultOrderedListStyleType: LevelFormat.decimal.name,
       showPageNumber: false,
       showLineNumber: false,
-      lineNumberOptions: <String, dynamic>{
-        'countBy': 1,
-        'start': 0,
-        'restart': 'continuous',
-      },
       decodeUnicode: false,
     );
   }
@@ -76,12 +68,9 @@ class EditorOptions {
   bool showFooter;
   int fontSize;
   int complexScriptFontSize;
-  PageSettings pageSize;
   EditorMetadata metadata;
   bool showPageNumber;
   bool showLineNumber;
-
-  Map<String, dynamic> lineNumberOptions;
 
   bool decodeUnicode;
 }

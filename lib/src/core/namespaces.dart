@@ -4,6 +4,7 @@ final UnmodifiableMapView<String, String> namespaces = UnmodifiableMapView(
   Map<String, String>.unmodifiable(
     <String, String>{
       // schemas namespaces
+      'word': 'http://schemas.microsoft.com/office/word',
       'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
       'b': 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography',
       'cdr': 'http://schemas.openxmlformats.org/drawingml/2006/chartDrawing',
@@ -59,6 +60,8 @@ final UnmodifiableMapView<String, String> namespaces = UnmodifiableMapView(
       'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
       'numbering':
           'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
+      'font':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font',
       'fontTable':
           'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
       'hyperlinks':
@@ -81,6 +84,8 @@ final UnmodifiableMapView<String, String> namespaces = UnmodifiableMapView(
           'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
       'corePropertiesRelation':
           'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
+      'spreadsheet':
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'settingsRelation':
           'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
       'webSettingsRelation':
@@ -107,7 +112,6 @@ final UnmodifiableMapView<String, String> namespaces = UnmodifiableMapView(
           'application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml',
       'webSettingsType':
           'application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml',
-
     },
   ),
 );

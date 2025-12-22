@@ -1,4 +1,4 @@
-import 'package:xml/src/xml/nodes/element.dart';
+import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../utils/values.dart';
@@ -48,7 +48,7 @@ class XmlConcreteNumberingComponent
         super(
           xmlKey: 'w:num',
           value: <XmlComponentBase<dynamic>>[
-            XmlElementComponent(
+            XmlEmptyElementComponent(
               xmlKey: 'w:abstractNumId',
               value: options.abstractRefId,
             ),
@@ -95,7 +95,7 @@ class ConcreteLevelOverrideComponent
           }),
           value: <XmlComponentBase<dynamic>>[
             if (startAt != null)
-              XmlElementComponent(
+              XmlEmptyElementComponent(
                 xmlKey: 'w:startOverride',
                 value: '$startAt',
               ),

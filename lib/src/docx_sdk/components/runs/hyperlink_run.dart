@@ -1,23 +1,15 @@
 import 'package:xml/xml.dart';
 
 import '../../../core/extensions/style_to_from_node.dart';
-import '../../../core/styles_builder/easy_styles.dart';
 import '../../sdk.dart';
 
+//NOTE: probably we will need to implement internal
+// link relations. See http://officeopenxml.com/WPhyperlink.php 
 class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   HyperlinkRun({
     required super.data,
     super.parent,
-    this.style,
   });
-
-  final Style? style;
-
-  @override
-  bool get isLink => true;
-
-  @override
-  String get link => data.hyperlink;
 
   @override
   bool get isEmptyData => data.text.isEmpty;
@@ -51,37 +43,27 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   List<XmlElement> buildXmlStyle({required DocumentContext context}) {
-    final List<TextRunAttribution> styles = <TextRunAttribution>[...data.styles];
-    if (styles.any((TextRunAttribution e) => e.scope != Scope.portion)) {
+    final List<Object> styles = <Object>[...data.styles];
+    if (styles.any(
+        (Object e) => e is TextRunAttribution && e.scope != Scope.portion)) {
       throw Exception('The styles passed in $runtimeType are invalid. '
           'All of them must implement "Scope.portion" value');
     }
     final List<XmlElement> xmlStyles = <XmlElement>[];
-    for (final TextRunAttribution style in styles) {
-      final XmlElement? styleXml = style.toXml();
-      if (styleXml != null) {
-        xmlStyles.add(styleXml);
-      }
+    for (final Object style in styles) {
+      if (style is Style && style.isInvalid) continue;
+      final XmlElement? styleXml = style is TextRunAttribution
+          ? style.toXml()
+          : (style as Style)
+              .toRunStyleNodes(
+                // only not reference styles have configurators
+                useConfigurators: !style.isReference,
+                shouldShowStyleRef: style.isReference,
+              )
+              .single;
+      if (styleXml != null) xmlStyles.add(styleXml);
     }
-    Style hyperlinkStyle = EasyStyles.hyperlink;
-    if (style != null && !style!.isInvalid) {
-      //TODO: we need to create a logger to allow to user knows that its style
-      // reference is not taking effect
-      final Style? result =
-          context.options.docStyles.getStyleById(id, variants: {
-        // we can give to the user several variants of a link
-        'hyperlink',
-        'href',
-        'link',
-      });
-      if (result != null && !result.isInvalid) {
-        hyperlinkStyle = result;
-      }
-    }
-    return <XmlElement>[
-      if (!hyperlinkStyle.isInvalid) ...hyperlinkStyle.toRunStyleNodes(),
-      ...xmlStyles,
-    ];
+    return xmlStyles;
   }
 
   @override

@@ -42,17 +42,14 @@ class MediaStore {
     DocxDocument data, [
     Set<String> supportedFileExtensions = const <String>{},
   ]) {
-    for (final ComponentContainer parent in data.sections) {
-      if (parent is Paragraph) {
-        continue;
-      }
-      final ComponentContainer<ImageData<dynamic>>? image = parent.visitElement(
+    for (final DocxContent parent in data.sections) {
+      final DocxContent? image = parent.visitElement(
         (DocxContent<dynamic> el) =>
             (el is Image || el is LazyImage) &&
             supportedFileExtensions.contains(el.data.extension),
-      ) as ComponentContainer<ImageData<dynamic>>?;
+      );
       if (image != null) {
-        mediaComponents[image.id] = image;
+        mediaComponents[image.id] = image as ComponentContainer<ImageData>;
         extensions.add(image.data.extension);
       }
     }

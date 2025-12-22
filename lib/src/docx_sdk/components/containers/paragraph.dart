@@ -11,12 +11,27 @@ enum ParagraphPagebreak {
   none,
 }
 
+class Numbering {
+  Numbering({required this.reference, this.level = 0, this.instance});
+
+  final String reference;
+  final int level;
+
+  /// Usually you set an instance num
+  /// when you want to separate the current
+  /// element from other lists
+  //NOTE: should we manage these values internally
+  // to make this more easy to maintain?
+  final int? instance;
+}
+
 class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   Paragraph({
     required Iterable<RunBase> data,
     this.styles = const [],
     this.runStyles = const [],
     this.pageBreak = ParagraphPagebreak.none,
+    this.numbering,
   }) : super(parent: null, data: data) {
     for (final RunBase content in data) {
       content.parent = this;
@@ -25,6 +40,8 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
 
   /// All the styles applied to the paragraph
   final List<Style> styles;
+  final List<Numbering> references = <Numbering>[];
+  final Numbering? numbering;
 
   /// All the styles applied to the run
   final List<Style> runStyles;
@@ -42,6 +59,13 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
           children: paragraphStyles,
           isSelfClosing: false,
         ),
+      );
+    }
+    // create the references
+    for (final Numbering reference in references) {
+      context.registerInstance!.call(
+        reference.reference,
+        reference.instance ?? 0,
       );
     }
 
@@ -79,6 +103,42 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   @override
   List<XmlElement> buildXmlStyle({required DocumentContext context}) {
     final List<XmlElement> pPrChildren = [];
+
+    if (numbering != null) {
+      if (numbering!.level > 9) {
+        throw 'Level cannot be greater than 9. Read more here: '
+            'https://answers.microsoft.com/en-us/msoffice/forum/'
+            'all/does-word-support-more-than-9-list-levels/d130fdcd-1781-446d-8c84-c6c79124e4d7';
+      }
+      references.add(numbering!);
+      final String numId =
+          '{${numbering!.reference}-${numbering!.instance ?? 0}}';
+      pPrChildren.add(
+        XmlElement.tag(
+          'w:numPr',
+          children: [
+            XmlElement.tag(
+              'w:ilvl',
+              attributes: [
+                XmlAttribute(
+                  'w:val'.toName(),
+                  numbering!.level.toString(),
+                ),
+              ],
+            ),
+            XmlElement.tag(
+              'w:numId',
+              attributes: [
+                XmlAttribute(
+                  'w:val'.toName(),
+                  numId,
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
     // to avoid applying the same styles every time, we prefer
     // having something like a memoizer to avoid expensive calls
     //
@@ -89,26 +149,22 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     //TODO: we need to register configurators
     final Map<String, Style> appliedStyles = <String, Style>{};
     for (final Style style in styles) {
-      final String paragraphStyleId = style.styleId;
-      Style resultStyle = style;
       // references  has not values to be used, so, we will need to get a usable version
-      if (style.isReference) {
-        resultStyle = context.options.docStyles.getStyleById(paragraphStyleId)!;
-      }
-      if (resultStyle.isInvalid ||
-          appliedStyles.containsKey(resultStyle.styleId)) {
+      if (style.isInvalid || appliedStyles.containsKey(style.styleId)) {
         continue;
       }
-      Style fullStyle = resultStyle;
       // when a style isnt in DocumentStylesSheet, we prefer ignoring its
       // w:pStyle ref
-      final bool shouldShowStyleRef =
-          context.options.docStyles.getStyleById(style.styleId) != null;
-      if (fullStyle.basedOn != null) {
-        fullStyle = resultStyle.getDeepStyleRelation(context.options.docStyles);
+      final bool shouldShowStyleRef = !style.isReference;
+      appliedStyles[style.styleId] = style;
+      // references does not require apply of attributes
+      if (style.isReference) {
+        pPrChildren.addAll(style.toParagraphStyleNodes(
+          useConfigurators: false,
+        ));
+        continue;
       }
-      appliedStyles[fullStyle.styleId] = fullStyle;
-      pPrChildren.addAll(fullStyle.toParagraphStyleNodes(
+      pPrChildren.addAll(style.toParagraphStyleNodes(
         shouldShowStyleRef: shouldShowStyleRef,
       ));
     }

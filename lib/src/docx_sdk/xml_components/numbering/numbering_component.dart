@@ -6,7 +6,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import 'abstract_numbering_component.dart';
 import 'concrete_numbering_component.dart';
-import 'level_options.dart';
 
 class NumberingOptions {
   NumberingOptions({
@@ -25,6 +24,7 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
   }) : super(
           value: <NumberingOptions>[],
           xmlKey: 'w:numbering',
+          //TODO: use XmlDocAttribute instead
           attrs: XmlComponentAttributes(xmlAttributes: {
             'xmlns:w': namespaces['w']!,
             'xmlns:ve': namespaces['ve']!,
@@ -65,6 +65,7 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     reloadIds();
     context
       ..getAbstractNumberingTemplates = (() => abstractNumberingMap.values)
+      ..registerInstance = registerConcreteInstance
       ..getConcreteNumber = (() => concreteNumberingMap.values)
       ..abstractNum = ((String ref) => abstractNumberingMap[ref])
       ..concreteNum = ((String ref) => concreteNumberingMap[ref]);
