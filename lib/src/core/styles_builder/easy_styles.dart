@@ -14,7 +14,7 @@ class EasyStyles {
       .build();
 
   static Style get listParagraph => StyleBuilder.paragraph('ListParagraph')
-      .name('List  Paragraph')
+      .name('List Paragraph')
       .basedOn('Normal')
       .keepNext(true)
       .keepLines(true)

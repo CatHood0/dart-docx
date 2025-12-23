@@ -1,6 +1,6 @@
-// Note:
-// The rsIds references the document styles
-// into word/styles.xml
+
+const String xmlDocDefaultsNode = 'w:docDefaults';
+const String xmlStyleNode = 'w:style';
 const String xmlParagraphNode = 'w:p';
 // internals of <w:p>
 // block

@@ -31,50 +31,6 @@ extension XmlNodeToStyleConfigurator on XmlElement {
 }
 
 extension StyleConfiguratorToXmlNode on StyleConfigurator {
-  XmlElement get toXmlNode {
-    final List<XmlAttribute> xmlAttributes = [];
-
-    if (value != null) {
-      xmlAttributes.add(
-        XmlAttribute(
-          XmlName.fromString('w:val'),
-          value.toString(),
-        ),
-      );
-    }
-
-    for (final MapEntry<String, dynamic> attr
-        in (attributes ?? <String, dynamic>{}).entries) {
-      if (attr.key == 'w:val' && value != null) {
-        continue;
-      }
-      xmlAttributes.add(
-        XmlAttribute(
-          XmlName.fromString(attr.key),
-          attr.value.toString(),
-        ),
-      );
-    }
-
-    final List<XmlNode> childrenNodes = configurators
-        .map(
-          (StyleConfigurator e) => e.toXmlNode,
-        )
-        .whereType<XmlElement>()
-        .toList();
-
-    final bool shouldBeSelfClosing = isSelfClosing && childrenNodes.isEmpty;
-
-    return XmlElement(
-      XmlName.fromString(
-        qualifiedName,
-      ),
-      xmlAttributes,
-      childrenNodes,
-      shouldBeSelfClosing,
-    );
-  }
-
   /// Returns the children nodes instead the current node wrapped
   ///
   /// Tipically this is used when is detected that this style
