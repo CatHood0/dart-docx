@@ -35,6 +35,9 @@ class Style extends IterableConfigurators {
     );
   }
 
+  static const String paragraphType = 'paragraph';
+  static const String characterType = 'character';
+
   bool _onlyReference = false;
 
   bool get isReference => _onlyReference;

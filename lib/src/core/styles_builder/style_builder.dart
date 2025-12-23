@@ -20,7 +20,7 @@ class StyleBuilder {
   /// [id] is the internal ID for the style.
   /// [name] is the display name of the style. If not provided, [id] is used.
   factory StyleBuilder.paragraph(String id, {String? name}) {
-    return StyleBuilder._(id, 'paragraph', name ?? '');
+    return StyleBuilder._(id, Style.paragraphType, name ?? '');
   }
 
   /// Creates a [StyleBuilder] for a character style.
@@ -28,19 +28,19 @@ class StyleBuilder {
   /// [id] is the internal ID for the style.
   /// [name] is the display name of the style. If not provided, [id] is used.
   factory StyleBuilder.character(String id, {String? name}) {
-    return StyleBuilder._(id, 'character', name ?? id);
+    return StyleBuilder._(id, Style.characterType, name ?? id);
   }
 
   /// Creates a [StyleBuilder] for a paragraph style
   /// that is not in DocumentStylesSheet
   factory StyleBuilder.singularP({String? name}) {
-    return StyleBuilder._(nanoid(5), 'paragraph', name ?? '');
+    return StyleBuilder._(nanoid(5), Style.paragraphType, name ?? '');
   }
 
   /// Creates a [StyleBuilder] for a character style
   /// that is not in DocumentStylesSheet
   factory StyleBuilder.singularC({String? name}) {
-    return StyleBuilder._(nanoid(5), 'character', name ?? '');
+    return StyleBuilder._(nanoid(5), Style.characterType, name ?? '');
   }
 
   /// The internal identifier of the style, used in `w:styleId`.
@@ -52,6 +52,7 @@ class StyleBuilder {
   /// The type of the style, either 'paragraph' or 'character'.
   final String type;
 
+  List<StyleConfigurator> _configurators = [];
   // Paragraph properties
   String? _basedOn;
   String? _next;
@@ -107,6 +108,11 @@ class StyleBuilder {
   /// [styleName] is the name that will be shown in the Word editor.
   StyleBuilder name(String styleName) {
     _name = styleName;
+    return this;
+  }
+
+  StyleBuilder withConfigurators(Iterable<StyleConfigurator> configs) {
+    _configurators.addAll(configs);
     return this;
   }
 
@@ -362,7 +368,7 @@ class StyleBuilder {
     String? rightColor,
   }) {
     // Borders apply to paragraph blocks, not characters.
-    if (type != 'paragraph') {
+    if (type != Style.paragraphType) {
       return this;
     }
 
@@ -462,7 +468,7 @@ class StyleBuilder {
       );
     }
 
-    if (type == 'paragraph') {
+    if (type == Style.paragraphType) {
       final paragraphConfigs = <StyleConfigurator>[];
 
       if (_spacingBefore != null ||
@@ -767,6 +773,10 @@ class StyleBuilder {
           configurators: textConfigs,
         ),
       );
+    }
+
+    if (_configurators.isNotEmpty) {
+      configurators.addAll(_configurators);
     }
 
     return Style(
