@@ -44,13 +44,9 @@ class LazyImageBlock extends ComponentContainer<ImageData<File>>
     // at this point
     //
     // if not, just ignore
-    try {
-      final _ = ImageSizeGetter.getSizeResult(FileInput(data.buffer));
-      // we need to verify even if the file exist
-      return data.buffer.existsSync();
-    } catch (ex) {
-      return false;
-    }
+    final _ = ImageSizeGetter.getSizeResult(FileInput(data.buffer));
+    // we need to verify even if the file exist
+    return data.buffer.existsSync();
   }
 
   @override

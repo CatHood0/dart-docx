@@ -102,16 +102,18 @@ class Image extends DocxContent<ImageData<Uint8List>> {
             isSelfClosing: true,
           ),
           // external offsets
-          XmlOffsetPosition(
-            x: true,
-            alignment: data.frameAlignX,
-            offset: data.offsetX,
-          ).buildXml(context),
-          XmlOffsetPosition(
-            x: false,
-            alignment: data.frameAlignY,
-            offset: data.offsetY,
-          ).buildXml(context),
+          if (data.offsetX > 0)
+            XmlOffsetPosition(
+              x: true,
+              alignment: data.frameAlignX,
+              offset: data.offsetX,
+            ).buildXml(context),
+          if (data.offsetY > 0)
+            XmlOffsetPosition(
+              x: false,
+              alignment: data.frameAlignY,
+              offset: data.offsetY,
+            ).buildXml(context),
           XmlElement.tag(
             'wp:wrap${wrapType.capitalize()}',
             isSelfClosing: true,
@@ -257,11 +259,11 @@ class Image extends DocxContent<ImageData<Uint8List>> {
                           attributes: [
                             XmlAttribute(
                               XmlName.fromString('x'),
-                              data.frameOffsetX.toString(),
+                              (data.frameOffsetX ?? 0).toString(),
                             ),
                             XmlAttribute(
                               XmlName.fromString('y'),
-                              data.frameOffsetY.toString(),
+                              (data.frameOffsetY ?? 0).toString(),
                             ),
                           ],
                         ),
@@ -340,7 +342,7 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
     required this.alignment,
     required this.offset,
   }) : super(
-          xmlKey: x ? 'w:positionH' : 'w:positionV',
+          xmlKey: x ? 'wp:positionH' : 'wp:positionV',
           value: null,
         );
   final num offset;

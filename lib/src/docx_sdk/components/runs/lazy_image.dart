@@ -102,17 +102,18 @@ class LazyImage extends DocxContent<ImageData<File>> {
             ],
             isSelfClosing: true,
           ),
-          // external offsets
-          XmlOffsetPosition(
-            x: true,
-            alignment: data.frameAlignX,
-            offset: data.offsetX,
-          ).buildXml(context),
-          XmlOffsetPosition(
-            x: false,
-            alignment: data.frameAlignY,
-            offset: data.offsetY,
-          ).buildXml(context),
+          if (data.offsetX > 0)
+            XmlOffsetPosition(
+              x: true,
+              alignment: data.frameAlignX,
+              offset: data.offsetX,
+            ).buildXml(context),
+          if (data.offsetY > 0)
+            XmlOffsetPosition(
+              x: false,
+              alignment: data.frameAlignY,
+              offset: data.offsetY,
+            ).buildXml(context),
           XmlElement.tag(
             'wp:wrap${wrapType.capitalize()}',
             isSelfClosing: true,
@@ -258,11 +259,11 @@ class LazyImage extends DocxContent<ImageData<File>> {
                           attributes: [
                             XmlAttribute(
                               XmlName.fromString('x'),
-                              data.frameOffsetX.toString(),
+                              (data.frameOffsetX ?? 0).toString(),
                             ),
                             XmlAttribute(
                               XmlName.fromString('y'),
-                              data.frameOffsetY.toString(),
+                              (data.frameOffsetY ?? 0).toString(),
                             ),
                           ],
                         ),

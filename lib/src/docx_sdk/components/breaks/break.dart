@@ -68,7 +68,7 @@ class Break extends RunBase<BreakType> {
 
   @override
   String toPlainText() {
-    return '\n';
+    return '';
   }
 
   @override

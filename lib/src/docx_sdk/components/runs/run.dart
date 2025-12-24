@@ -6,7 +6,7 @@ import '../../mixins/ignorable_mixin.dart';
 class Run extends RunBase<DocxContent> {
   Run({
     required DocxContent component,
-    this.wrapInRunMark = false,
+    this.wrapInRunMark = true,
   }) : super(data: component);
 
   bool wrapInRunMark;

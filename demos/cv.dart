@@ -29,9 +29,9 @@ Future<void> main() async {
         data: <RunBase<dynamic>>[
           Run(
             component: Drawing(
-              data: LazyImage(
+              data: Image(
                 data: ImageData(
-                  buffer: File('assets/cv_person.jpg'),
+                  buffer: await File('assets/cv_person.jpg').readAsBytes(),
                   extension: 'jpg',
                   width: 200,
                   height: 200,
@@ -40,6 +40,7 @@ Future<void> main() async {
               ),
             ),
           ),
+          Run(component: Break.lineBreak()),
           TextRun(
             data: TextPart(
               text: 'Jane Doe',
@@ -57,7 +58,7 @@ Future<void> main() async {
           ),
         ],
       ),
-      ColumnBreak(),
+      // ColumnBreak(),
       Paragraph(
         data: <RunBase<dynamic>>[
           TextRun(
@@ -80,7 +81,7 @@ Future<void> main() async {
                   'Corp (2018 - Present)',
             ),
           ),
-          Break.lineBreak(),
+          Run(component: Break.lineBreak(), wrapInRunMark: true),
           TextRun(
             data: TextPart(
                 text: '• Software Developer at '
@@ -108,7 +109,7 @@ Future<void> main() async {
                   'University of Examples (2013 - 2015)',
             ),
           ),
-          Break.lineBreak(),
+          Run(component: Break.lineBreak(), wrapInRunMark: true),
           TextRun(
             data: TextPart(
               text: 'B.Sc. Computer Science — '

@@ -272,6 +272,7 @@ class DocxCompiler {
       _emit(DocxEvent.end(result: archive));
       return archive;
     } catch (e) {
+      print('Error: ${e.toString()}');
       _emit(DocxEvent.end(error: e));
       return null;
     }

@@ -11,8 +11,7 @@ import '../mixins/ignorable_mixin.dart';
 /// including discovering, registering, and creating relationships for images.
 class MediaStore {
   MediaStore();
-  static const String mediaPath = 'word/media/';
-  static const String rels = 'word/media/';
+  static const String mediaPath = '/word/media/';
 
   /// Stores registered [MediaData] objects, keyed by their generated unique name.
   final Map<String, MediaData> media = <String, MediaData>{};
