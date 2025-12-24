@@ -1,0 +1,3 @@
+mixin IgnorableMixin {
+  bool shouldIgnore();
+}

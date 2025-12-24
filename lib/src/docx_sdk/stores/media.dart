@@ -5,6 +5,7 @@ import 'package:archive/archive_io.dart';
 
 import '../../../docx.dart';
 import '../../core/extensions/string_ext.dart';
+import '../mixins/ignorable_mixin.dart';
 
 /// Manages all media-related operations for a Docx document,
 /// including discovering, registering, and creating relationships for images.
@@ -82,10 +83,11 @@ class MediaStore {
     for (int index = 0; index < mediaComponents.values.length; index++) {
       final ComponentContainer<ImageData<dynamic>> imgComponent =
           mediaComponents.values.elementAt(index);
+      onProgress?.call(index + 1, mediaComponents.values.length);
 
-      if (imgComponent is LazyImage && !imgComponent.canLoad) {
-        // Skip if lazy image cannot be loaded
-        onProgress?.call(index + 1, mediaComponents.values.length);
+      // Skip when required 
+      if (imgComponent is IgnorableMixin &&
+          (imgComponent as IgnorableMixin).shouldIgnore()) {
         continue;
       }
 

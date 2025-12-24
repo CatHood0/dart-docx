@@ -1,5 +1,6 @@
 import 'package:xml/xml.dart';
 
+import '../mixins/ignorable_mixin.dart';
 import '../sdk.dart';
 
 class DocxDocument {
@@ -16,7 +17,10 @@ class DocxDocument {
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlElement> content = <XmlElement>[];
     for (final DocxContent<dynamic> section in sections) {
-      if (section is LazyImage && !section.canLoad) continue;
+      if (section is IgnorableMixin &&
+          (section as IgnorableMixin).shouldIgnore()) {
+        continue;
+      }
       context.currentContentPart = section;
       content.add(section.buildXml(context: context) as XmlElement);
     }

@@ -6,8 +6,9 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
+import '../../mixins/ignorable_mixin.dart';
 
-class LazyImage extends ComponentContainer<ImageData<File>> {
+class LazyImage extends ComponentContainer<ImageData<File>> with IgnorableMixin {
   LazyImage({
     required super.data,
     super.parent,
@@ -35,8 +36,9 @@ class LazyImage extends ComponentContainer<ImageData<File>> {
 
   String get getImageName => data.name ?? '';
 
-  /// Whether we can use this image to any operation
-  bool get canLoad {
+
+  @override
+  bool shouldIgnore() {
     // since try to get metadata is not expensive
     // we can know if the current image is valid for any decoder
     // at this point
