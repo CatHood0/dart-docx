@@ -15,7 +15,7 @@ void main() {
         'parse styles.xml into DocumentStylesSheet', () {
       final XmlDocument xmlDocument = XmlDocument.parse(
         XmlStylesComponent()
-            .buildXml(
+            .buildDocument(
               DocumentContext.base(
                   options: DocumentOptions.blank(
                 styles: DocumentStylesSheet.base(),
