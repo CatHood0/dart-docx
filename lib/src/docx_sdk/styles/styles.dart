@@ -713,15 +713,15 @@ abstract class IterableConfigurators {
   }
 
   StyleConfigurator? get next {
-    return spacing?.getConfiguratorOrNull('w:next');
+    return getConfiguratorOrNull('w:next');
   }
 
   StyleConfigurator? get semiHidden {
-    return spacing?.getConfiguratorOrNull('w:semiHidden');
+    return getConfiguratorOrNull('w:semiHidden');
   }
 
   StyleConfigurator? get unhideWhenUsed {
-    return spacing?.getConfiguratorOrNull('w:unhideWhenUsed');
+    return getConfiguratorOrNull('w:unhideWhenUsed');
   }
 
   StyleConfigurator? get spacing {
