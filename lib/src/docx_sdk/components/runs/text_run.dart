@@ -1,7 +1,7 @@
-import 'package:flutter_quill_delta_easy_parser/extensions/helpers/string_helper.dart';
 import 'package:xml/xml.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
+import '../../../util/line_tokenizer.dart';
 import '../../sdk.dart';
 
 class TextRun extends RunBase<TextPart> {

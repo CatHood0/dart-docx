@@ -1,25 +1,22 @@
 name: docx 
-description: "Transform content across popular formats to/from Word documents while preserving formatting, and the richness"
+description: "Easily generate .docx files with Dart Objects"
 version: 1.0.0
-homepage: https://github.com/CatHood0/dart-docx
-documentation: https://github.com/CatHood0/dart-docx
-issue_tracker: https://github.com/CatHood0/dart-docx/issues
+homepage: https://github.com/Flutter-Document-Kit/dart-docx-toolkit
+documentation: https://github.com/Flutter-Document-Kit/dart-docx-toolkit
+issue_tracker: https://github.com/Flutter-Document-Kit/dart-docx-toolkit/issues
 
 environment:
-  sdk: ^3.6.1
+  sdk: ">=3.4.3 <4.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-  archive: ^4.0.2
+  archive: ^4.0.7
   dart_quill_delta: ^10.8.3
-  xml: ^6.5.0
+  xml: ^6.6.1
   meta: ^1.15.0
-  flutter_quill_delta_easy_parser: ^1.1.8 
+  # flutter_quill_delta_easy_parser: ^1.1.8 
   image_size_getter: ^2.4.1
   uuid: ^4.5.2
-  #TODO: remove any use of flutter
+
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
+  test: ^1.20.0
+  lints: ^6.0.0

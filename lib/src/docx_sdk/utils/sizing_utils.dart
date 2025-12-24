@@ -1,5 +1,16 @@
 import '../../../docx.dart';
 
+/// Converts points to half-points.
+/// 1 point = 2 half-points.
+int pointsToHalfPoints(num points) {
+  return (points * 2).round();
+}
+
+/// Converts half-points to points.
+double halfPointsToPoints(num halfPoints) {
+  return halfPoints / 2;
+}
+
 /// Converts inches to DXA.
 int inchesToDxa(num inches) {
   return (inches * dxaPerInch).round();
@@ -259,6 +270,12 @@ extension Conversions on int {
 
   /// Converts pixels (at 96 DPI) to twips.
   int toTwipsFromPixels96dpi() => pixelsToTwips(this, dpi: 96);
+
+  /// Converts points (this int) to half-points.
+  num toHalfPointsFromPoints() => pointsToHalfPoints(this);
+
+  /// Converts half-points (this int) to points.
+  num toPointsFromHalfPoints() => halfPointsToPoints(this);
 }
 
 extension DoubleConversions on num {
@@ -304,4 +321,10 @@ extension DoubleConversions on num {
   int toTwipsFromPixels96dpi() => pixelsToTwips(this, dpi: 96);
 
   int toDxaFromPixels() => pixelsToDxa(this); 
+
+  /// Converts points (this num) to half-points.
+  num toHalfPointsFromPoints() => pointsToHalfPoints(this);
+
+  /// Converts half-points (this num) to points.
+  num toPointsFromHalfPoints() => halfPointsToPoints(this);
 }

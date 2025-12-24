@@ -273,7 +273,7 @@ class DocxCompiler {
   }
 
   static Uint8List stringToBytes(String source) {
-    return Uint8List.fromList(source.codeUnits);
+    return utf8.encode(source);
   }
 
   static String bytesToString(Uint8List source) {

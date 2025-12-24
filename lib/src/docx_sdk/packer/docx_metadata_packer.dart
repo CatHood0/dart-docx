@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
-import 'package:flutter/services.dart';
 import '../../../docx.dart';
 import '../docx_compiler.dart';
 import '../events/docx_event.dart';

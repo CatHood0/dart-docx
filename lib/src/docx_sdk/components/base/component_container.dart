@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 import '../../sdk.dart';

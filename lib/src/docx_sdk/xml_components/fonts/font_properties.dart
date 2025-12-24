@@ -1,7 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
-
 import '../../sdk.dart';
 
 /// A data class to hold the properties of a single font defined in the font table.
@@ -333,8 +331,9 @@ class FontBinaryData {
     if (identical(this, other)) return true;
     return fontKey == other.fontKey &&
         extension == other.extension &&
-        listEquals(bytes, other.bytes);
+        _listEquals(bytes, other.bytes);
   }
+
 
   @override
   int get hashCode => Object.hash(
@@ -344,4 +343,22 @@ class FontBinaryData {
         ),
         extension,
       );
+}
+
+bool _listEquals<T>(List<T>? a, List<T>? b) {
+  if (a == null) {
+    return b == null;
+  }
+  if (b == null || a.length != b.length) {
+    return false;
+  }
+  if (identical(a, b)) {
+    return true;
+  }
+  for (int index = 0; index < a.length; index += 1) {
+    if (a[index] != b[index]) {
+      return false;
+    }
+  }
+  return true;
 }

@@ -126,7 +126,7 @@ class _DesktopTreeViewExampleState extends State<Body> {
 
             // Tab 2: Flutter Quill Editor
             Column(
-              children: [
+              children: <Widget>[
                 // DOCX Load/Save buttons
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -143,39 +143,39 @@ class _DesktopTreeViewExampleState extends State<Body> {
                       MaterialButton(
                         child: const Text('Export to DOCX'),
                         onPressed: () async {
-                          final location = await getSaveLocation(
+                          final FileSaveLocation? location = await getSaveLocation(
                             suggestedName: 'document_docx',
                             acceptedTypeGroups: [
                               XTypeGroup(
                                 label: 'DOCX',
-                                extensions: ['docx'],
-                                mimeTypes: [namespaces['documentType']!],
-                                uniformTypeIdentifiers: [
+                                extensions: <String>['cdocx'],
+                                mimeTypes: <String>[namespaces['documentType']!],
+                                uniformTypeIdentifiers: <String>[
                                   namespaces['documentType']!,
                                 ],
                               ),
                             ],
                           );
                           if (location != null) {
-                            final parser = DeltaToDocx(
-                              options: DocxParserOptions(
-                                documentProperties: defaultDocumentProperties(
-                                  title: 'document',
-                                ),
-                              ),
-                            );
-                            final bytes = await parser.build(
-                              data: _controller.document.toDelta(),
-                            );
-
-                            if (bytes != null || bytes!.isNotEmpty) {
-                              final XFile textFile = XFile.fromData(
-                                bytes,
-                                mimeType: namespaces['documentType']!,
-                                name: 'document.docx',
-                              );
-                              await textFile.saveTo(location.path);
-                            }
+                            // final parser = DeltaToDocx(
+                            //   options: DocxParserOptions(
+                            //     documentProperties: defaultDocumentProperties(
+                            //       title: 'document',
+                            //     ),
+                            //   ),
+                            // );
+                            // final bytes = await parser.build(
+                            //   data: _controller.document.toDelta(),
+                            // );
+                            //
+                            // if (bytes != null || bytes!.isNotEmpty) {
+                            //   final XFile textFile = XFile.fromData(
+                            //     bytes,
+                            //     mimeType: namespaces['documentType']!,
+                            //     name: 'document.docx',
+                            //   );
+                            //   await textFile.saveTo(location.path);
+                            // }
                           }
                         },
                       ),

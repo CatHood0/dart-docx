@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
+
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:dart_quill_delta/dart_quill_delta.dart';
-import 'package:flutter/foundation.dart';
 import 'package:xml/xml.dart' as xml;
 
 import '../../../docx.dart';

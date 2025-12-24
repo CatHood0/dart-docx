@@ -68,11 +68,11 @@ class StyleBuilder {
   // Run properties (character formatting)
   /// Usually used for w:sz that settings the size of
   /// most of the common characters
-  double? _fontSize;
+  num? _fontSize;
 
   /// Usually used for w:szCs that settings the size of
   /// chinese, japanase and Korean characters
-  double? _fontEastAsiaSize;
+  num? _fontEastAsiaSize;
   String? _fontFamily;
   String? _color;
   String? _highlightColor;
@@ -258,7 +258,7 @@ class StyleBuilder {
   /// Sets the font size for the style.
   ///
   /// [size] is the font size in points (e.g., 12.0).
-  StyleBuilder fontSize(double size, [double? eastAsiaSize]) {
+  StyleBuilder fontSize(num size, [num? eastAsiaSize]) {
     _fontSize = size;
     _fontEastAsiaSize = eastAsiaSize ?? size;
     return this;

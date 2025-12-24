@@ -1,11 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
-import 'package:flutter/services.dart';
 
 import '../../../docx.dart';
 import '../../core/extensions/string_ext.dart';
-import '../components/containers/image/image_data.dart';
 
 /// Manages all media-related operations for a Docx document,
 /// including discovering, registering, and creating relationships for images.

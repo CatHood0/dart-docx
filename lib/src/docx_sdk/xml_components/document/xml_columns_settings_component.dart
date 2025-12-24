@@ -54,7 +54,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnSettings> {
       attributes.add(
         XmlAttribute('w:equalWidth'.toName(), '0'),
       );
-    } else if (value.equalWidth == true && value.numColumns != null) {
+    } else if (value.equalWidth && value.numColumns != null) {
       // If equalWidth is true and numColumns is set, explicitly set equalWidth to 1
       attributes.add(
         XmlAttribute(
@@ -67,7 +67,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnSettings> {
     final List<XmlNode> children = [];
 
     // Add individual <w:col> elements if equalWidth is false and columnWidths are provided
-    if (value.equalWidth == false && value.columnWidths != null) {
+    if (!value.equalWidth && value.columnWidths != null) {
       for (final ColumnWidthSetting colSetting in value.columnWidths!) {
         final List<XmlAttribute> colAttrs = [
           XmlAttribute(

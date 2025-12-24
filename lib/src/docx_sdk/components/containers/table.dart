@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:xml/xml.dart';
 
 import '../../sdk.dart';
@@ -168,12 +166,12 @@ class TableRow {
     required this.cells,
     this.width,
     this.height,
-    this.padding,
+    // this.padding,
   });
 
   final double? width;
   final double? height;
-  final EdgeInsets? padding;
+  // final ? padding;
   final Iterable<TableCell> cells;
 }
 
