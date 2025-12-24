@@ -12,6 +12,8 @@ class DocumentContext {
     required this.hyperlinkStore,
     required this.fontStore,
     required this.numberingStore,
+    required this.setNormalStyleToNotStyledParagraphs,
+    required this.defaultNormalStyle,
   });
 
   DocumentContext.base({DocumentOptions? options})
@@ -19,8 +21,17 @@ class DocumentContext {
         hyperlinkStore = HyperlinkStore(),
         fontStore = FontStore(),
         numberingStore = NumberingStore(),
+        setNormalStyleToNotStyledParagraphs = true,
+        defaultNormalStyle = Style.reference('Normal'),
         options = options ?? DocumentOptions.blank(title: 'unnamed');
 
+  /// Determines if the paragraph will be created referencing the
+  /// "Normal" style
+  final bool setNormalStyleToNotStyledParagraphs;
+
+  /// Determines if the paragraph will be created referencing the
+  /// "Normal" style
+  final Style defaultNormalStyle;
   final MediaStore store;
   final DocumentOptions options;
   final HyperlinkStore hyperlinkStore;

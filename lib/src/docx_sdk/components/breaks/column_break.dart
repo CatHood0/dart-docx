@@ -1,38 +1,23 @@
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
-import '../../../core/extensions/string_ext.dart';
+import 'break.dart';
 
-class ColumnBreak extends DocxContent<void> {
+class ColumnBreak extends ComponentContainer<void> {
   ColumnBreak()
       : super(
           data: null,
         );
 
   @override
-  XmlElement buildXml({required DocumentContext context}) {
-    return XmlElement.tag(
-      xmlParagraphNode,
-      children: [
-        XmlElement.tag(
-          xmlTextRunNode,
-          children: [
-            XmlElement.tag(
-              'w:br',
-              attributes: [
-                XmlAttribute(
-                  'w:type'.toName(),
-                  'column',
-                ),
-              ],
-              isSelfClosing: true,
-            ),
-          ],
-          isSelfClosing: false,
-        ),
-      ],
-      isSelfClosing: false,
-    );
+  List<XmlElement> buildXml({required DocumentContext context}) {
+    return <XmlElement>[
+      ...Paragraph(
+        data: <RunBase<dynamic>>[
+          Break(data: BreakType.column),
+        ],
+      ).buildXml(context: context),
+    ];
   }
 
   @override

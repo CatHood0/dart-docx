@@ -3,7 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
-import '../../sdk.dart';
+import '../runs/run.dart';
 
 class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   Paragraph({
@@ -19,16 +19,16 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   }
 
   /// All the styles applied to the paragraph
-  final List<Style> styles;
-  final List<Numbering> references = <Numbering>[];
-  final Numbering? numbering;
+  List<Style> styles;
+  List<Numbering> references = <Numbering>[];
+  Numbering? numbering;
 
   /// All the styles applied to the run
-  final List<Style> runStyles;
-  final ParagraphPagebreak pageBreak;
+  List<Style> runStyles;
+  ParagraphPagebreak pageBreak;
 
   @override
-  XmlElement buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> paragraphChildren = [];
     final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
 
@@ -43,40 +43,35 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     }
 
     if (pageBreak == ParagraphPagebreak.before) {
-      paragraphChildren.add(_brPageBreak);
+      styles.add(StyleBuilder.singularP().pageBreakBefore().build());
     }
 
     for (final RunBase e in data) {
-      final XmlNode element = e.buildXml(context: context);
-      if (element.children.isEmpty || e.isEmptyData) continue;
-      paragraphChildren.add(element);
+      final List<XmlNode> element = e.buildXml(context: context);
+      if (e.shouldIgnore() || element.isEmpty) {
+        continue;
+      }
+      paragraphChildren.addAll(element);
     }
 
     if (pageBreak == ParagraphPagebreak.after) {
-      paragraphChildren.add(_brPageBreak);
+      paragraphChildren.addAll(
+        Run(
+          // will return this break in a <w:r>
+          wrapInRunMark: true,
+          component: Break.pageBreak(),
+        ).buildXml(context: context),
+      );
     }
 
-    return super.runParent(
-      attributes: <XmlAttribute>[],
-      children: paragraphChildren,
-      isSelfClosing: false,
-    );
+    return <XmlElement>[
+      super.runParent(
+        attributes: <XmlAttribute>[],
+        children: paragraphChildren,
+        isSelfClosing: false,
+      ),
+    ];
   }
-
-  XmlElement get _brPageBreak => XmlElement.tag(
-        'w:r',
-        children: [
-          XmlElement.tag(
-            'w:br',
-            attributes: [
-              XmlAttribute(
-                'w:type'.toName(),
-                'page',
-              ),
-            ],
-          )
-        ],
-      );
 
   @override
   List<XmlElement> buildXmlStyle({required DocumentContext context}) {
@@ -174,11 +169,11 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final RunBase? foundedEl = element.visitElement(
+        final DocxContent? foundedEl = element.visitElement(
           shouldGetElement,
         );
         if (foundedEl != null) {
-          return foundedEl;
+          return foundedEl as RunBase;
         }
       }
     }
@@ -196,10 +191,12 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<RunBase>? foundedEl = element.visitAllElement(
-          shouldGetElement,
-          visitChildrenIfNeeded: true,
-        );
+        final List<RunBase<dynamic>>? foundedEl = element
+            .visitAllElement(
+              shouldGetElement,
+              visitChildrenIfNeeded: true,
+            )
+            ?.cast<RunBase>();
         if (foundedEl != null) {
           elements.addAll(foundedEl);
         }

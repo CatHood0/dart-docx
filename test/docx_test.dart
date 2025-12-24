@@ -1,106 +1,9 @@
 import 'dart:io';
 import 'package:docx/docx.dart';
+import 'package:docx/src/docx_sdk/components/drawing/drawing.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('Should create cv', () async {
-    final File outFile = File('test_resources/cv.docx');
-
-    final DocxDocument doc = DocxDocument(
-      options: DocumentOptions.blank(
-        title: 'Curriculum - Jane Doe',
-        styles: DocumentStylesSheet.base().withNewStyles(
-          <Style>[
-            StyleBuilder.paragraph('Name')
-                .fontFamily('Times New Roman')
-                .fontSize(24)
-                .bold()
-                .alignment(Alignment.center)
-                .build(),
-            StyleBuilder.paragraph('SectionHeading')
-                .fontSize(14)
-                .bold()
-                .spacing(after: 200)
-                .build(),
-          ],
-        ),
-      ),
-      sections: <DocxContent<dynamic>>[
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            TextRun(
-              data: TextPart(
-                text: 'Jane Doe',
-                styles: <Object>[Style.reference('Name')],
-              ),
-            ),
-          ],
-        ),
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            TextRun(
-              data: TextPart(
-                  text: 'Email: jane.doe@example.com • Phone: +1 234 567 890'),
-            ),
-          ],
-        ),
-        ColumnBreak(),
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            TextRun(
-              data: TextPart(
-                text: 'Experience',
-                styles: <Object>[
-                  Style.reference(
-                    'SectionHeading',
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            TextRun(
-              data: TextPart(
-                text: '• Senior Engineer at Acme Corp (2018 - Present)\n'
-                    '• Software Developer at Example Inc. (2015 - 2018)',
-              ),
-            ),
-          ],
-        ),
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            TextRun(
-              data: TextPart(
-                  text: 'Education',
-                  styles: <Object>[Style.reference('SectionHeading')]),
-            ),
-          ],
-        ),
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            TextRun(
-              data: TextPart(
-                  text:
-                      'M.Sc. Computer Science — University of Examples (2013 - 2015)\nB.Sc. Computer Science — College of Samples (2009 - 2013)'),
-            ),
-          ],
-        ),
-      ],
-    );
-
-    final DocxMetadataPacker packer =
-        DocxMetadataPacker().dynamicFontSearch(true);
-    final bytes = await packer.bytes(doc, applyCustomTheme: false);
-
-    if (bytes != null) {
-      await outFile.writeAsBytes(bytes);
-      print('Saved CV to ${outFile.path}');
-    } else {
-      stderr.writeln('Failed to generate CV .docx');
-    }
-  });
   test('Should create a minimal DocxDocument and save it', () async {
     final DocxMetadataPacker parser = DocxMetadataPacker();
     final File docPathFile = File('test_resources/minimal_document.docx');
@@ -197,7 +100,7 @@ void main() {
                 // put to top
                 yAlign: FrameVerticalAlignment.top,
               ),
-              LazyImage(
+              LazyImageBlock(
                 data: ImageData(
                   buffer: File('test_resources/logo.jpg'),
                   extension: 'jpg',

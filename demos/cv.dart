@@ -3,41 +3,21 @@ import 'package:docx/docx.dart';
 
 /// Simple demo that generates a minimal CV as a .docx file.
 Future<void> main() async {
-  Directory('demos_output').createSync(recursive: true);
-  final File outFile = File('demos_output/cv.docx');
+  final File outFile = File('test_resources/cv.docx');
 
-  //TODO: add two columns, one for the personal info
-  // and the other for the experiences, colleges, etc
-  final PageSettings pageSize = PageSettings.letter;
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.blank(
       title: 'Curriculum - Jane Doe',
-      section: SectionOptions(
-        size: pageSize,
-        //TODO: column settings are not being applied
-        columns: ColumnSettings(
-          space: 200,
-          numColumns: 2,
-          equalWidth: false,
-          separator: false,
-          columnWidths: <ColumnWidthSetting>[
-            // first take just a part
-            ColumnWidthSetting(width: 150),
-            // last one takes the rest
-            ColumnWidthSetting(width: 250),
-          ],
-        ),
-      ),
       styles: DocumentStylesSheet.base().withNewStyles(
         <Style>[
           StyleBuilder.paragraph('Name')
               .fontFamily('Times New Roman')
-              .fontSize(24.toHalfPointsFromPoints())
+              .fontSize(24)
               .bold()
               .alignment(Alignment.center)
               .build(),
           StyleBuilder.paragraph('SectionHeading')
-              .fontSize(14.toHalfPointsFromPoints())
+              .fontSize(14)
               .bold()
               .spacing(after: 200)
               .build(),
@@ -47,6 +27,19 @@ Future<void> main() async {
     sections: <DocxContent<dynamic>>[
       Paragraph(
         data: <RunBase<dynamic>>[
+          Run(
+            component: Drawing(
+              data: LazyImage(
+                data: ImageData(
+                  buffer: File('assets/cv_person.jpg'),
+                  extension: 'jpg',
+                  width: 200,
+                  height: 200,
+                  unit: Unit.pixels96,
+                ),
+              ),
+            ),
+          ),
           TextRun(
             data: TextPart(
               text: 'Jane Doe',
@@ -59,7 +52,8 @@ Future<void> main() async {
         data: <RunBase<dynamic>>[
           TextRun(
             data: TextPart(
-                text: 'Email: jane.doe@example.com • Phone: +1 234 567 890'),
+                text: 'Email: jane.doe@example.com '
+                    '• Phone: +1 234 567 890'),
           ),
         ],
       ),
@@ -82,7 +76,26 @@ Future<void> main() async {
         data: <RunBase<dynamic>>[
           TextRun(
             data: TextPart(
-              text: '• Senior Engineer at Acme Corp (2018 - Present)',
+              text: '• Senior Engineer at Acme '
+                  'Corp (2018 - Present)',
+            ),
+          ),
+          Break.lineBreak(),
+          TextRun(
+            data: TextPart(
+                text: '• Software Developer at '
+                    'Example Inc. (2015 - 2018)'),
+          ),
+        ],
+      ),
+      Paragraph(
+        data: <RunBase<dynamic>>[
+          TextRun(
+            data: TextPart(
+              text: 'Education',
+              styles: <Object>[
+                Style.reference('SectionHeading'),
+              ],
             ),
           ),
         ],
@@ -91,34 +104,24 @@ Future<void> main() async {
         data: <RunBase<dynamic>>[
           TextRun(
             data: TextPart(
-              text: '• Software Developer at Example Inc. (2015 - 2018)',
+              text: 'M.Sc. Computer Science — '
+                  'University of Examples (2013 - 2015)',
             ),
           ),
-        ],
-      ),
-      Paragraph(
-        data: <RunBase<dynamic>>[
+          Break.lineBreak(),
           TextRun(
             data: TextPart(
-                text: 'Education',
-                styles: <Object>[Style.reference('SectionHeading')]),
-          ),
-        ],
-      ),
-      Paragraph(
-        data: <RunBase<dynamic>>[
-          TextRun(
-            data: TextPart(
-                text:
-                    'M.Sc. Computer Science — University of Examples (2013 - 2015)\nB.Sc. Computer Science — College of Samples (2009 - 2013)'),
+              text: 'B.Sc. Computer Science — '
+                  'College of Samples (2009 - 2013)',
+            ),
           ),
         ],
       ),
     ],
   );
 
-  final DocxMetadataPacker packer = DocxMetadataPacker();
-  packer.dynamicFontSearch(true);
+  final DocxMetadataPacker packer =
+      DocxMetadataPacker().dynamicFontSearch(true);
   final bytes = await packer.bytes(doc, applyCustomTheme: false);
 
   if (bytes != null) {

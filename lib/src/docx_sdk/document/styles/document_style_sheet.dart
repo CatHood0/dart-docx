@@ -18,9 +18,9 @@ class DocumentStylesSheet {
   }
 
   DocumentStylesSheet.empty()
-      : styles = [],
-        _docDefaultParagraphStyles = [],
-        _docDefaultRunStyles = [];
+      : styles = <Style>[],
+        _docDefaultParagraphStyles = <Style>[],
+        _docDefaultRunStyles = <Style>[];
 
   DocumentStylesSheet.base({EditorOptions? options})
       : styles = [...EasyStyles.standardDocumentStyles],
@@ -77,7 +77,7 @@ class DocumentStylesSheet {
       (Style s) => s.styleId == style.basedOn?.value,
       orElse: Style.invalid,
     );
-    if (parent.id != 'invalid') {
+    if (!parent.isInvalid) {
       final String? basedOn = parent.basedOn?.value as String?;
       if (basedOn != null && basedOn.isNotEmpty && deep) {
         return getParentOf(parent);
@@ -97,21 +97,21 @@ class DocumentStylesSheet {
   }
 
   Style? getStyleById(String id, {Set<String> variants = const <String>{}}) {
-    if (id.isEmpty) return null;
-    return styles.firstWhere(
+    return Style.styleOrNull(styles.firstWhere(
       (Style e) =>
           e.id == id ||
           e.styleId == id ||
           variants.contains(e.id) ||
           variants.contains(e.styleId),
       orElse: Style.invalid,
-    );
+    ));
   }
 
   Style? getStyleByName(String name) {
-    if (name.isEmpty) return null;
     return styles.firstWhere(
-      (Style e) => e.styleName == name,
+      (Style e) => e.styleNames().any(
+            (StyleConfigurator el) => el.value == name,
+          ),
     );
   }
 

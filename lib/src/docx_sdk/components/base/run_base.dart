@@ -1,9 +1,11 @@
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 import '../../exceptions/content_not_processed_exception.dart';
+import '../../mixins/ignorable_mixin.dart';
 import '../../sdk.dart';
 
-abstract class RunBase<T> extends DocxContent<T> with PrintableMixin {
+abstract class RunBase<T> extends DocxContent<T>
+    with PrintableMixin, IgnorableMixin {
   RunBase({
     required super.data,
     super.parent,
@@ -37,7 +39,6 @@ abstract class RunBase<T> extends DocxContent<T> with PrintableMixin {
       );
     }
 
-
     runChildren.addAll(nodes);
 
     final XmlElement run = XmlElement.tag(
@@ -61,7 +62,7 @@ abstract class RunBase<T> extends DocxContent<T> with PrintableMixin {
   }
 
   @override
-  RunBase? visitElement(
+  DocxContent? visitElement(
     bool Function(DocxContent element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
@@ -69,7 +70,7 @@ abstract class RunBase<T> extends DocxContent<T> with PrintableMixin {
   }
 
   @override
-  List<RunBase>? visitAllElement(
+  List<DocxContent>? visitAllElement(
     bool Function(DocxContent element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {

@@ -11,6 +11,18 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     super.parent,
   });
 
+  HyperlinkRun.pure({
+    required String link,
+    List<Object> styles = const <Object>[],
+    super.parent,
+  }) : super(
+          data: HyperlinkTextPart(
+            text: link,
+            hyperlink: link,
+            styles: List<Object>.from(styles),
+          ),
+        );
+
   @override
   bool get isEmptyData => data.text.isEmpty;
 
@@ -25,20 +37,27 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
       );
 
   @override
-  XmlElement buildXml({required DocumentContext context}) {
-    return super.runParent(
-      runProperties: buildXmlStyle(context: context),
-      nodes: [
-        if (data.text.isNotEmpty && data.text != '\n')
-          XmlElement.tag(
-            xmlTextNode,
-            children: [
-              XmlText(data.text),
-            ],
-            isSelfClosing: false,
-          )
-      ],
-    );
+  bool shouldIgnore() {
+    return data.hyperlink.isEmpty;
+  }
+
+  @override
+  List<XmlElement> buildXml({required DocumentContext context}) {
+    return <XmlElement>[
+      super.runParent(
+        runProperties: buildXmlStyle(context: context),
+        nodes: [
+          if (data.text.isNotEmpty && data.text != '\n')
+            XmlElement.tag(
+              xmlTextNode,
+              children: [
+                XmlText(data.text.isEmpty ? data.hyperlink : data.text),
+              ],
+              isSelfClosing: false,
+            )
+        ],
+      ),
+    ];
   }
 
   @override

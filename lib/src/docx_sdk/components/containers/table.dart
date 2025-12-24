@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../sdk.dart';
 
+//TODO: implement the correct version 
 class TableContent extends ComponentContainer<Iterable<TableRow>> {
   TableContent({
     required super.data,
@@ -12,7 +13,7 @@ class TableContent extends ComponentContainer<Iterable<TableRow>> {
   final TableProperties properties;
 
   @override
-  XmlElement buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlElement> _gridCols = [];
     if (properties.gridColWidthBuilder != null) {
       for (int i = 0; i < data.length; i++) {
@@ -30,32 +31,40 @@ class TableContent extends ComponentContainer<Iterable<TableRow>> {
         );
       }
     }
-    return runParent(
-      attributes: <XmlAttribute>[],
-      isSelfClosing: data.isNotEmpty,
-      children: <XmlNode>[
-        XmlElement.tag(
-          'w:tbl',
-          children: [
-            ...buildXmlStyle(context: context),
-            ...data.map((TableRow tr) {
-              return XmlElement.tag(
-                'w:tr',
-                children: [
-                  ...tr.cells.map(
-                    (TableCell cell) {
-                      return cell.content.buildXml(context: context);
-                    },
-                  ),
-                ],
-                isSelfClosing: false,
-              );
-            }),
-          ],
-          isSelfClosing: false,
-        ),
-      ],
-    );
+    return [
+      runParent(
+        attributes: <XmlAttribute>[],
+        isSelfClosing: data.isNotEmpty,
+        children: <XmlNode>[
+          XmlElement.tag(
+            'w:tbl',
+            children: [
+              ...buildXmlStyle(context: context),
+              ...data.map((TableRow tr) {
+                return XmlElement.tag(
+                  'w:tr',
+                  children: [
+                    ...tr.cells.map(
+                      (
+                        TableCell cell,
+                      ) {
+                        return cell.content
+                            .buildXml(
+                              context: context,
+                            )
+                            .single;
+                      },
+                    ),
+                  ],
+                  isSelfClosing: false,
+                );
+              }),
+            ],
+            isSelfClosing: false,
+          ),
+        ],
+      ),
+    ];
   }
 
   @override

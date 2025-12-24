@@ -25,6 +25,17 @@ class DocxMetadataPacker {
     return this;
   }
 
+  DocxMetadataPacker setNormalStyleToNotStyledParagraphs(bool setNormal) {
+    _compiler.setNormalStyleToNotStyledParagraphs = setNormal;
+    return this;
+  }
+
+  DocxMetadataPacker defaultNormalStyle(Style style) {
+    assert(style.isReference, 'the style passed must be a reference instance');
+    _compiler.defaultNormalStyle = style;
+    return this;
+  }
+
   /// Release all resources in this packer
   void release() {
     _compiler.release();

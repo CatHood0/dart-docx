@@ -20,7 +20,7 @@ abstract class DocxContent<T> {
   final String id;
   ComponentContainer? parent;
   DocxContent<T> get copy;
-  XmlNode buildXml({required DocumentContext context});
+  List<XmlNode> buildXml({required DocumentContext context});
   List<XmlNode> buildXmlStyle({required DocumentContext context});
 
   DocxContent? visitElement(

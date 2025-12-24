@@ -17,9 +17,9 @@ class MediaStore {
   /// Stores registered [MediaData] objects, keyed by their generated unique name.
   final Map<String, MediaData> media = <String, MediaData>{};
 
-  /// Stores discovered media components ([Image], [LazyImage]), keyed by their internal ID.
-  final Map<String, ComponentContainer<ImageData<dynamic>>> mediaComponents =
-      <String, ComponentContainer<ImageData<dynamic>>>{};
+  /// Stores discovered media components ([ImageBlock], [LazyImageBlock]), keyed by their internal ID.
+  final Map<String, DocxContent<ImageData<dynamic>>> mediaComponents =
+      <String, DocxContent<ImageData<dynamic>>>{};
 
   /// Stores all unique file extensions found among the discovered media.
   final Set<String> extensions = <String>{};
@@ -44,13 +44,32 @@ class MediaStore {
   ]) {
     for (final DocxContent parent in data.sections) {
       final DocxContent? image = parent.visitElement(
-        (DocxContent<dynamic> el) =>
-            (el is Image || el is LazyImage) &&
-            supportedFileExtensions.contains(el.data.extension),
+        (DocxContent<dynamic> el) {
+          // if [el] is Run instance, will delegates the visit to its data component
+          // if [el] is another type like ComponentContainer,
+          //    it can match by [ImageBlock] or [LazyImageBlock]
+          return el.visitElement(
+                (DocxContent<dynamic> subEl) =>
+                    // usually, only image components contain ImageData
+                    // as it value
+                    subEl.data is ImageData &&
+                    supportedFileExtensions.contains(subEl.data.extension),
+              ) !=
+              null;
+        },
       );
       if (image != null) {
-        mediaComponents[image.id] = image as ComponentContainer<ImageData>;
-        extensions.add(image.data.extension);
+        if (image is Run && image.data is! Drawing) {
+          throw 'Word does not support rendering '
+              'images outside of Drawing componentes. Found ${image.data.runtimeType}';
+        }
+        final DocxContent<ImageData<Object>> imageComponent = image is Run
+            // data of Run objects are the component
+            // so, since we CANNOT draw an image
+            ? (image.data as Drawing).data as DocxContent<ImageData>
+            : image as DocxContent<ImageData>;
+        mediaComponents[image.id] = imageComponent;
+        extensions.add(imageComponent.data.extension);
       }
     }
   }
@@ -81,11 +100,11 @@ class MediaStore {
     media.clear();
 
     for (int index = 0; index < mediaComponents.values.length; index++) {
-      final ComponentContainer<ImageData<dynamic>> imgComponent =
+      final DocxContent<ImageData<dynamic>> imgComponent =
           mediaComponents.values.elementAt(index);
       onProgress?.call(index + 1, mediaComponents.values.length);
 
-      // Skip when required 
+      // Skip when required
       if (imgComponent is IgnorableMixin &&
           (imgComponent as IgnorableMixin).shouldIgnore()) {
         continue;
@@ -167,7 +186,7 @@ class MediaStore {
 
   int? getMediaIdForRef(String imageRefId) {
     if (mediaComponents[imageRefId] != null) {
-      final ComponentContainer<ImageData<dynamic>>? component =
+      final DocxContent<ImageData<dynamic>>? component =
           mediaComponents[imageRefId];
       if (component == null) return null;
       assert(component.rId != null,

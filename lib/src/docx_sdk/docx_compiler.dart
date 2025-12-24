@@ -37,6 +37,14 @@ class DocxCompiler {
   /// if [dynamicFontSearch] is false and [fonts] is not setted
   bool dynamicFontSearch = true;
 
+  /// Determines if the paragraph will be created referencing the
+  /// "Normal" style
+  bool setNormalStyleToNotStyledParagraphs = true;
+
+  /// Determines if the paragraph will be created referencing the
+  /// "Normal" style
+  Style defaultNormalStyle = Style.reference('Normal');
+
   Stream<DocxEvent> get eventStream => _eventController.stream;
   void _emit(DocxEvent event) => _eventController.add(event);
 
@@ -73,12 +81,22 @@ class DocxCompiler {
     numberingStore.reset();
     fontStore.reset();
 
+    if (setNormalStyleToNotStyledParagraphs) {
+      assert(
+        options.docStyles.getStyleById(defaultNormalStyle.styleId) != null,
+        'The style "${defaultNormalStyle.styleId}" not '
+        'exist in your DocumentStylesSheet',
+      );
+    }
+
     final DocumentContext documentContext = DocumentContext(
       options: options,
       store: mediaStore,
       fontStore: fontStore,
       hyperlinkStore: hyperlinkStore,
       numberingStore: numberingStore,
+      defaultNormalStyle: defaultNormalStyle,
+      setNormalStyleToNotStyledParagraphs: setNormalStyleToNotStyledParagraphs,
     );
 
     numberingStore.initializeAndApplyContext(documentContext);

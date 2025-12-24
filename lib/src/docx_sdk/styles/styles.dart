@@ -184,6 +184,14 @@ class Style extends IterableConfigurators {
   /// the styles to the text runs
   StyleConfigurator? get runProperties => getConfiguratorOrNull('w:rPr');
 
+  static StyleConfigurator? styleConfiguratorOrNull(StyleConfigurator configurator) {
+    return configurator.isInvalid ? null : configurator;
+  }
+
+  static Style? styleOrNull(Style style) {
+    return style.isInvalid ? null : style;
+  }
+
   /// Gets the base style that this style inherits from, if any.
   ///
   /// Searches for a w:basedOn configurator and returns the corresponding
@@ -760,7 +768,7 @@ abstract class IterableConfigurators {
     return indent?.getConfiguratorOrNull('w:firstLine');
   }
 
-  StyleConfigurator? styleOrNull(StyleConfigurator configurator) {
+  static StyleConfigurator? styleConfiguratorOrNull(StyleConfigurator configurator) {
     return configurator.isInvalid ? null : configurator;
   }
 
@@ -794,7 +802,7 @@ abstract class IterableConfigurators {
 
   /// Gets the first 'name' configurator if present.
   StyleConfigurator? styleName({String? language}) {
-    return styleOrNull(configurators.firstWhere(
+    return styleConfiguratorOrNull(configurators.firstWhere(
       (StyleConfigurator e) => language != null
           ? e.qualifiedName == 'w:name' && e.attributes!['w:lang'] == language
           : e.qualifiedName == 'w:name' || e.propertyName == 'name',
@@ -825,7 +833,7 @@ abstract class IterableConfigurators {
     bool fullName = false,
     bool Function(StyleConfigurator)? predicate,
   }) {
-    return styleOrNull(configurators.firstWhere(
+    return styleConfiguratorOrNull(configurators.firstWhere(
       (StyleConfigurator e) => (fullName || matcher.contains(':'))
           ? e.qualifiedName == matcher &&
               (predicate == null ? true : predicate(e))

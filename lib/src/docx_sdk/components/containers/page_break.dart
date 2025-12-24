@@ -27,14 +27,16 @@ class PageBreak extends ComponentContainer {
   final String _type;
 
   @override
-  XmlElement buildXml({required DocumentContext context}) {
-    return XmlElement.tag(
-      xmlParagraphNode,
-      children: [
-        ...buildXmlStyle(context: context),
-      ],
-      isSelfClosing: false,
-    );
+  List<XmlElement> buildXml({required DocumentContext context}) {
+    return [
+      XmlElement.tag(
+        xmlParagraphNode,
+        children: [
+          ...buildXmlStyle(context: context),
+        ],
+        isSelfClosing: false,
+      ),
+    ];
   }
 
   @override

@@ -14,15 +14,15 @@ class DocxDocument {
   //NOTE: probably we will move these to DocxDocument class
   final DocumentOptions options;
 
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    final List<XmlElement> content = <XmlElement>[];
+  List<XmlNode> buildXml({required DocumentContext context}) {
+    final List<XmlNode> content = <XmlNode>[];
     for (final DocxContent<dynamic> section in sections) {
       if (section is IgnorableMixin &&
           (section as IgnorableMixin).shouldIgnore()) {
         continue;
       }
       context.currentContentPart = section;
-      content.add(section.buildXml(context: context) as XmlElement);
+      content.addAll(section.buildXml(context: context));
     }
     return content;
   }

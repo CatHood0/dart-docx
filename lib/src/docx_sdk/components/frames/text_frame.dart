@@ -58,7 +58,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
   final Style? border; // Similar to StyleBuilder _borders
 
   @override
-  XmlElement buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlAttribute> frameAttributes = [
       XmlAttribute('w:w'.toName(), width.toString()),
       XmlAttribute('w:h'.toName(), height.toString()),
@@ -105,14 +105,16 @@ class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
     // Add the content of the TextFrame (e.g., actual paragraphs, text runs)
     // directly as children of the w:p element that forms the frame.
     for (final DocxContent child in data) {
-      final XmlNode childXml = child.buildXml(context: context);
-      paragraphChildren.add(childXml);
+      final List<XmlNode> childXml = child.buildXml(context: context);
+      paragraphChildren.addAll(childXml);
     }
 
-    return XmlElement.tag(
-      xmlParagraphNode, // Typically 'w:p'
-      children: paragraphChildren,
-    );
+    return [
+      XmlElement.tag(
+        xmlParagraphNode,
+        children: paragraphChildren,
+      ),
+    ];
   }
 
   @override
