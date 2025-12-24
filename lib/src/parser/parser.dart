@@ -144,7 +144,7 @@ abstract class Parser<T, R, O extends ParserOptions> {
     }
     if (containsSpacing) {
       final int? userParse =
-          options.parseXmlSpacing?.call(spacingNode.toConfigurator);
+          options.parseXmlSpacing?.call(spacingNode.toStyleConfigurator());
       if (userParse != null) {
         blockAttributes['line-height'] = userParse;
       } else {

@@ -36,7 +36,7 @@ class Style extends IterableConfigurators {
   /// [type]: The style type - either [Style.paragraphType] or [Style.characterType]
   /// [styleId]: Unique identifier used in XML (e.g., "Heading1", "Normal", "Hyperlink")
   /// [styleName]: Display name shown in Word's style picker
-  /// [alternativeNames]: Display name using the System Language to allow Word picking the correct name. First argument is the name in the language that correspond to the language of the second argument in Tuple
+  /// [alternativeNames]: Display name using the System Language to allow Word picking the correct name. First argument is the name in the language that correspond to the languages of the second argument in Tuple
   /// [defaultValue]: Whether this style is marked as default
   /// [configurators]: Collection of style properties and formatting rules
   /// [rId]: Revision save ID when style was set as default (w:rsidDefault)
@@ -48,7 +48,10 @@ class Style extends IterableConfigurators {
     required this.styleId,
     String? styleName,
     String? defaultStyleNameLanguage,
-    List<(String, String)> alternativeNames = const <(String, String)>[],
+    Iterable<(String, List<String>)> alternativeNames = const <(
+      String,
+      List<String>
+    )>[],
     this.defaultValue,
     Iterable<StyleConfigurator>? configurators,
     this.revisionIdDefault,
@@ -62,32 +65,36 @@ class Style extends IterableConfigurators {
             configurators ?? <StyleConfigurator>[],
           ),
         ) {
-    super.configurators.addAll(
-      [
-        if (styleName != null)
-          StyleConfigurator.selfClosing(
-            prefix: 'w',
-            propertyName: 'name',
-            value: styleName,
-            attributes: defaultStyleNameLanguage == null
-                ? null
-                : <String, dynamic>{
-                    'w:lang': defaultStyleNameLanguage,
-                  },
-          ),
-        if (alternativeNames.isNotEmpty)
-          ...alternativeNames.map(((String, String) el) {
-            return StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'name',
-              value: el.$1,
-              attributes: <String, dynamic>{
-                'w:lang': el.$2,
-              },
-            );
-          }),
-      ],
-    );
+    final List<StyleConfigurator> resultAlternatives = <StyleConfigurator>[
+      if (styleName != null)
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'name',
+          value: styleName,
+          attributes: defaultStyleNameLanguage == null
+              ? null
+              : <String, dynamic>{
+                  'w:lang': defaultStyleNameLanguage,
+                },
+        ),
+    ];
+    // since one name can have multiple languages that have the same
+    // exact characters, and we store them in a single map
+    // to avoid losing that data, we allow to set a list of languages
+    // to save that one name with its variants
+    for (final (String, List<String>) element in alternativeNames) {
+      for (final String language in element.$2) {
+        resultAlternatives.add(StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'name',
+          value: element.$1,
+          attributes: <String, dynamic>{
+            'w:lang': language,
+          },
+        ));
+      }
+    }
+    super.configurators.addAll(resultAlternatives);
   }
 
   /// Creates a lightweight style reference for lookup/search purposes only.
@@ -163,13 +170,19 @@ class Style extends IterableConfigurators {
   /// Indicates if this style is marked as default in its category.
   final Object? defaultValue;
 
-  // Computed properties
-
   /// Returns true if this is a reference-only style (created with [Style.reference]).
   bool get isReference => _onlyReference;
 
   /// Returns true if this represents an invalid or non-existent style.
   bool get isInvalid => styleId == 'invalid' && type == 'invalid';
+
+  /// Returns the configurators that contains all the properties that set
+  /// the styles to the paragraphs
+  StyleConfigurator? get paragraphProperties => getConfiguratorOrNull('w:pPr');
+
+  /// Returns the configurators that contains all the properties that set
+  /// the styles to the text runs
+  StyleConfigurator? get runProperties => getConfiguratorOrNull('w:rPr');
 
   /// Gets the base style that this style inherits from, if any.
   ///
@@ -529,28 +542,7 @@ class StyleConfigurator extends IterableConfigurators {
   ///
   /// Produces properly formatted XML with attributes and appropriate closing.
   String toXmlString() {
-    final String styleValue = value != null ? ' w:val="$value"' : '';
-    final StringBuffer attributeBuffer = StringBuffer(styleValue);
-
-    // Add all additional attributes
-    if (attributes != null && attributes!.isNotEmpty) {
-      attributes!.forEach((key, val) {
-        attributeBuffer.write(' $key="$val"');
-      });
-    }
-    final String allAttributes = attributeBuffer.toString();
-
-    // Generate child XML if this element has children
-    final String xmlChildren = !hasChildren
-        ? ''
-        : configurators.map((StyleConfigurator c) => c.toXmlString()).join();
-
-    // Return appropriate XML based on element type
-    if (isSelfClosing) {
-      return '<$qualifiedName$allAttributes/>';
-    } else {
-      return '<$qualifiedName$allAttributes>$xmlChildren</$qualifiedName>';
-    }
+    return toXmlNode().toXmlString();
   }
 
   XmlElement toXmlNode() {
@@ -615,16 +607,181 @@ abstract class IterableConfigurators {
   void addAll(Iterable<StyleConfigurator> configurators) =>
       this.configurators.addAll(configurators);
 
+  /// Gets the 'rFonts' configurator if present.
+  StyleConfigurator? get fontFamily {
+    return getConfiguratorOrNull('w:rFonts');
+  }
+
+  /// Gets the 'sz' configurator if present.
+  StyleConfigurator? get fontSize {
+    return getConfiguratorOrNull('w:sz');
+  }
+
+  StyleConfigurator? get fontSizeEastAsia {
+    return getConfiguratorOrNull('w:szCs');
+  }
+
+  StyleConfigurator? get uiPriority {
+    return getConfiguratorOrNull('w:uiPriority');
+  }
+
+  StyleConfigurator? get qFormat {
+    return getConfiguratorOrNull('w:qFormat');
+  }
+
+  StyleConfigurator? get keepNext {
+    return getConfiguratorOrNull('w:keepNext');
+  }
+
+  StyleConfigurator? get keepLines {
+    return getConfiguratorOrNull('w:keepLines');
+  }
+
+  StyleConfigurator? get script {
+    return getConfiguratorOrNull('w:vertAlign');
+  }
+
+  StyleConfigurator? get smallCaps {
+    return getConfiguratorOrNull('w:smallCaps');
+  }
+
+  StyleConfigurator? get border {
+    return getConfiguratorOrNull('w:pBdr');
+  }
+
+  StyleConfigurator? get widowControl {
+    return getConfiguratorOrNull('w:widowControl');
+  }
+
+  StyleConfigurator? get shading {
+    return getConfiguratorOrNull('w:shd');
+  }
+
+  StyleConfigurator? get paragraphBreakBefore {
+    return getConfiguratorOrNull('w:pageBreakBefore');
+  }
+
+  StyleConfigurator? get caps {
+    return getConfiguratorOrNull('w:caps');
+  }
+
+  StyleConfigurator? get alignment {
+    return getConfiguratorOrNull('w:jc');
+  }
+
+  StyleConfigurator? get outlineLvl {
+    return getConfiguratorOrNull('w:outlineLvl');
+  }
+
+  StyleConfigurator? get bold {
+    return getConfiguratorOrNull('w:b');
+  }
+
+  StyleConfigurator? get italic {
+    return getConfiguratorOrNull('w:i');
+  }
+
+  StyleConfigurator? get underline {
+    return getConfiguratorOrNull(
+      'w:u',
+      predicate: (StyleConfigurator el) => el.value == 'single',
+    );
+  }
+
+  StyleConfigurator? get strike {
+    return getConfiguratorOrNull('w:strike');
+  }
+
+  StyleConfigurator? get dstrike {
+    return getConfiguratorOrNull('w:dstrike');
+  }
+
+  StyleConfigurator? get highlight {
+    return getConfiguratorOrNull('w:highlight');
+  }
+
+  StyleConfigurator? get color {
+    return getConfiguratorOrNull('w:color');
+  }
+
   /// Gets the 'link' configurator if present.
   ///
   /// The link element connects a character style to a paragraph style.
   /// Returns null if no link configurator exists.
   StyleConfigurator? get link {
-    if (configurators.isEmpty) return null;
-    return configurators.firstWhere(
-      (StyleConfigurator e) => e.propertyName == 'link',
-      orElse: StyleConfigurator.invalid,
-    );
+    return getConfiguratorOrNull('link');
+  }
+
+  StyleConfigurator? get next {
+    return spacing?.getConfiguratorOrNull('w:next');
+  }
+
+  StyleConfigurator? get semiHidden {
+    return spacing?.getConfiguratorOrNull('w:semiHidden');
+  }
+
+  StyleConfigurator? get unhideWhenUsed {
+    return spacing?.getConfiguratorOrNull('w:unhideWhenUsed');
+  }
+
+  StyleConfigurator? get spacing {
+    return getConfiguratorOrNull('w:spacing');
+  }
+
+  StyleConfigurator? get spacingBefore {
+    return spacing?.getConfiguratorOrNull('w:before');
+  }
+
+  StyleConfigurator? get spacingAfter {
+    return spacing?.getConfiguratorOrNull('w:after');
+  }
+
+  StyleConfigurator? get lineSpacing {
+    return spacing?.getConfiguratorOrNull('w:line');
+  }
+
+  StyleConfigurator? get lineRule {
+    return spacing?.getConfiguratorOrNull('w:lineRule');
+  }
+
+  StyleConfigurator? get indent {
+    return getConfiguratorOrNull('w:ind');
+  }
+
+  StyleConfigurator? get hanging {
+    return indent?.getConfiguratorOrNull('w:hanging');
+  }
+
+  StyleConfigurator? get leftIndent {
+    return indent?.getConfiguratorOrNull('w:left');
+  }
+
+  StyleConfigurator? get firstLineIndent {
+    return indent?.getConfiguratorOrNull('w:firstLine');
+  }
+
+  StyleConfigurator? styleOrNull(StyleConfigurator configurator) {
+    return configurator.isInvalid ? null : configurator;
+  }
+
+  /// Whether contains the [StyleConfigurator] in this instance
+  ///
+  /// Only support: [String] and [StyleConfigurator] object instances
+  bool contains(Object object) {
+    if (object is! String && object is! StyleConfigurator) {
+      return false;
+    }
+
+    for (final StyleConfigurator config in configurators) {
+      if (object is String &&
+          (object.contains(':')
+              ? config.qualifiedName == object
+              : config.propertyName == object)) {
+        return true;
+      }
+      if (object is StyleConfigurator && config == object) return true;
+    }
+    return false;
   }
 
   /// Gets the 'basedOn' configurator if present.
@@ -632,33 +789,26 @@ abstract class IterableConfigurators {
   /// The basedOn element defines style inheritance by referencing
   /// another style's ID. Returns null if no inheritance is defined.
   StyleConfigurator? get basedOn {
-    if (configurators.isEmpty) return null;
-    final StyleConfigurator result = configurators.firstWhere(
-      (StyleConfigurator e) => e.qualifiedName == 'w:basedOn',
-      orElse: StyleConfigurator.invalid,
-    );
-    return result.isInvalid ? null : result;
+    return getConfiguratorOrNull('w:basedOn');
   }
 
   /// Gets the first 'name' configurator if present.
   StyleConfigurator? styleName({String? language}) {
-    if (configurators.isEmpty) return null;
-    return configurators.firstWhere(
+    return styleOrNull(configurators.firstWhere(
       (StyleConfigurator e) => language != null
           ? e.qualifiedName == 'w:name' && e.attributes!['w:lang'] == language
           : e.qualifiedName == 'w:name' || e.propertyName == 'name',
       orElse: StyleConfigurator.invalid,
-    );
+    ));
   }
 
   /// Gets all the 'name' configurators if present.
   ///
   /// Usually we use them to know all names by language
-  Iterable<StyleConfigurator> styleNames({String? language}) {
+  Iterable<StyleConfigurator> styleNames() {
     return configurators.where(
-      (StyleConfigurator e) => language != null
-          ? e.qualifiedName == 'w:name' && e.attributes!['w:lang'] == language
-          : e.qualifiedName == 'w:name' || e.propertyName == 'name',
+      (StyleConfigurator e) =>
+          e.qualifiedName == 'w:name' || e.propertyName == 'name',
     );
   }
 
@@ -667,19 +817,22 @@ abstract class IterableConfigurators {
   /// [matcher]: The name to search for (can be qualified like 'w:basedOn'
   ///            or unqualified like 'basedOn')
   /// [fullName]: If true, requires exact match including namespace prefix
+  /// [predicate]: custom property to allow filtering with granular information
   ///
   /// Returns the matching configurator or null.
   StyleConfigurator? getConfiguratorOrNull(
     String matcher, {
     bool fullName = false,
+    bool Function(StyleConfigurator)? predicate,
   }) {
-    final StyleConfigurator result = configurators.firstWhere(
+    return styleOrNull(configurators.firstWhere(
       (StyleConfigurator e) => (fullName || matcher.contains(':'))
-          ? e.qualifiedName == matcher
-          : e.propertyName == matcher,
+          ? e.qualifiedName == matcher &&
+              (predicate == null ? true : predicate(e))
+          : e.propertyName == matcher &&
+              (predicate == null ? true : predicate(e)),
       orElse: StyleConfigurator.invalid,
-    );
-    return result.isInvalid ? null : result;
+    ));
   }
 
   /// Finds a configurator by name, returning an invalid configurator if not found.
@@ -687,7 +840,6 @@ abstract class IterableConfigurators {
   /// Similar to [getConfiguratorOrNull] but always returns a StyleConfigurator,
   /// which may be invalid if no match was found.
   StyleConfigurator getConfigurator(String matcher, {bool fullName = false}) {
-    if (configurators.isEmpty) return StyleConfigurator.invalid();
     return configurators.firstWhere(
       (StyleConfigurator e) => fullName || matcher.contains(':')
           ? e.qualifiedName == matcher

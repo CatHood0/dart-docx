@@ -9,6 +9,8 @@ import 'xml_components/settings/entities/settings.dart';
 //TODO: add insert, delete, and replacement capabilities
 //TODO: add capabilities to modify styles
 //TODO: add capabilities to set new settings
+//TODO: add capabilities to compile specific parts
+//TODO: add mixins to components to allow detecting changes and recompiling automatically
 /// The class encharged to allow general operations in the library
 ///
 /// It's designed to allow granular updated instead generating whole
@@ -29,6 +31,8 @@ class DocxSdk {
 
   // to allow modifying certain parts of the docx result
   // we can implement these methods
+  //
+  // Aceppted types: String, Images and Paragraph
   void insert(int start, Object data) {}
   void replace(int start, int end, Object data) {}
   void delete(int start, int end) {}

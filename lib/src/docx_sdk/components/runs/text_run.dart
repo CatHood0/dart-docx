@@ -74,7 +74,7 @@ class TextRun extends RunBase<TextPart> {
       final XmlElement? styleXml = style is TextRunAttribution
           ? style.toXml()
           : (style as Style)
-              .toRunStyleNodes(
+              .forRunStyle(
                 // only not reference styles have configurators
                 useConfigurators: !style.isReference,
                 shouldShowStyleRef: style.isReference,

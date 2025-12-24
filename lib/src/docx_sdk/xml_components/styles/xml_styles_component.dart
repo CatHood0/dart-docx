@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
 
-import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
 import 'xml_default_doc_styles_component.dart';
 
@@ -30,7 +29,7 @@ class XmlStylesComponent extends XmlComponentBase<void> {
         ).buildXml(context),
         ...context.docStyleSheet.styles
             .where(_avoidInvalidStyles)
-            .map<XmlElement>((Style e) => e.toNode()!),
+            .map<XmlElement>((Style e) => e.toXmlNode()!),
       ],
     );
   }

@@ -147,12 +147,12 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       appliedStyles[style.styleId] = style;
       // references does not require apply of attributes
       if (style.isReference) {
-        pPrChildren.addAll(style.toParagraphStyleNodes(
+        pPrChildren.addAll(style.forParagraphStyle(
           useConfigurators: false,
         ));
         continue;
       }
-      pPrChildren.addAll(style.toParagraphStyleNodes(
+      pPrChildren.addAll(style.forParagraphStyle(
         shouldShowStyleRef: shouldShowStyleRef,
       ));
     }

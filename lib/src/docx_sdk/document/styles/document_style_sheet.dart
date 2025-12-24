@@ -1,7 +1,5 @@
 import 'package:xml/xml.dart' as xml;
 import '../../../../docx.dart';
-import '../../../core/styles_builder/style_builder.dart';
-import '../../sdk.dart';
 import '../../utils/language_codes.dart';
 
 /// Represents the common styles used by the document
@@ -10,22 +8,22 @@ import '../../utils/language_codes.dart';
 class DocumentStylesSheet {
   DocumentStylesSheet({
     required this.styles,
-    List<Style>? docDefaultParagraphStyles,
-    List<Style>? docDefaultRunStyles,
-  })  : _docDefaultParagraphStyles = docDefaultParagraphStyles ?? <Style>[],
-        _docDefaultRunStyles = docDefaultRunStyles ?? <Style>[];
+    List<Style> docDefaultParagraphStyles = const [],
+    List<Style> docDefaultRunStyles = const [],
+  })  : _docDefaultParagraphStyles = [...docDefaultParagraphStyles],
+        _docDefaultRunStyles = [...docDefaultRunStyles];
 
   factory DocumentStylesSheet.fromXmlStyles(xml.XmlDocument styleDoc) {
-    //TODO: we need to get docDefaults to get appropiated configurators
-    return DocumentStylesSheet(
-      styles: convertXmlStylesToStyles(styleDoc),
-      docDefaultParagraphStyles: <Style>[],
-      docDefaultRunStyles: <Style>[],
-    );
+    return XmlToDocxObjects.xmlToDocumentStylesSheet(styleDoc);
   }
 
+  DocumentStylesSheet.empty()
+      : styles = [],
+        _docDefaultParagraphStyles = [],
+        _docDefaultRunStyles = [];
+
   DocumentStylesSheet.base({EditorOptions? options})
-      : styles = kDefaultDocumentStyleSheet.styles,
+      : styles = [...EasyStyles.standardDocumentStyles],
         _docDefaultParagraphStyles = [
           StyleBuilder.singularP()
               .spacing(after: 120, line: 240, rule: LineRule.atLeast)
@@ -44,16 +42,11 @@ class DocumentStylesSheet {
               .build(),
         ];
 
-  static DocumentStylesSheet get kDefaultDocumentStyleSheet =>
-      //TODO: probably we will need to make a copy
-      // of every style
-      DocumentStylesSheet(
-        styles: <Style>[...EasyStyles.standardDocumentStyles],
-      );
-
+  //TODO: probably we will just create a new class for these elements
   /// There are the default values for the paragraphs styles used in styles.xml
   final List<Style> _docDefaultParagraphStyles;
 
+  //TODO: probably we will just create a new class for these elements
   /// There are the default values for the inline text of the paragraphs used in styles.xml
   final List<Style> _docDefaultRunStyles;
 
@@ -130,17 +123,23 @@ class DocumentStylesSheet {
     return DocumentStylesSheet(
       styles: styles ?? this.styles,
       docDefaultParagraphStyles:
-          docDefaultParagraphStyles ?? this.docDefaultParagraphStyles,
-      docDefaultRunStyles: docDefaultRunStyles ?? this.docDefaultRunStyles,
+          docDefaultParagraphStyles ?? _docDefaultParagraphStyles,
+      docDefaultRunStyles: docDefaultRunStyles ?? _docDefaultRunStyles,
     );
   }
 
-  DocumentStylesSheet withNewStyles(List<Style> styles) {
+  DocumentStylesSheet withNewStyles(
+    List<Style> styles, {
+    List<Style>? docDefaultParagraphStyles,
+    List<Style>? docDefaultRunStyles,
+  }) {
     return copyWith(
       styles: [
         ...this.styles,
         ...styles,
       ],
+      docDefaultParagraphStyles: docDefaultParagraphStyles,
+      docDefaultRunStyles: docDefaultRunStyles,
     );
   }
 }

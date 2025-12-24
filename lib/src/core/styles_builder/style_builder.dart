@@ -1,4 +1,6 @@
 import '../../../docx.dart';
+import '../../docx_sdk/utils/language_codes.dart';
+import '../extensions/skippable_iterations_ext.dart';
 
 /// A builder class for creating and configuring [Style] objects.
 ///
@@ -12,47 +14,47 @@ class StyleBuilder {
   ///
   /// [id] is the unique identifier for the style (w:styleId).
   /// [type] specifies if it's a 'paragraph' or 'character' style.
-  /// [_name] is the display name of the style in Word.
-  StyleBuilder._(this.id, this.type, [this._name = '']);
+  /// [_names] is the display name of the style in Word.
+  StyleBuilder._(this.id, this.type);
 
   /// Creates a [StyleBuilder] for a paragraph style.
   ///
   /// [id] is the internal ID for the style.
   /// [name] is the display name of the style. If not provided, [id] is used.
-  factory StyleBuilder.paragraph(String id, {String? name}) {
-    return StyleBuilder._(id, Style.paragraphType, name ?? '');
+  factory StyleBuilder.paragraph(String id) {
+    return StyleBuilder._(id, Style.paragraphType);
   }
 
   /// Creates a [StyleBuilder] for a character style.
   ///
   /// [id] is the internal ID for the style.
   /// [name] is the display name of the style. If not provided, [id] is used.
-  factory StyleBuilder.character(String id, {String? name}) {
-    return StyleBuilder._(id, Style.characterType, name ?? id);
+  factory StyleBuilder.character(String id) {
+    return StyleBuilder._(id, Style.characterType);
   }
 
   /// Creates a [StyleBuilder] for a paragraph style
   /// that is not in DocumentStylesSheet
-  factory StyleBuilder.singularP({String? name}) {
-    return StyleBuilder._(nanoid(5), Style.paragraphType, name ?? '');
+  factory StyleBuilder.singularP() {
+    return StyleBuilder._(nanoid(5), Style.paragraphType);
   }
 
   /// Creates a [StyleBuilder] for a character style
   /// that is not in DocumentStylesSheet
-  factory StyleBuilder.singularC({String? name}) {
-    return StyleBuilder._(nanoid(5), Style.characterType, name ?? '');
+  factory StyleBuilder.singularC() {
+    return StyleBuilder._(nanoid(5), Style.characterType);
   }
 
   /// The internal identifier of the style, used in `w:styleId`.
   final String id;
 
   /// The display name of the style, used in `w:name`.
-  String _name;
+  final Map<String, dynamic> _names = {};
 
   /// The type of the style, either 'paragraph' or 'character'.
   final String type;
 
-  List<StyleConfigurator> _configurators = [];
+  final List<StyleConfigurator> _configurators = <StyleConfigurator>[];
   // Paragraph properties
   String? _basedOn;
   String? _next;
@@ -77,6 +79,11 @@ class StyleBuilder {
   bool isBold = false;
   bool isItalic = false;
   bool isUnderline = false;
+  bool isStrike = false;
+  bool isDoubleStrike = false;
+  bool _isCaps = false;
+  bool _isSmallCaps = false;
+  VerticalAlign? _verticalAlign;
 
   // Paragraph properties (continued)
   Alignment? _alignment;
@@ -90,6 +97,9 @@ class StyleBuilder {
   bool _keepNext = false;
   bool _keepLines = false;
   int? _outlineLevel;
+  bool _pageBreakBefore = false;
+  String? _shadingColor;
+  ShadingPattern? _shadingPattern;
 
   // Language setting for runs
   DocxLanguage? _language;
@@ -106,8 +116,46 @@ class StyleBuilder {
   /// Sets the display name for the style.
   ///
   /// [styleName] is the name that will be shown in the Word editor.
-  StyleBuilder name(String styleName) {
-    _name = styleName;
+  /// [language] is the language that correspond for this [styleName]
+  StyleBuilder name(String styleName, [dynamic language]) {
+    if (language != null &&
+        language is String &&
+        !LanguageCodes.isValid(language)) {
+      throw 'Not valid language code "$language" found. The current '
+          'supported languages are: ${LanguageCodes.languages}';
+    }
+    language ??= LanguageCodes.englishUS;
+    if (_names.containsKey(styleName)) {
+      final dynamic element = _names[styleName]!;
+      if (element is! List<String> && element is! String) {
+        throw 'Unsupported '
+            'type "${element.runtimeType}" catched during '
+            'build of the name of $styleName';
+      }
+      if (element is String) {
+        _names[styleName] = language is List<String>
+            ? <String>[element, ...language]
+            : <String>[element, language as String];
+      }
+
+      if (element is List<String>) {
+        _names[styleName] = language is List<String>
+            ? <String>[...element, ...language]
+            : <String>[...element, language as String];
+      }
+      return this;
+    }
+    _names[styleName] = language;
+    return this;
+  }
+
+  /// Sets the display name for the style.
+  ///
+  /// Usually key is the name, and the value is the language
+  ///
+  /// Value can be or a List<String> or just a String
+  StyleBuilder names(Map<String, dynamic> names) {
+    names.forEach(name);
     return this;
   }
 
@@ -117,7 +165,7 @@ class StyleBuilder {
   }
 
   /// Gets the current display name of the style.
-  String get getName => _name;
+  Iterable<String> get getName => _names.keys;
 
   /// Specifies the ID of the style on which this style is based.
   ///
@@ -252,11 +300,55 @@ class StyleBuilder {
     return this;
   }
 
+  /// Applies strikethrough formatting to the text.
+  ///
+  /// Disable double strikethrough if active
+  StyleBuilder strikethrough() {
+    isStrike = true;
+    isDoubleStrike = false;
+    return this;
+  }
+
+  /// Applies double strikethrough formatting to the text.
+  ///
+  /// Disable strikethrough if active
+  StyleBuilder doubleStrike() {
+    isStrike = false;
+    isDoubleStrike = true;
+    return this;
+  }
+
   /// Applies underline formatting to the text.
   StyleBuilder underline() {
     isUnderline = true;
     return this;
   }
+
+  /// Applies all caps formatting to the text.
+  StyleBuilder caps() {
+    _isCaps = true;
+    _isSmallCaps = false;
+    return this;
+  }
+
+  /// Applies small caps formatting to the text.
+  StyleBuilder smallCaps() {
+    _isSmallCaps = true;
+    _isCaps = false;
+    return this;
+  }
+
+  /// Sets the vertical alignment of the text (subscript or superscript).
+  ///
+  /// [align] specifies the vertical alignment (e.g., [VerticalAlign.subscript]).
+  StyleBuilder __verticalAlign(VerticalAlign align) {
+    _verticalAlign = align;
+    return this;
+  }
+
+  StyleBuilder subscript() => __verticalAlign(VerticalAlign.subscript);
+
+  StyleBuilder superscript() => __verticalAlign(VerticalAlign.superscript);
 
   /// Sets the paragraph alignment.
   ///
@@ -280,7 +372,7 @@ class StyleBuilder {
   }) {
     if (before != null) _spacingBefore = before;
     if (after != null) _spacingAfter = after;
-    if (line != null) _lineSpacing = after;
+    if (line != null) _lineSpacing = line;
     _lineRule = rule;
     return this;
   }
@@ -333,6 +425,28 @@ class StyleBuilder {
   /// This setting is applicable only to paragraph styles.
   StyleBuilder outlineLevel(int level) {
     _outlineLevel = level;
+    return this;
+  }
+
+  /// Forces a page break before the paragraph.
+  ///
+  /// This setting is applicable only to paragraph styles.
+  StyleBuilder pageBreakBefore() {
+    _pageBreakBefore = true;
+    return this;
+  }
+
+  /// Applies shading to the paragraph.
+  ///
+  /// [color] is the hexadecimal color code for the background (e.g., 'FF0000').
+  /// [pattern] is the shading pattern (e.g., [ShadingPattern.solid]).
+  /// This setting is applicable only to paragraph styles.
+  StyleBuilder paragraphShading({String? color, ShadingPattern? pattern}) {
+    if (type != Style.paragraphType) {
+      return this;
+    }
+    if (color != null) _shadingColor = color;
+    if (pattern != null) _shadingPattern = pattern;
     return this;
   }
 
@@ -474,7 +588,7 @@ class StyleBuilder {
       if (_spacingBefore != null ||
           _spacingAfter != null ||
           _lineSpacing != null) {
-        final spacingConfigs = <StyleConfigurator>[];
+        final List<StyleConfigurator> spacingConfigs = <StyleConfigurator>[];
 
         if (_spacingBefore != null) {
           spacingConfigs.add(
@@ -619,6 +733,33 @@ class StyleBuilder {
         );
       }
 
+      if (_pageBreakBefore) {
+        paragraphConfigs.add(
+          StyleConfigurator.selfClosing(
+            prefix: 'w',
+            propertyName: 'pageBreakBefore',
+          ),
+        );
+      }
+
+      if (_shadingColor != null || _shadingPattern != null) {
+        final Map<String, dynamic> attributes = {};
+        if (_shadingColor != null) {
+          attributes['w:fill'] = _shadingColor;
+          attributes['w:color'] = _shadingColor;
+        }
+        if (_shadingPattern != null) {
+          attributes['w:val'] = _shadingPattern!.value;
+        }
+        paragraphConfigs.add(
+          StyleConfigurator.selfClosing(
+            prefix: 'w',
+            propertyName: 'shd',
+            attributes: attributes,
+          ),
+        );
+      }
+
       // Generate border configurators if any border is set
       if (_borders.isNotEmpty) {
         final List<StyleConfigurator> borderConfigs = <StyleConfigurator>[];
@@ -639,7 +780,7 @@ class StyleBuilder {
         paragraphConfigs.add(
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
-            propertyName: 'pBdr', // Paragraph Borders container
+            propertyName: 'pBdr',
             configurators: borderConfigs,
           ),
         );
@@ -674,23 +815,22 @@ class StyleBuilder {
     }
 
     if (_fontSize != null) {
-      final int halfPoints = (_fontSize! * 2).toInt();
-      final int halfPointsCs = (_fontEastAsiaSize! * 2).toInt();
-      textConfigs
-        ..add(
-          StyleConfigurator.selfClosing(
-            prefix: 'w',
-            propertyName: 'sz',
-            value: halfPoints.toString(),
-          ),
-        )
-        ..add(
-          StyleConfigurator.selfClosing(
-            prefix: 'w',
-            propertyName: 'szCs',
-            value: halfPointsCs.toString(),
-          ),
-        );
+      textConfigs.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'sz',
+          value: _fontSize!.toString(),
+        ),
+      );
+    }
+    if (_fontEastAsiaSize != null) {
+      textConfigs.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'szCs',
+          value: _fontEastAsiaSize!.toString(),
+        ),
+      );
     }
 
     if (_color != null) {
@@ -709,6 +849,30 @@ class StyleBuilder {
           prefix: 'w',
           propertyName: 'highlight',
           value: _highlightColor,
+        ),
+      );
+    }
+
+    if (isStrike) {
+      textConfigs.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'strike',
+        ),
+      );
+    }
+
+    if (isDoubleStrike) {
+      assert(
+        !isStrike,
+        'strike should not be true '
+        'when double strike is also active',
+      );
+      textConfigs.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'dstrike',
+          value: true,
         ),
       );
     }
@@ -737,6 +901,34 @@ class StyleBuilder {
           prefix: 'w',
           propertyName: 'u',
           value: 'single',
+        ),
+      );
+    }
+
+    if (_isCaps) {
+      textConfigs.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'caps',
+        ),
+      );
+    }
+
+    if (_isSmallCaps) {
+      textConfigs.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'smallCaps',
+        ),
+      );
+    }
+
+    if (_verticalAlign != null) {
+      textConfigs.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'vertAlign',
+          value: _verticalAlign!.name,
         ),
       );
     }
@@ -782,15 +974,34 @@ class StyleBuilder {
     return Style(
       type: type,
       styleId: id,
-      styleName: _name,
       defaultValue: _defaultValue,
       configurators: configurators,
+      alternativeNames: _names.skippableMap<(String, List<String>)>((
+        MapEntry<String, dynamic> entry,
+      ) {
+        if (entry.value is! String && entry.value is! List<String>) {
+          return null;
+        }
+        if (entry.value is String) {
+          return (entry.key, <String>[entry.value]);
+        }
+        return (entry.key, entry.value);
+      }),
     );
   }
 }
 
 /// Represents the horizontal alignment options for a paragraph.
 enum Alignment { left, center, right, both }
+
+/// Represents the vertical alignment options for text (subscript or superscript).
+enum VerticalAlign {
+  subscript('subscript'),
+  superscript('superscript');
+
+  const VerticalAlign(this.name);
+  final String name;
+}
 
 enum LineRule {
   atLeast('atLeast'),
@@ -801,6 +1012,30 @@ enum LineRule {
   const LineRule(this.value);
 
   /// The WordML string value for the spacing style.
+  final String value;
+}
+
+/// Represents the possible shading patterns for a paragraph.
+enum ShadingPattern {
+  clear('clear'),
+  solid('solid'),
+  horzStripe('horzStripe'),
+  vertStripe('vertStripe'),
+  fwdDiagStripe('fwdDiagStripe'),
+  bkwdDiagStripe('bkwdDiagStripe'),
+  horzCross('horzCross'),
+  diagCross('diagCross'),
+  pct10('pct10'),
+  pct20('pct20'),
+  pct30('pct30'),
+  pct40('pct40'),
+  pct50('pct50'),
+  pct60('pct60'),
+  pct70('pct70'),
+  pct80('pct80'),
+  pct90('pct90');
+
+  const ShadingPattern(this.value);
   final String value;
 }
 

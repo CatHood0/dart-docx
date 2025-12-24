@@ -362,21 +362,19 @@ void main() {
         ],
       );
 
-      final stylesSheet =
+      final DocumentStylesSheet stylesSheet =
           DocumentStylesSheet(styles: [baseStyle, derivedStyle]);
       final deepStyle = derivedStyle.getDeepStyleRelation(stylesSheet);
 
-      // print(deepStyle?.toNode()?.toXmlString(pretty: true));
-      final pPr = deepStyle.getConfiguratorOrNull('w:pPr');
+      final StyleConfigurator? pPr = deepStyle.getConfiguratorOrNull('w:pPr');
       expect(pPr, isNotNull);
 
-      final spacing = pPr!.getConfiguratorOrNull('w:spacing');
-      // print(spacing?.toXmlNode.toXmlString(pretty: true));
+      final StyleConfigurator? spacing = pPr!.spacing;
       expect(spacing, isNotNull);
       expect(
         spacing!.getConfiguratorOrNull('w:before')?.value,
         '200',
-      ); // Derived overrides Base
+      );
       expect(
         spacing.getConfiguratorOrNull('w:after')?.value,
         '50',

@@ -19,6 +19,7 @@ class XmlDefaultDocStylesComponent
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
       xmlKey,
+      attributes: attributes.buildXml(),
       children: <XmlNode>[
         ...components.map((
           XmlComponentBase<dynamic> e,
@@ -38,8 +39,9 @@ class XmlDefaultParagraphStylesComponent extends XmlComponentBase<List<Style>> {
   XmlElement buildXml(DocumentContext context) {
     final List<XmlElement> styles = <XmlElement>[];
     for (final Style n in value) {
-      styles.addAll(n.toParagraphStyleNodes(
+      styles.addAll(n.forParagraphStyle(
         shouldShowStyleRef: false,
+        useConfigurators: true,
       ));
     }
     return XmlElement.tag(
@@ -60,7 +62,7 @@ class XmlDefaultRunStylesComponent extends XmlComponentBase<List<Style>> {
   XmlElement buildXml(DocumentContext context) {
     final List<XmlElement> styles = <XmlElement>[];
     for (final Style n in value) {
-      styles.addAll(n.toRunStyleNodes(
+      styles.addAll(n.forRunStyle(
         shouldShowStyleRef: false,
       ));
     }

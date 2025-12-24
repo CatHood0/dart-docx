@@ -1,32 +1,41 @@
 import 'package:xml/xml.dart';
 
 import '../../../docx.dart';
+import 'xml_values_to_dart.dart';
 
 extension XmlNodeToStyleConfigurator on XmlElement {
-  StyleConfigurator get toConfigurator {
+//TODO: please, document this
+  StyleConfigurator toStyleConfigurator() {
     final Map<String, dynamic> attributes = <String, dynamic>{};
+    Object? value;
     for (final XmlAttribute attr in this.attributes) {
-      if (attr.localName == 'val') continue;
-      attributes[attr.qualifiedName] = attr.value;
+      if (attr.qualifiedName == 'w:val') {
+        value = attr.value.toExactValueFromXml();
+        continue;
+      }
+      attributes[attr.qualifiedName] = attr.value.toExactValueFromXml();
     }
-    return isSelfClosing
+    // by some reason, some [XmlElement] instances can have its [isSelfClosing]
+    // setted to true, but them had children... IDK
+    final StyleConfigurator element = isSelfClosing && children.isEmpty
         ? StyleConfigurator.selfClosing(
             propertyName: name.local,
             prefix: name.prefix,
-            value: getAttribute('w:val'),
+            value: value,
             attributes: attributes,
           )
         : StyleConfigurator.noSelfClosing(
             propertyName: name.local,
-            attributes: attributes,
             prefix: name.prefix,
-            value: getAttribute('w:val'),
+            value: value,
+            attributes: attributes,
             configurators: <StyleConfigurator>[
               ...children.whereType<XmlElement>().map(
-                    (XmlElement node) => node.toConfigurator,
+                    (XmlElement node) => node.toStyleConfigurator(),
                   ),
             ],
           );
+    return element;
   }
 }
 
@@ -35,25 +44,10 @@ extension StyleConfiguratorToXmlNode on StyleConfigurator {
   ///
   /// Tipically this is used when is detected that this style
   /// is a w:pPr or a w:rPr where we just need its children values
-  List<XmlElement> get toNodes {
-    final List<XmlAttribute> xmlAttributes = [];
-
-    for (final MapEntry<String, dynamic> attr
-        in (attributes ?? <String, dynamic>{}).entries) {
-      if (attr.key == 'w:val' && value != null) {
-        continue;
-      }
-      xmlAttributes.add(
-        XmlAttribute(
-          XmlName.fromString(attr.key),
-          attr.value.toString(),
-        ),
-      );
-    }
-
+  List<XmlElement> childrenToXmlNodes() {
     final List<XmlElement> childrenNodes = configurators
         .map(
-          (StyleConfigurator e) => e.toXmlNode,
+          (StyleConfigurator e) => e.toXmlNode(),
         )
         .whereType<XmlElement>()
         .toList();

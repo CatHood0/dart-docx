@@ -82,11 +82,11 @@ class LevelComponent extends XmlComponentBase<List<XmlComponentBase<dynamic>>> {
               XmlEmptyElementComponent<void>(xmlKey: 'w:isLgl', value: null),
             if (options.paragraphStyle != null)
               RawElement(
-                value: options.paragraphStyle!.toParagraphStyleNode()!,
+                value: options.paragraphStyle!.toParagraphPropertyElement()!,
               ),
             if (options.runStyle != null)
               RawElement(
-                value: options.runStyle!.toRunStyleNode()!,
+                value: options.runStyle!.toRunPropertyElement()!,
               ),
           ],
           attrs: XmlComponentAttributes(xmlAttributes: {

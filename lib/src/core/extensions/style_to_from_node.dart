@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../docx.dart';
 import 'node_to_configurator.dart';
+import 'skippable_iterations_ext.dart';
 import 'string_ext.dart';
 
 extension StyleToNode on Style {
@@ -19,20 +20,20 @@ extension StyleToNode on Style {
     );
   }
 
-  XmlElement? toParagraphStyleNode() {
+  XmlElement? toParagraphPropertyElement() {
     final StyleConfigurator runConfigs =
         getConfigurator(xmlParagraphBlockAttrsNode);
     if (runConfigs.isInvalid) return null;
     return XmlElement.tag(
       'w:pPr',
       children: [
-        ...runConfigs.toNodes,
+        ...runConfigs.childrenToXmlNodes(),
       ],
       isSelfClosing: false,
     );
   }
 
-  XmlElement? toRunStyleNode() {
+  XmlElement? toRunPropertyElement() {
     final StyleConfigurator runConfigs =
         getConfigurator(xmlParagraphInlineAttsrNode);
     if (runConfigs.isInvalid) return null;
@@ -40,13 +41,13 @@ extension StyleToNode on Style {
     return XmlElement.tag(
       'w:rPr',
       children: [
-        ...runConfigs.toNodes,
+        ...runConfigs.childrenToXmlNodes(),
       ],
       isSelfClosing: false,
     );
   }
 
-  List<XmlElement> toRunStyleNodes({
+  List<XmlElement> forRunStyle({
     bool shouldShowStyleRef = true,
     bool useConfigurators = true,
   }) {
@@ -73,7 +74,7 @@ extension StyleToNode on Style {
           ],
           isSelfClosing: true,
         ),
-      if (useConfigurators) ...runConfigs.toNodes,
+      if (useConfigurators) ...runConfigs.childrenToXmlNodes(),
       // add values of the style
       if (useConfigurators)
         ...configurators
@@ -85,7 +86,7 @@ extension StyleToNode on Style {
     ];
   }
 
-  List<XmlElement> toParagraphStyleNodes({
+  List<XmlElement> forParagraphStyle({
     bool shouldShowStyleRef = true,
     bool useConfigurators = true,
   }) {
@@ -95,7 +96,7 @@ extension StyleToNode on Style {
             xmlParagraphBlockAttrsNode,
           );
 
-    return [
+    return <XmlElement>[
       if (shouldShowStyleRef)
         XmlElement.tag(
           xmlParagraphStyleNode,
@@ -107,14 +108,13 @@ extension StyleToNode on Style {
           ],
           isSelfClosing: true,
         ),
-      if (useConfigurators) ...runConfigs.toNodes,
+      if (useConfigurators) ...runConfigs.childrenToXmlNodes(),
       // add values of the style
       if (useConfigurators)
-        ...configurators
-            .where((n) => n.propertyName != runConfigs.propertyName)
-            .map(
-              (n) => n.toXmlNode(),
-            ),
+        ...configurators.skippableMap(
+          (StyleConfigurator n) =>
+              n.propertyName == runConfigs.propertyName ? null : n.toXmlNode(),
+        ),
     ];
   }
 }

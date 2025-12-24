@@ -14,12 +14,12 @@ class DocumentContext {
     required this.numberingStore,
   });
 
-  DocumentContext.base()
+  DocumentContext.base({DocumentOptions? options})
       : store = MediaStore(),
         hyperlinkStore = HyperlinkStore(),
         fontStore = FontStore(),
         numberingStore = NumberingStore(),
-        options = DocumentOptions.blank(title: 'unnamed');
+        options = options ?? DocumentOptions.blank(title: 'unnamed');
 
   final MediaStore store;
   final DocumentOptions options;

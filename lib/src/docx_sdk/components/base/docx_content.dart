@@ -11,6 +11,9 @@ abstract class DocxContent<T> {
   final T data;
 
   /// The xml relations id of this component
+  ///
+  /// Tipically is modified only when this content
+  /// has a relation with .rels file
   String? rId;
 
   /// The internal random id of this component
@@ -19,6 +22,7 @@ abstract class DocxContent<T> {
   DocxContent<T> get copy;
   XmlNode buildXml({required DocumentContext context});
   List<XmlNode> buildXmlStyle({required DocumentContext context});
+
   DocxContent? visitElement(
     bool Function(DocxContent element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,

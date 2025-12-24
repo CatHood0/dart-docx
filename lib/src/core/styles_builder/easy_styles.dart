@@ -3,7 +3,10 @@ import '../../docx_sdk/utils/language_codes.dart';
 
 class EasyStyles {
   static Style get normal => StyleBuilder.paragraph('Normal')
-      .name('Normal')
+      .name(
+        'Normal',
+        LanguageCodes.englishUS,
+      )
       .fontFamily('Times New Roman')
       .fontSize(12)
       .alignment(Alignment.left)
@@ -14,7 +17,13 @@ class EasyStyles {
       .build();
 
   static Style get listParagraph => StyleBuilder.paragraph('ListParagraph')
-      .name('List Paragraph')
+      .names({
+        'List Paragraph': LanguageCodes.englishUS,
+        'Lista de Parrafo': List<String>.from(<String>[
+          LanguageCodes.spanishES,
+          LanguageCodes.spanishMX,
+        ]),
+      })
       .basedOn('Normal')
       .keepNext(true)
       .keepLines(true)
@@ -24,18 +33,36 @@ class EasyStyles {
 
   static Style get defaultParagraphFont =>
       StyleBuilder.character('DefaultParagraphFont')
-          .name('Default Paragraph Font')
+          .names({
+            'Default Paragraph Font': LanguageCodes.englishUS,
+            'Estilo de Parrafo Predeterminado': List<String>.from(<String>[
+              LanguageCodes.spanishES,
+              LanguageCodes.spanishMX,
+            ]),
+          })
           .defaultValue(true)
           .build();
 
   static Style get hyperlink => StyleBuilder.character('Hyperlink')
-      .name('Hyperlink')
+      .names({
+        'Hyperlink': LanguageCodes.englishUS,
+        'Hipervínculo': List<String>.from(<String>[
+          LanguageCodes.spanishES,
+          LanguageCodes.spanishMX,
+        ]),
+      })
       .color('0563C1')
       .underline()
       .build();
 
   static Style get heading1 => StyleBuilder.paragraph('Heading1')
-      .name('Heading 1')
+      .names(<String, dynamic>{
+        'Heading 1': LanguageCodes.englishUS,
+        'Título 1': List<String>.from(<String>[
+          LanguageCodes.spanishES,
+          LanguageCodes.spanishMX,
+        ]),
+      })
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -50,7 +77,13 @@ class EasyStyles {
       .build();
 
   static Style get heading2 => StyleBuilder.paragraph('Heading2')
-      .name('Heading 2')
+      .names(<String, dynamic>{
+        'Heading 2': LanguageCodes.englishUS,
+        'Título 2': List<String>.from(<String>[
+          LanguageCodes.spanishES,
+          LanguageCodes.spanishMX,
+        ]),
+      })
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -66,7 +99,13 @@ class EasyStyles {
       .build();
 
   static Style get heading3 => StyleBuilder.paragraph('Heading3')
-      .name('Heading 3')
+      .names(<String, dynamic>{
+        'Heading 3': LanguageCodes.englishUS,
+        'Título 3': List<String>.from(<String>[
+          LanguageCodes.spanishES,
+          LanguageCodes.spanishMX,
+        ]),
+      })
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -83,7 +122,13 @@ class EasyStyles {
       .build();
 
   static Style get heading4 => StyleBuilder.paragraph('Heading4')
-      .name('Heading 4')
+      .names(<String, dynamic>{
+        'Heading 4': LanguageCodes.englishUS,
+        'Título 4': List<String>.from(<String>[
+          LanguageCodes.spanishES,
+          LanguageCodes.spanishMX,
+        ]),
+      })
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -100,7 +145,13 @@ class EasyStyles {
       .build();
 
   static Style get heading5 => StyleBuilder.paragraph('Heading5')
-      .name('Heading 5')
+      .names(<String, dynamic>{
+        'Heading 5': LanguageCodes.englishUS,
+        'Título 5': List<String>.from(<String>[
+          LanguageCodes.spanishES,
+          LanguageCodes.spanishMX,
+        ]),
+      })
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -117,7 +168,13 @@ class EasyStyles {
       .build();
 
   static Style get heading6 => StyleBuilder.paragraph('Heading6')
-      .name('Heading 6')
+      .names(<String, dynamic>{
+        'Heading 6': LanguageCodes.englishUS,
+        'Título 6': List<String>.from(<String>[
+          LanguageCodes.spanishES,
+          LanguageCodes.spanishMX,
+        ]),
+      })
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')

@@ -56,7 +56,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
         final el = style.toXml();
         if (el != null) xmlStyles.add(el);
       } else {
-        final List<XmlElement> elements = (style as Style).toRunStyleNodes(
+        final List<XmlElement> elements = (style as Style).forRunStyle(
           // only not reference styles have configurators
           useConfigurators: !style.isReference,
           shouldShowStyleRef: style.isReference,

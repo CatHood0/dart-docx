@@ -2,10 +2,24 @@ import 'package:xml/xml.dart' as xml;
 
 import '../../../../docx.dart';
 import '../../core/extensions/node_to_configurator.dart';
+import '../../core/extensions/xml_values_to_dart.dart';
 import '../../util/predicate.dart';
+import '../xml_components/xml_content_type_component.dart';
 
+//TODO: implement the rest of the components
 class XmlToDocxObjects {
   const XmlToDocxObjects._();
+  static XmlContentTypeComponent contentType(
+    xml.XmlDocument contentType,
+    bool applyCustomTheme,
+  ) {
+    return XmlContentTypeComponent(
+      applyCustomTheme: applyCustomTheme,
+      extensions: <String>[],
+    );
+  }
+
+//TODO: please, document this
   static DocumentStylesSheet xmlToDocumentStylesSheet(
     xml.XmlDocument xmlStyles,
   ) {
@@ -37,7 +51,9 @@ class XmlToDocxObjects {
         _buildConfigurators(runStyles).map(
           (StyleConfigurator n) {
             return StyleBuilder.singularC()
-                .withConfigurators(<StyleConfigurator>[n]).build();
+                .withConfigurators(<StyleConfigurator>[
+              n,
+            ]).build();
           },
         ),
       );
@@ -52,9 +68,8 @@ class XmlToDocxObjects {
       // common values
       final String type = xmlStyleElement.getAttribute('w:type')!;
       final String styleId = xmlStyleElement.getAttribute('w:styleId')!;
-      final String? defaultValue = xmlStyleElement.getAttribute('w:default');
-      final xml.XmlElement? nameElement = xmlStyleElement.getElement('w:name');
-      final String styleName = nameElement!.getAttribute('w:val')!;
+      final Object? defaultValue =
+          xmlStyleElement.getAttribute('w:default')?.toExactValueFromXml();
 
       final List<StyleConfigurator> configurators =
           List<StyleConfigurator>.from(
@@ -74,7 +89,6 @@ class XmlToDocxObjects {
       return Style(
         type: type,
         styleId: styleId,
-        styleName: styleName,
         configurators: configurators,
         defaultValue: defaultValue,
         revisionIdPPr: revisionIdP,
@@ -98,7 +112,7 @@ class XmlToDocxObjects {
     if (element == null) return configurators;
     for (final xml.XmlElement node
         in element.children.whereType<xml.XmlElement>()) {
-      configurators.add(node.toConfigurator);
+      configurators.add(node.toStyleConfigurator());
     }
     return configurators;
   }
