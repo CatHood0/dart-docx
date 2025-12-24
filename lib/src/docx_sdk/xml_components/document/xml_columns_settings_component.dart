@@ -39,14 +39,12 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnSettings> {
     }
 
     // w:sep attribute
-    if (value.separator != null) {
-      attributes.add(
-        XmlAttribute(
-          'w:sep'.toName(),
-          value.separator! ? '1' : '0',
-        ),
-      );
-    }
+    attributes.add(
+      XmlAttribute(
+        'w:sep'.toName(),
+        value.separator.toString(),
+      ),
+    );
 
     // w:equalWidth attribute
     // Only add if explicitly false, or if true but numColumns is not set (Word default is 1)
@@ -97,6 +95,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnSettings> {
       xmlKey,
       attributes: attributes,
       children: children,
+      isSelfClosing: false,
     );
   }
 }

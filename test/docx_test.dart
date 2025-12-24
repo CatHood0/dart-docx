@@ -44,6 +44,7 @@ void main() {
             ),
           ],
         ),
+        ColumnBreak(),
         Paragraph(
           data: <RunBase<dynamic>>[
             TextRun(

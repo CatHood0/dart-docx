@@ -1,12 +1,10 @@
 import 'package:xml/xml.dart';
 import '../../sdk.dart';
 import 'xml_body_component.dart';
-import 'xml_section_configuration_component.dart';
 
 class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
   XmlDocumentComponent({
     required XmlBodyComponent body,
-    this.themeId,
   }) : super(
           value: body,
           xmlKey: 'w:document',
@@ -47,8 +45,6 @@ class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
           ),
         );
 
-  final String? themeId;
-
   @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
@@ -56,10 +52,6 @@ class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
       attributes: attributes.buildXml(),
       children: <XmlNode>[
         value.buildXml(context),
-        XmlDocumentSectionSettingsComponent(
-          options: context.options,
-          themeId: themeId,
-        ).buildXml(context),
       ],
     );
   }

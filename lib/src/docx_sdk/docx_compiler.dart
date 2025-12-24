@@ -144,8 +144,10 @@ class DocxCompiler {
       (
         documentFilePath,
         XmlDocumentComponent(
-          body: XmlBodyComponent(document: document),
-          themeId: theme,
+          body: XmlBodyComponent(
+            document: document,
+            themeId: theme,
+          ),
         )
       ),
       (

@@ -1,14 +1,11 @@
 import '../../../utils/sizing_utils.dart';
 
 /// Represents the width and optional spacing for an individual column.
-///
-/// [width] The width of this column.
-/// [spaceAfter] Optional spacing after this column in twips.
 class ColumnWidthSetting {
   ColumnWidthSetting({
     required int width,
     this.spaceAfter,
-  }) : width = width.toDxaFromPixels();
+  }) : width = width.toTwipsFromPoints();
 
   /// The width of the column in twips.
   final int width;
@@ -32,13 +29,13 @@ class ColumnSettings {
   ColumnSettings({
     int? space,
     this.numColumns,
-    this.separator,
+    this.separator = false,
     // Default to equal width for simplicity
     this.equalWidth = true,
     this.columnWidths,
-  })  : space = space?.toDxaFromPixels(),
+  })  : space = space?.toTwipsFromPoints(),
         assert(
-          equalWidth == true || columnWidths != null,
+          equalWidth == true || columnWidths != null && columnWidths.isNotEmpty,
           'If equalWidth is false, columnWidths must be provided.',
         );
 
@@ -49,7 +46,7 @@ class ColumnSettings {
   final int? space;
 
   /// Whether a vertical separator line should be shown between columns.
-  final bool? separator;
+  final bool separator;
 
   /// Whether all columns should have equal width.
   /// If `true`, [columnWidths] are ignored for width distribution by Word.

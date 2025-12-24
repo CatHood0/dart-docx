@@ -39,18 +39,30 @@ class TextRun extends RunBase<TextPart> {
             if (line == '\n') {
               return XmlElement('w:br'.toName());
             }
-            return XmlDefaults.textRunWithText(line);
+            return XmlDefaults.textRunWithText(
+              line,
+              attributes: <XmlAttribute>[
+                if (requirePreserve)
+                  XmlAttribute('xml:space'.toName(), 'preserve'),
+              ],
+            );
           }),
         ],
       );
     }
     return super.runParent(
       runProperties: buildXmlStyle(context: context),
-      nodes: [
+      nodes: <XmlNode>[
         if (data.text.isNotEmpty && data.text != '\n')
           XmlElement.tag(
             xmlTextNode,
-            attributes: [],
+            attributes: [
+              if (requirePreserve)
+                XmlAttribute(
+                  'xml:space'.toName(),
+                  'preserve',
+                ),
+            ],
             children: [
               XmlText(data.text),
             ],
@@ -102,7 +114,14 @@ class TextPart {
   TextPart({
     required this.text,
     this.styles = const <Object>[],
-  }) : assert(styles.every(
+  })  : assert(
+          !text.contains('\n'),
+          'text cannot '
+          'contains \\n in it. Please, divide your '
+          'text in multiple paragraph to avoid '
+          'this error',
+        ),
+        assert(styles.every(
           (
             Object element,
           ) =>

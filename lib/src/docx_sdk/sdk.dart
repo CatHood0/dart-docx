@@ -13,6 +13,7 @@ export 'components/containers/table.dart';
 export 'components/docx_document.dart';
 export 'components/frames/frame_enums.dart';
 export 'components/frames/text_frame.dart';
+export 'components/runs/column_break_run.dart';
 export 'components/runs/hyperlink_run.dart';
 export 'components/runs/text_run.dart';
 export 'document/document_margins.dart';
@@ -37,6 +38,8 @@ export 'utils/constants.dart';
 export 'utils/generators/hexadecimal_generator.dart';
 export 'utils/generators/media_creator.dart';
 export 'utils/sizing_utils.dart';
+//TODO: insert rest of the xml components in order
+// to add capabilities for incremental changes
 export 'xml_components/document/document_component.dart';
 export 'xml_components/document/entities/column_settings.dart';
 export 'xml_components/fonts/font_properties.dart';

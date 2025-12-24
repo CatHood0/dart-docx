@@ -8,21 +8,23 @@ Future<void> main() async {
 
   //TODO: add two columns, one for the personal info
   // and the other for the experiences, colleges, etc
+  final PageSettings pageSize = PageSettings.letter;
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.blank(
       title: 'Curriculum - Jane Doe',
       section: SectionOptions(
-        size: PageSettings.a4,
+        size: pageSize,
         //TODO: column settings are not being applied
         columns: ColumnSettings(
-          space: 100,
+          space: 200,
           numColumns: 2,
           equalWidth: false,
-          separator: true,
+          separator: false,
           columnWidths: <ColumnWidthSetting>[
-            ColumnWidthSetting(width: 200),
-            // expand the right side
-            ColumnWidthSetting(width: 0),
+            // first take just a part
+            ColumnWidthSetting(width: 150),
+            // last one takes the rest
+            ColumnWidthSetting(width: 250),
           ],
         ),
       ),
@@ -80,8 +82,16 @@ Future<void> main() async {
         data: <RunBase<dynamic>>[
           TextRun(
             data: TextPart(
-              text: '• Senior Engineer at Acme Corp (2018 - Present)\n'
-                  '• Software Developer at Example Inc. (2015 - 2018)',
+              text: '• Senior Engineer at Acme Corp (2018 - Present)',
+            ),
+          ),
+        ],
+      ),
+      Paragraph(
+        data: <RunBase<dynamic>>[
+          TextRun(
+            data: TextPart(
+              text: '• Software Developer at Example Inc. (2015 - 2018)',
             ),
           ),
         ],
