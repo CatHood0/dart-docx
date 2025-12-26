@@ -123,7 +123,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
           // wp:extent different from Extents that creates an a:ext
           Extent(cx: imgWidthEmu, cy: imgHeightEmu),
           DocProperties(
-            docPrId: rId!,
+            docPrId: numRelationshipId.toString(),
             name: imageName,
             description: data.alt ?? imageName,
           ),
