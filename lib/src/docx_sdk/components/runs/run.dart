@@ -3,11 +3,16 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../mixins/ignorable_mixin.dart';
 
-class Run extends RunBase<DocxContent> {
+class Run extends RunBase<DocxTreeNode> {
   Run({
-    required DocxContent component,
+    required DocxTreeNode component,
     this.wrapInRunMark = true,
-  }) : super(data: component);
+  }) : super(data: component) {
+    data
+      ..parent = this
+      ..index = index
+      ..depth = depth + 1;
+  }
 
   bool wrapInRunMark;
 
@@ -35,25 +40,33 @@ class Run extends RunBase<DocxContent> {
   bool get isEmptyData => false;
 
   @override
-  List<DocxContent>? visitAllElement(
-    bool Function(DocxContent<dynamic> element) shouldGetElement, {
+  List<DocxTreeNode<dynamic>>? visitAllElement(
+    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return data.visitAllElement(
-      shouldGetElement,
-      visitChildrenIfNeeded: visitChildrenIfNeeded,
-    );
+    return shouldGetElement(this)
+        ? <DocxTreeNode<dynamic>>[this]
+        : !visitChildrenIfNeeded
+            ? null
+            : data.visitAllElement(
+                shouldGetElement,
+                visitChildrenIfNeeded: visitChildrenIfNeeded,
+              );
   }
 
   @override
-  DocxContent<dynamic>? visitElement(
-    bool Function(DocxContent<dynamic> element) shouldGetElement, {
-    bool visitChildrenIfNeeded = false,
+  DocxTreeNode<dynamic>? visitElement(
+    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
   }) {
-    return data.visitElement(
-      shouldGetElement,
-      visitChildrenIfNeeded: visitChildrenIfNeeded,
-    );
+    return shouldGetElement(this)
+        ? this
+        : !visitChildrenIfNeeded
+            ? null
+            : data.visitElement(
+                shouldGetElement,
+                visitChildrenIfNeeded: visitChildrenIfNeeded,
+              );
   }
 
   @override

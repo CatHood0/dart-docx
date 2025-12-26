@@ -1,6 +1,12 @@
 import '../../../../docx.dart';
 
 class PageSettings {
+  PageSettings.raw(double widthCm, double heightCm)
+      : width = widthCm,
+        height = heightCm {
+    assert(heightCm > 0, 'El alto debe ser mayor que 0');
+    assert(widthCm > 0, 'El ancho debe ser mayor que 0');
+  }
   PageSettings.fromCm(double widthCm, double heightCm)
       : width = (widthCm * dxaPerCm).roundToDouble(),
         height = (heightCm * dxaPerCm).roundToDouble() {
@@ -31,6 +37,16 @@ class PageSettings {
   static PageSettings get a5 => PageSettings.fromCm(14.8, 21.0);
   static PageSettings get a3 => PageSettings.fromCm(29.7, 42.0);
 
+  PageSettings toCm() {
+    final values = inCm;
+    return PageSettings.raw(values.$1, values.$2);
+  }
+
+  PageSettings toInches() {
+    final values = inInches;
+    return PageSettings.raw(values.$1, values.$2);
+  }
+
   (double, double) get inCm => (width / dxaPerCm, height / dxaPerCm);
 
   (double, double) get inMm {
@@ -50,8 +66,7 @@ class PageSettings {
 
   @override
   String toString() {
-    final (widthCm, heightCm) = inCm;
-    return 'PageSettings(${widthCm.toStringAsFixed(1)}cm × ${heightCm.toStringAsFixed(1)}cm)';
+    return 'PageSettings(${width.toStringAsFixed(1)}×${height.toStringAsFixed(1)})';
   }
 
   @override

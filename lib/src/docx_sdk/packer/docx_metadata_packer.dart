@@ -36,6 +36,16 @@ class DocxMetadataPacker {
     return this;
   }
 
+  DocxMetadataPacker setMediaStore(MediaStore store) {
+    _compiler.mediaStore = store;
+    return this;
+  }
+
+  DocxMetadataPacker setFontStore(FontStore store) {
+    _compiler.fontStore = store;
+    return this;
+  }
+
   /// Release all resources in this packer
   void release() {
     _compiler.release();

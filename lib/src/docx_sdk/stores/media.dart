@@ -4,21 +4,27 @@ import 'dart:typed_data';
 import 'package:archive/archive_io.dart';
 
 import '../../../docx.dart';
+import '../../core/extensions/cast_ext.dart';
 import '../../core/extensions/string_ext.dart';
 import '../mixins/ignorable_mixin.dart';
+import '../xml_components/xml_content_type_component.dart';
 
+//TODO: add listeners to events
 /// Manages all media-related operations for a Docx document,
 /// including discovering, registering, and creating relationships for images.
 class MediaStore {
   MediaStore();
-  static const String mediaPath = '/word/media/';
+  static const String mediaPath = 'word/media/';
 
   /// Stores registered [MediaData] objects, keyed by their generated unique name.
   final Map<String, MediaData> media = <String, MediaData>{};
 
   /// Stores discovered media components ([ImageBlock], [LazyImageBlock]), keyed by their internal ID.
-  final Map<String, DocxContent<ImageData<dynamic>>> mediaComponents =
-      <String, DocxContent<ImageData<dynamic>>>{};
+  final Map<String, DocxTreeNode<ImageData<dynamic>>> mediaComponents =
+      <String, DocxTreeNode<ImageData<dynamic>>>{};
+
+  final List<XmlOverrideElementTypeComponent> overrides =
+      <XmlOverrideElementTypeComponent>[];
 
   /// Stores all unique file extensions found among the discovered media.
   final Set<String> extensions = <String>{};
@@ -31,6 +37,7 @@ class MediaStore {
     _lastMediaNameId = 1;
     extensions.clear();
     media.clear();
+    overrides.clear();
   }
 
   /// Whether the store is empty and requires to got in XmlComponent tree
@@ -41,33 +48,22 @@ class MediaStore {
     DocxDocument data, [
     Set<String> supportedFileExtensions = const <String>{},
   ]) {
-    for (final DocxContent parent in data.sections) {
-      final DocxContent? image = parent.visitElement(
-        (DocxContent<dynamic> el) {
-          // if [el] is Run instance, will delegates the visit to its data component
-          // if [el] is another type like ComponentContainer,
-          //    it can match by [ImageBlock] or [LazyImageBlock]
-          return el.visitElement(
-                (DocxContent<dynamic> subEl) =>
-                    // usually, only image components contain ImageData
-                    // as it value
-                    subEl.data is ImageData &&
-                    supportedFileExtensions.contains(subEl.data.extension),
-              ) !=
-              null;
+    //TODO: use parent methods of DocumentRoot
+    for (final DocxTreeNode parent in data.root.data) {
+      final DocxTreeNode? image = parent.visitElement(
+        visitChildrenIfNeeded: true,
+        (DocxTreeNode<dynamic> el) {
+          return el.data is ImageData &&
+              supportedFileExtensions.contains(el.data.extension);
         },
       );
       if (image != null) {
-        if (image is Run && image.data is! Drawing) {
-          throw 'Word does not support rendering '
-              'images outside of Drawing componentes. Found ${image.data.runtimeType}';
-        }
-        final DocxContent<ImageData<Object>> imageComponent = image is Run
-            // data of Run objects are the component
-            // so, since we CANNOT draw an image
-            ? (image.data as Drawing).data as DocxContent<ImageData>
-            : image as DocxContent<ImageData>;
-        mediaComponents[image.id] = imageComponent;
+        final DocxTreeNode<ImageData<Object>> imageComponent = image
+            .visitElement(
+                visitChildrenIfNeeded: true,
+                (DocxTreeNode<dynamic> el) => el.data is ImageData)!
+            .cast<DocxTreeNode<ImageData>>();
+        mediaComponents[imageComponent.id] = imageComponent;
         extensions.add(imageComponent.data.extension);
       }
     }
@@ -93,13 +89,10 @@ class MediaStore {
     void Function(int, int)? onProgress,
   }) async {
     int currentRId = startingRId;
-    final List<RelationShip> imageRelationships = [];
-
-    // Clear previously registered media before re-registering
-    media.clear();
+    final List<RelationShip> imageRelationships = <RelationShip>[];
 
     for (int index = 0; index < mediaComponents.values.length; index++) {
-      final DocxContent<ImageData<dynamic>> imgComponent =
+      final DocxTreeNode<ImageData<dynamic>> imgComponent =
           mediaComponents.values.elementAt(index);
       onProgress?.call(index + 1, mediaComponents.values.length);
 
@@ -112,7 +105,6 @@ class MediaStore {
       // Increment RId for each new image relationship
       currentRId++;
       // Assign unique rId to the component
-      imgComponent.rId ??= 'rId$currentRId';
 
       final String generatedMediaName = generateMediaName(
         // Increment internal ID for filename generation
@@ -121,11 +113,13 @@ class MediaStore {
         isImage: true,
       );
 
+      imgComponent.rId = 'rId$currentRId';
       final ImageData<dynamic> imageData = imgComponent.data
-        ..name = generatedMediaName; // Store generated name in ImageData
+        ..name = generatedMediaName;
 
       final MediaData mediaData = MediaData(
         name: generatedMediaName,
+        fileName: generatedMediaName.trim().replaceAll(' ', ''),
         extension: imageData.extension,
         // This ID is often used for `rid` in content XML
         id: currentRId,
@@ -140,10 +134,22 @@ class MediaStore {
 
       onProgress?.call(index + 1, mediaComponents.values.length);
 
+      final String fullPath = '$mediaPath${mediaData.fileName}';
+
+      // these things are passed to the content type since it's used
+      // to let to the editor to know how use images
+      overrides.add(
+        XmlOverrideElementTypeComponent(
+          part: fullPath,
+          contentType:
+              XmlContentTypeComponent.mimetypeFromExt(mediaData.extension),
+        ),
+      );
+
       imageRelationships.add(
         RelationShip(
           rId: imgComponent.rId!,
-          target: '$mediaPath${buildMediaFileName(mediaData)}',
+          target: '$mediaPath${mediaData.fileName}',
           type: imageNamespace,
           mode: null,
         ),
@@ -163,10 +169,12 @@ class MediaStore {
     Archive archive,
   ) async* {
     int index = 0;
+
     for (final MediaData data in media.values) {
+      final String fullPath = '$mediaPath${data.fileName}';
       archive.add(
         ArchiveFile.bytes(
-          '$mediaPath${buildMediaFileName(data)}',
+          fullPath,
           data.bytes,
         ),
       );
@@ -183,9 +191,15 @@ class MediaStore {
   String buildMediaFileName(MediaData data) =>
       '${data.name.removeAllWhitespaces()}.${data.extension}';
 
-  int? getMediaIdForRef(String imageRefId) {
+  /// Gets the id that is aiming to the document.xml.rels
+  ///
+  /// We store both ids in two different versions
+  ///
+  /// [id]: the number assigned to the relation ship
+  /// [imageRefId]: the same, but in string way. Something as: `rId$assignedId`
+  int? getAssignedIdForRef(String imageRefId) {
     if (mediaComponents[imageRefId] != null) {
-      final DocxContent<ImageData<dynamic>>? component =
+      final DocxTreeNode<ImageData<dynamic>>? component =
           mediaComponents[imageRefId];
       if (component == null) return null;
       assert(component.rId != null,
@@ -201,8 +215,36 @@ class MediaStore {
       return media[component.data.name]!.id;
     }
     for (final MediaData media in media.values) {
-      if (media.imageRefId == imageRefId) {
+      if (media.imageRefId == imageRefId ||
+          media.id == int.tryParse(imageRefId)) {
         return media.id;
+      }
+    }
+    return null;
+  }
+
+  /// Gets the raw `rId` that was inserted in document.xml.rels
+  String? getRelationshipIdForRef(String imageRefId) {
+    if (mediaComponents[imageRefId] != null) {
+      final DocxTreeNode<ImageData<dynamic>>? component =
+          mediaComponents[imageRefId];
+      if (component == null) return null;
+      assert(component.rId != null,
+          'rId must be defined at this point of the generation');
+      assert(
+        media[component.data.name] != null,
+        '"name" property of the component '
+        'rId: ${component.rId}, id: ${component.id} '
+        'must be defined. Ensure you are calling '
+        'discoverMedia first and '
+        'registerAndBuildImageRelationships then',
+      );
+      return media[component.data.name]!.imageRefId;
+    }
+    for (final MediaData media in media.values) {
+      if (media.imageRefId == imageRefId ||
+          media.id == int.tryParse(imageRefId)) {
+        return media.imageRefId;
       }
     }
     return null;

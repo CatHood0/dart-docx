@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import '../../../docx.dart';
+import '../../docx_sdk/components/root/document_root.dart';
 import '../../docx_sdk/packer/docx_metadata_packer.dart';
 import '../parser_events.dart';
 
@@ -16,7 +17,7 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
     emitEvent(StartEvent());
     final bytes = await packer.bytes(
       DocxDocument(
-        sections: _documentContentBuilder(data: data).cast(),
+        root: DocumentRoot(sections: _documentContentBuilder(data: data).cast()),
         options: options.documentOptions,
       ),
     );
@@ -24,9 +25,9 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
     return bytes!;
   }
 
-  List<DocxContent> _documentContentBuilder({required String data}) {
+  List<DocxTreeNode> _documentContentBuilder({required String data}) {
     final List<String> lines = const LineSplitter().convert(data);
-    final List<DocxContent> buffer = <DocxContent>[];
+    final List<DocxTreeNode> buffer = <DocxTreeNode>[];
     for (final String text in lines) {
       buffer.add(
         Paragraph(

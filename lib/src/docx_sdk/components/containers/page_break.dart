@@ -69,18 +69,18 @@ class PageBreak extends ComponentContainer {
   PageBreak get copy => PageBreak._(_type);
 
   @override
-  DocxContent? visitElement(
-    bool Function(DocxContent element) shouldGetElement, {
-    bool visitChildrenIfNeeded = false,
+  List<DocxTreeNode<dynamic>>? visitAllElement(
+    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
   }) {
-    return null;
+    return shouldGetElement(this) ? [this] : null;
   }
 
   @override
-  List<DocxContent>? visitAllElement(
-    bool Function(DocxContent element) shouldGetElement, {
+  DocxTreeNode<dynamic>? visitElement(
+    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return null;
+    return shouldGetElement(this) ? this : null;
   }
 }

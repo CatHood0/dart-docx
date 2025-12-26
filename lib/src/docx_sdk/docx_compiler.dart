@@ -49,23 +49,22 @@ class DocxCompiler {
   void _emit(DocxEvent event) => _eventController.add(event);
 
   /// Manages all media-related operations for the current compilation process.
-  late final MediaStore mediaStore = MediaStore();
+  late MediaStore mediaStore = MediaStore();
 
   /// Manages all numbering definitions and instances for the current compilation process.
-  late final NumberingStore numberingStore =
-      NumberingStore(); // Initialize here
+  late NumberingStore numberingStore = NumberingStore();
 
   /// Manages all hyperlink-related operations for the current compilation process.
-  late final HyperlinkStore hyperlinkStore = HyperlinkStore(); // New property
+  late HyperlinkStore hyperlinkStore = HyperlinkStore(); // New property
 
   /// Manages all font definitions and embedded font files for the current compilation process.
-  late final FontStore fontStore = FontStore();
+  late FontStore fontStore = FontStore();
 
   Future<Archive?> compile(
     DocxDocument document, {
     bool applyCustomTheme = false,
   }) async {
-    if (document.sections.isEmpty) {
+    if (document.root.isEmpty) {
       _emit(DocxEvent.end(error: 'Document content is empty'));
       return null;
     }
@@ -136,9 +135,20 @@ class DocxCompiler {
     lastRId += hyperlinkRelationships.length;
     String? theme;
 
-    //TODO: fix the issue where something is bad in xml generation
     final List<(String, XmlComponentBase)> components =
         <(String, XmlComponentBase<dynamic>)>[
+      (relsFilePath, XmlRelsComponent()),
+      (
+        appFilePath,
+        XmlAppComponent(
+          title: documentContext.options.title,
+          pages: documentContext.options.editorSettings.metadata.pages,
+          words: documentContext.options.editorSettings.metadata.words,
+          characters:
+              documentContext.options.editorSettings.metadata.characters,
+        )
+      ),
+      (coreFilePath, XmlCoreComponent(options: document.options)),
       // since we need register first the theme
       // we pass document.xml.rels
       // first to take then the generated theme id
@@ -162,6 +172,7 @@ class DocxCompiler {
       (
         documentFilePath,
         XmlDocumentComponent(
+          usePic: mediaStore.mediaComponents.isNotEmpty,
           body: XmlBodyComponent(
             document: document,
             themeId: theme,
@@ -172,18 +183,6 @@ class DocxCompiler {
         numberingXmlFilePath,
         numberingStore.buildNumberingXmlDocumentComponent(),
       ),
-      (
-        appFilePath,
-        XmlAppComponent(
-          title: documentContext.options.title,
-          pages: documentContext.options.editorSettings.metadata.pages,
-          words: documentContext.options.editorSettings.metadata.words,
-          characters:
-              documentContext.options.editorSettings.metadata.characters,
-        )
-      ),
-      (relsFilePath, XmlRelsComponent()),
-      (coreFilePath, XmlCoreComponent(options: document.options)),
       (stylesXmlFilePath, XmlStylesComponent()),
       (
         fontTableXmlFilePath,
@@ -201,6 +200,7 @@ class DocxCompiler {
         contentTypesPath,
         XmlContentTypeComponent(
           applyCustomTheme: applyCustomTheme,
+          overrides: mediaStore.overrides,
           extensions: [
             ...mediaStore.extensions,
             ...fontStore.extensions,
@@ -240,8 +240,6 @@ class DocxCompiler {
         ),
       );
     }
-    //TODO: we need to pass these methods to XmlComponentBase
-    // implementations
 
     if (mediaStore.media.isNotEmpty) {
       await for (final (int, int) el in mediaStore.saveMedia(archive)) {

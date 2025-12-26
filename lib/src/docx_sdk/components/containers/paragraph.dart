@@ -3,7 +3,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
-import '../runs/run.dart';
 
 class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   Paragraph({
@@ -12,9 +11,15 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     this.runStyles = const [],
     this.pageBreak = ParagraphPagebreak.none,
     this.numbering,
+    super.id,
   }) : super(parent: null, data: data) {
+    int index = 0;
     for (final RunBase content in data) {
-      content.parent = this;
+      content
+        ..parent = this
+        ..index = index
+        ..depth = depth + 1;
+      index++;
     }
   }
 
@@ -156,24 +161,30 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
 
   @override
   Paragraph get copy => Paragraph(
+        id: id,
         data: data,
         styles: styles,
       );
 
   @override
   RunBase? visitElement(
-    bool Function(DocxContent element) shouldGetElement, {
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final element in data) {
+    for (final RunBase<dynamic> element in data) {
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxContent? foundedEl = element.visitElement(
+        final DocxTreeNode? foundedEl = element.visitElement(
           shouldGetElement,
+          visitChildrenIfNeeded: true,
         );
         if (foundedEl != null) {
-          return foundedEl as RunBase;
+          // to avoid issues, we wrap with this
+          if (foundedEl is! RunBase) {
+            return Run(component: foundedEl);
+          }
+          return foundedEl;
         }
       }
     }
@@ -182,7 +193,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
 
   @override
   List<RunBase>? visitAllElement(
-    bool Function(DocxContent element) shouldGetElement, {
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (data.isEmpty) return <RunBase>[];

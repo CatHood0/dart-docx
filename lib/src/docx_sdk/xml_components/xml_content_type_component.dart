@@ -7,6 +7,7 @@ class XmlContentTypeComponent
   XmlContentTypeComponent({
     required bool applyCustomTheme,
     required Iterable<String> extensions,
+    this.overrides,
   }) : super(
           xmlKey: 'Types',
           attrs: XmlComponentAttributes(
@@ -19,6 +20,11 @@ class XmlContentTypeComponent
               type: 'rels',
               contentType: namespaces['relationsXml']!,
             ),
+
+            XmlDefaultElementTypeComponent(
+              type: 'fntdata',
+              contentType: 'application/x-fontdata',
+            ),
             XmlDefaultElementTypeComponent(
               type: 'xml',
               contentType: 'application/xml',
@@ -28,9 +34,14 @@ class XmlContentTypeComponent
             ) {
               return XmlDefaultElementTypeComponent(
                 type: ext,
-                contentType: _mimetypeFromExt(ext),
+                contentType: mimetypeFromExt(ext),
               );
             }),
+            if (overrides != null) ...overrides,
+            XmlOverrideElementTypeComponent(
+              part: '/$relsFilePath',
+              contentType: namespaces['relationsXml']!,
+            ),
             XmlOverrideElementTypeComponent(
               part: '/$documentXmlRelsFilePath',
               contentType: namespaces['relationsXml']!,
@@ -90,8 +101,9 @@ class XmlContentTypeComponent
     'pdf': 'application/pdf',
     'xlsx': namespaces['spreadsheet']!,
   });
+  final Iterable<XmlOverrideElementTypeComponent>? overrides;
 
-  static String _mimetypeFromExt(String ext) =>
+  static String mimetypeFromExt(String ext) =>
       mimetypes[ext.toLowerCase()] ?? 'application/octet-stream';
 
   @override

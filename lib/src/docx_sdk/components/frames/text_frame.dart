@@ -13,10 +13,10 @@ import '../../../core/extensions/string_ext.dart';
 ///
 /// Note: The internal implementation treats the frame's content as part
 /// of a single paragraph that has frame properties.
-class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
+class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
   /// Creates a [TextFrame] instance.
   ///
-  /// [data] is the iterable of [DocxContent] that will be placed inside the frame.
+  /// [data] is the iterable of [DocxTreeNode] that will be placed inside the frame.
   /// This typically includes [Paragraph] or [TextRun] elements.
   /// [width] and [height] specify the dimensions of the frame in pixels (constructor computes the correct sizes automatically).
   /// [wrap] defines how text wraps around the frame.
@@ -26,9 +26,10 @@ class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
   /// [border] is an optional map to define borders for the frame,
   /// similar to how paragraph borders are defined in [StyleBuilder].
   TextFrame({
-    required Iterable<DocxContent> data,
+    required Iterable<DocxTreeNode> data,
     required int width,
     required int height,
+    super.id,
     this.wrap = FrameWrap.auto,
     this.vAnchor = FrameAnchor.page,
     this.hAnchor = FrameAnchor.page,
@@ -41,8 +42,14 @@ class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
         height = height.toTwipsFromPixels96dpi(),
         super(data: data) {
     // Set parent for all children
-    for (final DocxContent content in data) {
-      content.parent = this;
+
+    int index = 0;
+    for (final content in data) {
+      content
+        ..parent = this
+        ..index = index
+        ..depth = depth + 1;
+      index++;
     }
   }
 
@@ -53,9 +60,29 @@ class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
   final FrameAnchor hAnchor;
   final FrameHorizontalAlignment xAlign;
   final FrameVerticalAlignment yAlign;
-  final int? x; // Absolute x position in twips
-  final int? y; // Absolute y position in twips
-  final Style? border; // Similar to StyleBuilder _borders
+  final int? x;
+  final int? y;
+  final Style? border;
+
+  @override
+  TextFrame get copy => TextFrame(
+        id: id,
+        data: data
+            .map(
+              (e) => e.copy,
+            )
+            .toList(),
+        width: width,
+        height: height,
+        wrap: wrap,
+        hAnchor: hAnchor,
+        vAnchor: vAnchor,
+        xAlign: xAlign,
+        yAlign: yAlign,
+        x: x,
+        y: y,
+        border: border,
+      );
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -104,7 +131,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
 
     // Add the content of the TextFrame (e.g., actual paragraphs, text runs)
     // directly as children of the w:p element that forms the frame.
-    for (final DocxContent child in data) {
+    for (final DocxTreeNode child in data) {
       final List<XmlNode> childXml = child.buildXml(context: context);
       paragraphChildren.addAll(childXml);
     }
@@ -115,68 +142,6 @@ class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
         children: paragraphChildren,
       ),
     ];
-  }
-
-  @override
-  TextFrame get copy => TextFrame(
-        data: data
-            .map(
-              (e) => e.copy,
-            )
-            .toList(),
-        width: width,
-        height: height,
-        wrap: wrap,
-        hAnchor: hAnchor,
-        vAnchor: vAnchor,
-        xAlign: xAlign,
-        yAlign: yAlign,
-        x: x,
-        y: y,
-        border: border,
-      );
-
-  @override
-  List<DocxContent<dynamic>>? visitAllElement(
-    bool Function(DocxContent<dynamic> element) shouldGetElement, {
-    bool visitChildrenIfNeeded = true,
-  }) {
-    if (data.isEmpty) return <DocxContent<dynamic>>[];
-    final List<DocxContent<dynamic>> elements = <DocxContent<dynamic>>[];
-    for (final DocxContent element in data) {
-      if (shouldGetElement(element)) {
-        elements.add(element);
-      } else if (visitChildrenIfNeeded) {
-        final List<DocxContent<dynamic>>? foundedEl = element.visitAllElement(
-          shouldGetElement,
-          visitChildrenIfNeeded: true,
-        );
-        if (foundedEl != null) {
-          elements.addAll(foundedEl);
-        }
-      }
-    }
-    return elements;
-  }
-
-  @override
-  DocxContent<dynamic>? visitElement(
-    bool Function(DocxContent<dynamic> element) shouldGetElement, {
-    bool visitChildrenIfNeeded = true,
-  }) {
-    for (final DocxContent element in data) {
-      if (shouldGetElement(element)) {
-        return element;
-      } else if (visitChildrenIfNeeded) {
-        final DocxContent<dynamic>? foundedEl = element.visitElement(
-          shouldGetElement,
-        );
-        if (foundedEl != null) {
-          return foundedEl;
-        }
-      }
-    }
-    return null;
   }
 
   @override
@@ -222,5 +187,48 @@ class TextFrame extends ComponentContainer<Iterable<DocxContent>> {
       }
     }
     return borderConfigs;
+  }
+
+  @override
+  List<DocxTreeNode<dynamic>>? visitAllElement(
+    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    if (data.isEmpty) return <DocxTreeNode<dynamic>>[];
+    final List<DocxTreeNode<dynamic>> elements = <DocxTreeNode<dynamic>>[];
+    for (final DocxTreeNode element in data) {
+      if (shouldGetElement(element)) {
+        elements.add(element);
+      } else if (visitChildrenIfNeeded) {
+        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+          shouldGetElement,
+          visitChildrenIfNeeded: true,
+        );
+        if (foundedEl != null) {
+          elements.addAll(foundedEl);
+        }
+      }
+    }
+    return elements;
+  }
+
+  @override
+  DocxTreeNode<dynamic>? visitElement(
+    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    for (final DocxTreeNode element in data) {
+      if (shouldGetElement(element)) {
+        return element;
+      } else if (visitChildrenIfNeeded) {
+        final DocxTreeNode<dynamic>? foundedEl = element.visitElement(
+          shouldGetElement,
+        );
+        if (foundedEl != null) {
+          return foundedEl;
+        }
+      }
+    }
+    return null;
   }
 }

@@ -2,13 +2,24 @@ import 'package:xml/xml.dart';
 
 import '../../sdk.dart';
 
-//TODO: implement the correct version 
+//TODO: implement the correct version
 class TableContent extends ComponentContainer<Iterable<TableRow>> {
   TableContent({
     required super.data,
     required this.properties,
     super.parent,
-  });
+    super.id,
+  }) {
+    //
+    // int index = 0;
+    // for (final RunBase content in data) {
+    //   content
+    //     ..parent = this
+    //     ..index = index
+    //     ..depth = depth + 1;
+    //   index++;
+    // }
+  }
 
   final TableProperties properties;
 
@@ -123,14 +134,15 @@ class TableContent extends ComponentContainer<Iterable<TableRow>> {
 
   @override
   TableContent get copy => TableContent(
+        id: id,
         data: data,
         properties: properties,
         parent: parent,
       );
 
   @override
-  DocxContent? visitElement(
-    bool Function(DocxContent element) shouldGetElement, {
+  DocxTreeNode? visitElement(
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     for (final TableRow row in data) {
@@ -144,18 +156,19 @@ class TableContent extends ComponentContainer<Iterable<TableRow>> {
   }
 
   @override
-  List<DocxContent>? visitAllElement(
-    bool Function(DocxContent element) shouldGetElement, {
+  List<DocxTreeNode>? visitAllElement(
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (data.isEmpty) return null;
-    final List<DocxContent> elements = <DocxContent>[];
+    final List<DocxTreeNode> elements = <DocxTreeNode>[];
     for (final TableRow row in data) {
       for (final TableCell cell in row.cells) {
         if (shouldGetElement(cell.content)) {
           elements.add(cell.content);
         } else if (visitChildrenIfNeeded) {
-          final Iterable<DocxContent>? foundedEl = cell.content.visitAllElement(
+          final Iterable<DocxTreeNode>? foundedEl =
+              cell.content.visitAllElement(
             shouldGetElement,
             visitChildrenIfNeeded: visitChildrenIfNeeded,
           );

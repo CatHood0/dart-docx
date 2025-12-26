@@ -24,101 +24,104 @@ Future<void> main() async {
         ],
       ),
     ),
-    sections: <DocxContent<dynamic>>[
-      Paragraph(
-        data: <RunBase<dynamic>>[
-          Run(
-            component: Drawing(
-              data: Image(
-                data: ImageData(
-                  buffer: await File('assets/cv_person.jpg').readAsBytes(),
-                  extension: 'jpg',
-                  width: 200,
-                  height: 200,
-                  unit: Unit.pixels96,
+    root: DocumentRoot(
+      sections: <DocxTreeNode<dynamic>>[
+        Paragraph(
+          data: <RunBase<dynamic>>[
+            Run(
+              component: Drawing(
+                data: Image(
+                  // ensure to wrap this element with wp:inline
+                  asInline: true,
+                  data: ImageData(
+                    buffer: await File('assets/cv_person.jpg').readAsBytes(),
+                    extension: 'jpg',
+                    width: 0.5.toDxaFromInches(),
+                    height: 0.5.toDxaFromCm(),
+                  ),
                 ),
               ),
             ),
-          ),
-          Run(component: Break.lineBreak()),
-          TextRun(
-            data: TextPart(
-              text: 'Jane Doe',
-              styles: <Object>[Style.reference('Name')],
+            Run(component: Break.lineBreak()),
+            TextRun(
+              data: TextPart(
+                text: 'Jane Doe',
+                styles: <Object>[Style.reference('Name')],
+              ),
             ),
-          ),
-        ],
-      ),
-      Paragraph(
-        data: <RunBase<dynamic>>[
-          TextRun(
-            data: TextPart(
-                text: 'Email: jane.doe@example.com '
-                    '• Phone: +1 234 567 890'),
-          ),
-        ],
-      ),
-      // ColumnBreak(),
-      Paragraph(
-        data: <RunBase<dynamic>>[
-          TextRun(
-            data: TextPart(
-              text: 'Experience',
-              styles: <Object>[
-                Style.reference(
-                  'SectionHeading',
-                ),
-              ],
+          ],
+        ),
+        Paragraph(
+          data: <RunBase<dynamic>>[
+            TextRun(
+              data: TextPart(
+                  text: 'Email: jane.doe@example.com '
+                      '• Phone: +1 234 567 890'),
             ),
-          ),
-        ],
-      ),
-      Paragraph(
-        data: <RunBase<dynamic>>[
-          TextRun(
-            data: TextPart(
-              text: '• Senior Engineer at Acme '
-                  'Corp (2018 - Present)',
+          ],
+        ),
+        // ColumnBreak(),
+        Paragraph(
+          data: <RunBase<dynamic>>[
+            TextRun(
+              data: TextPart(
+                text: 'Experience',
+                styles: <Object>[
+                  Style.reference(
+                    'SectionHeading',
+                  ),
+                ],
+              ),
             ),
-          ),
-          Run(component: Break.lineBreak(), wrapInRunMark: true),
-          TextRun(
-            data: TextPart(
-                text: '• Software Developer at '
-                    'Example Inc. (2015 - 2018)'),
-          ),
-        ],
-      ),
-      Paragraph(
-        data: <RunBase<dynamic>>[
-          TextRun(
-            data: TextPart(
-              text: 'Education',
-              styles: <Object>[
-                Style.reference('SectionHeading'),
-              ],
+          ],
+        ),
+        Paragraph(
+          data: <RunBase<dynamic>>[
+            TextRun(
+              data: TextPart(
+                text: '• Senior Engineer at Acme '
+                    'Corp (2018 - Present)',
+              ),
             ),
-          ),
-        ],
-      ),
-      Paragraph(
-        data: <RunBase<dynamic>>[
-          TextRun(
-            data: TextPart(
-              text: 'M.Sc. Computer Science — '
-                  'University of Examples (2013 - 2015)',
+            Run(component: Break.lineBreak(), wrapInRunMark: true),
+            TextRun(
+              data: TextPart(
+                  text: '• Software Developer at '
+                      'Example Inc. (2015 - 2018)'),
             ),
-          ),
-          Run(component: Break.lineBreak(), wrapInRunMark: true),
-          TextRun(
-            data: TextPart(
-              text: 'B.Sc. Computer Science — '
-                  'College of Samples (2009 - 2013)',
+          ],
+        ),
+        Paragraph(
+          data: <RunBase<dynamic>>[
+            TextRun(
+              data: TextPart(
+                text: 'Education',
+                styles: <Object>[
+                  Style.reference('SectionHeading'),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    ],
+          ],
+        ),
+        Paragraph(
+          data: <RunBase<dynamic>>[
+            TextRun(
+              data: TextPart(
+                text: 'M.Sc. Computer Science — '
+                    'University of Examples (2013 - 2015)',
+              ),
+            ),
+            Run(component: Break.lineBreak(), wrapInRunMark: true),
+            TextRun(
+              data: TextPart(
+                text: 'B.Sc. Computer Science — '
+                    'College of Samples (2009 - 2013)',
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
   );
 
   final DocxMetadataPacker packer =

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:docx/docx.dart';
-import 'package:docx/src/docx_sdk/components/drawing/drawing.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -24,89 +23,91 @@ void main() {
                 ],
               ),
             ),
-            sections: <DocxContent<dynamic>>[
-              Paragraph(
-                data: <RunBase<dynamic>>[
-                  TextRun(
-                    data: TextPart(text: ' your can use'),
-                  ),
-                  HyperlinkRun(
-                    data: HyperlinkTextPart(
-                      hyperlink: 'https://pub.dev/packages/docx_transformer',
-                      text: ' so, what is this link?',
-                      styles: <Object>[
-                        Style.reference('Hyperlink'),
-                      ],
+            root: DocumentRoot(
+              sections: <DocxTreeNode<dynamic>>[
+                Paragraph(
+                  data: <RunBase<dynamic>>[
+                    TextRun(
+                      data: TextPart(text: ' your can use'),
                     ),
-                  ),
-                  TextRun(
-                    data: TextPart(
-                      text: ' your can use',
-                      styles: <Object>[
-                        Style.reference('code'),
-                        BoldAttribute(),
-                      ],
+                    HyperlinkRun(
+                      data: HyperlinkTextPart(
+                        hyperlink: 'https://pub.dev/packages/docx_transformer',
+                        text: ' so, what is this link?',
+                        styles: <Object>[
+                          Style.reference('Hyperlink'),
+                        ],
+                      ),
                     ),
+                    TextRun(
+                      data: TextPart(
+                        text: ' your can use',
+                        styles: <Object>[
+                          Style.reference('code'),
+                          BoldAttribute(),
+                        ],
+                      ),
+                    ),
+                  ],
+                  styles: <Style>[],
+                  pageBreak: ParagraphPagebreak.after,
+                  numbering: Numbering(
+                    reference: 'unordered',
+                    level: 0,
                   ),
-                ],
-                styles: <Style>[],
-                pageBreak: ParagraphPagebreak.after,
-                numbering: Numbering(
-                  reference: 'unordered',
-                  level: 0,
                 ),
-              ),
-              Paragraph(
-                data: <RunBase<dynamic>>[
-                  TextRun(
-                    data: TextPart(text: 'Yeah, we are in a 2nd page'),
-                  ),
-                  HyperlinkRun(
-                    data: HyperlinkTextPart(
-                      hyperlink: 'https://pub.dev/packages/docx_transformer',
-                      text: ' and now, can we do about?',
-                      styles: [
-                        Style.reference('Hyperlink'),
-                      ],
+                Paragraph(
+                  data: <RunBase<dynamic>>[
+                    TextRun(
+                      data: TextPart(text: 'Yeah, we are in a 2nd page'),
                     ),
-                  ),
-                ],
-              ),
-              TextFrame(
-                data: <DocxContent<dynamic>>[
-                  TextRun(
-                    data: TextPart(
-                      text: '',
+                    HyperlinkRun(
+                      data: HyperlinkTextPart(
+                        hyperlink: 'https://pub.dev/packages/docx_transformer',
+                        text: ' and now, can we do about?',
+                        styles: [
+                          Style.reference('Hyperlink'),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-                border: StyleBuilder.singularP()
-                    .borders(
-                      leftColor: '#0000FF',
-                      rightColor: '#FFFF00',
-                      left: BorderStyle.dashDotStroked,
-                      right: BorderStyle.dashDotStroked,
-                    )
-                    .build(),
-                width: 500,
-                height: 500,
-                xAlign: FrameHorizontalAlignment.left,
-                // general text will be wrapped around this frame
-                wrap: FrameWrap.square,
-                // pinned horizontally
-                hAnchor: FrameAnchor.page,
-                // pinned vertically
-                vAnchor: FrameAnchor.page,
-                // put to top
-                yAlign: FrameVerticalAlignment.top,
-              ),
-              LazyImageBlock(
-                data: ImageData(
-                  buffer: File('test_resources/logo.jpg'),
-                  extension: 'jpg',
+                  ],
                 ),
-              ),
-            ],
+                TextFrame(
+                  data: <DocxTreeNode<dynamic>>[
+                    TextRun(
+                      data: TextPart(
+                        text: '',
+                      ),
+                    ),
+                  ],
+                  border: StyleBuilder.singularP()
+                      .borders(
+                        leftColor: '#0000FF',
+                        rightColor: '#FFFF00',
+                        left: BorderStyle.dashDotStroked,
+                        right: BorderStyle.dashDotStroked,
+                      )
+                      .build(),
+                  width: 500,
+                  height: 500,
+                  xAlign: FrameHorizontalAlignment.left,
+                  // general text will be wrapped around this frame
+                  wrap: FrameWrap.square,
+                  // pinned horizontally
+                  hAnchor: FrameAnchor.page,
+                  // pinned vertically
+                  vAnchor: FrameAnchor.page,
+                  // put to top
+                  yAlign: FrameVerticalAlignment.top,
+                ),
+                LazyImageBlock(
+                  data: ImageData(
+                    buffer: File('test_resources/logo.jpg'),
+                    extension: 'jpg',
+                  ),
+                ),
+              ],
+            ),
           ),
         )
         .then((bytes) {

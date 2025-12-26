@@ -5,7 +5,7 @@ class ContentNotProcessedException implements Exception {
     required this.content,
   });
 
-  final DocxContent content;
+  final DocxTreeNode content;
 
   @override
   String toString() {

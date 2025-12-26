@@ -1,5 +1,6 @@
 import '../../../docx.dart';
 
+//TODO: add listeners to events
 /// Manages all hyperlink-related operations for a Docx document,
 /// including discovering and creating relationships for [HyperlinkRun] components.
 class HyperlinkStore {
@@ -21,12 +22,13 @@ class HyperlinkStore {
   void discoverHyperlinks(DocxDocument data) {
     _hyperlinks.clear();
 
-    for (final DocxContent parent in data.sections) {
+    //TODO: use parent methods of DocumentRoot
+    for (final DocxTreeNode parent in data.root.data) {
       final List<RunBase<HyperlinkTextPart>> foundHyperlinks =
           List<RunBase<HyperlinkTextPart>>.from(
         parent.visitAllElement(
               (
-                DocxContent el,
+                DocxTreeNode el,
               ) =>
                   el is HyperlinkRun,
               visitChildrenIfNeeded: true,

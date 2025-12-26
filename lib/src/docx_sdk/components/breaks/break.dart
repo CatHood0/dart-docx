@@ -43,16 +43,16 @@ class Break extends RunBase<BreakType> {
   Break get copy => Break(data: data);
 
   @override
-  List<DocxContent<dynamic>>? visitAllElement(
-    bool Function(DocxContent<dynamic> element) shouldGetElement, {
+  List<DocxTreeNode<dynamic>>? visitAllElement(
+    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return null;
   }
 
   @override
-  DocxContent<dynamic>? visitElement(
-    bool Function(DocxContent<dynamic> element) shouldGetElement, {
+  DocxTreeNode<dynamic>? visitElement(
+    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return null;

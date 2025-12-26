@@ -1,49 +1,23 @@
-import 'package:xml/xml.dart';
+library;
 
-import '../../../../docx.dart';
+export 'adjust_value_list.dart';
+export 'blip.dart';
+export 'blip_fill.dart';
+export 'doc_properties.dart';
+export 'drawing_comp.dart';
+export 'extent.dart';
+export 'extents.dart';
+export 'fill_rectangle.dart';
+export 'graphic.dart';
+export 'graphic_data.dart';
+export 'inline.dart';
+export 'non_visual_drawing_properties.dart';
+export 'non_visual_picture_drawing_properties.dart';
+export 'non_visual_picture_properties.dart';
+export 'offset.dart';
+export 'picture.dart';
+export 'preset_geometry.dart';
+export 'shape_properties.dart';
+export 'stretch.dart';
+export 'transform2d.dart';
 
-class Drawing extends DocxContent<DocxContent> {
-  Drawing({required super.data});
-
-  @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
-    return <XmlNode>[
-      XmlElement.tag(
-        'w:drawing',
-        isSelfClosing: false,
-        children: [
-          ...data.buildXml(context: context),
-        ],
-      ),
-    ];
-  }
-
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
-  DocxContent<DocxContent<dynamic>> get copy => Drawing(data: data.copy);
-
-  @override
-  List<DocxContent<dynamic>>? visitAllElement(
-    bool Function(DocxContent<dynamic> element) shouldGetElement, {
-    bool visitChildrenIfNeeded = true,
-  }) {
-    return data.visitAllElement(
-      shouldGetElement,
-      visitChildrenIfNeeded: visitChildrenIfNeeded,
-    );
-  }
-
-  @override
-  DocxContent<dynamic>? visitElement(
-    bool Function(DocxContent<dynamic> element) shouldGetElement, {
-    bool visitChildrenIfNeeded = true,
-  }) {
-    return data.visitElement(
-      shouldGetElement,
-      visitChildrenIfNeeded: visitChildrenIfNeeded,
-    );
-  }
-}

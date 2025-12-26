@@ -5,32 +5,41 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
+import '../../../core/normalizer/auto_size_normalizer.dart';
+import '../containers/anchor.dart';
 
-class Image extends DocxContent<ImageData<Uint8List>> {
+class Image extends DocxTreeNode<ImageData<Uint8List>> {
   Image({
     required super.data,
     super.parent,
+    super.id,
+    this.asInline = false,
   });
 
+  bool asInline;
+
   @override
-  Image get copy => Image(
-        data: ImageData<Uint8List>(
-          buffer: data.buffer,
-          extension: data.extension,
-          styles: data.styles,
-          width: data.width,
-          height: data.height,
-          name: data.name,
-          offsetX: data.offsetX,
-          offsetY: data.offsetY,
-          alt: data.alt,
-          unit: data.unit,
-          frameOffsetY: data.frameOffsetY,
-          frameAlignY: data.frameAlignY,
-          frameOffsetX: data.frameOffsetX,
-          frameAlignX: data.frameAlignX,
-        ),
-      );
+  Image get copy {
+    return Image(
+      id: id,
+      data: ImageData<Uint8List>(
+        buffer: data.buffer,
+        extension: data.extension,
+        styles: data.styles,
+        width: data.width,
+        height: data.height,
+        name: data.name,
+        offsetX: data.offsetX,
+        offsetY: data.offsetY,
+        alt: data.alt,
+        unit: data.unit,
+        frameOffsetY: data.frameOffsetY,
+        frameAlignY: data.frameAlignY,
+        frameOffsetX: data.frameOffsetX,
+        frameAlignX: data.frameAlignX,
+      ),
+    );
+  }
 
   String get getImageName => data.name ?? '';
 
@@ -43,270 +52,91 @@ class Image extends DocxContent<ImageData<Uint8List>> {
         'founded into the DocxComponentContext',
       );
     }
-    final String wrapType = data.wrapType();
 
-    final int? zIndex = data.positioning == ImagePositioning.behindText
-        ? -1
-        : data.positioning == ImagePositioning.inFrontOfText
-            ? 1
-            : null;
+    final int? numRelationshipId = context.store.getAssignedIdForRef(id) ??
+        context.store.getAssignedIdForRef(rId ?? '-1');
 
-    final int docPrId = context.store.getMediaIdForRef(super.id) ??
-        context.store.getMediaIdForRef(rId!) ??
-        context.store.generateMediaId();
-
-    num? imgWidthEmu;
-    num? imgHeightEmu;
-    if (data.width != null) {
-      imgWidthEmu = data.width!.toEmuFromUnit(data.unit);
+    if (numRelationshipId == null) {
+      throw Exception('Image($id) with "$data", was not inserted in '
+          'document.xml.rels, and cannot found relation id');
     }
-    if (data.height != null) {
-      imgHeightEmu = data.height!.toEmuFromUnit(data.unit);
-    }
+
+    num? imgWidthEmu = data.width;
+    num? imgHeightEmu = data.height;
 
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
     if (imgWidthEmu == null && imgHeightEmu == null) {
       final Uint8List bytes = data.buffer;
       final Size size = ImageSizeGetter.getSizeResult(MemoryInput(bytes)).size;
-      imgWidthEmu = size.width * emuPerInch / imageDpi;
-      imgHeightEmu = size.height * emuPerInch / imageDpi;
+      // the result is a size computed in inches
+      final NormalizedSizeResult resultSize =
+          AutoSizeNormalizer.resizeImageBySettings(
+        size,
+        context.options.pageSize.toInches(),
+        context.options.margins.toInches(),
+        imageDpi,
+      );
+
+      imgWidthEmu = resultSize.width?.toEmuFromInches();
+      imgHeightEmu = resultSize.height?.toEmuFromInches();
     }
 
-    return <XmlElement>[
-      XmlElement.tag(
-        'wp:inline',
-        isSelfClosing: false,
-        attributes: [
-          XmlAttribute(XmlName.fromString('distT'), '0'),
-          XmlAttribute(XmlName.fromString('distB'), '0'),
-          XmlAttribute(XmlName.fromString('distL'), '0'),
-          XmlAttribute(XmlName.fromString('distR'), '0'),
-          XmlAttribute(XmlName.fromString('simplePos'), '0'),
-          XmlAttribute(XmlName.fromString('relativeHeight'), '0'),
-          XmlAttribute(
-            XmlName.fromString('behindDoc'),
-            data.positioning == ImagePositioning.behindText ? '1' : '0',
-          ),
-          XmlAttribute(XmlName.fromString('locked'), '0'),
-          XmlAttribute(XmlName.fromString('layoutInCell'), '1'),
-          XmlAttribute(XmlName.fromString('allowOverlap'), '1'),
-        ],
-        children: <XmlNode>[
-          XmlElement.tag(
-            'wp:simplePos',
-            attributes: [
-              XmlAttribute(XmlName.fromString('x'), '0'),
-              XmlAttribute(XmlName.fromString('y'), '0'),
-            ],
-            isSelfClosing: true,
-          ),
-          // external offsets
-          if (data.offsetX > 0)
-            XmlOffsetPosition(
-              x: true,
-              alignment: data.frameAlignX,
-              offset: data.offsetX,
-            ).buildXml(context),
-          if (data.offsetY > 0)
-            XmlOffsetPosition(
-              x: false,
-              alignment: data.frameAlignY,
-              offset: data.offsetY,
-            ).buildXml(context),
-          XmlElement.tag(
-            'wp:wrap${wrapType.capitalize()}',
-            isSelfClosing: true,
-            attributes: [
-              if (wrapType == 'square' || wrapType == 'tight')
-                XmlAttribute(
-                  XmlName.fromString('wrapText'),
-                  'bothSides',
-                ),
-            ],
-          ),
-          XmlElement.tag(
-            'wp:extent',
-            attributes: [
-              XmlAttribute(
-                XmlName.fromString('cx'),
-                imgWidthEmu.toString(),
+    final Graphic graphic = Graphic(
+      data: GraphicData(
+        uri: namespaces['pic']!,
+        data: Picture(
+          components: <DocxTreeNode<dynamic>>[
+            BlipFill(
+              blip: Blip(embedRelId: numRelationshipId.toString()),
+              stretch: Stretch(
+                data: <DocxTreeNode<dynamic>>[
+                  FillRectangle(),
+                ],
               ),
-              XmlAttribute(
-                XmlName.fromString('cy'),
-                imgHeightEmu.toString(),
-              ),
-            ],
-            isSelfClosing: true,
-          ),
-          XmlElement.tag(
-            'wp:docPr',
-            isSelfClosing: true,
-            attributes: [
-              XmlAttribute(XmlName.fromString('id'), docPrId.toString()),
-              XmlAttribute(XmlName.fromString('name'), imageName),
-              XmlAttribute(
-                XmlName.fromString('descr'),
-                data.alt ?? imageName,
-              ),
-              if (zIndex != null)
-                XmlAttribute(
-                  XmlName.fromString('relativeHeight'),
-                  zIndex.toString(),
-                ),
-            ],
-          ),
-          XmlElement.tag(
-            'wp:cNvGraphicFramePr',
-            isSelfClosing: true,
-          ),
-          _buildGraphicContent(
-            docPrId: docPrId,
-            imageName: imageName,
-            imgWidthEmu: imgWidthEmu!,
-            imgHeightEmu: imgHeightEmu!,
-          ),
-        ],
-      ),
-    ];
-  }
-
-  XmlElement _buildGraphicContent({
-    required int docPrId,
-    required String imageName,
-    required num imgWidthEmu,
-    required num imgHeightEmu,
-  }) {
-    return XmlElement.tag(
-      'a:graphic',
-      isSelfClosing: false,
-      children: [
-        XmlElement.tag(
-          'a:graphicData',
-          isSelfClosing: false,
-          attributes: [
-            XmlAttribute(
-              XmlName.fromString('uri'),
-              namespaces['pic']!,
             ),
-          ],
-          children: [
-            XmlElement.tag(
-              'pic:pic',
-              isSelfClosing: false,
-              children: [
-                XmlElement.tag(
-                  'pic:nvPicPr',
-                  isSelfClosing: false,
-                  children: [
-                    XmlElement.tag(
-                      'pic:cNvPr',
-                      isSelfClosing: true,
-                      attributes: [
-                        XmlAttribute(
-                          XmlName.fromString('id'),
-                          docPrId.toString(),
-                        ),
-                        XmlAttribute(
-                          XmlName.fromString('name'),
-                          imageName,
-                        ),
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'pic:cNvPicPr',
-                      isSelfClosing: true,
-                    ),
-                  ],
+            ShapeProperties(
+              transform2D: Transform2D(
+                offset: Offset(
+                  x: data.frameOffsetX ?? 0,
+                  y: data.frameOffsetY ?? 0,
                 ),
-                XmlElement.tag(
-                  'pic:blipFill',
-                  isSelfClosing: false,
-                  children: [
-                    XmlElement.tag(
-                      'a:blip',
-                      attributes: [
-                        XmlAttribute(
-                          XmlName.fromString('r:embed'),
-                          rId!,
-                        ),
-                      ],
-                      isSelfClosing: true,
-                    ),
-                    XmlElement.tag(
-                      'a:stretch',
-                      isSelfClosing: false,
-                      children: [
-                        XmlElement.tag(
-                          'a:fillRect',
-                          isSelfClosing: true,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                XmlElement.tag(
-                  'pic:spPr',
-                  isSelfClosing: false,
-                  children: [
-                    XmlElement.tag(
-                      'a:xfrm',
-                      isSelfClosing: false,
-                      children: [
-                        XmlElement.tag(
-                          'a:off',
-                          isSelfClosing: true,
-                          attributes: [
-                            XmlAttribute(
-                              XmlName.fromString('x'),
-                              (data.frameOffsetX ?? 0).toString(),
-                            ),
-                            XmlAttribute(
-                              XmlName.fromString('y'),
-                              (data.frameOffsetY ?? 0).toString(),
-                            ),
-                          ],
-                        ),
-                        XmlElement.tag(
-                          'a:ext',
-                          isSelfClosing: true,
-                          attributes: [
-                            XmlAttribute(
-                              XmlName.fromString('cx'),
-                              imgWidthEmu.toString(),
-                            ),
-                            XmlAttribute(
-                              XmlName.fromString('cy'),
-                              imgHeightEmu.toString(),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    XmlElement.tag(
-                      'a:prstGeom',
-                      isSelfClosing: false,
-                      attributes: [
-                        XmlAttribute(
-                          XmlName.fromString('prst'),
-                          'rect',
-                        ),
-                      ],
-                      children: [
-                        XmlElement.tag(
-                          'a:avLst',
-                          isSelfClosing: true,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                extents: Extents(cx: imgWidthEmu!, cy: imgHeightEmu!),
+              ),
+              presetGeometry: PresetGeometry(
+                preset: 'rect',
+                data: AdjustValueList(),
+              ),
+            ),
+            NonVisualPictureProperties(
+              nonVisualDrawingProperties: NonVisualDrawingProperties(
+                id: numRelationshipId.toString(),
+                name: imageName,
+                description: data.alt ?? imageName,
+              ),
+              nonVisualPictureDrawingProperties:
+                  NonVisualPictureDrawingProperties(),
             ),
           ],
         ),
-      ],
+      ),
     );
+
+    return <XmlElement>[
+      if (!asInline)
+        ...graphic.buildXml(context: context)
+      else
+        ...Inline(components: <DocxTreeNode<dynamic>>[
+          // wp:extent different from Extents that creates an a:ext
+          Extent(cx: imgWidthEmu, cy: imgHeightEmu),
+          DocProperties(
+            docPrId: rId!,
+            name: imageName,
+            description: data.alt ?? imageName,
+          ),
+          graphic,
+        ]).buildXml(context: context),
+    ];
   }
 
   @override
@@ -321,7 +151,7 @@ class Image extends DocxContent<ImageData<Uint8List>> {
 
   @override
   Image? visitElement(
-    bool Function(DocxContent element) shouldGetElement, {
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     return shouldGetElement(this) ? this : null;
@@ -329,7 +159,7 @@ class Image extends DocxContent<ImageData<Uint8List>> {
 
   @override
   List<Image>? visitAllElement(
-    bool Function(DocxContent element) shouldGetElement, {
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <Image>[this] : null;
@@ -341,11 +171,13 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
     required bool x,
     required this.alignment,
     required this.offset,
+    this.relative = Anchor.relativeParagraphKey,
   }) : super(
           xmlKey: x ? 'wp:positionH' : 'wp:positionV',
           value: null,
         );
   final num offset;
+  final String relative;
   final String alignment;
 
   @override
@@ -353,6 +185,12 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
     return XmlElement.tag(
       xmlKey,
       isSelfClosing: false,
+      attributes: [
+        XmlAttribute(
+          'relativeFrom'.toName(),
+          relative,
+        ),
+      ],
       children: [
         XmlElement.tag(
           alignment == 'center' ? 'wp:align' : 'wp:posOffset',

@@ -5,6 +5,7 @@ import '../utils/values.dart';
 import '../xml_components/fonts/xml_font_table_component.dart';
 import '../xml_components/rels/xml_document_rels_component.dart';
 
+//TODO: add listeners to events
 /// Manages font definitions and embedded font files for a Docx document.
 ///
 /// This store is responsible for:
@@ -22,38 +23,47 @@ class FontStore {
   /// The file path for the font table relationships XML.
   static String get relsFilePath => fontTableXmlRelsFilePath;
 
+  bool get hasFonts => _fontsByName.isNotEmpty;
+
   /// Stores all [FontProperties] that will be included in `fontTable.xml`.
-  final List<FontProperties> _documentFonts = [];
+  final Map<String, FontProperties> _fontsByName = {};
 
-  final Set<String> _availableFamilies = <String>{};
-
-  bool get hasFonts => _documentFonts.isNotEmpty;
+  /// Stores all [FontProperties] count changes from last time using name as key.
+  ///
+  /// Used by compiler to know if we will need to recompile the `fontTable.xml`
+  final Map<String, int> _fontsChanges = {};
 
   /// Stores the binary data of embedded fonts, keyed by their `fontKey` (GUID).
-  final Map<String, FontBinaryData> _embeddedFontBinaries =
+  final Map<String, FontBinaryData> _embeddedBinariesByKey =
       <String, FontBinaryData>{};
 
   /// Stores relationships for embedded fonts, keyed by rId.
-  final Map<String, RelationShip> _fontRelationships = <String, RelationShip>{};
+  final Map<String, RelationShip> _relationshipsByRId =
+      <String, RelationShip>{};
 
   /// Collects extensions of embedded font files (e.g., 'odttf').
-  final Set<String> extensions = <String>{};
+  final Set<String> extensions = <String>{'odttf'};
 
   /// Stores all the families registered in this instance
-  Set<String> get availableFamilies => Set<String>.from(_availableFamilies);
+  Map<String, RelationShip> get fontRelations => Map.from(_relationshipsByRId);
 
-  Map<String, RelationShip> get fontRelations => Map.from(_fontRelationships);
+  List<FontProperties> get fonts => List.from(_fontsByName.values);
 
   /// Current highest rId used for font relationships.
   int _lastFontRId = 0;
 
+  void resetChanges() {
+    _fontsChanges.clear();
+  }
+
   /// Resets the font store to its initial state.
   void reset() {
-    _documentFonts.clear();
-    _embeddedFontBinaries.clear();
-    _fontRelationships.clear();
-    _availableFamilies.isNotEmpty;
-    extensions.clear();
+    _fontsByName.clear();
+    _embeddedBinariesByKey.clear();
+    _relationshipsByRId.clear();
+    extensions
+      ..clear()
+      ..add('odttf');
     _lastFontRId = 0;
   }
 
@@ -78,23 +88,7 @@ class FontStore {
       _discoverFontsFromDocumentContent(document);
     }
 
-    // Ensure default fonts like Calibri/Times New Roman are always present if not overridden
-    if (_availableFamilies.contains('Calibri')) {
-      addFont(const FontProperties(
-        name: 'Calibri',
-        family: 'swiss',
-        charset: CharacterSet.ansi,
-        pitch: 'variable',
-      ));
-    }
-    if (_availableFamilies.contains('Times New Roman')) {
-      addFont(const FontProperties(
-        name: 'Times New Roman',
-        family: 'roman',
-        charset: CharacterSet.ansi,
-        pitch: 'variable',
-      ));
-    }
+    _checkForDefaultFontsExistence();
   }
 
   /// Scans the document's content (paragraphs, runs, styles)
@@ -104,17 +98,18 @@ class FontStore {
   ) {
     final Set<String> discoveredFontNames = {};
 
-    for (final DocxContent parent in document.sections) {
-      final List<DocxContent> elementsWithFonts = parent.visitAllElement(
+    //TODO: use parent methods of DocumentRoot
+    for (final DocxTreeNode parent in document.root.data) {
+      final List<DocxTreeNode> elementsWithFonts = parent.visitAllElement(
             (
-              DocxContent el,
+              DocxTreeNode el,
             ) =>
                 el is TextRun || el is Paragraph,
             visitChildrenIfNeeded: true,
           ) ??
-          <DocxContent>[];
+          <DocxTreeNode>[];
 
-      for (final DocxContent content in elementsWithFonts) {
+      for (final DocxTreeNode content in elementsWithFonts) {
         final List<Style> styles = [];
         if (content is TextRun) {
           styles.addAll(content.data.styles.whereType<Style>());
@@ -163,10 +158,10 @@ class FontStore {
 
     // Add discovered font names as basic FontProperties
     for (final String fontName in discoveredFontNames) {
-      // ignores all the fonts that are already registered
-      if (_availableFamilies.contains(fontName)) {
-        continue;
-      }
+      // // ignores all the fonts that are already registered
+      // if (_availableFamilies.contains(fontName)) {
+      //   continue;
+      // }
       addFont(FontProperties(
         name: fontName,
         family: 'auto',
@@ -180,99 +175,39 @@ class FontStore {
   /// If the font has [FontBinaryData], it also registers the binary for embedding
   /// and creates a relationship entry in `fontTable.xml.rels`.
   void addFont(FontProperties font) {
-    // Ensure that any font with binary data is fully added,
-    // and its embedRId is correctly set during addFont.
-    if (_availableFamilies.contains(font.name)) {
-      throw '${font.name} is already registered. Please, '
-          'ensure that you are passing '
-          'non duplicated font names';
-    }
-    final int existingIndex = _documentFonts.indexWhere(
-      (
-        FontProperties f,
-      ) =>
-          f.name == font.name,
-    );
+    FontProperties resolved = font;
 
-    FontProperties finalFont = font;
     if (font.fontBinaryData != null) {
-      final FontBinaryData binary = font.fontBinaryData!;
-      // Ensure fontKey is set, generate if null
-      final String actualFontKey = binary.fontKey;
-      _embeddedFontBinaries[actualFontKey] = binary;
-
-      _lastFontRId++;
-      final String currentRId = 'rId$_lastFontRId';
-      final String obfuscatedFileName = '${font.name.replaceAll(
-        ' ',
-        '',
-      )}.${binary.extension}.odttf';
-
-      // Create relationship for fontTable.xml.rels
-      _fontRelationships[currentRId] = RelationShip(
-        rId: currentRId,
-        // Relationship type for embedded fonts
-        type: namespaces['font']!,
-        // Target path for obfuscated font file
-        target: 'fonts/$obfuscatedFileName',
-        mode: 'Internal',
-      );
-
-      // Create EmbeddedFontRefOptions to be included in the FontProperties
-      final EmbeddedFontRefOptions embeddedRef = EmbeddedFontRefOptions(
-        rId: currentRId,
-        fontKey: actualFontKey,
-        //TODO: should we allow arbitrary true?
-        subsetted: true,
-      );
-
-      // Create a new FontProperties instance with
-      // updated embedRegular (or other variant)
-      finalFont = font.copyWithEmbeddedRef(
-        embedRegular: embeddedRef,
-      );
-
-      // Add the obfuscated font extension to the set of known extensions
-      extensions.add('odttf');
-      if (existingIndex != -1) {
-        _documentFonts[existingIndex] = finalFont;
-        return;
-      }
+      resolved = _registerEmbeddedFont(font);
     }
-    _documentFonts.add(finalFont);
+
+    // increment changes
+    if (_fontsByName.containsKey(resolved.name)) {
+      _fontsChanges[resolved.name] =
+          (_fontsByName[resolved.name] as int? ?? 0) + 1;
+    }
+    _fontsByName[resolved.name] = resolved;
   }
 
   /// Builds the [XmlFontTableComponent] for the `fontTable.xml` part.
-  XmlComponentBase buildFontTableXmlComponent(
-    DocumentContext context,
-  ) {
-    return XmlFontTableComponent(
-      fonts: _documentFonts,
-    );
-  }
+  XmlComponentBase buildFontTableXmlComponent(DocumentContext context) =>
+      XmlFontTableComponent(fonts: fonts);
 
   /// Builds rels for `fontTable.xml.rels` part.
   /// This contains relationships for embedded fonts.
-  XmlComponentBase buildFontTableRelsXmlDocument(
-    DocumentContext context,
-  ) {
-    return XmlDocumentRelsComponent(
-      relations: _fontRelationships.values.toList(),
-    );
-  }
+  XmlComponentBase buildFontTableRelsXmlDocument(DocumentContext context) =>
+      XmlDocumentRelsComponent(relations: _relationshipsByRId.values.toList());
 
   /// Adds all embedded font binary files to the provided [Archive].
   ///
   /// These files are assumed to be already obfuscated and are added as `.odttf` files.
   /// [archive] The `Archive` instance to which font files will be added.
   Stream<void> addEmbeddedFontFilesToArchive(Archive archive) async* {
-    for (final FontProperties font in _documentFonts) {
+    for (final FontProperties font in _fontsByName.values) {
       if (font.fontBinaryData != null) {
         final FontBinaryData binary = font.fontBinaryData!;
-        final String obfuscatedFileName = '${font.name.replaceAll(
-          ' ',
-          '',
-        )}.${binary.extension}.odttf';
+        final String obfuscatedFileName =
+            _obfuscatedFileName(font.name, binary.extension);
 
         archive.add(
           ArchiveFile.bytes(
@@ -282,6 +217,63 @@ class FontStore {
         );
         yield null;
       }
+    }
+  }
+
+  FontProperties _registerEmbeddedFont(FontProperties font) {
+    final FontBinaryData binary = font.fontBinaryData!;
+
+    _embeddedBinariesByKey[binary.fontKey] = binary;
+
+    final String rId = _nextFontRId();
+    final String fileName = _obfuscatedFileName(font.name, binary.extension);
+    extensions.add(binary.extension);
+
+    _relationshipsByRId[rId] = RelationShip(
+      rId: rId,
+      type: namespaces['font']!,
+      target: 'fonts/$fileName',
+      mode: 'Internal',
+    );
+
+    return font.copyWithEmbeddedRef(
+      embedRegular: EmbeddedFontRefOptions(
+        rId: rId,
+        fontKey: binary.fontKey,
+        subsetted: true,
+      ),
+    );
+  }
+
+  String _obfuscatedFileName(String name, String extension) {
+    return '${name.replaceAll(
+      ' ',
+      '',
+    )}.$extension.odttf';
+  }
+
+  String _nextFontRId() {
+    _lastFontRId++;
+    return 'rId$_lastFontRId';
+  }
+
+  void _checkForDefaultFontsExistence() {
+    // Ensure default fonts like Calibri/Times New Roman are always present if not overridden
+    if (_fontsByName['Calibri'] == null) {
+      addFont(const FontProperties(
+        name: 'Calibri',
+        family: 'swiss',
+        charset: CharacterSet.ansi,
+        pitch: 'variable',
+      ));
+    }
+    if (_fontsByName['Times New Roman'] == null) {
+      addFont(const FontProperties(
+        name: 'Times New Roman',
+        family: 'roman',
+        charset: CharacterSet.ansi,
+        pitch: 'variable',
+      ));
     }
   }
 

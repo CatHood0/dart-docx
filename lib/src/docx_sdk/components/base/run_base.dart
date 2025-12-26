@@ -4,11 +4,12 @@ import '../../exceptions/content_not_processed_exception.dart';
 import '../../mixins/ignorable_mixin.dart';
 import '../../sdk.dart';
 
-abstract class RunBase<T> extends DocxContent<T>
+abstract class RunBase<T> extends DocxTreeNode<T>
     with PrintableMixin, IgnorableMixin {
   RunBase({
     required super.data,
     super.parent,
+    super.id,
   });
 
   @override
@@ -62,16 +63,16 @@ abstract class RunBase<T> extends DocxContent<T>
   }
 
   @override
-  DocxContent? visitElement(
-    bool Function(DocxContent element) shouldGetElement, {
+  DocxTreeNode? visitElement(
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     return shouldGetElement(this) ? this : null;
   }
 
   @override
-  List<DocxContent>? visitAllElement(
-    bool Function(DocxContent element) shouldGetElement, {
+  List<DocxTreeNode>? visitAllElement(
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <RunBase>[this] : null;

@@ -42,8 +42,8 @@ class ImageData<T extends Object> {
   String? alt;
   final T buffer;
   final String extension;
-  final double? width;
-  final double? height;
+  final num? width;
+  final num? height;
 
   final List<Style> styles;
 
@@ -83,6 +83,15 @@ class ImageData<T extends Object> {
 
   @override
   String toString() {
-    return 'ImageData(extension: img.$extension, options: [width: $width, height: $height], styles: $styles)';
+    return 'ImageData(extension: $name.$extension, '
+        'wrap: ${wrapType()}, '
+        'positioning: ${positioning.name}, '
+        'offsetX: $offsetX, '
+        'offsetY: $offsetY, '
+        'frameOffsetX: $frameOffsetX, '
+        'frameOffsetY: $frameOffsetY, '
+        'unit: ${unit.name}, '
+        'options: [width: $width, height: $height], '
+        'styles: $styles)';
   }
 }

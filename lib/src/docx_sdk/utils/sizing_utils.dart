@@ -101,6 +101,10 @@ int pixelsToEmu96dpi(num pixels) {
   return (pixels * emuPerInch / 96).round();
 }
 
+int pixelsToEmudpi(num pixels, {int dpi = 96}) {
+  return (pixels * emuPerInch / dpi).round();
+}
+
 double emuToPixels96dpi(num emus) {
   return emus * 96 / emuPerInch;
 }
@@ -191,22 +195,6 @@ int toTwips(num value, Unit unit) {
       'The provided unit is not supported for Twips conversion.');
 }
 
-extension EMUWithPixelsConversions on int {
-  double toInchesFromEmu() => emuToInches(this);
-
-  double toCentimetersFromEmu() => emuToCentimeters(this);
-
-  double toMillimetersFromEmu() => emuToMillimeters(this);
-
-  double toPointsFromEmu() => emuToPoints(this);
-
-  double toPixels96dpiFromEmu() => emuToPixels96dpi(this);
-
-  /// Converts EMUs to Twips (approximate, as they are different base units,
-  /// but useful if you need to go from one to the other indirectly via inches).
-  int toTwipsFromEmu() => inchesToTwips(emuToInches(this));
-}
-
 extension TwipsConversions on int {
   /// Converts Twips to Inches.
   double toInchesFromTwips() => twipsToInches(this);
@@ -248,6 +236,7 @@ extension Conversions on int {
   int toEmuFromPoints() => pointsToEmu(this);
 
   int toEmuFromPixels96dpi() => pixelsToEmu96dpi(this);
+  int toEmuFromPixelsdpi({int dpi = 96}) => pixelsToEmudpi(this, dpi: dpi);
 
   int toEmuFromUnit(Unit unit) => toEmu(this, unit);
 
@@ -320,11 +309,23 @@ extension DoubleConversions on num {
   /// Converts pixels (at 96 DPI) to twips.
   int toTwipsFromPixels96dpi() => pixelsToTwips(this, dpi: 96);
 
-  int toDxaFromPixels() => pixelsToDxa(this); 
+  int toDxaFromPixels() => pixelsToDxa(this);
 
   /// Converts points (this num) to half-points.
   num toHalfPointsFromPoints() => pointsToHalfPoints(this);
 
   /// Converts half-points (this num) to points.
   num toPointsFromHalfPoints() => halfPointsToPoints(this);
+
+  /// Converts DXA to inches.
+  num toInchesFromDxa() => dxaToInches(this);
+
+  /// Converts inches to DXA.
+  num toDxaFromInches() => inchesToDxa(this);
+
+  /// Converts centimeters to DXA.
+  num toDxaFromCm() => centimetersToDxa(this);
+
+  /// Converts DXA to centimeters.
+  num toCmFromDxa() => dxaToCentimeters(this);
 }

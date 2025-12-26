@@ -7,12 +7,14 @@ class TextRun extends RunBase<TextPart> {
   TextRun({
     required super.data,
     super.parent,
+    super.id,
   });
 
   TextRun.fromString({
     required String text,
     List<Object> styles = const <Object>[],
     super.parent,
+    super.id,
   }) : super(
           data: TextPart(
             text: text,
@@ -22,6 +24,7 @@ class TextRun extends RunBase<TextPart> {
 
   TextRun.empty({
     super.parent,
+    super.id,
   }) : super(
           data: TextPart(
             text: '',
@@ -40,6 +43,7 @@ class TextRun extends RunBase<TextPart> {
 
   @override
   TextRun get copy => TextRun(
+        id: id,
         data: TextPart(
           text: data.text,
           styles: data.styles,

@@ -9,12 +9,14 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   HyperlinkRun({
     required super.data,
     super.parent,
+    super.id,
   });
 
   HyperlinkRun.pure({
     required String link,
     List<Object> styles = const <Object>[],
     super.parent,
+    super.id,
   }) : super(
           data: HyperlinkTextPart(
             text: link,
@@ -28,6 +30,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   HyperlinkRun get copy => HyperlinkRun(
+        id: id,
         data: HyperlinkTextPart(
           hyperlink: data.hyperlink,
           text: data.text,
@@ -98,7 +101,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   HyperlinkRun? visitElement(
-    bool Function(DocxContent element) shouldGetElement, {
+    bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     if (shouldGetElement(this)) return this;

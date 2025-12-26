@@ -54,9 +54,9 @@ class DocumentContext {
 
   // all the media are saved
   // {filename: rid}
-  DocxContent? _currentContentPart;
-  DocxContent? get currentContentPart => _currentContentPart?.copy;
-  set currentContentPart(DocxContent? content) {
+  DocxTreeNode? _currentContentPart;
+  DocxTreeNode? get currentContentPart => _currentContentPart;
+  set currentContentPart(DocxTreeNode? content) {
     if (_currentContentPart == content) return;
     _currentContentPart = content;
   }
@@ -69,6 +69,7 @@ class MediaData {
     required this.extension,
     required this.bytes,
     required this.imageRefId,
+    this.fileName = '',
   });
 
   // this is the rId of the image
@@ -76,6 +77,8 @@ class MediaData {
   final Uint8List bytes;
   // the name of the image into DOCX file
   final String name;
+  // the name of the image into the media folder 
+  final String fileName;
   // this id is auto-generated
   // to be pasted
   final int id;

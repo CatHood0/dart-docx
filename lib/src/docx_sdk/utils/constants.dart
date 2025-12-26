@@ -24,11 +24,12 @@ const int twipsPerMm = 56; // Approximately 1440 / 25.4 mm per inch
 const int twipsPerPt = 20; // 1 point = 20 twips
 
 /// Conversion factor: 1 cm = 567 dxa (should be)
+// 1 inch = 72 points * 20 dxa/point
+const int dxaPerInch = 1440;
 /// example: 1 cm = 28.3465 pt = 28.3465 * 20 dxa = 566.93 dxa
-const int dxaPerInch = 1440; // 1 inch = 72 points * 20 dxa/point
-const double dxaPerCm =
-    566.92913; // (72 points/inch / 2.54 cm/inch) * 20 dxa/point
+const double dxaPerCm = 567;
 const double dxaPerMm = dxaPerCm / 10;
+// (72 points/inch / 2.54 cm/inch) * 20 dxa/point
 const int dxaPerPt = 20;
 // users can change the dpi as they want
 // so, they are responsible for their own
@@ -36,7 +37,7 @@ const int dxaPerPt = 20;
 //NOTE: probably we can just put this as a constant
 // and pass to DocumentOptions a dpi property to
 // allow customization
-int imageDpi = 150;
+int imageDpi = 96;
 
 /// These are the default supported image file extensions in Word
 ///
