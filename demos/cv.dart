@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:docx/docx.dart';
 
 /// Simple demo that generates a minimal CV as a .docx file.
@@ -26,27 +27,40 @@ Future<void> main() async {
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            Run(
-              component: Drawing(
-                data: Image(
-                  // ensure to wrap this element with wp:inline
-                  asInline: true,
-                  data: ImageData(
-                    buffer: await File('assets/cv_person.jpg').readAsBytes(),
-                    extension: 'jpg',
-                    width: 0.5.toDxaFromInches(),
-                    height: 0.5.toDxaFromCm(),
-                  ),
+        Paragraph(data: [
+          // this will anchor the image to the paragraph
+          // so, if you want to anchor this to a character behavior
+          // put this image in an existing paragraph with content,
+          // break the runs where you want, and set the image at that
+          // place
+          //
+          // takes in account that AnchorConfig.block set WrapType
+          // to none, so, theres not wrapping configuration
+          Run(
+            component: FloatingImage(
+              data: ImageData(
+                buffer: await File('assets/cv_person.png').readAsBytes(),
+                extension: 'png',
+                anchorConfig: AnchorConfig(
+                  wrapType: WrapType.none,
+                  wrapSide: null,
+                  horizontalAnchor: RelativeHorizontalAnchor.paragraph,
+                  horizontalAlign: RelativeHorizontalAlign.left,
                 ),
+                width: 1.toEmuFromInches(),
+                height: 1.toEmuFromInches(),
               ),
             ),
-            Run(component: Break.lineBreak()),
+          ),
+        ]),
+        Paragraph(
+          data: <RunBase<dynamic>>[
             TextRun(
               data: TextPart(
                 text: 'Jane Doe',
-                styles: <Object>[Style.reference('Name')],
+                styles: <Object>[
+                  Style.reference('Name'),
+                ],
               ),
             ),
           ],
@@ -124,9 +138,10 @@ Future<void> main() async {
     ),
   );
 
-  final DocxMetadataPacker packer =
-      DocxMetadataPacker().dynamicFontSearch(true);
-  final bytes = await packer.bytes(doc, applyCustomTheme: false);
+  final Uint8List? bytes = await DocxMetadataPacker()
+      .dynamicFontSearch(true)
+      .logPath(DocxPaths.documentFilePath)
+      .bytes(doc, applyCustomTheme: false);
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);

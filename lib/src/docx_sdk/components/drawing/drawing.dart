@@ -1,12 +1,12 @@
 library;
 
 export 'adjust_value_list.dart';
+export 'annotation_extents.dart';
 export 'blip.dart';
 export 'blip_fill.dart';
 export 'doc_properties.dart';
 export 'drawing_comp.dart';
 export 'extent.dart';
-export 'extents.dart';
 export 'fill_rectangle.dart';
 export 'graphic.dart';
 export 'graphic_data.dart';

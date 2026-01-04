@@ -65,4 +65,3 @@ class NonVisualPictureProperties extends DocxTreeNode<dynamic> {
     return [];
   }
 }
-

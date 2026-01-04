@@ -39,50 +39,50 @@ class XmlContentTypeComponent
             }),
             if (overrides != null) ...overrides,
             XmlOverrideElementTypeComponent(
-              part: '/$relsFilePath',
+              part: '/${DocxPaths.relsFilePath}',
               contentType: namespaces['relationsXml']!,
             ),
             XmlOverrideElementTypeComponent(
-              part: '/$documentXmlRelsFilePath',
+              part: '/${DocxPaths.documentXmlRelsFilePath}',
               contentType: namespaces['relationsXml']!,
             ),
             XmlOverrideElementTypeComponent(
-              part: '/$documentFilePath',
+              part: '/${DocxPaths.documentFilePath}',
               contentType: namespaces['documentType']!,
             ),
             XmlOverrideElementTypeComponent(
-              part: '/$appFilePath',
+              part: '/${DocxPaths.appFilePath}',
               contentType: namespaces['appType']!,
             ),
             XmlOverrideElementTypeComponent(
-              part: '/$coreFilePath',
+              part: '/${DocxPaths.coreFilePath}',
               contentType: namespaces['coreType']!,
             ),
             XmlOverrideElementTypeComponent(
-              part: '/$stylesXmlFilePath',
+              part: '/${DocxPaths.stylesXmlFilePath}',
               contentType: namespaces['stylesType']!,
             ),
             XmlOverrideElementTypeComponent(
-              part: '/$numberingXmlFilePath',
+              part: '/${DocxPaths.numberingXmlFilePath}',
               contentType: namespaces['numberingType']!,
             ),
             XmlOverrideElementTypeComponent(
-              part: '/$fontTableXmlFilePath',
+              part: '/${DocxPaths.fontTableXmlFilePath}',
               contentType: namespaces['fontTableType']!,
             ),
             //NOTE: any new theme need to be added
             // in content type
             if (applyCustomTheme)
               XmlOverrideElementTypeComponent(
-                part: '/$theme1XmlFilePath',
+                part: '/${DocxPaths.theme1XmlFilePath}',
                 contentType: namespaces['themeType']!,
               ),
             XmlOverrideElementTypeComponent(
-              part: '/$settingsXmlFilePath',
+              part: '/${DocxPaths.settingsXmlFilePath}',
               contentType: namespaces['settingsType']!,
             ),
             XmlOverrideElementTypeComponent(
-              part: '/$webSettingsXmlFilePath',
+              part: '/${DocxPaths.webSettingsXmlFilePath}',
               contentType: namespaces['webSettingsType']!,
             ),
           ],

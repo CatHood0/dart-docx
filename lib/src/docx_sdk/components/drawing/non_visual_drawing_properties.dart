@@ -24,12 +24,23 @@ class NonVisualDrawingProperties extends DocxTreeNode<dynamic> {
     return <XmlElement>[
       XmlElement.tag(
         'pic:cNvPr',
-        isSelfClosing: true,
+        isSelfClosing: false,
         attributes: [
           XmlAttribute(XmlName.fromString('id'), id.toString()),
           XmlAttribute(XmlName.fromString('name'), name),
           if (description != null)
             XmlAttribute(XmlName.fromString('descr'), description!),
+        ],
+        children: [
+          //TODO: make this customizable
+          XmlElement.tag(
+            'a:picLocks',
+            isSelfClosing: true,
+            attributes: [
+              XmlAttribute(XmlName.fromString('noChangeAspect'), '1'),
+              XmlAttribute(XmlName.fromString('noChangeArrowheads'), '1'),
+            ],
+          ),
         ],
       ),
     ];
@@ -55,4 +66,3 @@ class NonVisualDrawingProperties extends DocxTreeNode<dynamic> {
     throw UnimplementedError();
   }
 }
-

@@ -7,9 +7,6 @@ import '../../../docx.dart';
 class NumberingStore {
   NumberingStore();
 
-  /// The file path for the numbering XML within the DOCX archive.
-  static String get filePath => numberingXmlFilePath;
-
   late XmlNumberingComponent _numberingComponent;
   DocumentContext? _context;
   bool _isInitialized = false;

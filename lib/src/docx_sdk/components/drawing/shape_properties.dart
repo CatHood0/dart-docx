@@ -28,6 +28,7 @@ class ShapeProperties extends DocxTreeNode<dynamic> {
         children: [
           ...transform2D.buildXml(context: context),
           ...presetGeometry.buildXml(context: context),
+          XmlElement.tag('a:noFill', isSelfClosing: true),
         ],
       ),
     ];

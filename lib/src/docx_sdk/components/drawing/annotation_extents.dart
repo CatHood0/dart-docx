@@ -2,14 +2,14 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 
 // Represents a:ext
-class Extents extends DocxTreeNode<dynamic> {
-  Extents({required this.cx, required this.cy}) : super(data: null);
+class AnnotationExtents extends DocxTreeNode<dynamic> {
+  AnnotationExtents({required this.cx, required this.cy}) : super(data: null);
 
   final num cx;
   final num cy;
 
   @override
-  Extents get copy => Extents(cx: cx, cy: cy);
+  AnnotationExtents get copy => AnnotationExtents(cx: cx, cy: cy);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -26,7 +26,7 @@ class Extents extends DocxTreeNode<dynamic> {
   }
 
   @override
-  List<Extents>? visitAllElement(
+  List<AnnotationExtents>? visitAllElement(
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
@@ -34,7 +34,7 @@ class Extents extends DocxTreeNode<dynamic> {
   }
 
   @override
-  Extents? visitElement(
+  AnnotationExtents? visitElement(
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {

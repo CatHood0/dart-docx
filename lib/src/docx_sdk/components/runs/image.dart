@@ -6,7 +6,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
-import '../containers/anchor.dart';
 
 class Image extends DocxTreeNode<ImageData<Uint8List>> {
   Image({
@@ -14,9 +13,13 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     super.parent,
     super.id,
     this.asInline = false,
+    this.transformOffsetX = 0,
+    this.transformOffsetY = 0,
   });
 
   bool asInline;
+  final int transformOffsetX;
+  final int transformOffsetY;
 
   @override
   Image get copy {
@@ -27,17 +30,14 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
         extension: data.extension,
         styles: data.styles,
         width: data.width,
+        anchorConfig: data.anchorConfig,
         height: data.height,
         name: data.name,
-        offsetX: data.offsetX,
-        offsetY: data.offsetY,
         alt: data.alt,
         unit: data.unit,
-        frameOffsetY: data.frameOffsetY,
-        frameAlignY: data.frameAlignY,
-        frameOffsetX: data.frameOffsetX,
-        frameAlignX: data.frameAlignX,
       ),
+      transformOffsetX: transformOffsetX,
+      transformOffsetY: transformOffsetY,
     );
   }
 
@@ -53,10 +53,13 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
       );
     }
 
-    final int? numRelationshipId = context.store.getAssignedIdForRef(id) ??
-        context.store.getAssignedIdForRef(rId ?? '-1');
+    final String? relationshipId = context.store.getRelationshipIdForRef(id) ??
+        context.store.getRelationshipIdForRef(rId ?? '-1');
 
-    if (numRelationshipId == null) {
+    // the index of this image. Literally the
+    // relationship id but formatted to a digit
+    final int? indexId = context.store.getIndexId(id);
+    if (relationshipId == null || indexId == null) {
       throw Exception('Image($id) with "$data", was not inserted in '
           'document.xml.rels, and cannot found relation id');
     }
@@ -66,7 +69,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
 
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
-    if (imgWidthEmu == null && imgHeightEmu == null) {
+    if (imgWidthEmu == null || imgHeightEmu == null) {
       final Uint8List bytes = data.buffer;
       final Size size = ImageSizeGetter.getSizeResult(MemoryInput(bytes)).size;
       // the result is a size computed in inches
@@ -78,17 +81,17 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
         imageDpi,
       );
 
-      imgWidthEmu = resultSize.width?.toEmuFromInches();
-      imgHeightEmu = resultSize.height?.toEmuFromInches();
+      imgWidthEmu ??= resultSize.width?.toEmuFromInches();
+      imgHeightEmu ??= resultSize.height?.toEmuFromInches();
     }
 
     final Graphic graphic = Graphic(
       data: GraphicData(
-        uri: namespaces['pic']!,
+        uri: 'http://schemas.openxmlformats.org/drawingml/2006/picture',
         data: Picture(
           components: <DocxTreeNode<dynamic>>[
             BlipFill(
-              blip: Blip(embedRelId: numRelationshipId.toString()),
+              blip: Blip(embedRelId: relationshipId.toString()),
               stretch: Stretch(
                 data: <DocxTreeNode<dynamic>>[
                   FillRectangle(),
@@ -98,10 +101,10 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
             ShapeProperties(
               transform2D: Transform2D(
                 offset: Offset(
-                  x: data.frameOffsetX ?? 0,
-                  y: data.frameOffsetY ?? 0,
+                  x: transformOffsetX,
+                  y: transformOffsetY,
                 ),
-                extents: Extents(cx: imgWidthEmu!, cy: imgHeightEmu!),
+                extents: AnnotationExtents(cx: imgWidthEmu!, cy: imgHeightEmu!),
               ),
               presetGeometry: PresetGeometry(
                 preset: 'rect',
@@ -110,7 +113,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
             ),
             NonVisualPictureProperties(
               nonVisualDrawingProperties: NonVisualDrawingProperties(
-                id: numRelationshipId.toString(),
+                id: indexId.toString(),
                 name: imageName,
                 description: data.alt ?? imageName,
               ),
@@ -126,11 +129,13 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
       if (!asInline)
         ...graphic.buildXml(context: context)
       else
-        ...Inline(components: <DocxTreeNode<dynamic>>[
+        ...Inline(
+        distance: data.anchorConfig.distanceFromText,
+        components: <DocxTreeNode<dynamic>>[
           // wp:extent different from Extents that creates an a:ext
           Extent(cx: imgWidthEmu, cy: imgHeightEmu),
           DocProperties(
-            docPrId: numRelationshipId.toString(),
+            docPrId: indexId.toString(),
             name: imageName,
             description: data.alt ?? imageName,
           ),
@@ -168,17 +173,29 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
 
 class XmlOffsetPosition extends XmlComponentBase<void> {
   XmlOffsetPosition({
+    required this.relativeFrom,
     required bool x,
-    required this.alignment,
-    required this.offset,
-    this.relative = Anchor.relativeParagraphKey,
+    this.alignment,
+    this.offset,
   }) : super(
           xmlKey: x ? 'wp:positionH' : 'wp:positionV',
           value: null,
         );
-  final num offset;
-  final String relative;
-  final String alignment;
+
+  /// Reference point for positioning:
+  /// - "margin": Relative to page margins
+  /// - "page": Absolute page position
+  /// - "column": Within text column
+  /// - "character": Relative to specific character
+  /// - "paragraph": Relative to paragraph bounds
+  final String relativeFrom;
+
+  /// Numeric offset in EMU units (used when no alignment specified)
+  final num? offset;
+  
+  /// Text alignment: "left", "center", "right", "inside", "outside"
+  /// (takes precedence over offset when both are provided)
+  final String? alignment;
 
   @override
   XmlElement buildXml(DocumentContext context) {
@@ -188,18 +205,24 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
       attributes: [
         XmlAttribute(
           'relativeFrom'.toName(),
-          relative,
+          relativeFrom,
         ),
       ],
       children: [
-        XmlElement.tag(
-          alignment == 'center' ? 'wp:align' : 'wp:posOffset',
-          children: [
-            XmlText(
-              alignment == 'center' ? 'center' : offset.toString(),
-            ),
-          ],
-        ),
+        if (alignment != null && alignment!.isNotEmpty)
+          XmlElement.tag(
+            'wp:align',
+            children: [
+              XmlText(alignment!),
+            ],
+          )
+        else
+          XmlElement.tag(
+            'wp:posOffset',
+            children: [
+              XmlText(offset!.toString()),
+            ],
+          ),
       ],
     );
   }

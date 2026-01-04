@@ -100,7 +100,7 @@ void main() {
                   // put to top
                   yAlign: FrameVerticalAlignment.top,
                 ),
-                LazyImageBlock(
+                LazyFloatingImage(
                   data: ImageData(
                     buffer: File('test_resources/logo.jpg'),
                     extension: 'jpg',

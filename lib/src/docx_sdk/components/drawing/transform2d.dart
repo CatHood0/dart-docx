@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
-import 'extents.dart';
 import 'offset.dart';
 
 // Represents a:xfrm
@@ -11,7 +10,7 @@ class Transform2D extends DocxTreeNode<dynamic> {
   }) : super(data: null);
 
   final Offset offset;
-  final Extents extents;
+  final AnnotationExtents extents;
 
   @override
   Transform2D get copy => Transform2D(

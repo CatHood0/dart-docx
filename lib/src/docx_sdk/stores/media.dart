@@ -19,9 +19,16 @@ class MediaStore {
   /// Stores registered [MediaData] objects, keyed by their generated unique name.
   final Map<String, MediaData> media = <String, MediaData>{};
 
-  /// Stores discovered media components ([ImageBlock], [LazyImageBlock]), keyed by their internal ID.
+  /// Stores discovered media components ([FloatingImage], [LazyFloatingImage]), keyed by their internal ID.
   final Map<String, DocxTreeNode<ImageData<dynamic>>> mediaComponents =
       <String, DocxTreeNode<ImageData<dynamic>>>{};
+
+  /// This let count every media in the.
+  ///
+  /// This is used to maintain a count of the internal graphics
+  //TODO: probably we will need to move this to a Graphics store
+  // to avoid losing that data
+  final Map<String, int> mediaCount = <String, int>{};
 
   final List<XmlOverrideElementTypeComponent> overrides =
       <XmlOverrideElementTypeComponent>[];
@@ -38,6 +45,7 @@ class MediaStore {
     extensions.clear();
     media.clear();
     overrides.clear();
+    mediaCount.clear();
   }
 
   /// Whether the store is empty and requires to got in XmlComponent tree
@@ -48,6 +56,7 @@ class MediaStore {
     DocxDocument data, [
     Set<String> supportedFileExtensions = const <String>{},
   ]) {
+    int count = 1;
     //TODO: use parent methods of DocumentRoot
     for (final DocxTreeNode parent in data.root.data) {
       final DocxTreeNode? image = parent.visitElement(
@@ -63,8 +72,10 @@ class MediaStore {
                 visitChildrenIfNeeded: true,
                 (DocxTreeNode<dynamic> el) => el.data is ImageData)!
             .cast<DocxTreeNode<ImageData>>();
+        mediaCount[imageComponent.id] = count;
         mediaComponents[imageComponent.id] = imageComponent;
         extensions.add(imageComponent.data.extension);
+        count++;
       }
     }
   }
@@ -134,13 +145,13 @@ class MediaStore {
 
       onProgress?.call(index + 1, mediaComponents.values.length);
 
-      final String fullPath = '$mediaPath${mediaData.fileName}';
+      final String fullPath = '$mediaPath${mediaData.fileName}.${mediaData.extension}';
 
       // these things are passed to the content type since it's used
       // to let to the editor to know how use images
       overrides.add(
         XmlOverrideElementTypeComponent(
-          part: fullPath,
+          part: '/$fullPath',
           contentType:
               XmlContentTypeComponent.mimetypeFromExt(mediaData.extension),
         ),
@@ -149,7 +160,8 @@ class MediaStore {
       imageRelationships.add(
         RelationShip(
           rId: imgComponent.rId!,
-          target: '$mediaPath${mediaData.fileName}',
+          // word folder is not required
+          target: 'media/${mediaData.fileName}.${mediaData.extension}',
           type: imageNamespace,
           mode: null,
         ),
@@ -171,7 +183,7 @@ class MediaStore {
     int index = 0;
 
     for (final MediaData data in media.values) {
-      final String fullPath = '$mediaPath${data.fileName}';
+      final String fullPath = '$mediaPath${data.fileName}.${data.extension}';
       archive.add(
         ArchiveFile.bytes(
           fullPath,
@@ -221,6 +233,12 @@ class MediaStore {
       }
     }
     return null;
+  }
+
+
+  /// Gets the index of the graphic where this media is 
+  int? getIndexId(String imageRefId) {
+    return mediaCount[imageRefId];
   }
 
   /// Gets the raw `rId` that was inserted in document.xml.rels

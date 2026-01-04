@@ -8,21 +8,11 @@ import '../../mixins/ignorable_mixin.dart';
 class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   Anchor({
     required DocxTreeNode component,
-    required this.offsetX,
-    required this.offsetY,
-    required this.frameOffsetY,
-    required this.frameOffsetX,
-    required this.frameAlignY,
-    required this.frameAlignX,
     required this.widthEmu,
     required this.heightEmu,
-    required this.wrapType,
     required this.name,
-    required this.zIndex,
     required this.docPrId,
-    this.simplePosX = 0,
-    this.simplePosY = 0,
-    this.relativeFrom = Anchor.relativeParagraphKey,
+    required this.config,
     super.parent,
     super.id,
   }) : super(data: component) {
@@ -32,39 +22,12 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
       ..depth = depth + 1;
   }
 
-  int simplePosX;
-  int simplePosY;
-  String relativeFrom;
-  String wrapType;
-  Object docPrId;
-  String name;
-  int? zIndex;
+  final Object docPrId;
+  final String name;
+  final AnchorConfig config;
 
-  num widthEmu;
-  num heightEmu;
-
-  /// Global horizontal offset applied to the whole document
-  int offsetX;
-
-  /// Global vertical offset applied to the whole document
-  int offsetY;
-
-  ImagePositioning positioning = ImagePositioning.inline;
-
-  /// Internal Vertical offset applied only to the box where the image is painted
-  int? frameOffsetY;
-
-  /// Internal Horizontal offset applied only to the box where the image is
-  int? frameOffsetX;
-
-  /// Internal Vertical alignment applied to the box where the image is
-  String frameAlignY;
-
-  /// Internal Horizontal alignment applied to the box where the image is
-  String frameAlignX;
-
-  static const String relativeColumnKey = 'column';
-  static const String relativeParagraphKey = 'paragraph';
+  final num widthEmu;
+  final num heightEmu;
 
   @override
   List<XmlNode> buildXml({required DocumentContext context}) {
@@ -72,19 +35,38 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
       XmlElement.tag(
         'wp:anchor',
         attributes: [
-          XmlAttribute(XmlName.fromString('simplePos'), '0'),
-          if (zIndex != null)
-            XmlAttribute(
-              XmlName.fromString('relativeHeight'),
-              zIndex.toString(),
-            ),
           XmlAttribute(
             XmlName.fromString('behindDoc'),
-            positioning == ImagePositioning.behindText ? '1' : '0',
+            config.zOrder.toString(),
           ),
-          XmlAttribute(XmlName.fromString('locked'), '0'),
-          XmlAttribute(XmlName.fromString('layoutInCell'), '1'),
-          XmlAttribute(XmlName.fromString('allowOverlap'), '1'),
+          XmlAttribute(
+            'distT'.toName(),
+            config.distanceFromText.top.toString(),
+          ),
+          XmlAttribute(
+            'distB'.toName(),
+            config.distanceFromText.bottom.toString(),
+          ),
+          XmlAttribute(
+            'distL'.toName(),
+            config.distanceFromText.left.toString(),
+          ),
+          XmlAttribute(
+            'distR'.toName(),
+            config.distanceFromText.right.toString(),
+          ),
+          XmlAttribute(
+            XmlName.fromString('locked'),
+            config.anchorLock.toInt().toString(),
+          ),
+          XmlAttribute(
+            XmlName.fromString('layoutInCell'),
+            config.layoutInCell.toInt().toString(),
+          ),
+          XmlAttribute(
+            XmlName.fromString('allowOverlap'),
+            config.allowOverlap.toInt().toString(),
+          ),
         ],
         children: <XmlNode>[
           XmlElement.tag(
@@ -92,74 +74,57 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
             attributes: {
               XmlAttribute(
                 'x'.toName(),
-                simplePosX.nonNegative.toString(),
+                config.simplePosX.nonNegative.toString(),
               ),
               XmlAttribute(
                 'y'.toName(),
-                simplePosY.nonNegative.toString(),
+                config.simplePosY.nonNegative.toString(),
               ),
             },
             isSelfClosing: true,
           ),
           // external offsets
-          if (offsetX > 0)
+          if (config.wrapType != WrapType.asCharacter)
             XmlOffsetPosition(
+              offset: config.anchorOffsetX.nonNegative,
+              alignment: config.horizontalAlign?.name,
+              relativeFrom: config.horizontalAnchor.name,
               x: true,
-              alignment: frameAlignX,
-              offset: offsetX,
             ).buildXml(context),
-          if (offsetY > 0)
+          if (config.wrapType != WrapType.asCharacter)
             XmlOffsetPosition(
+              offset: config.anchorOffsetY.nonNegative,
+              alignment: config.verticalAlign?.name,
+              relativeFrom: config.verticalAnchor.name,
               x: false,
-              alignment: frameAlignY,
-              offset: offsetY,
             ).buildXml(context),
-          XmlElement.tag(
-            'wp:wrap${wrapType.capitalize()}',
-            isSelfClosing: true,
-            attributes: [
-              if (wrapType == 'square' || wrapType == 'tight')
-                XmlAttribute(
-                  XmlName.fromString('wrapText'),
-                  'bothSides',
-                ),
-            ],
-          ),
+          if (config.wrapType != WrapType.none &&
+              config.wrapType != WrapType.asCharacter)
+            XmlElement.tag(
+              'wp:wrap${config.wrapType.name.capitalize()}',
+              isSelfClosing: true,
+              attributes: <XmlAttribute>[
+                if (config.wrapSide != null)
+                  XmlAttribute(
+                    XmlName.fromString('wrapText'),
+                    config.wrapSide!.name,
+                  ),
+              ],
+            ),
           XmlElement.tag(
             'wp:cNvGraphicFramePr',
             isSelfClosing: true,
           ),
-          XmlElement.tag(
-            'wp:extent',
-            attributes: [
-              XmlAttribute(
-                XmlName.fromString('cx'),
-                widthEmu.toString(),
-              ),
-              XmlAttribute(
-                XmlName.fromString('cy'),
-                heightEmu.toString(),
-              ),
-            ],
-            isSelfClosing: true,
-          ),
-          XmlElement.tag(
-            'wp:docPr',
-            isSelfClosing: true,
-            attributes: [
-              XmlAttribute(XmlName.fromString('id'), docPrId.toString()),
-              XmlAttribute(XmlName.fromString('name'), name),
-              XmlAttribute(
-                XmlName.fromString('descr'),
-                name,
-              ),
-              if (zIndex != null)
-                XmlAttribute(
-                  XmlName.fromString('relativeHeight'),
-                  zIndex.toString(),
-                ),
-            ],
-          ),
+          ...Extent(
+            cx: widthEmu,
+            cy: heightEmu,
+          ).buildXml(context: context),
+          ...DocProperties(
+            docPrId: docPrId.toString(),
+            name: name.toString(),
+            relativeHeight: '0',
+          ).buildXml(context: context),
+          XmlElement.tag('wp:cNvGraphicFramePr'),
           ...data.buildXml(context: context),
         ],
       ),
@@ -175,21 +140,11 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   Anchor get copy => Anchor(
         id: id,
         component: data,
-        simplePosX: simplePosX,
-        simplePosY: simplePosY,
-        relativeFrom: relativeFrom,
+        config: config,
         parent: parent,
-        offsetX: offsetX,
-        offsetY: offsetY,
-        frameOffsetY: frameOffsetY,
-        frameOffsetX: frameOffsetX,
-        frameAlignY: frameAlignY,
-        frameAlignX: frameAlignX,
         widthEmu: widthEmu,
         heightEmu: heightEmu,
-        wrapType: wrapType,
         name: name,
-        zIndex: zIndex,
         docPrId: docPrId,
       );
 

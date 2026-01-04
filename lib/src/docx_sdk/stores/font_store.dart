@@ -6,6 +6,7 @@ import '../xml_components/fonts/xml_font_table_component.dart';
 import '../xml_components/rels/xml_document_rels_component.dart';
 
 //TODO: add listeners to events
+//TODO add log capabilities
 /// Manages font definitions and embedded font files for a Docx document.
 ///
 /// This store is responsible for:
@@ -16,12 +17,6 @@ import '../xml_components/rels/xml_document_rels_component.dart';
 /// - Adding obfuscated font binary files to the DOCX archive.
 class FontStore {
   FontStore();
-
-  /// The file path for the font table XML within the DOCX archive.
-  static String get filePath => fontTableXmlFilePath;
-
-  /// The file path for the font table relationships XML.
-  static String get relsFilePath => fontTableXmlRelsFilePath;
 
   bool get hasFonts => _fontsByName.isNotEmpty;
 
@@ -211,7 +206,7 @@ class FontStore {
 
         archive.add(
           ArchiveFile.bytes(
-            'word/fonts/$obfuscatedFileName',
+            '${DocxPaths.fontStorageFilePath}/$obfuscatedFileName',
             binary.bytes,
           ),
         );

@@ -18,8 +18,8 @@ class Drawing extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   }
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
-    return <XmlNode>[
+  List<XmlElement> buildXml({required DocumentContext context}) {
+    return <XmlElement>[
       XmlElement.tag(
         'w:drawing',
         isSelfClosing: false,

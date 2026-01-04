@@ -9,6 +9,8 @@ class HyperlinkStore {
   /// Stores discovered [HyperlinkRun] components.
   final List<HyperlinkRun> _hyperlinks = <HyperlinkRun>[];
 
+  List<HyperlinkRun> get hyperlinks => List<HyperlinkRun>.from(_hyperlinks);
+
   /// Resets the hyperlink store to its initial state, clearing all discovered data.
   void reset() {
     _hyperlinks.clear();

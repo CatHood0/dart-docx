@@ -1,12 +1,14 @@
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
+import '../../../core/extensions/string_ext.dart';
 import '../../mixins/ignorable_mixin.dart';
 
 // Represents wp:inline
 class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
   Inline({
     required Iterable<DocxTreeNode> components,
+    required this.distance,
   }) : super(data: components) {
     int index = 0;
     for (final DocxTreeNode<dynamic> content in data) {
@@ -18,8 +20,10 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
     }
   }
 
+  final TextDistance distance;
+
   @override
-  Inline get copy => Inline(components: data);
+  Inline get copy => Inline(distance: distance, components: data);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -36,6 +40,24 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
     return <XmlElement>[
       XmlElement.tag(
         'wp:inline',
+        attributes: <XmlAttribute>[
+          XmlAttribute(
+            'distT'.toName(),
+            distance.top.toString(),
+          ),
+          XmlAttribute(
+            'distB'.toName(),
+            distance.bottom.toString(),
+          ),
+          XmlAttribute(
+            'distL'.toName(),
+            distance.left.toString(),
+          ),
+          XmlAttribute(
+            'distR'.toName(),
+            distance.right.toString(),
+          ),
+        ],
         isSelfClosing: children.isEmpty,
         children: children,
       ),

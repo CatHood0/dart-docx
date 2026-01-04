@@ -45,15 +45,15 @@ class DeltaFromDocxParser extends Parser<Uint8List, Delta?, DeltaParserOptions> 
 
     // search the necessary files
     for (final ArchiveFile file in archive) {
-      if (file.name == stylesXmlFilePath) {
+      if (file.name == DocxPaths.stylesXmlFilePath) {
         final String fileContent = utf8.decode(file.content);
         styles = xml.XmlDocument.parse(fileContent);
       }
-      if (file.name == documentXmlRelsFilePath) {
+      if (file.name == DocxPaths.documentXmlRelsFilePath) {
         final String fileContent = utf8.decode(file.content);
         documentRels = xml.XmlDocument.parse(fileContent);
       }
-      if (file.name == settingsXmlFilePath) {
+      if (file.name == DocxPaths.settingsXmlFilePath) {
         final String fileContent = utf8.decode(file.content);
         settings = xml.XmlDocument.parse(fileContent);
       }
@@ -63,14 +63,14 @@ class DeltaFromDocxParser extends Parser<Uint8List, Delta?, DeltaParserOptions> 
           rawMedia[file.name] = w.toUint8List();
         }
       }
-      if (file.name == documentFilePath) {
+      if (file.name == DocxPaths.documentFilePath) {
         final String fileContent = utf8.decode(file.content);
         document = xml.XmlDocument.parse(fileContent);
       }
     }
 
     if (document == null) {
-      throw StateError("$documentFilePath couldn't be founded into the File passed");
+      throw StateError("${DocxPaths.documentFilePath} couldn't be founded into the File passed");
     }
 
     _buildTabMultiplierIfNeeded(settings);

@@ -46,6 +46,35 @@ class DocxMetadataPacker {
     return this;
   }
 
+  DocxMetadataPacker setPhasesConfig(LoggablePhaseConfig phaseConfig) {
+    _compiler.config = phaseConfig;
+    return this;
+  }
+
+  DocxMetadataPacker logAllPaths() {
+    _compiler.config = LoggablePhaseConfig(
+      loggablePhases: <String>{
+        ...DocxPaths.paths,
+      },
+    );
+    return this;
+  }
+
+  DocxMetadataPacker logPath(String path) {
+    _compiler.config = LoggablePhaseConfig(
+      loggablePhases: <String>{
+        ..._compiler.config.loggablePhases,
+        path,
+      },
+    );
+    return this;
+  }
+
+  DocxMetadataPacker logPaths(Iterable<String> paths) {
+    paths.forEach(logPath);
+    return this;
+  }
+
   /// Release all resources in this packer
   void release() {
     _compiler.release();

@@ -3,14 +3,19 @@ import '../../../../docx.dart';
 
 // Represents wp:docPr
 class DocProperties extends DocxTreeNode<dynamic> {
-  DocProperties({required String docPrId, required this.name, this.description})
-      : super(
+  DocProperties({
+    required String docPrId,
+    required this.name,
+    this.description,
+    this.relativeHeight,
+  }) : super(
           data: null,
           id: docPrId,
         );
 
   final String name;
   final String? description;
+  final String? relativeHeight;
 
   @override
   DocProperties get copy => DocProperties(
@@ -30,6 +35,11 @@ class DocProperties extends DocxTreeNode<dynamic> {
           XmlAttribute(XmlName.fromString('name'), name),
           if (description != null)
             XmlAttribute(XmlName.fromString('descr'), description!),
+          if (relativeHeight != null)
+            XmlAttribute(
+              XmlName.fromString('relativeHeight'),
+              relativeHeight.toString(),
+            ),
         ],
       ),
     ];
@@ -56,4 +66,3 @@ class DocProperties extends DocxTreeNode<dynamic> {
     return [];
   }
 }
-

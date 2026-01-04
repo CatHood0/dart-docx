@@ -12,9 +12,13 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
     super.parent,
     super.id,
     this.asInline = false,
+    this.transformOffsetX = 0,
+    this.transformOffsetY = 0,
   });
 
   bool asInline;
+  final int transformOffsetX;
+  final int transformOffsetY;
 
   @override
   LazyImage get copy => LazyImage(
@@ -26,15 +30,11 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
           width: data.width,
           height: data.height,
           name: data.name,
-          offsetX: data.offsetX,
-          offsetY: data.offsetY,
           alt: data.alt,
           unit: data.unit,
-          frameOffsetY: data.frameOffsetY,
-          frameAlignY: data.frameAlignY,
-          frameOffsetX: data.frameOffsetX,
-          frameAlignX: data.frameAlignX,
         ),
+        transformOffsetY: transformOffsetY,
+        transformOffsetX: transformOffsetX,
       );
 
   String get getImageName => data.name ?? '';
@@ -49,11 +49,10 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
       );
     }
 
-    final int? numRelationshipId =
-        context.store.getAssignedIdForRef(id) ??
-            context.store.getAssignedIdForRef(rId!);
-
-    if (numRelationshipId == null) {
+    final String? relationshipId = context.store.getRelationshipIdForRef(id) ??
+        context.store.getRelationshipIdForRef(rId ?? '-1');
+    final int? indexId = context.store.getIndexId(id);
+    if (relationshipId == null || indexId == null) {
       throw Exception('Image($id) with "$data", was not inserted in '
           'document.xml.rels, and cannot found relation id');
     }
@@ -75,13 +74,14 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
       imgWidthEmu = size.width * emuPerInch / imageDpi;
       imgHeightEmu = size.height * emuPerInch / imageDpi;
     }
+
     final Graphic graphic = Graphic(
       data: GraphicData(
         uri: namespaces['pic']!,
         data: Picture(
           components: <DocxTreeNode<dynamic>>[
             BlipFill(
-              blip: Blip(embedRelId: numRelationshipId.toString()),
+              blip: Blip(embedRelId: relationshipId.toString()),
               stretch: Stretch(
                 data: <DocxTreeNode<dynamic>>[
                   FillRectangle(),
@@ -91,10 +91,10 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
             ShapeProperties(
               transform2D: Transform2D(
                 offset: Offset(
-                  x: data.frameOffsetX ?? 0,
-                  y: data.frameOffsetY ?? 0,
+                  x: transformOffsetX,
+                  y: transformOffsetY,
                 ),
-                extents: Extents(cx: imgWidthEmu!, cy: imgHeightEmu!),
+                extents: AnnotationExtents(cx: imgWidthEmu!, cy: imgHeightEmu!),
               ),
               presetGeometry: PresetGeometry(
                 preset: 'rect',
@@ -103,7 +103,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
             ),
             NonVisualPictureProperties(
               nonVisualDrawingProperties: NonVisualDrawingProperties(
-                id: numRelationshipId.toString(),
+                id: indexId.toString(),
                 name: imageName,
                 description: data.alt ?? imageName,
               ),
@@ -119,16 +119,18 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
       if (!asInline)
         ...graphic.buildXml(context: context)
       else
-        ...Inline(components: <DocxTreeNode<dynamic>>[
-          // wp:extent different from Extents that creates an a:ext
-          Extent(cx: imgWidthEmu, cy: imgHeightEmu),
-          DocProperties(
-            docPrId: numRelationshipId.toString(),
-            name: imageName,
-            description: data.alt ?? imageName,
-          ),
-          graphic,
-        ]).buildXml(context: context),
+        ...Inline(
+            distance: data.anchorConfig.distanceFromText,
+            components: <DocxTreeNode<dynamic>>[
+              // wp:extent different from Extents that creates an a:ext
+              Extent(cx: imgWidthEmu, cy: imgHeightEmu),
+              DocProperties(
+                docPrId: indexId.toString(),
+                name: imageName,
+                description: data.alt ?? imageName,
+              ),
+              graphic,
+            ]).buildXml(context: context),
     ];
   }
 
