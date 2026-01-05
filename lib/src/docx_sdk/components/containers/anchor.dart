@@ -124,7 +124,6 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
             name: name.toString(),
             relativeHeight: '0',
           ).buildXml(context: context),
-          XmlElement.tag('wp:cNvGraphicFramePr'),
           ...data.buildXml(context: context),
         ],
       ),
