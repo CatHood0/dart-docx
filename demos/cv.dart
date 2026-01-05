@@ -28,27 +28,25 @@ Future<void> main() async {
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
         Paragraph(data: [
-          // this will anchor the image to the paragraph
-          // so, if you want to anchor this to a character behavior
-          // put this image in an existing paragraph with content,
-          // break the runs where you want, and set the image at that
-          // place
-          //
-          // takes in account that AnchorConfig.block set WrapType
-          // to none, so, theres not wrapping configuration
           Run(
-            component: FloatingImage(
-              data: ImageData(
-                buffer: await File('assets/cv_person.png').readAsBytes(),
-                extension: 'png',
-                anchorConfig: AnchorConfig(
-                  wrapType: WrapType.none,
-                  wrapSide: null,
-                  horizontalAnchor: RelativeHorizontalAnchor.paragraph,
-                  horizontalAlign: RelativeHorizontalAlign.left,
+            component: Drawing(
+              data: FloatingImage(
+                data: ImageData(
+                  buffer: await File('assets/cv_person.png').readAsBytes(),
+                  extension: 'png',
+                  anchorConfig: AnchorConfig(
+                    wrapType: WrapType.none,
+                    wrapSide: null,
+                    anchorOffsetX: 0.5.toEmuFromInches(),
+                    anchorOffsetY: 0,
+                    horizontalAnchor: RelativeHorizontalAnchor.paragraph,
+                    horizontalAlign: RelativeHorizontalAlign.left,
+                    verticalAnchor: RelativeVerticalAnchor.paragraph,
+                    verticalAlign: RelativeVerticalAlign.top,
+                  ),
+                  width: 1.toEmuFromInches(),
+                  height: 1.toEmuFromInches(),
                 ),
-                width: 1.toEmuFromInches(),
-                height: 1.toEmuFromInches(),
               ),
             ),
           ),

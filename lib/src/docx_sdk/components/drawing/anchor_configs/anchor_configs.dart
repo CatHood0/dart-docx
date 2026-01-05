@@ -20,8 +20,8 @@ class AnchorConfig {
     this.anchorOffsetX = 0,
     this.anchorOffsetY = 0,
     this.distanceFromText = const TextDistance(),
-    this.horizontalAnchor = RelativeHorizontalAnchor.margin,
-    this.verticalAnchor = RelativeVerticalAnchor.margin,
+    this.horizontalAnchor = RelativeHorizontalAnchor.paragraph,
+    this.verticalAnchor = RelativeVerticalAnchor.paragraph,
     this.horizontalAlign = RelativeHorizontalAlign.left,
     this.verticalAlign = RelativeVerticalAlign.top,
   }) : assert(

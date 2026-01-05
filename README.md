@@ -94,14 +94,30 @@ Future<void> main() async {
           ),
         ],
       ),
-      // loads and shows the image if exists or if it can be used
-      LazyImage(
-        data: LazyImageData(
-          file: File('test_resources/image.jpg'),
-          extension: 'jpg',
-          width: 300, 
-          height: 400,
-        ),
+      // loads and shows the image: 
+      // * if it exists 
+      // * if it can be used
+      Paragraph(
+        data: <RunBase<dynamic>>[
+          Run(
+            component: Drawing(
+              data: LazyFloatingImage(
+                data: ImageData(
+                  buffer: File('test_resources/image.jpg'),
+                  extension: 'jpg',
+                  anchorConfig: AnchorConfig.block().copyWith(
+                    horizontalAnchor: RelativeHorizontalAnchor.paragraph,
+                    horizontalAlign: RelativeHorizontalAlign.left,
+                    verticalAnchor: RelativeVerticalAnchor.paragraph,
+                    verticalAlign: RelativeVerticalAlign.top,
+                  ),
+                  width: 0.5.toEmuFromInches(),
+                  height: 0.55.toEmuFromInches(),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     ],
   );
@@ -169,6 +185,171 @@ _I'll fix this section later, when stream implementation be corrected_
 <!-- } -->
 <!-- ```` -->
 
+
+### Images anchoring
+
+The `docx` library provides flexible options for positioning images within your document. You can control whether an image flows with text like a character, or floats relative to paragraphs, margins, or even the page.
+
+#### Basic Block image 
+
+This is a common usage for most of the editors maded in Flutter}:.
+
+````dart
+final paragraph = Paragraph(
+  data: [
+    Run(
+      // to follow Word standards, we need to wrap
+      // shapes or images with Drawing component
+      component: Drawing( 
+        // there is also its own Lazy version
+        // called LazyFloatingImage
+        data: FloatingImage(
+          data: ImageData(
+            buffer: await File('assets/image.png').readAsBytes(),
+            extension: 'png',
+            // Configure anchoring relative to the paragraph
+            anchorConfig: AnchorConfig(
+              wrapType: WrapType.none,
+              wrapSide: null,
+              verticalAnchor: RelativeVerticalAnchor.paragraph,
+              horizontalAnchor: RelativeHorizontalAnchor.paragraph,
+              horizontalAlign: RelativeHorizontalAlign.left,
+              verticalAlign: RelativeVerticalAlign.top,
+            ),
+            width: 1.5.toEmuFromInches(),
+            height: 1.5.toEmuFromInches(),
+          ),
+        ),
+      ),
+    ),
+  ],
+);
+````
+
+#### Other examples:
+
+##### 1. Anchoring to a Paragraph (Floating Image)
+
+This is a common way to insert images that can have text wrap around them or be positioned independently of the immediate text flow, but still tied to a specific paragraph. The image is placed within a paragraph and its position is relative to that paragraph.
+
+````dart
+// This image will be anchored to the paragraph it is contained within.
+// Text can wrap around it (if wrapType is not none).
+final paragraph = Paragraph(
+  data: [
+    TextRun(
+      data: TextPart(text: 'Here is some text before the image. '),
+    ),
+    Run(
+      // to follow Word standards, we need to wrap
+      // shapes or images with Drawing component
+      component: Drawing( 
+        data: FloatingImage(
+          data: ImageData(
+            buffer: await File('assets/image.png').readAsBytes(),
+            extension: 'png',
+            // Configure anchoring relative to the paragraph
+            anchorConfig: AnchorConfig(
+              wrapType: WrapType.square,
+              wrapSide: WrapSide.bothSides,
+              horizontalAnchor: RelativeHorizontalAnchor.paragraph,
+              horizontalAlign: RelativeHorizontalAlign.center,
+              verticalAnchor: RelativeVerticalAnchor.paragraph,
+              verticalAlign: RelativeVerticalAlign.center,
+              // You can also specify exact offsets if needed
+              // offsetX: 0.5.toEmuFromInches(), 
+              // offsetY: 0.5.toEmuFromInches(),
+            ),
+            width: 1.5.toEmuFromInches(),
+            height: 1.5.toEmuFromInches(),
+          ),
+        ),
+      ),
+    ),
+    TextRun(
+      data: TextPart(text: ' And here is some text after the image, demonstrating wrapping. This is a longer sentence to show how text flows around the image.'),
+    ),
+  ],
+);
+````
+
+##### 2. Treating an Image as an Inline Character
+
+When an image should behave exactly like a text character, flowing with the text and not allowing complex wrapping, use `InlineImage`. This is ideal for small icons or images that are part of the textual content itself.
+
+```dart
+final paragraph = Paragraph(
+  data: [
+    TextRun(
+      data: TextPart(text: 'This is an example of an '),
+    ),
+    Run(
+      // to follow Word standards, we need to wrap
+      // shapes or images with Drawing component
+      component: Drawing(
+        data: LazyImage(
+          data: ImageData(
+            buffer: File(
+              'assets/inline_icon.png'),
+            extension: 'png',
+            width: 0.2.toEmuFromInches(),
+            height: 0.2.toEmuFromInches(),
+          ),
+          asInline: true,
+        ),
+      ),
+    ),
+    TextRun(
+      data: TextPart(text: ' inline image, flowing with the text.'),
+    ),
+  ],
+);
+```
+
+##### 3. Anchoring to a Character with Precise Positioning (Floating Image)
+
+For more fine-grained control where the image's anchor point is a specific character, but the image still floats, you can use `FloatingImage` with `RelativeHorizontalAnchor.character`. This allows for exact offsets relative to that character.
+
+```dart
+final paragraph = Paragraph(
+  data: [
+    TextRun(
+      data: TextPart(text: 'This text has an image '),
+    ),
+    Run(
+      // to follow Word standards, we need to wrap
+      // shapes or images with Drawing component
+      component: Drawing( 
+        data: FloatingImage(
+          data: ImageData(
+            buffer: await File('assets/logo.png').readAsBytes(),
+            extension: 'png',
+            anchorConfig: AnchorConfig(
+              wrapType: WrapType.square,
+              wrapSide: WrapSide.bothSides,
+              // Anchor relative to a character. 
+              // This requires careful positioning.
+              horizontalAnchor: RelativeHorizontalAnchor.character,
+              // Anchor to the line of the character
+              verticalAnchor: RelativeVerticalAnchor.line,
+              // Explicit offsets from the anchor point (character).
+              // Adjust these values to precisely place the image.
+              anchorOffsetX: 0.1.toEmuFromInches(), 
+              // Move slightly above the line
+              anchorOffsetY: -0.2.toEmuFromInches(),
+            ),
+            width: 0.75.toEmuFromInches(),
+            height: 0.75.toEmuFromInches(),
+          ),
+        ),
+      ),
+    ),
+    TextRun(
+      data: TextPart(text: ' positioned precisely next to this point.'),
+    ),
+  ],
+);
+```
 
 ### Font Management
 
@@ -309,7 +490,6 @@ This abstraction means you only need to provide the `FontProperties` (and binary
 *   **`Style`**: Represents a full paragraph or character style in Word (e.g., "Normal", "Heading1", "Hyperlink").
     *   `type`: `'paragraph'` or `'character'`.
     *   `styleId`: The internal ID used in the Word XML.
-    *   `styleName`: The name displayed in the Word UI.
     *   `configurators`: A list of `StyleConfigurator`s that define the properties of this style.
 
 *   **`StyleConfigurator`**: Represents an individual XML node within a style definition. You can specify if it's a self-closing tag or if it contains children.
@@ -340,7 +520,7 @@ final Style customRedCenteredParagraph = StyleBuilder.paragraph('CustomRedCenter
     .build();
 
 final paragraph = Paragraph(
-    data: <TextBlockContainer>[
+    data: <RunBase<dynamic>>[
       TextRun(
         data: TextPart(text: 'This text uses my custom style.'),
       ),
@@ -369,7 +549,7 @@ final DocumentOptions options = DocumentOptions(
 
 final paragraph = Paragraph(
   styles: <Style>[Style.reference('CustomRedCentered')],
-  data: <TextBlockContainer>[
+  data: <RunBase<dynamic>>[
       TextRun(
         data: TextPart(text: 'This text uses my custom style.'),
       ),
@@ -430,9 +610,7 @@ final DocxDocument document = DocxDocument(
      author: 'yeah-me',
      settings: customDocSettings,
    ),
-   sections: [
-     // Your document content here
-   ],
+   root: DocumentRoot(sections: <DocxTreeNode<dynamic>>[]),
 );
  
 ```

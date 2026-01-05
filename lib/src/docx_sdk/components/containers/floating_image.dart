@@ -61,25 +61,23 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
     }
 
     return <XmlElement>[
-      ...Drawing(
-        data: Anchor(
-          component: Image(
-            // should be unique by component
-            // but, since blocks are just
-            // wrappers of granular components
-            // we assign to them the same id
-            // to avoid sync issues with stores
-            id: id,
-            data: data,
-            asInline: false,
-          ),
-          config: data.anchorConfig,
-          widthEmu: imgWidthEmu!,
-          parent: this,
-          heightEmu: imgHeightEmu!,
-          name: imageName,
-          docPrId: docPrId!.toString(),
+      ...Anchor(
+        component: Image(
+          // should be unique by component
+          // but, since blocks are just
+          // wrappers of granular components
+          // we assign to them the same id
+          // to avoid sync issues with stores
+          id: id,
+          data: data,
+          asInline: false,
         ),
+        config: data.anchorConfig,
+        widthEmu: imgWidthEmu!,
+        parent: this,
+        heightEmu: imgHeightEmu!,
+        name: imageName,
+        docPrId: docPrId!.toString(),
       ).buildXml(context: context),
     ];
   }

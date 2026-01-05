@@ -30,8 +30,8 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   final num heightEmu;
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
-    return <XmlNode>[
+  List<XmlElement> buildXml({required DocumentContext context}) {
+    return <XmlElement>[
       XmlElement.tag(
         'wp:anchor',
         attributes: [
