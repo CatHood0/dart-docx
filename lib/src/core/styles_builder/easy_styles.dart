@@ -51,7 +51,7 @@ class EasyStyles {
           LanguageCodes.spanishMX,
         ]),
       })
-      .color('0563C1')
+      .runColor(Color.rgb(0x0563C1))
       .underline()
       .build();
 

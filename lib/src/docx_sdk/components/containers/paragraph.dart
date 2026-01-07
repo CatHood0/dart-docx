@@ -11,6 +11,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     Iterable<Style> runStyles = const <Style>[],
     this.pageBreak = ParagraphPagebreak.none,
     this.numbering,
+    this.alignment,
     super.id,
   })  : styles = List.from(styles),
         runStyles = List.from(runStyles),
@@ -39,6 +40,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   /// All the styles applied to the run
   List<Style> runStyles;
   ParagraphPagebreak pageBreak;
+  Alignment? alignment;
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -57,6 +59,16 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
 
     if (pageBreak == ParagraphPagebreak.before) {
       styles.add(StyleBuilder.singularP().pageBreakBefore().build());
+    }
+
+    if (alignment != null) {
+      styles.add(
+        StyleBuilder.singularP()
+            .alignment(
+              alignment!,
+            )
+            .build(),
+      );
     }
 
     for (final RunBase e in data) {

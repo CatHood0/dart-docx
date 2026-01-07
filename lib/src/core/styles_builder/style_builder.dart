@@ -93,7 +93,12 @@ class StyleBuilder {
   int? _lineSpacing;
   int? _firstLineIndent;
   int? _leftIndent;
+  int? _rightIndent;
   int? _hangingIndent;
+  // Useful for RTL languages
+  int? _startIndent;
+  // Useful for RTL languages
+  int? _endIndent;
   bool _keepNext = false;
   bool _keepLines = false;
   int? _outlineLevel;
@@ -275,16 +280,19 @@ class StyleBuilder {
   /// Sets the text color for the style.
   ///
   /// [hexColor] is the hexadecimal color code (e.g., 'FF0000' for red).
-  StyleBuilder color(String hexColor) {
-    _color = hexColor;
+  StyleBuilder runColor(Color color) {
+    assert(color.rgbValue != null, 'run color must have a valid RGB value');
+    _color = color.rgbValue!.toString().substring(2);
     return this;
   }
 
   /// Sets the highlight color for the text in the style.
   ///
   /// [hexColor] is the hexadecimal color code.
-  StyleBuilder highlight(String hexColor) {
-    _highlightColor = hexColor;
+  StyleBuilder highlight(Color color) {
+    assert(
+        color.rgbValue != null, 'highlight color must have a valid RGB value');
+    _highlightColor = color.rgbValue!.toString().substring(2);
     return this;
   }
 
@@ -391,11 +399,22 @@ class StyleBuilder {
   ///
   /// [firstLine] is the indentation for the first line of the paragraph in twips.
   /// [left] is the left indentation for the paragraph in twips.
+  /// [right] is the right indentation for the paragraph in twips.
   /// [hanging] is the hanging indentation for the paragraph in twips.
   /// This setting is applicable only to paragraph styles.
-  StyleBuilder indent({int? firstLine, int? left, int? hanging}) {
+  StyleBuilder indent({
+    int? firstLine,
+    int? left,
+    int? right,
+    int? start,
+    int? end,
+    int? hanging,
+  }) {
     if (firstLine != null) _firstLineIndent = firstLine;
     if (left != null) _leftIndent = left;
+    if (right != null) _rightIndent = right;
+    if (start != null) _startIndent = start;
+    if (end != null) _endIndent = end;
     if (hanging != null) _hangingIndent = hanging;
     return this;
   }
@@ -644,37 +663,32 @@ class StyleBuilder {
 
       if (_firstLineIndent != null ||
           _leftIndent != null ||
+          _rightIndent != null ||
           _hangingIndent != null) {
-        final List<StyleConfigurator> indentConfigs = <StyleConfigurator>[];
-
-        if (_firstLineIndent != null) {
-          indentConfigs.add(
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'firstLine',
-              value: _firstLineIndent.toString(),
-            ),
-          );
-        }
+        final Map<String, dynamic> indentConfigs = <String, dynamic>{};
 
         if (_leftIndent != null) {
-          indentConfigs.add(
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'left',
-              value: _leftIndent.toString(),
-            ),
-          );
+          indentConfigs['w:left'] = _leftIndent.toString();
+        }
+
+        if (_rightIndent != null) {
+          indentConfigs['w:right'] = _rightIndent.toString();
+        }
+
+        if (_firstLineIndent != null) {
+          indentConfigs['w:firstLine'] = _firstLineIndent.toString();
         }
 
         if (_hangingIndent != null) {
-          indentConfigs.add(
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'hanging',
-              value: _hangingIndent.toString(),
-            ),
-          );
+          indentConfigs['w:hanging'] = _hangingIndent.toString();
+        }
+
+        if (_startIndent != null) {
+          indentConfigs['w:start'] = _startIndent.toString();
+        }
+
+        if (_endIndent != null) {
+          indentConfigs['w:end'] = _endIndent.toString();
         }
 
         if (indentConfigs.isNotEmpty) {
@@ -682,7 +696,7 @@ class StyleBuilder {
             StyleConfigurator.noSelfClosing(
               prefix: 'w',
               propertyName: 'ind',
-              configurators: indentConfigs,
+              attributes: indentConfigs,
             ),
           );
         }

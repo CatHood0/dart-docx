@@ -19,6 +19,7 @@ class SettingsOptions {
     required this.colorSchemeMapping,
     required this.decimalSymbol,
     required this.listSeparator,
+    this.autoHyphenation = true,
   });
 
   SettingsOptions.base({
@@ -26,6 +27,7 @@ class SettingsOptions {
     this.trackRevisions = false,
     this.defaultTabStop = '720',
     this.characterSpacingControl = 'doNotCompress',
+    this.autoHyphenation = true,
     this.footnoteProperties = const NotePropertiesOptions(
       position: NotePosition.pageBottom,
       numberFormat: NoteNumberFormat.decimal,
@@ -84,6 +86,11 @@ class SettingsOptions {
   ///
   /// Defaults to `false`.
   final bool trackRevisions;
+
+  /// Whether auto hyphenation is enabled.
+  ///
+  /// Defaults to `true`.
+  final bool autoHyphenation;
 
   /// The default tab stop value in twentieths of a point.
   ///

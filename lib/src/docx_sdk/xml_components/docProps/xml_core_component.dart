@@ -24,7 +24,7 @@ class XmlCoreComponent extends XmlComponentBase<List<XmlComponentBase>> {
             ),
             XmlTextElementComponent<String>(
               xmlKey: 'dc:creator',
-              value: options.owner,
+              value: options.creator,
             ),
             XmlTextElementComponent<String>(
               xmlKey: 'dc:keywords',

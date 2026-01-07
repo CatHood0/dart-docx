@@ -36,15 +36,15 @@ enum Orientation {
 class DocumentOptions {
   DocumentOptions({
     required this.lastModifiedBy,
-    required this.owner,
+    required this.creator,
     required this.subject,
     required this.title,
     required this.modifiedAt,
     required this.description,
     required this.createdAt,
-    required this.revisions,
     required this.editorSettings,
     required this.section,
+    this.revisions = 0,
     this.fonts = const <FontProperties>[],
     this.preserveWhitespacesWhenRequired = true,
     Set<String>? supportedFileExtensions,
@@ -65,10 +65,13 @@ class DocumentOptions {
         keywords = keywords.join(','),
         encoding = 'UTF-8';
 
-  factory DocumentOptions.blank({
+  factory DocumentOptions.standard({
     SectionOptions? section,
     String? title,
-    String? owner,
+    String creator = 'Unnamed',
+    String subject = '',
+    String description = '',
+    int revisions = 0,
     DocumentStylesSheet? styles,
     bool preserveWhitespacesWhenRequired = true,
     Orientation? orientation,
@@ -78,11 +81,13 @@ class DocumentOptions {
     ThemeOptions? theme,
     Set<String>? supportedFileExtensions,
     List<NumberingOptions>? numberingOptions,
+    PageSettings? pageSize,
+    List<String> keywords = const <String>[],
   }) {
     return DocumentOptions(
-      lastModifiedBy: owner ?? 'Unnamed',
-      owner: owner ?? '',
-      subject: '',
+      lastModifiedBy: creator,
+      creator: creator,
+      subject: subject,
       fonts: fonts ?? const <FontProperties>[],
       theme: theme,
       settings: settings,
@@ -91,13 +96,13 @@ class DocumentOptions {
       section: section ??
           SectionOptions(
             columns: ColumnSettings(),
-            size: PageSettings.a4,
+            size: pageSize ?? PageSettings.a4,
           ),
       title: title ?? 'Unnamed',
-      revisions: 1,
-      description: '',
+      revisions: revisions,
+      description: description,
       editorSettings: EditorOptions.standard(),
-      keywords: const <String>[],
+      keywords: <String>[...keywords],
       styles: styles,
       modifiedAt: DateTime.now(),
       createdAt: DateTime.now(),
@@ -118,7 +123,7 @@ class DocumentOptions {
   /// that makes the last modify to the document
   final String title;
   final String description;
-  final String owner;
+  final String creator;
   final String subject;
   final String lastModifiedBy;
   final String keywords;

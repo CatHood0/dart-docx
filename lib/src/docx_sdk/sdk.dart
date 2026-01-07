@@ -1,6 +1,6 @@
 export '../core/default/xml_defaults.dart';
 export 'components/base/component_container.dart';
-export 'components/base/docx_content.dart';
+export 'components/base/docx_tree_node.dart';
 export 'components/base/run_base.dart';
 export 'components/breaks/break.dart';
 export 'components/breaks/column_break.dart';
@@ -62,6 +62,7 @@ export 'xml_components/numbering/formats.dart';
 export 'xml_components/numbering/level_options.dart';
 export 'xml_components/numbering/numbering_component.dart';
 export 'xml_components/relationship.dart';
+export 'xml_components/settings/entities/settings.dart';
 export 'xml_components/settings/xml_settings_component.dart';
 export 'xml_components/themes/entities/bg_fille_style_list_options.dart';
 export 'xml_components/themes/entities/color_scheme_options.dart';

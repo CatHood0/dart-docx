@@ -7,7 +7,7 @@ Future<void> main() async {
   final File outFile = File('test_resources/cv.docx');
 
   final DocxDocument doc = DocxDocument(
-    options: DocumentOptions.blank(
+    options: DocumentOptions.standard(
       title: 'Curriculum - Jane Doe',
       styles: DocumentStylesSheet.base().withNewStyles(
         <Style>[

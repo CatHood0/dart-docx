@@ -1,8 +1,114 @@
 ## Dart-DOCX: Easily generate .docx files with Dart
 
-`dart-docx` s a high-level, declarative API for generating Microsoft Word (.docx) documents using Dart.
+`docx` is a high-level, declarative API for generating Microsoft Word (.docx) documents using Dart.
 
-Planned parsers include HTML, Markdown, plain text, and Quill Delta, enabling structured transformations between common content formats and Word documents.
+Planned parsers include HTML, Markdown, plain text, and Quill Delta, enabling structured transformations between common content formats and Word documents while preserving document semantics.
+
+You can create complex documents with paragraphs, rich text formatting, images, hyperlinks, tables, and more, while fully controlling styles, document properties, and media handling.
+
+Below is an example of a document generated entirely through the declarative API:
+
+![](./assets/easy_example.png)
+
+_content omitted for brevity_
+
+```dart
+
+import 'package:docx/docx.dart';
+final DocxDocument document = DocxDocument(
+  options: DocumentOptions.standard(
+    title: 'Whispers in the Fog',
+    creator: 'Midnight Writer',
+    description: 'A psychological thriller about memory and redemption',
+    subject: 'Fiction / Thriller',
+    keywords: <String>['noir', 'mystery', 'psychological', 'thriller'],
+    styles: DocumentStylesSheet.base().withNewStyles(
+      <Style>[
+        StyleBuilder.paragraph('Chapter')
+            .names(<String, dynamic>{
+              'Chapter': LanguageCodes.englishUS,
+              'Capítulo': LanguageCodes.spanishMX,
+            })
+            .fontSize(20.toHalfPointsFromPoints())
+            .fontFamily('Georgia')
+            .bold()
+            .smallCaps()
+            .alignment(Alignment.center)
+            .qFormat(true)
+            .spacing(before: 240, after: 120)
+            .uiPriority(18)
+            .basedOn('Normal')
+            .next('BodyText')
+            .build(),
+        StyleBuilder.paragraph('BodyText')
+            .names(<String, dynamic>{
+              'Body Text': LanguageCodes.englishUS,
+              'Texto Cuerpo': LanguageCodes.spanishMX,
+            })
+            .fontSize(13.toHalfPointsFromPoints())
+            .fontFamily('Times New Roman')
+            .alignment(Alignment.left)
+            .qFormat(true)
+            .spacing(line: 276)
+            .indent(firstLine: 360)
+            .uiPriority(10)
+            .basedOn('Normal')
+            .build(),
+        StyleBuilder.paragraph('Quote')
+            .names(<String, dynamic>{
+              'Quote': LanguageCodes.englishUS,
+              'Cita': LanguageCodes.spanishMX,
+            })
+            .fontSize(12.toHalfPointsFromPoints())
+            .fontFamily('Times New Roman')
+            .italic()
+            .runColor(Color.rgb(0x444444))
+            .alignment(Alignment.left)
+            .qFormat(true)
+            .indent(left: 360, right: 360)
+            .spacing(before: 120, after: 120, line: 240)
+            .uiPriority(15)
+            .basedOn('Normal')
+            .build(),
+      ],
+    ),
+  ),
+  root: DocumentRoot(
+    sections: <DocxTreeNode<dynamic>>[
+      Paragraph(
+        data: [...],
+        styles: <Style>[
+          Style.reference('Chapter'),
+        ],
+      ),
+      Paragraph(
+        data: [...],
+        styles: <Style>[
+          Style.reference('BodyText'),
+        ],
+      ),
+      Paragraph(
+        data: [...],
+        styles: <Style>[
+          Style.reference('Quote'),
+        ],
+      ),
+      Paragraph(
+        data: [...],
+        styles: <Style>[
+          Style.reference('BodyText'),
+        ],
+      ),
+      Paragraph(
+        data: [...],
+        styles: <Style>[
+          Style.reference('BodyText'),
+        ],
+      ),
+    ],
+  ),
+);
+```
 
 > [!WARNING]
 > * Additional format parsers: planned
@@ -25,6 +131,8 @@ Add `docx` to your `pubspec.yaml` file:
 dependencies:
   docx: ^latest_version
 ```
+
+
 
 
 ## Basic Usage

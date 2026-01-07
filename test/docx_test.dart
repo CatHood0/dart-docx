@@ -11,14 +11,14 @@ void main() {
         .bytes(
           applyCustomTheme: true,
           DocxDocument(
-            options: DocumentOptions.blank(
+            options: DocumentOptions.standard(
               title: 'document',
               styles: DocumentStylesSheet.base().withNewStyles(
                 <Style>[
                   StyleBuilder.character('code')
                       .name('Inline Code')
                       .fontFamily('Courier New')
-                      .highlight('D3D3D3')
+                      .highlight(Color.rgb(0xD3D3D3))
                       .build(),
                 ],
               ),

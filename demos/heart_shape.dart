@@ -8,7 +8,7 @@ Future<void> main() async {
   final int size = 200.toEmuFromPoints();
 
   final DocxDocument doc = DocxDocument(
-    options: DocumentOptions.blank(
+    options: DocumentOptions.standard(
       title: 'My Heart Shape Document',
       styles: DocumentStylesSheet.base(),
     ),

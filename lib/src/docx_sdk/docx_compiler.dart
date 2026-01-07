@@ -47,7 +47,7 @@ class LoggablePhaseConfig {
 class DocxCompiler {
   DocxCompiler({
     LoggablePhaseConfig? config,
-  }) : config = config ?? const LoggablePhaseConfig();
+  }) : config = config ?? const LoggablePhaseConfig(enabled: false);
 
   LoggablePhaseConfig config;
 

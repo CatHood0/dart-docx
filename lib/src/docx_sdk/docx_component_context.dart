@@ -24,7 +24,7 @@ class DocumentContext {
         numberingStore = NumberingStore(),
         setNormalStyleToNotStyledParagraphs = true,
         defaultNormalStyle = Style.reference('Normal'),
-        options = options ?? DocumentOptions.blank(title: 'unnamed');
+        options = options ?? DocumentOptions.standard(title: 'unnamed');
 
   /// Determines if the paragraph will be created referencing the
   /// "Normal" style

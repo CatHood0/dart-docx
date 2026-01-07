@@ -26,7 +26,7 @@ enum BorderAlignment {
   bottomRight('bottomRight');
 
   const BorderAlignment(this.xmlValue);
-  
+
   /// The value used in DOCX XML `algn` attribute.
   final String xmlValue;
 
@@ -83,10 +83,33 @@ enum BorderAlignment {
 
 /// Represents the horizontal alignment options
 enum Alignment {
+  /// left align text
   left,
+
+  /// center align text
   center,
+
+  /// Right align text
   right,
+
+  /// Justify align text
   both,
+
+  /// Like both but also distributes the last line
+  /// Useful for vertical text in East Asian languages
+  distribute,
+
+  /// Arabic justification using medium kashida elongations
+  mediumKashida,
+
+  /// Arabic justification using big kashida elongations
+  highKashida,
+
+  /// Arabic justification using short kashida elongations
+  lowKashida,
+
+  /// Distribution special for Thai script
+  thaiDistribute,
 }
 
 /// Represents the common vertical alignment options
@@ -371,7 +394,7 @@ enum PatternType {
   solidDiamond('solidDmnd');
 
   const PatternType(this.xmlValue);
-  
+
   /// The value used in DOCX XML `prst` attribute.
   final String xmlValue;
 }
@@ -394,7 +417,7 @@ enum PathFill {
   background('background');
 
   const PathFill(this.xmlValue);
-  
+
   /// The value used in DOCX XML `fill` attribute.
   final String xmlValue;
 }
@@ -438,7 +461,7 @@ enum PresetMaterial {
   softmetal('softmetal');
 
   const PresetMaterial(this.xmlValue);
-  
+
   /// The value used in DOCX XML `prstMaterial` attribute.
   final String xmlValue;
 }
@@ -449,7 +472,7 @@ enum PresetMaterial {
 /// that makes up a custom shape.
 abstract class PathCommand {
   const PathCommand();
-  
+
   /// Converts the command to XML elements.
   List<XmlElement> toXml();
 }
@@ -457,7 +480,7 @@ abstract class PathCommand {
 /// Move the drawing cursor to a new position without drawing.
 class MoveToCommand extends PathCommand {
   const MoveToCommand(this.x, this.y);
-  
+
   final int x; // 0-1000000 (0-100%)
   final int y; // 0-1000000 (0-100%)
 
@@ -484,7 +507,7 @@ class MoveToCommand extends PathCommand {
 /// Draw a straight line from current position to new position.
 class LineToCommand extends PathCommand {
   const LineToCommand(this.x, this.y);
-  
+
   final int x; // 0-1000000
   final int y; // 0-1000000
 
@@ -513,7 +536,7 @@ class LineToCommand extends PathCommand {
 /// Uses one control point to define the curve shape.
 class QuadBezToCommand extends PathCommand {
   const QuadBezToCommand(this.x1, this.y1, this.x2, this.y2);
-  
+
   final int x1; // Control point X
   final int y1; // Control point Y
   final int x2; // End point X
@@ -554,11 +577,14 @@ class QuadBezToCommand extends PathCommand {
 /// Uses two control points to define the curve shape.
 class CubicBezToCommand extends PathCommand {
   const CubicBezToCommand(
-    this.x1, this.y1,
-    this.x2, this.y2,
-    this.x3, this.y3,
+    this.x1,
+    this.y1,
+    this.x2,
+    this.y2,
+    this.x3,
+    this.y3,
   );
-  
+
   final int x1; // First control point X
   final int y1; // First control point Y
   final int x2; // Second control point X
@@ -613,11 +639,11 @@ class ArcToCommand extends PathCommand {
     required this.startAngle,
     required this.sweepAngle,
   });
-  
-  final int widthRadius;  // Horizontal radius in geometry units
+
+  final int widthRadius; // Horizontal radius in geometry units
   final int heightRadius; // Vertical radius in geometry units
-  final int startAngle;   // Starting angle in 60,000ths of a degree
-  final int sweepAngle;   // Sweep angle in 60,000ths of a degree
+  final int startAngle; // Starting angle in 60,000ths of a degree
+  final int sweepAngle; // Sweep angle in 60,000ths of a degree
 
   @override
   List<XmlElement> toXml() {
@@ -643,7 +669,10 @@ class ClosePathCommand extends PathCommand {
   @override
   List<XmlElement> toXml() {
     return <XmlElement>[
-      XmlElement.tag('a:close', isSelfClosing: true,),
+      XmlElement.tag(
+        'a:close',
+        isSelfClosing: true,
+      ),
     ];
   }
 }
@@ -680,7 +709,7 @@ enum BevelPreset {
   artDeco('artDeco');
 
   const BevelPreset(this.xmlValue);
-  
+
   /// The value used in DOCX XML `prst` attribute.
   final String xmlValue;
 }
@@ -689,8 +718,13 @@ enum BevelPreset {
 ///
 /// Used for bounding boxes and inset definitions in geometry.
 class Rect {
-  const Rect(this.left, this.top, this.right, this.bottom,);
-  
+  const Rect(
+    this.left,
+    this.top,
+    this.right,
+    this.bottom,
+  );
+
   final int left;
   final int top;
   final int right;
@@ -710,42 +744,50 @@ extension PathCommandExtensions on PathCommand {
   }
 
   /// Creates a relative move command from current position.
-  static MoveToCommand relativeMoveTo(int currentX, int currentY, int dx, int dy) {
+  static MoveToCommand relativeMoveTo(
+      int currentX, int currentY, int dx, int dy) {
     return MoveToCommand(currentX + dx, currentY + dy);
   }
 
   /// Creates a relative line command from current position.
-  static LineToCommand relativeLineTo(int currentX, int currentY, int dx, int dy) {
+  static LineToCommand relativeLineTo(
+      int currentX, int currentY, int dx, int dy) {
     return LineToCommand(currentX + dx, currentY + dy);
   }
 
   /// Creates a smooth quadratic Bézier curve (control point mirrored).
   static QuadBezToCommand smoothQuadBezTo(
-    int lastControlX, int lastControlY,
-    int x, int y,
+    int lastControlX,
+    int lastControlY,
+    int x,
+    int y,
   ) {
     // Mirror the previous control point
     final int currentX = x;
     final int currentY = y;
     final int controlX = 2 * currentX - lastControlX;
     final int controlY = 2 * currentY - lastControlY;
-    
+
     return QuadBezToCommand(controlX, controlY, x, y);
   }
 
   /// Creates a smooth cubic Bézier curve (control point mirrored).
   static CubicBezToCommand smoothCubicBezTo(
-    int lastControlX, int lastControlY,
-    int x2, int y2,
-    int x3, int y3,
+    int lastControlX,
+    int lastControlY,
+    int x2,
+    int y2,
+    int x3,
+    int y3,
   ) {
     // Mirror the previous control point
     final int x1 = 2 * x3 - lastControlX;
     final int y1 = 2 * y3 - lastControlY;
-    
+
     return CubicBezToCommand(x1, y1, x2, y2, x3, y3);
   }
 }
+
 /// Predefined shapes (for prstGeom prst="...")
 enum PresetShapeType {
   rectangle('rect'),
@@ -869,6 +911,6 @@ enum PresetShapeType {
   teardrop('teardrop');
 
   const PresetShapeType(this.xmlValue);
-  
+
   final String xmlValue;
 }

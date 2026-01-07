@@ -266,7 +266,7 @@ extension Conversions on int {
   int toTwipsFromPixels96dpi() => pixelsToTwips(this, dpi: 96);
 
   /// Converts points (this int) to half-points.
-  num toHalfPointsFromPoints() => pointsToHalfPoints(this);
+  int toHalfPointsFromPoints() => pointsToHalfPoints(this);
 
   /// Converts half-points (this int) to points.
   num toPointsFromHalfPoints() => halfPointsToPoints(this);

@@ -1,9 +1,7 @@
 import 'package:xml/xml.dart';
 
+import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
-import '../../docx_component_context.dart';
-import '../base/docx_content.dart';
-import '../base/run_base.dart';
 
 enum BreakType {
   column,

@@ -17,7 +17,7 @@ void main() {
         XmlStylesComponent()
             .buildDocument(
               DocumentContext.base(
-                  options: DocumentOptions.blank(
+                  options: DocumentOptions.standard(
                 styles: DocumentStylesSheet.base(),
               )),
             )
