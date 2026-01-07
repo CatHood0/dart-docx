@@ -2,6 +2,15 @@ import 'package:xml/xml.dart';
 
 import '../../sdk.dart';
 
+class Transform {
+  Transform({required this.rotation, required this.flipHorizontal, required this.flipVertical,});
+
+
+  final int rotation;
+  final bool flipHorizontal;
+  final bool flipVertical;
+}
+
 abstract class DocxTreeNode<T> {
   DocxTreeNode({
     required this.data,
@@ -25,7 +34,7 @@ abstract class DocxTreeNode<T> {
   DocxTreeNode? parent;
   DocxTreeNode<T> get copy;
   List<XmlNode> buildXml({required DocumentContext context});
-  List<XmlNode> buildXmlStyle({required DocumentContext context});
+  List<XmlNode> buildXmlStyle({required DocumentContext context}) =><XmlNode>[];
 
   DocxTreeNode? visitElement(
     bool Function(DocxTreeNode element) shouldGetElement, {

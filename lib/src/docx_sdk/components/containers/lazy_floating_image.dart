@@ -68,9 +68,9 @@ class LazyFloatingImage extends ComponentContainer<ImageData<File>>
       );
     }
 
-    final int docPrId = context.store.getAssignedIdForRef(super.id) ??
-        context.store.getAssignedIdForRef(rId!) ??
-        context.store.generateMediaId();
+    // relates the id with an index id, so, its more easy
+    // to get it in more another places
+    final int elementId = context.drawingStore.getNextId(id);
 
     num? imgWidthEmu = data.width;
     num? imgHeightEmu = data.height;
@@ -97,26 +97,24 @@ class LazyFloatingImage extends ComponentContainer<ImageData<File>>
       super.runParent(
         attributes: buildXmlStyle(context: context),
         children: <XmlNode>[
-          ...Drawing(
-            data: Anchor(
-              component: LazyImage(
-                // should be unique by component
-                // by, since blocks are just
-                // wrappers of granular components
-                // we assign to them the same id
-                // to avoid sync issues with stores
-                id: id,
-                data: data,
-                transformOffsetX: transformOffsetX,
-                transformOffsetY: transformOffsetY,
-                asInline: false,
-              ),
-              widthEmu: imgWidthEmu!,
-              heightEmu: imgHeightEmu!,
-              config: data.anchorConfig,
-              name: imageName,
-              docPrId: docPrId,
+          ...Anchor(
+            component: LazyImage(
+              // should be unique by component
+              // by, since blocks are just
+              // wrappers of granular components
+              // we assign to them the same id
+              // to avoid sync issues with stores
+              id: id,
+              data: data,
+              transformOffsetX: transformOffsetX,
+              transformOffsetY: transformOffsetY,
+              asInline: false,
             ),
+            widthEmu: imgWidthEmu!,
+            heightEmu: imgHeightEmu!,
+            config: data.anchorConfig,
+            name: imageName,
+            elementId: elementId,
           ).buildXml(context: context),
         ],
       ),

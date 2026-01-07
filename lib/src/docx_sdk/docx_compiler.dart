@@ -85,15 +85,19 @@ class DocxCompiler {
   /// Manages all font definitions and embedded font files for the current compilation process.
   late FontStore fontStore = FontStore();
 
+  /// Manages all drawing definitions for the current compilation process.
+  late DrawingElementCounterStore drawingStore = DrawingElementCounterStore();
+
   int lastRId = 1000;
 
   DocumentContext buildContext(DocumentOptions options) {
     return DocumentContext(
       options: options,
-      store: mediaStore,
+      mediaStore: mediaStore,
       fontStore: fontStore,
       hyperlinkStore: hyperlinkStore,
       numberingStore: numberingStore,
+      drawingStore: drawingStore,
       defaultNormalStyle: defaultNormalStyle,
       setNormalStyleToNotStyledParagraphs: setNormalStyleToNotStyledParagraphs,
     );
@@ -122,6 +126,9 @@ class DocxCompiler {
     hyperlinkStore.reset();
     numberingStore.reset();
     fontStore.reset();
+    drawingStore.reset();
+    mediaStore.drawingStore = drawingStore;
+    drawingStore.mediaStore = mediaStore;
 
     final DocumentContext documentContext = buildContext(options);
     CompilerLogger.root.d('Document context built successfully.');
@@ -228,7 +235,6 @@ class DocxCompiler {
       (
         DocxPaths.documentFilePath,
         XmlDocumentComponent(
-          usePic: mediaStore.mediaComponents.isNotEmpty,
           body: XmlBodyComponent(
             document: document,
             themeId: theme,

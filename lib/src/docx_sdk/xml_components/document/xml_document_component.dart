@@ -5,18 +5,14 @@ import 'xml_body_component.dart';
 class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
   XmlDocumentComponent({
     required XmlBodyComponent body,
-    bool usePic = false,
   }) : super(
           value: body,
           xmlKey: 'w:document',
           attrs: XmlDocAttributes(
             ignorables: 'w14 w15 w16',
             wpc: true,
-            // usually, both
-            // need to be defined
-            // when images are used
-            pic: usePic,
-            a: usePic,
+            pic: true,
+            a: true,
             mc: true,
             o: true,
             r: true,

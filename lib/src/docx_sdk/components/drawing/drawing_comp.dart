@@ -3,11 +3,8 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../mixins/ignorable_mixin.dart';
 
-//TODO: we need to make possible skipping componentes like this
-// when compatibility mode is not true
-// since mc:Choice is the modern solution used instead w:drawing
-class Drawing extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
-  Drawing({
+class WordDrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
+  WordDrawingML({
     required super.data,
     super.id,
   }) {
@@ -36,7 +33,7 @@ class Drawing extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   }
 
   @override
-  DocxTreeNode<DocxTreeNode<dynamic>> get copy => Drawing(
+  DocxTreeNode<DocxTreeNode<dynamic>> get copy => WordDrawingML(
         data: data.copy,
         id: id,
       );
@@ -76,3 +73,4 @@ class Drawing extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
     return data is IgnorableMixin && (data as IgnorableMixin).shouldIgnore();
   }
 }
+

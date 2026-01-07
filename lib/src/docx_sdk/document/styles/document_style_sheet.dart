@@ -8,10 +8,10 @@ import '../../utils/language_codes.dart';
 class DocumentStylesSheet {
   DocumentStylesSheet({
     required this.styles,
-    List<Style> docDefaultParagraphStyles = const [],
-    List<Style> docDefaultRunStyles = const [],
-  })  : _docDefaultParagraphStyles = [...docDefaultParagraphStyles],
-        _docDefaultRunStyles = [...docDefaultRunStyles];
+    List<Style> docDefaultParagraphStyles = const <Style>[],
+    List<Style> docDefaultRunStyles = const <Style>[],
+  })  : _docDefaultParagraphStyles = <Style>[...docDefaultParagraphStyles],
+        _docDefaultRunStyles = <Style>[...docDefaultRunStyles];
 
   factory DocumentStylesSheet.fromXmlStyles(xml.XmlDocument styleDoc) {
     return XmlToDocxObjects.xmlToDocumentStylesSheet(styleDoc);
@@ -23,22 +23,17 @@ class DocumentStylesSheet {
         _docDefaultRunStyles = <Style>[];
 
   DocumentStylesSheet.base({EditorOptions? options})
-      : styles = [...EasyStyles.standardDocumentStyles],
-        _docDefaultParagraphStyles = [
-          StyleBuilder.singularP()
-              .spacing(after: 120, line: 240, rule: LineRule.atLeast)
-              .build(),
-        ],
-        _docDefaultRunStyles = [
+      : styles = <Style>[...EasyStyles.standardDocumentStyles],
+        _docDefaultParagraphStyles = <Style>[],
+        _docDefaultRunStyles = <Style>[
           StyleBuilder.singularC()
               .fontFamily(options?.fontFamily ?? 'Times New Roman')
               .fontSize(
-                (options?.fontSize ?? 12).toDouble(),
+                (options?.fontSize ?? (12).toHalfPointsFromPoints()).toDouble(),
                 options?.complexScriptFontSize.toDouble(),
               )
               .lang(options?.language ??
                   DocxLanguage(language: LanguageCodes.englishUS))
-              .spacing(after: 120, line: 240, rule: LineRule.atLeast)
               .build(),
         ];
 
@@ -134,7 +129,7 @@ class DocumentStylesSheet {
     List<Style>? docDefaultRunStyles,
   }) {
     return copyWith(
-      styles: [
+      styles: <Style>[
         ...this.styles,
         ...styles,
       ],

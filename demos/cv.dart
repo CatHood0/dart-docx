@@ -27,9 +27,9 @@ Future<void> main() async {
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
-        Paragraph(data: [
+        Paragraph(data: <RunBase<dynamic>>[
           Run(
-            component: Drawing(
+            component: WordDrawingML(
               data: FloatingImage(
                 data: ImageData(
                   buffer: await File('assets/cv_person.png').readAsBytes(),
@@ -39,10 +39,10 @@ Future<void> main() async {
                     wrapSide: null,
                     anchorOffsetX: 0.5.toEmuFromInches(),
                     anchorOffsetY: 0,
-                    horizontalAnchor: RelativeHorizontalAnchor.paragraph,
-                    horizontalAlign: RelativeHorizontalAlign.left,
-                    verticalAnchor: RelativeVerticalAnchor.paragraph,
-                    verticalAlign: RelativeVerticalAlign.top,
+                    horizontalAnchor: HorizontalAnchorPosition.paragraph,
+                    verticalAnchor: VerticalAnchorPosition.paragraph,
+                    horizontalPosition: AnchorPosition.left,
+                    verticalPosition: AnchorPosition.top,
                   ),
                   width: 1.toEmuFromInches(),
                   height: 1.toEmuFromInches(),

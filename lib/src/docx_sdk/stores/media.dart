@@ -16,19 +16,16 @@ class MediaStore {
   MediaStore();
   static const String mediaPath = 'word/media/';
 
+  // both are closely related, so, both have a pointer
+  // to get and set elements with fastly
+  late DrawingElementCounterStore drawingStore;
+
   /// Stores registered [MediaData] objects, keyed by their generated unique name.
   final Map<String, MediaData> media = <String, MediaData>{};
 
   /// Stores discovered media components ([FloatingImage], [LazyFloatingImage]), keyed by their internal ID.
   final Map<String, DocxTreeNode<ImageData<dynamic>>> mediaComponents =
       <String, DocxTreeNode<ImageData<dynamic>>>{};
-
-  /// This let count every media in the.
-  ///
-  /// This is used to maintain a count of the internal graphics
-  //TODO: probably we will need to move this to a Graphics store
-  // to avoid losing that data
-  final Map<String, int> mediaCount = <String, int>{};
 
   final List<XmlOverrideElementTypeComponent> overrides =
       <XmlOverrideElementTypeComponent>[];
@@ -45,7 +42,6 @@ class MediaStore {
     extensions.clear();
     media.clear();
     overrides.clear();
-    mediaCount.clear();
   }
 
   /// Whether the store is empty and requires to got in XmlComponent tree
@@ -56,7 +52,6 @@ class MediaStore {
     DocxDocument data, [
     Set<String> supportedFileExtensions = const <String>{},
   ]) {
-    int count = 1;
     //TODO: use parent methods of DocumentRoot
     for (final DocxTreeNode parent in data.root.data) {
       final DocxTreeNode? image = parent.visitElement(
@@ -72,10 +67,8 @@ class MediaStore {
                 visitChildrenIfNeeded: true,
                 (DocxTreeNode<dynamic> el) => el.data is ImageData)!
             .cast<DocxTreeNode<ImageData>>();
-        mediaCount[imageComponent.id] = count;
         mediaComponents[imageComponent.id] = imageComponent;
         extensions.add(imageComponent.data.extension);
-        count++;
       }
     }
   }
@@ -137,7 +130,7 @@ class MediaStore {
         bytes: imageData is ImageData<Uint8List>
             ? imageData.buffer
             : await (imageData as ImageData<File>).buffer.readAsBytes(),
-        imageRefId: imgComponent.rId!,
+        relationshipId: imgComponent.rId!,
       );
 
       // Store MediaData by its generated name
@@ -227,7 +220,7 @@ class MediaStore {
       return media[component.data.name]!.id;
     }
     for (final MediaData media in media.values) {
-      if (media.imageRefId == imageRefId ||
+      if (media.relationshipId == imageRefId ||
           media.id == int.tryParse(imageRefId)) {
         return media.id;
       }
@@ -237,8 +230,8 @@ class MediaStore {
 
 
   /// Gets the index of the graphic where this media is 
-  int? getIndexId(String imageRefId) {
-    return mediaCount[imageRefId];
+  int getIndexId() {
+    return drawingStore.getNextId();
   }
 
   /// Gets the raw `rId` that was inserted in document.xml.rels
@@ -257,12 +250,12 @@ class MediaStore {
         'discoverMedia first and '
         'registerAndBuildImageRelationships then',
       );
-      return media[component.data.name]!.imageRefId;
+      return media[component.data.name]!.relationshipId;
     }
     for (final MediaData media in media.values) {
-      if (media.imageRefId == imageRefId ||
+      if (media.relationshipId == imageRefId ||
           media.id == int.tryParse(imageRefId)) {
-        return media.imageRefId;
+        return media.relationshipId;
       }
     }
     return null;

@@ -1,0 +1,22 @@
+import 'package:xml/xml.dart';
+
+abstract class TextRunAttribution<T> {
+  TextRunAttribution({
+    required this.key,
+    required this.value,
+    required this.scope,
+  });
+
+  final String key;
+  final T value;
+  final Scope scope;
+  XmlElement? toXml();
+}
+
+enum Scope {
+  portion,
+  paragraph,
+  custom, 
+}
+
+

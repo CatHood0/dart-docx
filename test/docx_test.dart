@@ -74,10 +74,14 @@ void main() {
                 ),
                 TextFrame(
                   data: <DocxTreeNode<dynamic>>[
-                    TextRun(
-                      data: TextPart(
-                        text: '',
-                      ),
+                    Paragraph(
+                      data: [
+                        TextRun(
+                          data: TextPart(
+                            text: 'my text',
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                   border: StyleBuilder.singularP()
@@ -99,12 +103,6 @@ void main() {
                   vAnchor: FrameAnchor.page,
                   // put to top
                   yAlign: FrameVerticalAlignment.top,
-                ),
-                LazyFloatingImage(
-                  data: ImageData(
-                    buffer: File('test_resources/logo.jpg'),
-                    extension: 'jpg',
-                  ),
                 ),
               ],
             ),

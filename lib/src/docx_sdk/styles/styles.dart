@@ -65,26 +65,14 @@ class Style extends IterableConfigurators {
             configurators ?? <StyleConfigurator>[],
           ),
         ) {
-    final List<StyleConfigurator> resultAlternatives = <StyleConfigurator>[
-      if (styleName != null)
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'name',
-          value: styleName,
-          attributes: defaultStyleNameLanguage == null
-              ? null
-              : <String, dynamic>{
-                  'w:lang': defaultStyleNameLanguage,
-                },
-        ),
-    ];
+    final List<StyleConfigurator> resultAlternatives = <StyleConfigurator>[];
     // since one name can have multiple languages that have the same
     // exact characters, and we store them in a single map
     // to avoid losing that data, we allow to set a list of languages
     // to save that one name with its variants
     for (final (String, List<String>) element in alternativeNames) {
-      for (final String language in element.$2) {
-        resultAlternatives.add(StyleConfigurator.selfClosing(
+      for (final String language in element.$2.reversed) {
+        resultAlternatives.insert(0, StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'name',
           value: element.$1,
@@ -94,7 +82,19 @@ class Style extends IterableConfigurators {
         ));
       }
     }
-    super.configurators.addAll(resultAlternatives);
+    if (styleName != null) {
+      resultAlternatives.insert(0, StyleConfigurator.selfClosing(
+        prefix: 'w',
+        propertyName: 'name',
+        value: styleName,
+        attributes: defaultStyleNameLanguage == null
+            ? null
+            : <String, dynamic>{
+                'w:lang': defaultStyleNameLanguage,
+              },
+      ));
+    }
+    super.configurators.insertAll(0, resultAlternatives);
   }
 
   /// Creates a lightweight style reference for lookup/search purposes only.
@@ -118,7 +118,21 @@ class Style extends IterableConfigurators {
         revisionIdPPr = null,
         _onlyReference = true,
         super(
-          configurators: const <StyleConfigurator>[],
+          configurators: <StyleConfigurator>[],
+        );
+
+  Style.themeReference(int idx)
+      : type = '',
+        styleId = '$idx',
+        revisionIdDefault = null,
+        id = nanoid(10),
+        defaultValue = null,
+        revisionIdRPr = null,
+        revisionIdRun = null,
+        revisionIdPPr = null,
+        _onlyReference = true,
+        super(
+          configurators: <StyleConfigurator>[],
         );
 
   /// Creates a placeholder Style instance representing an invalid or missing style.
@@ -184,7 +198,8 @@ class Style extends IterableConfigurators {
   /// the styles to the text runs
   StyleConfigurator? get runProperties => getConfiguratorOrNull('w:rPr');
 
-  static StyleConfigurator? styleConfiguratorOrNull(StyleConfigurator configurator) {
+  static StyleConfigurator? styleConfiguratorOrNull(
+      StyleConfigurator configurator) {
     return configurator.isInvalid ? null : configurator;
   }
 
@@ -225,7 +240,7 @@ class Style extends IterableConfigurators {
   /// Returns a new Style instance with all inherited properties merged.
   Style getDeepStyleRelation(DocumentStylesSheet styles) {
     const int maxAttempts = 200;
-    final List<Style> styleHierarchy = [this];
+    final List<Style> styleHierarchy = <Style>[this];
     Style? currentStyleInChain = this;
     int attempt = 0;
 
@@ -246,14 +261,19 @@ class Style extends IterableConfigurators {
     }
 
     // Maps to accumulate merged properties during inheritance resolution
-    final Map<String, StyleConfigurator> mergedTopLevelConfigurators = {};
-    final Map<String, StyleConfigurator> mergedPPrChildren = {};
-    final Map<String, StyleConfigurator> mergedRPrChildren = {};
+    final Map<String, StyleConfigurator> mergedTopLevelConfigurators =
+        <String, StyleConfigurator>{};
+    final Map<String, StyleConfigurator> mergedPPrChildren =
+        <String, StyleConfigurator>{};
+    final Map<String, StyleConfigurator> mergedRPrChildren =
+        <String, StyleConfigurator>{};
 
     // Helper: Convert configurator list to map for efficient lookups
     Map<String, StyleConfigurator> listToMap(
             Iterable<StyleConfigurator> list) =>
-        {for (final c in list) c.qualifiedName: c};
+        <String, StyleConfigurator>{
+          for (final StyleConfigurator c in list) c.qualifiedName: c
+        };
 
     // Helper: Merge child configurators with inheritance override logic
     Map<String, StyleConfigurator> mergeChildren(
@@ -328,7 +348,8 @@ class Style extends IterableConfigurators {
 
     // Assemble final configurator list from merged properties
     final List<StyleConfigurator> finalConfigurators = <StyleConfigurator>[
-      ...configurators.where((el) => el.qualifiedName == 'w:name'),
+      ...configurators
+          .where((StyleConfigurator el) => el.qualifiedName == 'w:name'),
       ...mergedTopLevelConfigurators.values
     ];
 
@@ -384,7 +405,7 @@ class Style extends IterableConfigurators {
     if (isInvalid) return null;
     return XmlElement.tag(
       'w:style',
-      attributes: [
+      attributes: <XmlAttribute>[
         XmlAttribute('w:type'.toName(), type),
         XmlAttribute('w:styleId'.toName(), styleId),
         if (defaultValue != null)
@@ -471,7 +492,7 @@ class StyleConfigurator extends IterableConfigurators {
     this.value,
     this.attributes,
   })  : isSelfClosing = true,
-        super(configurators: const []);
+        super(configurators: const <StyleConfigurator>[]);
 
   /// Creates an invalid configurator placeholder.
   ///
@@ -554,7 +575,7 @@ class StyleConfigurator extends IterableConfigurators {
   }
 
   XmlElement toXmlNode() {
-    final List<XmlAttribute> xmlAttributes = [];
+    final List<XmlAttribute> xmlAttributes = <XmlAttribute>[];
 
     if (value != null) {
       xmlAttributes.add(
@@ -768,7 +789,8 @@ abstract class IterableConfigurators {
     return indent?.getConfiguratorOrNull('w:firstLine');
   }
 
-  static StyleConfigurator? styleConfiguratorOrNull(StyleConfigurator configurator) {
+  static StyleConfigurator? styleConfiguratorOrNull(
+      StyleConfigurator configurator) {
     return configurator.isInvalid ? null : configurator;
   }
 

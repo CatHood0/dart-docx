@@ -2,7 +2,6 @@ import 'package:uuid/v4.dart';
 
 import '../../core/extensions/string_ext.dart';
 import '../sdk.dart';
-import 'language_codes.dart';
 
 const UuidV4 uuidV4 = UuidV4();
 
@@ -12,6 +11,10 @@ const String kDefaultBorderColor = 'bf4f15';
 const int commonBorderSize = 4;
 const int commonBorderSpace = 6;
 
+const int lineSpacingPerInch = 240;
+const int maxAlphaEmu = 100000;
+const int degressTh = 60000;
+const int emu = 9525; // 1 inch = 914400 EMUs
 const int emuPerInch = 914400; // 1 inch = 914400 EMUs
 const int emuPerCm = 360000; // 1 cm = 360000 EMUs
 const int emuPerMm = 36000; // 1 mm = 36000 EMUs
@@ -19,13 +22,14 @@ const int emuPerPt = 12700; // 1 point = 12700 EMUs
 const int emuPerTwip = 635; // 1 TWIP = 635 EMUs
 // Constants for Twips (1/20th of a point, or 1/1440th of an inch)
 const int twipsPerInch = 1440;
-const int twipsPerCm = 567; // Approximately 1440 / 2.54 cm per inch
-const int twipsPerMm = 56; // Approximately 1440 / 25.4 mm per inch
+const int twipsPerCm = 567; // 2.54 cm per inch
+const int twipsPerMm = 56; // 25.4 mm per inch
 const int twipsPerPt = 20; // 1 point = 20 twips
 
 /// Conversion factor: 1 cm = 567 dxa (should be)
 // 1 inch = 72 points * 20 dxa/point
 const int dxaPerInch = 1440;
+
 /// example: 1 cm = 28.3465 pt = 28.3465 * 20 dxa = 566.93 dxa
 const double dxaPerCm = 567;
 const double dxaPerMm = dxaPerCm / 10;
@@ -76,34 +80,6 @@ final RegExp linkDetectorMatcher = RegExp(
   r'^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$',
   multiLine: false,
 );
-
-/// This is the twip value used by word to calculate some values
-///
-/// By default, to get the real value from word we need to make a operation like:
-///
-/// 345600 / 1440 => 240
-///
-/// and, when we will parse a value to word
-/// we need to multiply it to pass the format that we expect
-///
-/// 240 * 1440 => 345600
-const int kDefaultTwipsValue = 1440;
-
-/// Computes the values to/from twip
-///
-/// * [increase]: defines if the values will be increased on twip units or decreased
-/// * [defaultTwipsValue]: defines the default unit of a twip
-num inchToFromTwip(
-  num value, {
-  bool increase = true,
-  int defaultTwipsValue = kDefaultTwipsValue,
-}) {
-  return increase ? value * defaultTwipsValue : value / defaultTwipsValue;
-}
-
-int cmToTwip(num cm) => (cm * 567).round();
-
-double twipToCm(num twip) => twip / 567;
 
 typedef UniqueNumericIdCreator = int Function();
 

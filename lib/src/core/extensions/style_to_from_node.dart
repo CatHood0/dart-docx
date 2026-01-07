@@ -10,7 +10,7 @@ extension StyleToNode on Style {
   XmlElement? toReferenceNode({String prefix = 'r'}) {
     return XmlElement.tag(
       'w:${prefix}Style',
-      attributes: [
+      attributes: <XmlAttribute>[
         XmlAttribute(
           'w:val'.toName(),
           styleId,
@@ -26,7 +26,7 @@ extension StyleToNode on Style {
     if (runConfigs.isInvalid) return null;
     return XmlElement.tag(
       'w:pPr',
-      children: [
+      children: <XmlNode>[
         ...runConfigs.childrenToXmlNodes(),
       ],
       isSelfClosing: false,
@@ -40,7 +40,7 @@ extension StyleToNode on Style {
     //TODO: why we aren't returning the runConfigs directly?
     return XmlElement.tag(
       'w:rPr',
-      children: [
+      children: <XmlNode>[
         ...runConfigs.childrenToXmlNodes(),
       ],
       isSelfClosing: false,
@@ -61,12 +61,16 @@ extension StyleToNode on Style {
         styleId.isNotEmpty,
         'styleId must not '
         'have empty string at this build phase.');
+    assert(
+        !runConfigs.isInvalid,
+        'runConfigs must not be '
+        'invalid at this build phase.');
 
-    return [
+    return <XmlElement>[
       if (shouldShowStyleRef)
         XmlElement.tag(
           xmlRunStyleNode,
-          attributes: [
+          attributes: <XmlAttribute>[
             XmlAttribute(
               'w:val'.toName(),
               styleId,
@@ -79,7 +83,8 @@ extension StyleToNode on Style {
       if (useConfigurators)
         ...configurators
             .where((StyleConfigurator n) =>
-                n.propertyName != runConfigs.propertyName)
+                n.qualifiedName != runConfigs.qualifiedName &&
+                n.qualifiedName != xmlParagraphBlockAttrsNode)
             .map(
               (StyleConfigurator n) => n.toXmlNode(),
             ),
@@ -100,7 +105,7 @@ extension StyleToNode on Style {
       if (shouldShowStyleRef)
         XmlElement.tag(
           xmlParagraphStyleNode,
-          attributes: [
+          attributes: <XmlAttribute>[
             XmlAttribute(
               'w:val'.toName(),
               styleId,

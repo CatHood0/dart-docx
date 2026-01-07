@@ -1,0 +1,112 @@
+import 'package:xml/xml.dart';
+
+import '../../../../../docx.dart';
+
+enum ColorType { rgb, theme, system }
+
+enum SystemColor { window, windowText, highlight, highlightText }
+
+/// Color representation in DrawingML.
+///
+/// Can be specified as RGB value, theme color, or system color.
+class Color extends DocxTreeNode<void> {
+  Color.rgb(int value)
+      : type = ColorType.rgb,
+        rgbValue = value,
+        themeColor = null,
+        systemColor = null,
+        super(data: null);
+
+  Color.theme(String themeColorName)
+      : type = ColorType.theme,
+        themeColor = themeColorName,
+        rgbValue = null,
+        systemColor = null,
+        super(data: null);
+
+  Color.system(SystemColor system)
+      : type = ColorType.system,
+        systemColor = system,
+        rgbValue = null,
+        themeColor = null,
+        super(data: null);
+
+  final ColorType type;
+  final int? rgbValue;
+  final String? themeColor;
+  final SystemColor? systemColor;
+
+  @override
+  Color get copy => switch (type) {
+        ColorType.rgb => Color.rgb(rgbValue!),
+        ColorType.theme => Color.theme(themeColor!),
+        ColorType.system => Color.system(systemColor!),
+      };
+
+  @override
+  List<XmlElement> buildXml({required DocumentContext context}) {
+    return switch (type) {
+      ColorType.rgb => <XmlElement>[
+          XmlElement.tag(
+            'a:srgbClr',
+            attributes: <XmlAttribute>[
+              XmlAttribute(
+                XmlName.fromString('val'),
+                rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase(),
+              ),
+            ],
+            isSelfClosing: true,
+          ),
+        ],
+      ColorType.theme => <XmlElement>[
+          XmlElement.tag(
+            'a:schemeClr',
+            attributes: <XmlAttribute>[
+              XmlAttribute(XmlName.fromString('val'), themeColor!),
+            ],
+            isSelfClosing: true,
+          ),
+        ],
+      ColorType.system => <XmlElement>[
+          XmlElement.tag(
+            'a:sysClr',
+            attributes: <XmlAttribute>[
+              XmlAttribute(
+                  XmlName.fromString('val'), _systemColorToXml(systemColor!)),
+            ],
+            isSelfClosing: true,
+          ),
+        ],
+    };
+  }
+
+  String _systemColorToXml(SystemColor systemColor) {
+    return switch (systemColor) {
+      SystemColor.window => 'window',
+      SystemColor.windowText => 'windowText',
+      SystemColor.highlight => 'highlight',
+      SystemColor.highlightText => 'highlightText',
+    };
+  }
+
+  @override
+  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+    return <XmlNode>[];
+  }
+
+  @override
+  List<DocxTreeNode>? visitAllElement(
+    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    return shouldGetElement(this) ? <Color>[this] : null;
+  }
+
+  @override
+  DocxTreeNode? visitElement(
+    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    return shouldGetElement(this) ? this : null;
+  }
+}

@@ -23,12 +23,12 @@ abstract class RunBase<T> extends DocxTreeNode<T>
   @protected
   XmlElement runParent({
     required List<XmlNode> nodes,
-    List<XmlNode> runProperties = const [],
+    List<XmlNode> runProperties = const <XmlNode>[],
   }) {
     if (rId == null && this is HyperlinkRun) {
       throw ContentNotProcessedException(content: this);
     }
-    final List<XmlNode> runChildren = [];
+    final List<XmlNode> runChildren = <XmlNode>[];
 
     if (runProperties.isNotEmpty) {
       runChildren.add(

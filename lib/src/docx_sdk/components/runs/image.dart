@@ -4,6 +4,7 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
+import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
 
@@ -12,6 +13,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     required super.data,
     super.parent,
     super.id,
+    this.elementId,
     this.asInline = false,
     this.transformOffsetX = 0,
     this.transformOffsetY = 0,
@@ -20,6 +22,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
   bool asInline;
   final int transformOffsetX;
   final int transformOffsetY;
+  int? elementId;
 
   @override
   Image get copy {
@@ -53,13 +56,22 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
       );
     }
 
-    final String? relationshipId = context.store.getRelationshipIdForRef(id) ??
-        context.store.getRelationshipIdForRef(rId ?? '-1');
+    final String? relationshipId =
+        context.mediaStore.getRelationshipIdForRef(id) ??
+            context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
+
+    elementId ??= context.drawingStore.getIdFromRef(ref: id) ??
+        // usually, the element id is computed from
+        // the anchor or inline parent, so, we prefer
+        // using that one value, since was computed exactly for this
+        // element
+        context.getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+        context.getAncestorOfExactType<Inline>()?.elementId?.castOrNull() ??
+        context.drawingStore.getNextId(id);
 
     // the index of this image. Literally the
     // relationship id but formatted to a digit
-    final int? indexId = context.store.getIndexId(id);
-    if (relationshipId == null || indexId == null) {
+    if (relationshipId == null) {
       throw Exception('Image($id) with "$data", was not inserted in '
           'document.xml.rels, and cannot found relation id');
     }
@@ -87,10 +99,10 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
 
     final Graphic graphic = Graphic(
       data: GraphicData(
-        uri: 'http://schemas.openxmlformats.org/drawingml/2006/picture',
+        uri: namespaces['pic']!,
         data: Picture(
           components: <DocxTreeNode<dynamic>>[
-            BlipFill(
+            BlipFill.pic(
               blip: Blip(embedRelId: relationshipId.toString()),
               stretch: Stretch(
                 data: <DocxTreeNode<dynamic>>[
@@ -98,7 +110,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
                 ],
               ),
             ),
-            ShapeProperties(
+            PictureShapeProperties(
               transform2D: Transform2D(
                 offset: Offset(
                   x: transformOffsetX,
@@ -106,14 +118,11 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
                 ),
                 extents: AnnotationExtents(cx: imgWidthEmu!, cy: imgHeightEmu!),
               ),
-              presetGeometry: PresetGeometry(
-                preset: 'rect',
-                data: AdjustValueList(),
-              ),
+              presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
             ),
             NonVisualPictureProperties(
               nonVisualDrawingProperties: NonVisualDrawingProperties(
-                id: indexId.toString(),
+                id: elementId!.toString(),
                 name: imageName,
                 description: data.alt ?? imageName,
               ),
@@ -130,23 +139,18 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
         ...graphic.buildXml(context: context)
       else
         ...Inline(
-        distance: data.anchorConfig.distanceFromText,
-        components: <DocxTreeNode<dynamic>>[
-          // wp:extent different from Extents that creates an a:ext
-          Extent(cx: imgWidthEmu, cy: imgHeightEmu),
-          DocProperties(
-            docPrId: indexId.toString(),
-            name: imageName,
-            description: data.alt ?? imageName,
-          ),
-          graphic,
-        ]).buildXml(context: context),
+          name: imageName,
+          width: imgWidthEmu,
+          height: imgHeightEmu,
+          components: <DocxTreeNode<dynamic>>[graphic],
+          distance: data.anchorConfig.distanceFromText,
+        ).buildXml(context: context),
     ];
   }
 
   @override
   List<XmlAttribute> buildXmlStyle({required DocumentContext context}) {
-    return [];
+    return <XmlAttribute>[];
   }
 
   @override
@@ -192,7 +196,7 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
 
   /// Numeric offset in EMU units (used when no alignment specified)
   final num? offset;
-  
+
   /// Text alignment: "left", "center", "right", "inside", "outside"
   /// (takes precedence over offset when both are provided)
   final String? alignment;
@@ -202,27 +206,27 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
     return XmlElement.tag(
       xmlKey,
       isSelfClosing: false,
-      attributes: [
+      attributes: <XmlAttribute>[
         XmlAttribute(
           'relativeFrom'.toName(),
           relativeFrom,
         ),
       ],
-      children: [
+      children: <XmlNode>[
         // if offset is null, then we require alignment
         // if offset isnt null, then we always will prefer
         // precise positioning over alignment
-        if (alignment != null && alignment!.isNotEmpty && offset == null)
+        if (alignment != null && alignment!.isNotEmpty && offset == null || offset == 0)
           XmlElement.tag(
             'wp:align',
-            children: [
-              XmlText(alignment!),
+            children: <XmlNode>[
+              XmlText(alignment ?? AnchorPosition.left.name),
             ],
           )
         else
           XmlElement.tag(
             'wp:posOffset',
-            children: [
+            children: <XmlNode>[
               XmlText(offset!.toString()),
             ],
           ),

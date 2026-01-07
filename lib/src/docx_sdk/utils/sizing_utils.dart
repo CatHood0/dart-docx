@@ -1,5 +1,9 @@
 import '../../../docx.dart';
 
+int inchToLineSpacing(num inches) {
+  return (inches * lineSpacingPerInch).round();
+}
+
 /// Converts points to half-points.
 /// 1 point = 2 half-points.
 int pointsToHalfPoints(num points) {
@@ -216,6 +220,7 @@ extension TwipsConversions on int {
   int toEmuFromTwips() => inchesToEmu(twipsToInches(this));
 }
 
+//TODO: probably we will unify both extensions
 extension Conversions on int {
   double toInchesFromEmu() => emuToInches(this);
 
@@ -328,4 +333,6 @@ extension DoubleConversions on num {
 
   /// Converts DXA to centimeters.
   num toCmFromDxa() => dxaToCentimeters(this);
+
+  int toLineSpacingFromInch() => inchToLineSpacing(this);
 }

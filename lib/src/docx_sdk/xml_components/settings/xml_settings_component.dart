@@ -54,7 +54,8 @@ class XmlSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
             XmlFootnotePrComponent(options: options.footnoteProperties),
             XmlEndnotePrComponent(options: options.endnoteProperties),
             XmlCompatComponent(compatSettings: options.compatSettings),
-            XmlMathPrComponent(options: options.mathProperties),
+            if (options.mathProperties != null)
+              XmlMathPrComponent(options: options.mathProperties!),
             XmlThemeFontLangComponent(
               val: options.themeFontLanguage,
               eastAsia: options.themeFontLanguageEastAsia,

@@ -10,7 +10,7 @@ class XmlDefaultDocStylesComponent
           XmlDefaultParagraphStylesComponent(
             value: value.docDefaultParagraphStyles,
           ),
-          XmlDefaultRunStylesComponent(value: value.docDefaultParagraphStyles),
+          XmlDefaultRunStylesComponent(value: value.docDefaultRunStyles),
         ],
         super(xmlKey: 'w:docDefaults');
   final List<XmlComponentBase> components;
@@ -46,8 +46,13 @@ class XmlDefaultParagraphStylesComponent extends XmlComponentBase<List<Style>> {
     }
     return XmlElement.tag(
       xmlKey,
-      children: [
-        ...styles,
+      children: <XmlNode>[
+        XmlElement.tag(
+          xmlParagraphBlockAttrsNode,
+          children: <XmlNode>[
+            ...styles,
+          ],
+        ),
       ],
     );
   }
@@ -62,14 +67,23 @@ class XmlDefaultRunStylesComponent extends XmlComponentBase<List<Style>> {
   XmlElement buildXml(DocumentContext context) {
     final List<XmlElement> styles = <XmlElement>[];
     for (final Style n in value) {
-      styles.addAll(n.forRunStyle(
-        shouldShowStyleRef: false,
-      ));
+      styles.addAll(
+        n.forRunStyle(
+          shouldShowStyleRef: false,
+          useConfigurators: true,
+        ),
+      );
     }
     return XmlElement.tag(
       xmlKey,
-      children: [
-        ...styles,
+      isSelfClosing: false,
+      children: <XmlNode>[
+        XmlElement.tag(
+          xmlParagraphInlineAttsrNode,
+          children: <XmlNode>[
+            ...styles,
+          ],
+        ),
       ],
     );
   }

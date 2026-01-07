@@ -1,0 +1,490 @@
+import 'package:xml/xml.dart';
+import '../../../../../../docx.dart';
+import '../../../../../core/extensions/string_ext.dart';
+import '../../shared/effects.dart';
+
+/// 3D effect applied to a shape (a:sp3d).
+///
+/// Adds three-dimensional effects like extrusion (depth), contour, and bevels
+/// to create the illusion of a 3D object. Can simulate materials like plastic,
+/// metal, or matte surfaces.
+class ThreeDEffectComponent extends Effect<ThreeDEffect> {
+  ThreeDEffectComponent({required super.data});
+
+  @override
+  List<XmlElement> buildXml({required DocumentContext context}) {
+    final List<XmlNode> children = <XmlNode>[];
+
+    if (data.extrusionHeight != 0) {
+      children.add(
+        XmlElement.tag(
+          'a:extrusionH',
+          attributes: <XmlAttribute>[
+            if (data.extrusionColor != null)
+              XmlAttribute(
+                'clr'.toName(),
+                (data.extrusionColor!.rgbValue ??
+                        data.extrusionColor!.themeColor)!
+                    .toString()
+                    .replaceFirst('0x', ''),
+              ),
+            XmlAttribute(
+              'h'.toName(),
+              data.extrusionHeight.toString(),
+            ),
+          ],
+          isSelfClosing: true,
+        ),
+      );
+    }
+
+    // Contour
+    if (data.contourWidth != 0) {
+      children.add(
+        XmlElement.tag(
+          'a:contourW',
+          attributes: <XmlAttribute>[
+            if (data.contourColor != null)
+              XmlAttribute(
+                'clr'.toName(),
+                (data.contourColor!.rgbValue ?? data.contourColor!.themeColor)!
+                    .toString()
+                    .replaceFirst('0x', ''),
+              ),
+            XmlAttribute(
+              'w'.toName(),
+              data.contourWidth.toString(),
+            ),
+          ],
+          isSelfClosing: true,
+        ),
+      );
+    }
+
+    // Material
+    children.add(
+      XmlElement.tag(
+        'a:prstMaterial',
+        attributes: <XmlAttribute>[
+          XmlAttribute(
+            'val'.toName(),
+            _materialToXml(data.material),
+          ),
+        ],
+        isSelfClosing: true,
+      ),
+    );
+
+    // Top bevel
+    if (data.topBevel != null) {
+      children.add(
+        XmlElement.tag(
+          'a:bevelT',
+          attributes: <XmlAttribute>[
+            XmlAttribute(
+              'w'.toName(),
+              data.topBevel!.width.toString(),
+            ),
+            XmlAttribute(
+              'h'.toName(),
+              data.topBevel!.height.toString(),
+            ),
+            if (data.topBevel!.preset != BevelPreset.circle)
+              XmlAttribute(
+                'prst'.toName(),
+                _bevelPresetToXml(data.topBevel!.preset),
+              ),
+          ],
+          isSelfClosing: true,
+        ),
+      );
+    }
+
+    // Bottom bevel
+    if (data.bottomBevel != null) {
+      children.add(
+        XmlElement.tag(
+          'a:bevelB',
+          attributes: <XmlAttribute>[
+            XmlAttribute(
+              'w'.toName(),
+              data.bottomBevel!.width.toString(),
+            ),
+            XmlAttribute(
+              'h'.toName(),
+              data.bottomBevel!.height.toString(),
+            ),
+            if (data.bottomBevel!.preset != BevelPreset.circle)
+              XmlAttribute(
+                'prst'.toName(),
+                _bevelPresetToXml(data.bottomBevel!.preset),
+              ),
+          ],
+          isSelfClosing: true,
+        ),
+      );
+    }
+
+    return <XmlElement>[
+      XmlElement.tag(
+        'a:sp3d',
+        children: children,
+      ),
+    ];
+  }
+
+  String _materialToXml(PresetMaterial material) {
+    return switch (material) {
+      PresetMaterial.plastic => 'plastic',
+      PresetMaterial.metal => 'metal',
+      PresetMaterial.matte => 'matte',
+      PresetMaterial.warmMatte => 'warmMatte',
+      PresetMaterial.translucentPowder => 'translucentPowder',
+      PresetMaterial.powder => 'powder',
+      PresetMaterial.darkEdge => 'darkEdge',
+      PresetMaterial.softEdge => 'softEdge',
+      PresetMaterial.clear => 'clear',
+      PresetMaterial.flat => 'flat',
+      PresetMaterial.softmetal => 'softmetal',
+    };
+  }
+
+  String _bevelPresetToXml(BevelPreset preset) {
+    return switch (preset) {
+      BevelPreset.circle => 'circle',
+      BevelPreset.relief => 'relief',
+      BevelPreset.slope => 'slope',
+      BevelPreset.softRound => 'softRound',
+      BevelPreset.convex => 'convex',
+      BevelPreset.coolSlant => 'coolSlant',
+      BevelPreset.angle => 'angle',
+      BevelPreset.cross => 'cross',
+      BevelPreset.artDeco => 'artDeco',
+    };
+  }
+
+  @override
+  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+    return <XmlNode>[];
+  }
+
+  @override
+  List<DocxTreeNode>? visitAllElement(
+    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    return null;
+  }
+
+  @override
+  DocxTreeNode? visitElement(
+    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    if (shouldGetElement(this)) return this;
+    return null;
+  }
+
+  @override
+  ThreeDEffectComponent get copy => ThreeDEffectComponent(data: data);
+}
+
+/// 3D effect configuration for shapes with developer-friendly units.
+class ThreeDEffect {
+  /// Creates a 3D effect with intuitive units.
+  ///
+  /// - [extrusionHeight]: Depth of 3D extrusion in points
+  /// - [extrusionColor]: Color of the extruded sides
+  /// - [contourWidth]: Width of the contour line in points
+  /// - [contourColor]: Color of the contour line
+  /// - [material]: Surface material type
+  /// - [topBevel]: Bevel effect for the top edge
+  /// - [bottomBevel]: Bevel effect for the bottom edge
+  /// - [lightingAngle]: Direction of light source in degrees
+  /// - [lightingIntensity]: Brightness of lighting (0-1)
+  ThreeDEffect({
+    double extrusionHeight = 10.0,
+    this.extrusionColor,
+    double contourWidth = 1.0,
+    this.contourColor,
+    this.material = PresetMaterial.plastic,
+    this.topBevel,
+    this.bottomBevel,
+    double lightingAngle = 45.0,
+    double lightingIntensity = 0.8,
+  })  : extrusionHeight = extrusionHeight.toEmuFromPoints(),
+        contourWidth = contourWidth.toEmuFromPoints(),
+        lightingAngle = (lightingAngle * (60000 / 360)).round(),
+        lightingIntensity =
+            (lightingIntensity * 100000).clamp(0, 100000).toInt();
+
+  /// Creates a simple 3D effect with default bevels.
+  factory ThreeDEffect.simple({
+    double extrusionHeight = 10.0,
+    Color? extrusionColor,
+    PresetMaterial material = PresetMaterial.plastic,
+  }) {
+    return ThreeDEffect(
+      extrusionHeight: extrusionHeight,
+      extrusionColor: extrusionColor,
+      material: material,
+      topBevel: const Bevel(
+        width: 38100, // 3 points
+        height: 38100,
+        preset: BevelPreset.circle,
+      ),
+      bottomBevel: const Bevel(
+        width: 38100,
+        height: 38100,
+        preset: BevelPreset.circle,
+      ),
+    );
+  }
+
+  /// Creates a metallic 3D effect.
+  factory ThreeDEffect.metallic({
+    double extrusionHeight = 15.0,
+    Color? extrusionColor,
+  }) {
+    return ThreeDEffect(
+      extrusionHeight: extrusionHeight,
+      extrusionColor: extrusionColor ?? Color.rgb(0x888888),
+      material: PresetMaterial.metal,
+      contourWidth: 2,
+      contourColor: Color.rgb(0x444444),
+      topBevel: const Bevel(
+        width: 63500, // 5 points
+        height: 31750,
+        preset: BevelPreset.angle,
+      ),
+      bottomBevel: const Bevel(
+        width: 63500,
+        height: 31750,
+        preset: BevelPreset.angle,
+      ),
+      lightingAngle: 135,
+      lightingIntensity: 0.9,
+    );
+  }
+
+  /// Creates a plastic/rounded 3D effect.
+  factory ThreeDEffect.plasticRounded({
+    double extrusionHeight = 8.0,
+    double width = 0.5,
+    Color? extrusionColor,
+  }) {
+    return ThreeDEffect(
+      extrusionHeight: extrusionHeight,
+      extrusionColor: extrusionColor,
+      material: PresetMaterial.plastic,
+      contourWidth: width,
+      topBevel: Bevel(
+        width: 2.toEmuFromPoints(),
+        height: 2.toEmuFromPoints(),
+        preset: BevelPreset.softRound,
+      ),
+      bottomBevel: Bevel(
+        width: 2.toEmuFromPoints(),
+        height: 2.toEmuFromPoints(),
+        preset: BevelPreset.softRound,
+      ),
+      lightingAngle: 45,
+      lightingIntensity: 0.7,
+    );
+  }
+
+  /// Creates a subtle 3D effect for buttons.
+  factory ThreeDEffect.button({
+    double extrusionHeight = 5.0,
+    Color? baseColor,
+  }) {
+    return ThreeDEffect(
+      extrusionHeight: extrusionHeight,
+      extrusionColor: baseColor != null
+          ? Color.rgb(_darkenColor(baseColor.rgbValue!, 30))
+          : Color.rgb(0x666666),
+      material: PresetMaterial.plastic,
+      contourWidth: 0.5,
+      contourColor: baseColor != null
+          ? Color.rgb(_darkenColor(baseColor.rgbValue!, 50))
+          : Color.rgb(0x333333),
+      topBevel: const Bevel(
+        width: 19050, // 1.5 points
+        height: 19050,
+        preset: BevelPreset.circle,
+      ),
+      lightingAngle: 315,
+      lightingIntensity: 0.6,
+    );
+  }
+
+  /// Creates a dramatic 3D effect for emphasis.
+  factory ThreeDEffect.dramatic({
+    double extrusionHeight = 20.0,
+    Color? extrusionColor,
+  }) {
+    return ThreeDEffect(
+      extrusionHeight: extrusionHeight,
+      extrusionColor: extrusionColor ?? Color.rgb(0x555555),
+      material: PresetMaterial.metal,
+      contourWidth: 3,
+      contourColor: Color.rgb(0x222222),
+      topBevel: const Bevel(
+        width: 76200, // 6 points
+        height: 38100,
+        preset: BevelPreset.coolSlant,
+      ),
+      bottomBevel: const Bevel(
+        width: 76200,
+        height: 38100,
+        preset: BevelPreset.coolSlant,
+      ),
+      lightingAngle: 225,
+      lightingIntensity: 1,
+    );
+  }
+
+  final int extrusionHeight;
+  final Color? extrusionColor;
+  final int contourWidth;
+  final Color? contourColor;
+  final PresetMaterial material;
+  final Bevel? topBevel;
+  final Bevel? bottomBevel;
+  final int lightingAngle;
+  final int lightingIntensity;
+
+  /// Gets the extrusion height in points.
+  double get extrusionHeightInPoints => extrusionHeight.toPointsFromEmu();
+
+  /// Gets the contour width in points.
+  double get contourWidthInPoints => contourWidth.toPointsFromEmu();
+
+  /// Gets the lighting angle in degrees.
+  double get lightingAngleInDegrees => lightingAngle / (60000 / 360);
+
+  /// Gets the lighting intensity as a decimal (0.0 to 1.0).
+  double get lightingIntensityDecimal => lightingIntensity / 100000.0;
+
+  /// Creates a copy with overridden values.
+  ThreeDEffect copyWith({
+    double? extrusionHeight,
+    Color? extrusionColor,
+    double? contourWidth,
+    Color? contourColor,
+    PresetMaterial? material,
+    Bevel? topBevel,
+    Bevel? bottomBevel,
+    double? lightingAngle,
+    double? lightingIntensity,
+  }) {
+    return ThreeDEffect(
+      extrusionHeight: extrusionHeight ?? extrusionHeightInPoints,
+      extrusionColor: extrusionColor ?? this.extrusionColor,
+      contourWidth: contourWidth ?? contourWidthInPoints,
+      contourColor: contourColor ?? this.contourColor,
+      material: material ?? this.material,
+      topBevel: topBevel ?? this.topBevel,
+      bottomBevel: bottomBevel ?? this.bottomBevel,
+      lightingAngle: lightingAngle ?? lightingAngleInDegrees,
+      lightingIntensity: lightingIntensity ?? lightingIntensityDecimal,
+    );
+  }
+
+  /// Creates a deeper 3D effect.
+  ThreeDEffect deeper([double factor = 1.5]) {
+    return copyWith(
+      extrusionHeight: extrusionHeightInPoints * factor,
+    );
+  }
+
+  /// Creates a shallower 3D effect.
+  ThreeDEffect shallower([double factor = 0.7]) {
+    return copyWith(
+      extrusionHeight: extrusionHeightInPoints * factor,
+    );
+  }
+
+  /// Changes the material type.
+  ThreeDEffect withMaterial(PresetMaterial newMaterial) {
+    return copyWith(material: newMaterial);
+  }
+
+  /// Adds or replaces the top bevel.
+  ThreeDEffect withTopBevel(Bevel bevel) {
+    return copyWith(topBevel: bevel);
+  }
+
+  /// Removes the top bevel.
+  ThreeDEffect withoutTopBevel() {
+    return copyWith(topBevel: null);
+  }
+
+  /// Changes the lighting direction.
+  ThreeDEffect withLightingAngle(double angle) {
+    return copyWith(lightingAngle: angle);
+  }
+
+  static int _darkenColor(int rgb, int percent) {
+    final int r = ((rgb >> 16) & 0xFF) * (100 - percent) ~/ 100;
+    final int g = ((rgb >> 8) & 0xFF) * (100 - percent) ~/ 100;
+    final int b = (rgb & 0xFF) * (100 - percent) ~/ 100;
+
+    return (r.clamp(0, 255) << 16) | (g.clamp(0, 255) << 8) | b.clamp(0, 255);
+  }
+
+  @override
+  String toString() {
+    return 'ThreeDEffect('
+        'height: ${extrusionHeightInPoints.toStringAsFixed(1)}pt, '
+        'material: $material, '
+        'contour: ${contourWidthInPoints.toStringAsFixed(1)}pt'
+        ')';
+  }
+}
+
+/// Bevel configuration for 3D edges.
+class Bevel {
+  const Bevel({
+    required this.width,
+    required this.height,
+    this.preset = BevelPreset.circle,
+  });
+
+  Bevel.points({
+    required double width,
+    required double height,
+    this.preset = BevelPreset.circle,
+  })  : width = width.toEmuFromPoints(),
+        height = height.toEmuFromPoints();
+
+  Bevel.inches({
+    required double width,
+    required double height,
+    this.preset = BevelPreset.circle,
+  })  : width = width.toEmuFromInches(),
+        height = height.toEmuFromInches();
+
+  final int width;
+  final int height;
+  final BevelPreset preset;
+
+  /// Gets the width in points.
+  double get widthInPoints => width.toPointsFromEmu();
+
+  /// Gets the height in points.
+  double get heightInPoints => height.toPointsFromEmu();
+
+  Bevel copyWith({
+    int? width,
+    int? height,
+    BevelPreset? preset,
+  }) {
+    return Bevel(
+      width: width ?? this.width,
+      height: height ?? this.height,
+      preset: preset ?? this.preset,
+    );
+  }
+}

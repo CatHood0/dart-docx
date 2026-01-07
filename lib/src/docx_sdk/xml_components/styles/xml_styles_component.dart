@@ -11,7 +11,6 @@ class XmlStylesComponent extends XmlComponentBase<void> {
           attrs: XmlDocAttributes(
             mc: true,
             w: true,
-            r: true,
             w14: true,
             w15: true,
             ignorables: 'w14',

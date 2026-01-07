@@ -3,7 +3,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/num_extensions.dart';
 import '../../../core/extensions/string_ext.dart';
-import '../../mixins/ignorable_mixin.dart';
 
 class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   Anchor({
@@ -11,7 +10,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
     required this.widthEmu,
     required this.heightEmu,
     required this.name,
-    required this.docPrId,
+    this.elementId,
     required this.config,
     super.parent,
     super.id,
@@ -22,7 +21,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
       ..depth = depth + 1;
   }
 
-  final Object docPrId;
+  int? elementId;
   final String name;
   final AnchorConfig config;
 
@@ -31,10 +30,11 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
+    elementId ??= context.drawingStore.getNextId(id);
     return <XmlElement>[
       XmlElement.tag(
         'wp:anchor',
-        attributes: [
+        attributes: <XmlAttribute>[
           XmlAttribute(
             XmlName.fromString('behindDoc'),
             config.zOrder.toString(),
@@ -71,7 +71,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
         children: <XmlNode>[
           XmlElement.tag(
             'w:simplePos',
-            attributes: {
+            attributes: <XmlAttribute>{
               XmlAttribute(
                 'x'.toName(),
                 config.simplePosX.nonNegative.toString(),
@@ -87,14 +87,14 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
           if (config.wrapType != WrapType.asCharacter)
             XmlOffsetPosition(
               offset: config.anchorOffsetX.nonNegative,
-              alignment: config.horizontalAlign?.name,
+              alignment: config.horizontalPosition?.name,
               relativeFrom: config.horizontalAnchor.name,
               x: true,
             ).buildXml(context),
           if (config.wrapType != WrapType.asCharacter)
             XmlOffsetPosition(
               offset: config.anchorOffsetY.nonNegative,
-              alignment: config.verticalAlign?.name,
+              alignment: config.verticalPosition?.name,
               relativeFrom: config.verticalAnchor.name,
               x: false,
             ).buildXml(context),
@@ -120,7 +120,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
             cy: heightEmu,
           ).buildXml(context: context),
           ...DocProperties(
-            docPrId: docPrId.toString(),
+            docPrId: elementId.toString(),
             name: name.toString(),
             relativeHeight: '0',
           ).buildXml(context: context),
@@ -144,7 +144,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
         widthEmu: widthEmu,
         heightEmu: heightEmu,
         name: name,
-        docPrId: docPrId,
+        elementId: elementId,
       );
 
   @override

@@ -49,7 +49,7 @@ class StyleBuilder {
   final String id;
 
   /// The display name of the style, used in `w:name`.
-  final Map<String, dynamic> _names = {};
+  final Map<String, dynamic> _names = <String, dynamic>{};
 
   /// The type of the style, either 'paragraph' or 'character'.
   final String type;
@@ -83,7 +83,7 @@ class StyleBuilder {
   bool isDoubleStrike = false;
   bool _isCaps = false;
   bool _isSmallCaps = false;
-  VerticalAlign? _verticalAlign;
+  Script? _verticalAlign;
 
   // Paragraph properties (continued)
   Alignment? _alignment;
@@ -340,15 +340,15 @@ class StyleBuilder {
 
   /// Sets the vertical alignment of the text (subscript or superscript).
   ///
-  /// [align] specifies the vertical alignment (e.g., [VerticalAlign.subscript]).
-  StyleBuilder __verticalAlign(VerticalAlign align) {
+  /// [align] specifies the vertical alignment (e.g., [Script.subscript]).
+  StyleBuilder __verticalAlign(Script align) {
     _verticalAlign = align;
     return this;
   }
 
-  StyleBuilder subscript() => __verticalAlign(VerticalAlign.subscript);
+  StyleBuilder subscript() => __verticalAlign(Script.subscript);
 
-  StyleBuilder superscript() => __verticalAlign(VerticalAlign.superscript);
+  StyleBuilder superscript() => __verticalAlign(Script.superscript);
 
   /// Sets the paragraph alignment.
   ///
@@ -361,8 +361,9 @@ class StyleBuilder {
 
   /// Sets the spacing before and after the paragraph.
   ///
-  /// [before] is spacing before the paragraph in twips (1/20th of a point).
+  /// [before] is spacing before the paragraph in twips.
   /// [after] is spacing after the paragraph in twips.
+  /// [line] is the line spacing of the element in twips.
   /// This setting is applicable only to paragraph styles.
   StyleBuilder spacing({
     int? before,
@@ -487,28 +488,28 @@ class StyleBuilder {
     }
 
     if (top != null) {
-      _borders['top'] = {
+      _borders['top'] = <String, String>{
         'val': top.value,
         'sz': (topSize ?? 4).toString(), // Default 0.5pt
         'color': topColor ?? 'auto',
       };
     }
     if (bottom != null) {
-      _borders['bottom'] = {
+      _borders['bottom'] = <String, String>{
         'val': bottom.value,
         'sz': (bottomSize ?? 4).toString(),
         'color': bottomColor ?? 'auto',
       };
     }
     if (left != null) {
-      _borders['left'] = {
+      _borders['left'] = <String, String>{
         'val': left.value,
         'sz': (leftSize ?? 4).toString(),
         'color': leftColor ?? 'auto',
       };
     }
     if (right != null) {
-      _borders['right'] = {
+      _borders['right'] = <String, String>{
         'val': right.value,
         'sz': (rightSize ?? 4).toString(),
         'color': rightColor ?? 'auto',
@@ -524,6 +525,21 @@ class StyleBuilder {
   /// [StyleConfigurator] objects and creates a new [Style] instance.
   Style build() {
     final List<StyleConfigurator> configurators = <StyleConfigurator>[];
+
+
+    if (_configurators.isNotEmpty) {
+      configurators.addAll(_configurators);
+    }
+
+
+    if (_qFormat) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'qFormat',
+        ),
+      );
+    }
 
     if (_basedOn != null) {
       configurators.add(
@@ -555,15 +571,6 @@ class StyleBuilder {
       );
     }
 
-    if (_qFormat) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'qFormat',
-        ),
-      );
-    }
-
     if (_semiHidden) {
       configurators.add(
         StyleConfigurator.selfClosing(
@@ -583,7 +590,7 @@ class StyleBuilder {
     }
 
     if (type == Style.paragraphType) {
-      final paragraphConfigs = <StyleConfigurator>[];
+      final List<StyleConfigurator> paragraphConfigs = <StyleConfigurator>[];
 
       if (_spacingBefore != null ||
           _spacingAfter != null ||
@@ -611,21 +618,13 @@ class StyleBuilder {
         }
 
         if (_lineSpacing != null) {
-          spacingConfigs
-            ..add(
-              StyleConfigurator.selfClosing(
-                prefix: 'w',
-                propertyName: 'line',
-                value: _lineSpacing.toString(),
-              ),
-            )
-            ..add(
-              StyleConfigurator.selfClosing(
-                prefix: 'w',
-                propertyName: 'lineRule',
-                value: _lineRule!.name,
-              ),
-            );
+          spacingConfigs.add(
+            StyleConfigurator.selfClosing(
+              prefix: 'w',
+              propertyName: 'line',
+              value: _lineSpacing.toString(),
+            ),
+          );
         }
 
         if (spacingConfigs.isNotEmpty) {
@@ -633,7 +632,14 @@ class StyleBuilder {
             StyleConfigurator.noSelfClosing(
               prefix: 'w',
               propertyName: 'spacing',
-              configurators: spacingConfigs,
+              configurators: spacingConfigs
+                ..add(
+                  StyleConfigurator.selfClosing(
+                    prefix: 'w',
+                    propertyName: 'lineRule',
+                    value: _lineRule!.name,
+                  ),
+                ),
             ),
           );
         }
@@ -662,7 +668,7 @@ class StyleBuilder {
       if (_firstLineIndent != null ||
           _leftIndent != null ||
           _hangingIndent != null) {
-        final indentConfigs = <StyleConfigurator>[];
+        final List<StyleConfigurator> indentConfigs = <StyleConfigurator>[];
 
         if (_firstLineIndent != null) {
           indentConfigs.add(
@@ -743,7 +749,7 @@ class StyleBuilder {
       }
 
       if (_shadingColor != null || _shadingPattern != null) {
-        final Map<String, dynamic> attributes = {};
+        final Map<String, dynamic> attributes = <String, dynamic>{};
         if (_shadingColor != null) {
           attributes['w:fill'] = _shadingColor;
           attributes['w:color'] = _shadingColor;
@@ -819,7 +825,7 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'sz',
-          value: _fontSize!.toString(),
+          value: _fontSize!.toInt().toString(),
         ),
       );
     }
@@ -828,7 +834,7 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'szCs',
-          value: _fontEastAsiaSize!.toString(),
+          value: _fontEastAsiaSize!.toInt().toString(),
         ),
       );
     }
@@ -935,23 +941,23 @@ class StyleBuilder {
 
     if (_language != null) {
       textConfigs.addAll(
-        [
+        <StyleConfigurator>[
           StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'lang',
-            attributes: {'w:val': _language!.language},
+            attributes: <String, dynamic>{'w:val': _language!.language},
           ),
           if (_language!.eastAsia.isNotEmpty)
             StyleConfigurator.selfClosing(
               prefix: 'w',
               propertyName: 'eastAsia',
-              attributes: {'w:val': _language!.eastAsia},
+              attributes: <String, dynamic>{'w:val': _language!.eastAsia},
             ),
           if (_language!.bidi.isNotEmpty)
             StyleConfigurator.selfClosing(
               prefix: 'w',
               propertyName: 'bidi',
-              attributes: {'w:val': _language!.bidi},
+              attributes: <String, dynamic>{'w:val': _language!.bidi},
             ),
         ],
       );
@@ -965,10 +971,6 @@ class StyleBuilder {
           configurators: textConfigs,
         ),
       );
-    }
-
-    if (_configurators.isNotEmpty) {
-      configurators.addAll(_configurators);
     }
 
     return Style(
@@ -989,90 +991,4 @@ class StyleBuilder {
       }),
     );
   }
-}
-
-/// Represents the horizontal alignment options for a paragraph.
-enum Alignment { left, center, right, both }
-
-/// Represents the vertical alignment options for text (subscript or superscript).
-enum VerticalAlign {
-  subscript('subscript'),
-  superscript('superscript');
-
-  const VerticalAlign(this.name);
-  final String name;
-}
-
-enum LineRule {
-  atLeast('atLeast'),
-  exact('exact'),
-  auto('auto');
-
-  /// Creates a [LineRule] with its corresponding WordML value.
-  const LineRule(this.value);
-
-  /// The WordML string value for the spacing style.
-  final String value;
-}
-
-/// Represents the possible shading patterns for a paragraph.
-enum ShadingPattern {
-  clear('clear'),
-  solid('solid'),
-  horzStripe('horzStripe'),
-  vertStripe('vertStripe'),
-  fwdDiagStripe('fwdDiagStripe'),
-  bkwdDiagStripe('bkwdDiagStripe'),
-  horzCross('horzCross'),
-  diagCross('diagCross'),
-  pct10('pct10'),
-  pct20('pct20'),
-  pct30('pct30'),
-  pct40('pct40'),
-  pct50('pct50'),
-  pct60('pct60'),
-  pct70('pct70'),
-  pct80('pct80'),
-  pct90('pct90');
-
-  const ShadingPattern(this.value);
-  final String value;
-}
-
-/// Represents the possible border styles for a paragraph.
-enum BorderStyle {
-  single('single'),
-  dashDot('dashDot'),
-  dashDotStroked('dashDotStroked'),
-  dashed('dashed'),
-  dotDash('dotDash'),
-  dotDotDash('dotDotDash'),
-  dotted('dotted'),
-  double('double'),
-  doubleWave('doubleWave'),
-  inset('inset'),
-  nil('nil'), // No border
-  none('none'), // No border
-  outset('outset'),
-  thick('thick'),
-  thickThinLargeGap('thickThinLargeGap'),
-  thickThinMediumGap('thickThinMediumGap'),
-  thickThinSmallGap('thickThinSmallGap'),
-  thinThickLargeGap('thinThickLargeGap'),
-  thinThickMediumGap('thinThickMediumGap'),
-  thinThickSmallGap('thinThickSmallGap'),
-  thinThickThinLargeGap('thinThickThinLargeGap'),
-  thinThickThinMediumGap('thinThickThinMediumGap'),
-  thinThickThinSmallGap('thinThickThinSmallGap'),
-  threeDColumn('threeDColumn'),
-  threeDEmboss('threeDEmboss'),
-  threeDEngrave('threeDEngrave'),
-  triple('triple'),
-  wave('wave');
-
-  /// Creates a [BorderStyle] with its corresponding WordML value.
-  const BorderStyle(this.value);
-
-  /// The WordML string value for the border style.
-  final String value;
 }

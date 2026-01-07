@@ -39,10 +39,10 @@ class SettingsOptions {
       numberRestart: NoteNumberRestart.continuous,
     ),
     List<CompatSetting>? compatSettings,
-    this.mathProperties = const MathPropertiesOptions(),
+    this.mathProperties,
     this.themeFontLanguage = 'en-US',
     this.themeFontLanguageEastAsia = 'zh-CN',
-    this.colorSchemeMapping = const {
+    this.colorSchemeMapping = const <String, String>{
       'bg1': 'light1',
       't1': 'dark1',
       'bg2': 'light2',
@@ -70,22 +70,7 @@ class SettingsOptions {
       CompatSetting(
         name: 'compatibilityMode',
         uri: namespaces['word']!,
-        val: '15',
-      ),
-      CompatSetting(
-        name: 'overrideTableStyleFontSizeAndJustification',
-        uri: namespaces['word']!,
-        val: '1',
-      ),
-      CompatSetting(
-        name: 'enableOpenTypeFeatures',
-        uri: namespaces['word']!,
-        val: '1',
-      ),
-      CompatSetting(
-        name: 'doNotFlipMirrorIndents',
-        uri: namespaces['word']!,
-        val: '1',
+        val: '12',
       ),
     ],
   );
@@ -122,7 +107,7 @@ class SettingsOptions {
   final List<CompatSetting> compatSettings;
 
   /// Options for configuring mathematical properties.
-  final MathPropertiesOptions mathProperties;
+  final MathPropertiesOptions? mathProperties;
 
   /// The default theme font language.
   ///

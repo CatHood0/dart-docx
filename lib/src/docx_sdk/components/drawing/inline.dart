@@ -8,7 +8,11 @@ import '../../mixins/ignorable_mixin.dart';
 class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
   Inline({
     required Iterable<DocxTreeNode> components,
+    required this.name,
+    required this.width,
+    required this.height,
     required this.distance,
+    super.id,
   }) : super(data: components) {
     int index = 0;
     for (final DocxTreeNode<dynamic> content in data) {
@@ -22,8 +26,20 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
 
   final TextDistance distance;
 
+  int? elementId;
+  final String name;
+  final num width;
+  final num height;
+
   @override
-  Inline get copy => Inline(distance: distance, components: data);
+  Inline get copy => Inline(
+        id: id,
+        height: height,
+        name: name,
+        width: width,
+        components: data,
+        distance: distance,
+      );
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -36,6 +52,7 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
       context.currentContentPart = element;
       children.addAll(element.buildXml(context: context));
     }
+    elementId ??= context.drawingStore.getNextId(id);
     context.currentContentPart = this;
     return <XmlElement>[
       XmlElement.tag(
@@ -59,7 +76,18 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
           ),
         ],
         isSelfClosing: children.isEmpty,
-        children: children,
+        children: <XmlNode>[
+          ...Extent(
+            cx: width,
+            cy: height,
+          ).buildXml(context: context),
+          ...DocProperties(
+            docPrId: elementId!.toString(),
+            name: name,
+            description: name,
+          ).buildXml(context: context),
+          ...children,
+        ],
       ),
     ];
   }

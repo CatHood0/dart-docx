@@ -7,12 +7,14 @@ import '../../../core/extensions/style_to_from_node.dart';
 class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   Paragraph({
     required Iterable<RunBase> data,
-    this.styles = const [],
-    this.runStyles = const [],
+    Iterable<Style> styles = const <Style>[],
+    Iterable<Style> runStyles = const <Style>[],
     this.pageBreak = ParagraphPagebreak.none,
     this.numbering,
     super.id,
-  }) : super(parent: null, data: data) {
+  })  : styles = List.from(styles),
+        runStyles = List.from(runStyles),
+        super(parent: null, data: data) {
     int index = 0;
     for (final RunBase content in data) {
       content
@@ -22,6 +24,12 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       index++;
     }
   }
+
+  factory Paragraph.empty() => Paragraph(
+        data: <RunBase>[
+          TextRun.empty(),
+        ],
+      );
 
   /// All the styles applied to the paragraph
   List<Style> styles;
@@ -34,7 +42,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
-    final List<XmlNode> paragraphChildren = [];
+    final List<XmlNode> paragraphChildren = <XmlNode>[];
     final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
 
     if (paragraphStyles.isNotEmpty) {
@@ -80,7 +88,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
 
   @override
   List<XmlElement> buildXmlStyle({required DocumentContext context}) {
-    final List<XmlElement> pPrChildren = [];
+    final List<XmlElement> pPrChildren = <XmlElement>[];
 
     if (numbering != null) {
       if (numbering!.level > 9) {
@@ -104,10 +112,10 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       pPrChildren.add(
         XmlElement.tag(
           'w:numPr',
-          children: [
+          children: <XmlNode>[
             XmlElement.tag(
               'w:ilvl',
-              attributes: [
+              attributes: <XmlAttribute>[
                 XmlAttribute(
                   'w:val'.toName(),
                   numbering!.level.toString(),
@@ -116,7 +124,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
             ),
             XmlElement.tag(
               'w:numId',
-              attributes: [
+              attributes: <XmlAttribute>[
                 XmlAttribute(
                   'w:val'.toName(),
                   context.getConcreteNumId!(reference)!.toString(),
@@ -143,17 +151,11 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       }
       // when a style isnt in DocumentStylesSheet, we prefer ignoring its
       // w:pStyle ref
-      final bool shouldShowStyleRef = !style.isReference;
       appliedStyles[style.styleId] = style;
       // references does not require apply of attributes
-      if (style.isReference) {
-        pPrChildren.addAll(style.forParagraphStyle(
-          useConfigurators: false,
-        ));
-        continue;
-      }
       pPrChildren.addAll(style.forParagraphStyle(
-        shouldShowStyleRef: shouldShowStyleRef,
+        shouldShowStyleRef: style.isReference,
+        useConfigurators: !style.isReference,
       ));
     }
     return <XmlElement>[...pPrChildren];

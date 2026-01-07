@@ -21,9 +21,10 @@ class Run extends RunBase<DocxTreeNode> {
     return wrapInRunMark
         ? <XmlNode>[
             super.runParent(
-                nodes: data.buildXml(
-              context: context,
-            )),
+              nodes: data.buildXml(
+                context: context,
+              ),
+            ),
           ]
         : data.buildXml(context: context);
   }

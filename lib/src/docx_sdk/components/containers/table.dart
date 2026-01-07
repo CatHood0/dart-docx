@@ -29,8 +29,9 @@ class TableContent extends ComponentContainer<Iterable<TableRow>> {
     if (properties.gridColWidthBuilder != null) {
       for (int i = 0; i < data.length; i++) {
         final TableRow tr = data.elementAt(i);
-        final double width =
-            inchToFromTwip(properties.gridColWidthBuilder!(tr, i)).toDouble();
+        final double width = properties.gridColWidthBuilder!(tr, i)
+            .toTwipsFromPoints()
+            .toDouble();
         _gridCols.add(
           XmlElement.tag(
             'w:gridCol',

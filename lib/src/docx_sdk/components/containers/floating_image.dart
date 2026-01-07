@@ -4,7 +4,6 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
-import 'anchor.dart';
 
 class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
   FloatingImage({
@@ -37,7 +36,9 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
       );
     }
 
-    final int? docPrId = context.store.getIndexId(id);
+    // relates the id with an index id, so, its more easy
+    // to get it in more another places
+    final int elementId = context.drawingStore.getNextId(id);
 
     num? imgWidthEmu = data.width;
     num? imgHeightEmu = data.height;
@@ -74,10 +75,9 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
         ),
         config: data.anchorConfig,
         widthEmu: imgWidthEmu!,
-        parent: this,
         heightEmu: imgHeightEmu!,
         name: imageName,
-        docPrId: docPrId!.toString(),
+        elementId: elementId,
       ).buildXml(context: context),
     ];
   }

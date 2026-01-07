@@ -20,10 +20,10 @@ class AnchorConfig {
     this.anchorOffsetX = 0,
     this.anchorOffsetY = 0,
     this.distanceFromText = const TextDistance(),
-    this.horizontalAnchor = RelativeHorizontalAnchor.paragraph,
-    this.verticalAnchor = RelativeVerticalAnchor.paragraph,
-    this.horizontalAlign = RelativeHorizontalAlign.left,
-    this.verticalAlign = RelativeVerticalAlign.top,
+    this.horizontalAnchor = HorizontalAnchorPosition.paragraph,
+    this.verticalAnchor = VerticalAnchorPosition.paragraph,
+    this.horizontalPosition = AnchorPosition.left,
+    this.verticalPosition = AnchorPosition.top,
   }) : assert(
           () {
             // square and tight must be defined with its own
@@ -163,23 +163,23 @@ class AnchorConfig {
   ///
   /// Example: margin, page, column, character, etc.
   /// Corresponds to `relativeFrom` attribute in `<wp:positionH>`.
-  final RelativeHorizontalAnchor horizontalAnchor;
+  final HorizontalAnchorPosition horizontalAnchor;
 
   /// What the vertical position is relative to.
   ///
   /// Example: margin, page, paragraph, line, etc.
   /// Corresponds to `relativeFrom` attribute in `<wp:positionV>`.
-  final RelativeVerticalAnchor verticalAnchor;
+  final VerticalAnchorPosition verticalAnchor;
 
   /// Horizontal alignment relative to the horizontal anchor.
   ///
   /// How the object is aligned within its horizontal positioning context.
-  final RelativeHorizontalAlign? horizontalAlign;
+  final AnchorPosition? horizontalPosition;
 
   /// Vertical alignment relative to the vertical anchor.
   ///
   /// How the object is aligned within its vertical positioning context.
-  final RelativeVerticalAlign? verticalAlign;
+  final AnchorPosition? verticalPosition;
 
   /// Whether this is an inline object (not floating).
   bool get isInline => wrapType == WrapType.asCharacter;
@@ -204,10 +204,10 @@ class AnchorConfig {
     int? anchorOffsetX,
     int? anchorOffsetY,
     TextDistance? distanceFromText,
-    RelativeHorizontalAnchor? horizontalAnchor,
-    RelativeVerticalAnchor? verticalAnchor,
-    RelativeHorizontalAlign? horizontalAlign,
-    RelativeVerticalAlign? verticalAlign,
+    HorizontalAnchorPosition? horizontalAnchor,
+    VerticalAnchorPosition? verticalAnchor,
+    AnchorPosition? horizontalPosition,
+    AnchorPosition? verticalPosition,
   }) {
     return AnchorConfig(
       wrapType: wrapType ?? this.wrapType,
@@ -224,8 +224,8 @@ class AnchorConfig {
       distanceFromText: distanceFromText ?? this.distanceFromText,
       horizontalAnchor: horizontalAnchor ?? this.horizontalAnchor,
       verticalAnchor: verticalAnchor ?? this.verticalAnchor,
-      horizontalAlign: horizontalAlign ?? this.horizontalAlign,
-      verticalAlign: verticalAlign ?? this.verticalAlign,
+      horizontalPosition: horizontalPosition ?? this.horizontalPosition,
+      verticalPosition: verticalPosition ?? this.verticalPosition,
     );
   }
 
@@ -318,7 +318,7 @@ enum WrapSide {
 /// Horizontal positioning anchor in DOCX.
 ///
 /// What the horizontal position is relative to (`relativeFrom` attribute).
-enum RelativeHorizontalAnchor {
+enum HorizontalAnchorPosition {
   /// Relative to page margin.
   ///
   /// Most common for floating objects.
@@ -364,7 +364,7 @@ enum RelativeHorizontalAnchor {
   /// For book layouts with different inner/outer margins.
   outsideMargin('outsideMargin');
 
-  const RelativeHorizontalAnchor(this.xmlValue);
+  const HorizontalAnchorPosition(this.xmlValue);
 
   /// The value used in DOCX XML `relativeFrom` attribute.
   final String xmlValue;
@@ -373,7 +373,7 @@ enum RelativeHorizontalAnchor {
 /// Vertical positioning anchor in DOCX.
 ///
 /// What the vertical position is relative to (`relativeFrom` attribute).
-enum RelativeVerticalAnchor {
+enum VerticalAnchorPosition {
   /// Relative to page margin.
   margin('margin'),
 
@@ -400,14 +400,14 @@ enum RelativeVerticalAnchor {
   /// Relative to outside margin (for facing pages).
   outsideMargin('outsideMargin');
 
-  const RelativeVerticalAnchor(this.xmlValue);
+  const VerticalAnchorPosition(this.xmlValue);
 
   /// The value used in DOCX XML `relativeFrom` attribute.
   final String xmlValue;
 }
 
 /// Horizontal alignment within anchor context.
-enum RelativeHorizontalAlign {
+enum AnchorPosition {
   /// Align left within anchor context.
   left('left'),
 
@@ -421,32 +421,15 @@ enum RelativeHorizontalAlign {
   inside('inside'),
 
   /// Align to outside (for book layouts).
-  outside('outside');
+  outside('outside'),
 
-  const RelativeHorizontalAlign(this.xmlValue);
-
-  /// The value used in DOCX XML `align` attribute.
-  final String xmlValue;
-}
-
-/// Vertical alignment within anchor context.
-enum RelativeVerticalAlign {
   /// Align to top of anchor context.
   top('top'),
 
-  /// Center within anchor context.
-  center('center'),
-
   /// Align to bottom of anchor context.
-  bottom('bottom'),
+  bottom('bottom');
 
-  /// Align to inside (for book layouts).
-  inside('inside'),
-
-  /// Align to outside (for book layouts).
-  outside('outside');
-
-  const RelativeVerticalAlign(this.xmlValue);
+  const AnchorPosition(this.xmlValue);
 
   /// The value used in DOCX XML `align` attribute.
   final String xmlValue;

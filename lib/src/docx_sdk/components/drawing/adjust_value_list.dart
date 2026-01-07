@@ -1,9 +1,25 @@
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
+import '../../../core/extensions/skippable_iterations_ext.dart';
+import '../../../core/extensions/string_ext.dart';
+
+class AdjustValue {
+  AdjustValue({
+    required this.name,
+    required this.value,
+  });
+
+  final String name;
+  final Object? value;
+}
 
 // Represents a:avLst
-class AdjustValueList extends DocxTreeNode<dynamic> {
-  AdjustValueList() : super(data: null);
+class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
+  AdjustValueList({
+    Iterable<AdjustValue> values = const <AdjustValue>[],
+  }) : super(
+          data: values
+        );
 
   @override
   AdjustValueList get copy => AdjustValueList();
@@ -13,7 +29,24 @@ class AdjustValueList extends DocxTreeNode<dynamic> {
     return <XmlElement>[
       XmlElement.tag(
         'a:avLst',
-        isSelfClosing: true,
+        isSelfClosing: data.isEmpty,
+        children: <XmlNode>[
+          // to allow shape compatibility
+          // we build geometric formulas
+          //
+          // them are not useful for images, but for
+          // shapes works
+          ...data.skippableMap((el) {
+            if (el.value == null) return null;
+            return XmlElement.tag(
+              'a:gd',
+              attributes: [
+                XmlAttribute('name'.toName(), el.name),
+                XmlAttribute('fmla'.toName(), el.value.toString()),
+              ],
+            );
+          })
+        ],
       ),
     ];
   }
@@ -39,4 +72,3 @@ class AdjustValueList extends DocxTreeNode<dynamic> {
     return [];
   }
 }
-

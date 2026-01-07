@@ -1,25 +1,26 @@
 import 'dart:typed_data';
 import 'sdk.dart';
-import 'stores/font_store.dart';
-import 'stores/numbering_store.dart';
+import 'utils/logger/logger_configs.dart';
 import 'xml_components/numbering/abstract_numbering_component.dart';
 import 'xml_components/numbering/concrete_numbering_component.dart';
 
 class DocumentContext {
   DocumentContext({
     required this.options,
-    required this.store,
+    required this.mediaStore,
     required this.hyperlinkStore,
     required this.fontStore,
     required this.numberingStore,
     required this.setNormalStyleToNotStyledParagraphs,
     required this.defaultNormalStyle,
+    required this.drawingStore,
   });
 
   DocumentContext.base({DocumentOptions? options})
-      : store = MediaStore(),
+      : mediaStore = MediaStore(),
         hyperlinkStore = HyperlinkStore(),
         fontStore = FontStore(),
+        drawingStore = DrawingElementCounterStore(),
         numberingStore = NumberingStore(),
         setNormalStyleToNotStyledParagraphs = true,
         defaultNormalStyle = Style.reference('Normal'),
@@ -32,7 +33,8 @@ class DocumentContext {
   /// Determines if the paragraph will be created referencing the
   /// "Normal" style
   final Style defaultNormalStyle;
-  final MediaStore store;
+  final MediaStore mediaStore;
+  final DrawingElementCounterStore drawingStore;
   final DocumentOptions options;
   final HyperlinkStore hyperlinkStore;
   final FontStore fontStore;
@@ -60,6 +62,22 @@ class DocumentContext {
     if (_currentContentPart == content) return;
     _currentContentPart = content;
   }
+
+  T? getAncestorOfExactType<T extends DocxTreeNode>() {
+    DocxTreeNode? current = _currentContentPart;
+    CompilerLogger.root.d(
+      'Searching ancestor '
+      'of type ${T.toString()} from '
+      'node ${current?.runtimeType}:${current?.id}',
+    );
+    while (current != null) {
+      if (current is T) {
+        return current;
+      }
+      current = current.parent;
+    }
+    return null;
+  }
 }
 
 class MediaData {
@@ -68,16 +86,16 @@ class MediaData {
     required this.id,
     required this.extension,
     required this.bytes,
-    required this.imageRefId,
+    required this.relationshipId,
     this.fileName = '',
   });
 
   // this is the rId of the image
-  final String imageRefId;
+  final String relationshipId;
   final Uint8List bytes;
   // the name of the image into DOCX file
   final String name;
-  // the name of the image into the media folder 
+  // the name of the image into the media folder
   final String fileName;
   // this id is auto-generated
   // to be pasted
