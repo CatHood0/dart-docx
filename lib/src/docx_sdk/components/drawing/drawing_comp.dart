@@ -1,10 +1,9 @@
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
-import '../../mixins/ignorable_mixin.dart';
 
-class WordDrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
-  WordDrawingML({
+class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
+  DrawingML({
     required super.data,
     super.id,
   }) {
@@ -33,7 +32,7 @@ class WordDrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   }
 
   @override
-  DocxTreeNode<DocxTreeNode<dynamic>> get copy => WordDrawingML(
+  DocxTreeNode<DocxTreeNode<dynamic>> get copy => DrawingML(
         data: data.copy,
         id: id,
       );

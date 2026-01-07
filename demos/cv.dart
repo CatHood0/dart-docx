@@ -29,7 +29,7 @@ Future<void> main() async {
       sections: <DocxTreeNode<dynamic>>[
         Paragraph(data: <RunBase<dynamic>>[
           Run(
-            component: WordDrawingML(
+            component: DrawingML(
               data: FloatingImage(
                 data: ImageData(
                   buffer: await File('assets/cv_person.png').readAsBytes(),
@@ -138,12 +138,10 @@ Future<void> main() async {
 
   final Uint8List? bytes = await DocxMetadataPacker()
       .dynamicFontSearch(true)
-      .logPath(DocxPaths.documentFilePath)
       .bytes(doc, applyCustomTheme: false);
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);
-    print('Saved CV to ${outFile.path}');
   } else {
     stderr.writeln('Failed to generate CV .docx');
   }

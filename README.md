@@ -4,115 +4,32 @@
 
 Planned parsers include HTML, Markdown, plain text, and Quill Delta, enabling structured transformations between common content formats and Word documents while preserving document semantics.
 
-You can create complex documents with paragraphs, rich text formatting, images, hyperlinks, tables, and more, while fully controlling styles, document properties, and media handling.
+## Examples
 
-Below is an example of a document generated entirely through the declarative API:
+The following documents were generated entirely using the `docx` declarative API.
+Each example is available as runnable code under the `demos/` directory.
 
-![](./assets/easy_example.png)
+### Literary document
+![](./assets/novel.png)
 
-_content omitted for brevity_
+→ `novel.dart`
 
-```dart
+### Curriculum Vitae
+![](./assets/cv.png)
 
-import 'package:docx/docx.dart';
-final DocxDocument document = DocxDocument(
-  options: DocumentOptions.standard(
-    title: 'Whispers in the Fog',
-    creator: 'Midnight Writer',
-    description: 'A psychological thriller about memory and redemption',
-    subject: 'Fiction / Thriller',
-    keywords: <String>['noir', 'mystery', 'psychological', 'thriller'],
-    styles: DocumentStylesSheet.base().withNewStyles(
-      <Style>[
-        StyleBuilder.paragraph('Chapter')
-            .names(<String, dynamic>{
-              'Chapter': LanguageCodes.englishUS,
-              'Capítulo': LanguageCodes.spanishMX,
-            })
-            .fontSize(20.toHalfPointsFromPoints())
-            .fontFamily('Georgia')
-            .bold()
-            .smallCaps()
-            .alignment(Alignment.center)
-            .qFormat(true)
-            .spacing(before: 240, after: 120)
-            .uiPriority(18)
-            .basedOn('Normal')
-            .next('BodyText')
-            .build(),
-        StyleBuilder.paragraph('BodyText')
-            .names(<String, dynamic>{
-              'Body Text': LanguageCodes.englishUS,
-              'Texto Cuerpo': LanguageCodes.spanishMX,
-            })
-            .fontSize(13.toHalfPointsFromPoints())
-            .fontFamily('Times New Roman')
-            .alignment(Alignment.left)
-            .qFormat(true)
-            .spacing(line: 276)
-            .indent(firstLine: 360)
-            .uiPriority(10)
-            .basedOn('Normal')
-            .build(),
-        StyleBuilder.paragraph('Quote')
-            .names(<String, dynamic>{
-              'Quote': LanguageCodes.englishUS,
-              'Cita': LanguageCodes.spanishMX,
-            })
-            .fontSize(12.toHalfPointsFromPoints())
-            .fontFamily('Times New Roman')
-            .italic()
-            .runColor(Color.rgb(0x444444))
-            .alignment(Alignment.left)
-            .qFormat(true)
-            .indent(left: 360, right: 360)
-            .spacing(before: 120, after: 120, line: 240)
-            .uiPriority(15)
-            .basedOn('Normal')
-            .build(),
-      ],
-    ),
-  ),
-  root: DocumentRoot(
-    sections: <DocxTreeNode<dynamic>>[
-      Paragraph(
-        data: [...],
-        styles: <Style>[
-          Style.reference('Chapter'),
-        ],
-      ),
-      Paragraph(
-        data: [...],
-        styles: <Style>[
-          Style.reference('BodyText'),
-        ],
-      ),
-      Paragraph(
-        data: [...],
-        styles: <Style>[
-          Style.reference('Quote'),
-        ],
-      ),
-      Paragraph(
-        data: [...],
-        styles: <Style>[
-          Style.reference('BodyText'),
-        ],
-      ),
-      Paragraph(
-        data: [...],
-        styles: <Style>[
-          Style.reference('BodyText'),
-        ],
-      ),
-    ],
-  ),
-);
-```
+→ `cv.dart`
+
+### Vector shapes (DrawingML)
+![](./assets/heart_shape.png)
+![](./assets/heart_with_border.png)
+
+→ `heart_shape.dart`  
+→ `heart_with_border.dart`
 
 > [!WARNING]
 > * Additional format parsers: planned
 > * Incremental editing: planned / experimental
+> * Shapes effects (e.g., shadows, gradients): are experimental at this points, since the documentation about DrawingML is limited.
 
 ## Key Features
 

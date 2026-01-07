@@ -18,7 +18,7 @@ Future<void> main() async {
           data: <RunBase<dynamic>>[
             Run(
               wrapInRunMark: true,
-              component: WordDrawingML(
+              component: DrawingML(
                 data: Anchor(
                   widthEmu: size,
                   heightEmu: size,
@@ -68,7 +68,6 @@ Future<void> main() async {
 
   final Uint8List? bytes = await DocxMetadataPacker()
       .dynamicFontSearch(true)
-      .logPath(DocxPaths.documentFilePath)
       .bytes(doc, applyCustomTheme: false);
 
   if (bytes != null) {
