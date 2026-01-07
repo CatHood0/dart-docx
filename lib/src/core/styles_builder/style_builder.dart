@@ -526,11 +526,9 @@ class StyleBuilder {
   Style build() {
     final List<StyleConfigurator> configurators = <StyleConfigurator>[];
 
-
     if (_configurators.isNotEmpty) {
       configurators.addAll(_configurators);
     }
-
 
     if (_qFormat) {
       configurators.add(
@@ -595,36 +593,22 @@ class StyleBuilder {
       if (_spacingBefore != null ||
           _spacingAfter != null ||
           _lineSpacing != null) {
-        final List<StyleConfigurator> spacingConfigs = <StyleConfigurator>[];
+        final Map<String, dynamic> spacingConfigs = <String, dynamic>{
+          'w:before': 0,
+          'w:after': 0,
+        };
 
         if (_spacingBefore != null) {
-          spacingConfigs.add(
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'before',
-              value: _spacingBefore.toString(),
-            ),
-          );
+          spacingConfigs['w:before'] = _spacingBefore.toString();
         }
 
         if (_spacingAfter != null) {
-          spacingConfigs.add(
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'after',
-              value: _spacingAfter.toString(),
-            ),
-          );
+          spacingConfigs['w:after'] = _spacingAfter.toString();
         }
 
         if (_lineSpacing != null) {
-          spacingConfigs.add(
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'line',
-              value: _lineSpacing.toString(),
-            ),
-          );
+          spacingConfigs['w:line'] = _lineSpacing.toString();
+          spacingConfigs['w:lineRule'] = _lineRule!.name.toString();
         }
 
         if (spacingConfigs.isNotEmpty) {
@@ -632,14 +616,7 @@ class StyleBuilder {
             StyleConfigurator.noSelfClosing(
               prefix: 'w',
               propertyName: 'spacing',
-              configurators: spacingConfigs
-                ..add(
-                  StyleConfigurator.selfClosing(
-                    prefix: 'w',
-                    propertyName: 'lineRule',
-                    value: _lineRule!.name,
-                  ),
-                ),
+              attributes: spacingConfigs,
             ),
           );
         }

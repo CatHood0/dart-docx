@@ -105,8 +105,8 @@ Future<void> main() async {
             ),
           ],
           styles: <Style>[
-            Style.reference('Chapter'),
             StyleBuilder.singularP()
+                .lineSpacing(1.5.toLineSpacingFromInch())
                 .spacing(after: 200.toTwipsFromPoints())
                 .build(),
           ],
@@ -182,7 +182,7 @@ Future<void> main() async {
 
   final Uint8List? bytes = await DocxMetadataPacker()
       .dynamicFontSearch(true)
-      .logPath(DocxPaths.settingsXmlFilePath)
+      .logPath(DocxPaths.documentFilePath)
       .bytes(document, applyCustomTheme: false);
 
   if (bytes != null) {
@@ -191,3 +191,4 @@ Future<void> main() async {
     stderr.writeln('Failed to generate mini-novel .docx');
   }
 }
+
