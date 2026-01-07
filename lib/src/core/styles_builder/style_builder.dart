@@ -1,5 +1,4 @@
 import '../../../docx.dart';
-import '../../docx_sdk/utils/language_codes.dart';
 import '../extensions/skippable_iterations_ext.dart';
 
 /// A builder class for creating and configuring [Style] objects.
