@@ -4,6 +4,11 @@ int inchToLineSpacing(num inches) {
   return (inches * lineSpacingPerInch).round();
 }
 
+/// Maximum alpha value in EMU (1.0 = 100% opacity).
+int toAlphaUnitValue(num alpha) {
+  return (alpha.clamp(0.0, 1.0) * maxAlphaEmu).round();
+}
+
 /// Converts points to half-points.
 /// 1 point = 2 half-points.
 int pointsToHalfPoints(num points) {
@@ -338,4 +343,6 @@ extension DoubleConversions on num {
 
   int toLineSpacingFromInch() => inchToLineSpacing(this);
   int toEmuFromDxa() => toPointsFromDxa().toEmuFromPoints();
+
+  int toAlphaUnit() => toAlphaUnitValue(this);
 }

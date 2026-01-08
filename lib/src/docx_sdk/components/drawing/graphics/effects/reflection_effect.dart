@@ -133,10 +133,10 @@ class ReflectionEffect {
         distance = distance.toEmuFromPoints(),
         direction = (direction * (degressTh / 360)).round(),
         fadeDirection = (fadeDirection * (degressTh / 360)).round(),
-        startPosition = (startPosition.clamp(0.0, 1.0) * maxAlphaEmu).toInt(),
-        endPosition = (endPosition.clamp(0.0, 1.0) * maxAlphaEmu).toInt(),
-        startOpacity = (startOpacity.clamp(0.0, 1.0) * maxAlphaEmu).toInt(),
-        endOpacity = (endOpacity.clamp(0.0, 1.0) * maxAlphaEmu).toInt();
+        startPosition = startPosition.toAlphaUnit(),
+        endPosition = endPosition.toAlphaUnit(),
+        startOpacity = startOpacity.toAlphaUnit(),
+        endOpacity = endOpacity.toAlphaUnit();
 
   ReflectionEffect.raw({
     required this.alignment,

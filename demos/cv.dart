@@ -47,8 +47,7 @@ Future<void> main() async {
                   heightEmu: heightVertical,
                   name: 'vertical rectangle',
                   config: AnchorConfig(
-                    wrapType: WrapType.square,
-                    wrapSide: WrapSide.bothSides,
+                    wrapType: WrapType.none,
                     zOrder: 0,
                     allowOverlap: true,
                     layoutInCell: false,
@@ -76,11 +75,10 @@ Future<void> main() async {
                             preset: PresetShapeType.rectangle,
                           ),
                           fill: SolidFill(
-                            data: Color.rgb(0xFF0000),
-                          ),
-                          outline: ShapeOutline(
-                            color: Color.rgb(0xFF0000),
-                            width: emu,
+                            data: Color.rgb(
+                              0xFF0000,
+                              0.35.toAlphaUnit(),
+                            ),
                           ),
                         ),
                       ),
@@ -90,6 +88,20 @@ Future<void> main() async {
               ),
             ),
           ],
+        ),
+        TextFrame(
+          data: <DocxTreeNode<dynamic>>[
+            TextRun.fromString(
+              text: 'This is an example',
+            ),
+          ],
+          hAnchor: HorizontalAnchorPosition.page,
+          vAnchor: VerticalAnchorPosition.page,
+          wrap: FrameWrap.none,
+          offsetX: 1.5.toEmuFromPoints(),
+          offsetY: 50.toEmuFromPoints(),
+          width: 100.toEmuFromPoints(),
+          height: 100.toEmuFromPoints(),
         ),
         Paragraph(data: <RunBase<dynamic>>[
           Run(

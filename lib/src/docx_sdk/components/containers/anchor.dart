@@ -98,7 +98,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
               relativeFrom: config.verticalAnchor.name,
               x: false,
             ).buildXml(context),
-          if (config.wrapType != WrapType.none &&
+          if ((config.wrapType != WrapType.noWrap) &&
               config.wrapType != WrapType.asCharacter)
             XmlElement.tag(
               'wp:wrap${config.wrapType.name.capitalize()}',

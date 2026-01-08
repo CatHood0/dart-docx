@@ -1,6 +1,7 @@
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
+import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/string_ext.dart';
 
 /// Represents a text frame within the Word document.
@@ -22,7 +23,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
   /// [wrap] defines how text wraps around the frame.
   /// [vAnchor] and [hAnchor] define how the frame is anchored vertically and horizontally.
   /// [xAlign] and [yAlign] specify the horizontal and vertical alignment of the frame.
-  /// [x] and [y] are optional absolute X and Y positions in twips.
+  /// [offsetX] and [offsetY] are optional absolute X and Y positions in twips.
   /// [border] is an optional map to define borders for the frame,
   /// similar to how paragraph borders are defined in [StyleBuilder].
   TextFrame({
@@ -31,12 +32,12 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
     required int height,
     super.id,
     this.wrap = FrameWrap.auto,
-    this.vAnchor = FrameAnchor.page,
-    this.hAnchor = FrameAnchor.page,
-    this.xAlign = FrameHorizontalAlignment.left,
-    this.yAlign = FrameVerticalAlignment.top,
-    this.x, // Optional absolute X position in twips
-    this.y, // Optional absolute Y position in twips
+    this.vAnchor = VerticalAnchorPosition.page,
+    this.hAnchor = HorizontalAnchorPosition.page,
+    this.xAlign = AnchorPosition.left,
+    this.yAlign = AnchorPosition.top,
+    this.offsetX, // Optional absolute X position in twips
+    this.offsetY, // Optional absolute Y position in twips
     this.border, // Optional borders for the frame
   })  : width = width.toTwipsFromPixels96dpi(),
         height = height.toTwipsFromPixels96dpi(),
@@ -44,7 +45,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
     // Set parent for all children
 
     int index = 0;
-    for (final content in data) {
+    for (final DocxTreeNode<dynamic> content in data) {
       content
         ..parent = this
         ..index = index
@@ -56,12 +57,12 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
   final int width;
   final int height;
   final FrameWrap wrap;
-  final FrameAnchor vAnchor;
-  final FrameAnchor hAnchor;
-  final FrameHorizontalAlignment xAlign;
-  final FrameVerticalAlignment yAlign;
-  final int? x;
-  final int? y;
+  final VerticalAnchorPosition vAnchor;
+  final HorizontalAnchorPosition hAnchor;
+  final AnchorPosition xAlign;
+  final AnchorPosition yAlign;
+  final int? offsetX;
+  final int? offsetY;
   final Style? border;
 
   @override
@@ -69,7 +70,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
         id: id,
         data: data
             .map(
-              (e) => e.copy,
+              (DocxTreeNode<dynamic> e) => e.copy,
             )
             .toList(),
         width: width,
@@ -79,28 +80,26 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
         vAnchor: vAnchor,
         xAlign: xAlign,
         yAlign: yAlign,
-        x: x,
-        y: y,
+        offsetX: offsetX,
+        offsetY: offsetY,
         border: border,
       );
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
-    final List<XmlAttribute> frameAttributes = [
+    final List<XmlAttribute> frameAttributes = <XmlAttribute>[
       XmlAttribute('w:w'.toName(), width.toString()),
       XmlAttribute('w:h'.toName(), height.toString()),
       XmlAttribute('w:wrap'.toName(), wrap.value),
-      XmlAttribute('w:vAnchor'.toName(), vAnchor.value),
-      XmlAttribute('w:hAnchor'.toName(), hAnchor.value),
-      XmlAttribute('w:xAlign'.toName(), xAlign.value),
-      XmlAttribute('w:yAlign'.toName(), yAlign.value),
-      if (x != null) XmlAttribute('w:x'.toName(), x.toString()),
-      if (y != null) XmlAttribute('w:y'.toName(), y.toString()),
+      XmlAttribute('w:vAnchor'.toName(), vAnchor.xmlValue),
+      XmlAttribute('w:hAnchor'.toName(), hAnchor.xmlValue),
+      XmlAttribute('w:xAlign'.toName(), xAlign.xmlValue),
+      XmlAttribute('w:yAlign'.toName(), yAlign.xmlValue),
+      if (offsetX != null) XmlAttribute('w:x'.toName(), offsetX.toString()),
+      if (offsetY != null) XmlAttribute('w:y'.toName(), offsetY.toString()),
     ];
 
-    final List<XmlNode> paragraphPropertiesChildren = [
-      // Add frame properties to paragraph properties
-
+    final List<XmlNode> paragraphPropertiesChildren = <XmlNode>[
       XmlElement.tag(
         'w:framePr',
         attributes: frameAttributes,
@@ -119,11 +118,11 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
       );
     }
 
-    final List<XmlNode> paragraphChildren = [];
+    final List<XmlNode> paragraphChildren = <XmlNode>[];
     if (paragraphPropertiesChildren.isNotEmpty) {
       paragraphChildren.add(
         XmlElement.tag(
-          xmlParagraphBlockAttrsNode, // Typically 'w:pPr'
+          xmlParagraphBlockAttrsNode,
           children: paragraphPropertiesChildren,
         ),
       );
@@ -132,11 +131,16 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
     // Add the content of the TextFrame (e.g., actual paragraphs, text runs)
     // directly as children of the w:p element that forms the frame.
     for (final DocxTreeNode child in data) {
-      final List<XmlNode> childXml = child.buildXml(context: context);
-      paragraphChildren.addAll(childXml);
+      final List<XmlNode> element = child.buildXml(context: context);
+      if (child is IgnorableMixin &&
+              child.cast<IgnorableMixin>().shouldIgnore() ||
+          element.isEmpty) {
+        continue;
+      }
+      paragraphChildren.addAll(element);
     }
 
-    return [
+    return <XmlElement>[
       XmlElement.tag(
         xmlParagraphNode,
         children: paragraphChildren,
@@ -165,7 +169,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
                   entry.value.toString(),
                 );
               }).toList() ??
-              [];
+              <XmlAttribute>[];
           // Add w:val attribute if value is present
           if (borderChild.value != null) {
             attrs.add(

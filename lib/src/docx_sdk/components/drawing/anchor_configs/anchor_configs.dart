@@ -54,7 +54,7 @@ class AnchorConfig {
     bool locked = false,
   }) {
     return AnchorConfig(
-      wrapType: WrapType.none,
+      wrapType: WrapType.noWrap,
       wrapSide: null,
       anchorLock: locked,
       allowOverlap: false,
@@ -252,6 +252,11 @@ enum WrapType {
 
   /// No text wrapping (floating, but no wrap).
   ///
+  /// Force this object to be fully block-level,
+  noWrap,
+
+  /// No text wrapping (floating, but no wrap).
+  ///
   /// Object floats but text doesn't wrap around it.
   /// Text continues underneath/behind the object.
   none,
@@ -338,6 +343,11 @@ enum HorizontalAnchorPosition {
   ///
   /// Positions relative to specific paragraph.
   paragraph('paragraph'),
+
+  /// Relative to text position.
+  ///
+  /// this option only works and is used for TextFrame instances
+  text('text'),
 
   /// Relative to character position.
   ///
