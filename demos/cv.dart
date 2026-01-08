@@ -46,13 +46,11 @@ Future<void> main() async {
                   widthEmu: widthVertical,
                   heightEmu: heightVertical,
                   name: 'vertical rectangle',
-                  config: AnchorConfig(
-                    wrapType: WrapType.square,
-                    wrapSide: WrapSide.right,
+                  config: AnchorConfig.square(
+                    side: WrapSide.right,
+                    locked: false
+                  ).copyWith(
                     zOrder: 0,
-                    allowOverlap: true,
-                    layoutInCell: false,
-                    anchorLock: false,
                     horizontalAnchor: HorizontalAnchorPosition.page,
                     verticalAnchor: VerticalAnchorPosition.page,
                     horizontalPosition: AnchorPosition.center,
@@ -63,7 +61,6 @@ Future<void> main() async {
                       uri: namespaces['pic']!,
                       data: WordprocessingShape(
                         name: 'vertical rectangle',
-                        shapeLocks: true,
                         shapeProperties: ShapeProperties(
                           transform2D: Transform2D(
                             offset: Offset.zero(),
@@ -78,43 +75,69 @@ Future<void> main() async {
                           fill: SolidFill(
                             data: Color.rgb(
                               0xFF0066,
-                              0.25.toAlphaUnit(),
+                              0.10.toAlphaUnit(),
                             ),
                           ),
                         ),
                         textBox: ShapeTextBox(
                           data: ShapeTextBoxData(
                             content: <DocxTreeNode<dynamic>>[
-                              Paragraph(data: <RunBase<dynamic>>[
-                                Run(
-                                  component: DrawingML(
-                                    data: FloatingImage(
-                                      data: ImageData(
-                                        buffer:
-                                            await File('assets/cv_person.png')
-                                                .readAsBytes(),
-                                        extension: 'png',
-                                        anchorConfig: AnchorConfig(
-                                          wrapType: WrapType.none,
-                                          wrapSide: null,
-                                          anchorOffsetX: 0.5.toEmuFromInches(),
-                                          anchorOffsetY: 0,
-                                          horizontalAnchor:
-                                              HorizontalAnchorPosition
-                                                  .paragraph,
-                                          verticalAnchor:
-                                              VerticalAnchorPosition.paragraph,
-                                          horizontalPosition:
-                                              AnchorPosition.left,
-                                          verticalPosition: AnchorPosition.top,
+                              Paragraph(
+                                data: <RunBase<dynamic>>[
+                                  Run(
+                                    component: DrawingML(
+                                      data: FloatingImage(
+                                        data: ImageData(
+                                          buffer:
+                                              await File('assets/cv_person.png')
+                                                  .readAsBytes(),
+                                          extension: 'png',
+                                          anchorConfig: AnchorConfig(
+                                            wrapType: WrapType.noWrap,
+                                            wrapSide: null,
+                                            anchorOffsetX:
+                                                0.5.toEmuFromInches(),
+                                            anchorOffsetY: 0,
+                                            horizontalAnchor:
+                                                HorizontalAnchorPosition
+                                                    .paragraph,
+                                            verticalAnchor:
+                                                VerticalAnchorPosition
+                                                    .paragraph,
+                                            horizontalPosition:
+                                                AnchorPosition.left,
+                                            verticalPosition:
+                                                AnchorPosition.top,
+                                          ),
+                                          width: 1.toEmuFromInches(),
+                                          height: 1.toEmuFromInches(),
                                         ),
-                                        width: 1.toEmuFromInches(),
-                                        height: 1.toEmuFromInches(),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ])
+                                ],
+                              ),
+                              Paragraph(
+                                data: <RunBase<dynamic>>[
+                                  TextRun(
+                                    data: TextPart(
+                                      text: 'Jane Doe',
+                                      styles: <Object>[
+                                        Style.reference('Name'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Paragraph(
+                                data: <RunBase<dynamic>>[
+                                  TextRun(
+                                    data: TextPart(
+                                        text: 'Email: jane.doe@example.com '
+                                            '• Phone: +1 234 567 890'),
+                                  ),
+                                ],
+                              )
                             ],
                           ),
                         ),
@@ -127,27 +150,6 @@ Future<void> main() async {
           ],
         ),
 
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            TextRun(
-              data: TextPart(
-                text: 'Jane Doe',
-                styles: <Object>[
-                  Style.reference('Name'),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            TextRun(
-              data: TextPart(
-                  text: 'Email: jane.doe@example.com '
-                      '• Phone: +1 234 567 890'),
-            ),
-          ],
-        ),
         // ColumnBreak(),
         Paragraph(
           data: <RunBase<dynamic>>[
@@ -214,7 +216,6 @@ Future<void> main() async {
 
   final Uint8List? bytes = await DocxMetadataPacker()
       .dynamicFontSearch(true)
-      .logPath(DocxPaths.documentFilePath)
       .bytes(doc, applyCustomTheme: false);
 
   if (bytes != null) {
