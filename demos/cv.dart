@@ -6,9 +6,19 @@ import 'package:docx/docx.dart';
 Future<void> main() async {
   final File outFile = File('test_resources/cv.docx');
 
+  final PageSettings pageSize = PageSettings.a4;
+  const DocumentMargins margins = kDefaultPortraitMargins;
+  final num widthHorizontal =
+      pageSize.width.toEmuFromDxa() - (margins.left + margins.right);
+  final num heightHorizontal = 200.toEmuFromPoints();
+  final num widthVertical = 200.toEmuFromPoints();
+  final num heightVertical =
+      pageSize.height.toEmuFromDxa() - (margins.bottom + margins.top);
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(
       title: 'Curriculum - Jane Doe',
+      pageSize: pageSize,
+      margins: margins,
       styles: DocumentStylesSheet.base().withNewStyles(
         <Style>[
           StyleBuilder.paragraph('Name')
@@ -27,6 +37,60 @@ Future<void> main() async {
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
+        Paragraph(
+          data: <RunBase<dynamic>>[
+            Run(
+              wrapInRunMark: true,
+              component: DrawingML(
+                data: Anchor(
+                  widthEmu: widthVertical,
+                  heightEmu: heightVertical,
+                  name: 'vertical rectangle',
+                  config: AnchorConfig(
+                    wrapType: WrapType.square,
+                    wrapSide: WrapSide.bothSides,
+                    zOrder: 0,
+                    allowOverlap: true,
+                    layoutInCell: false,
+                    anchorLock: false,
+                    horizontalAnchor: HorizontalAnchorPosition.page,
+                    verticalAnchor: VerticalAnchorPosition.page,
+                    horizontalPosition: AnchorPosition.center,
+                    verticalPosition: AnchorPosition.center,
+                  ),
+                  component: Graphic(
+                    data: GraphicData(
+                      uri: namespaces['pic']!,
+                      data: WordprocessingShape(
+                        name: 'vertical rectangle',
+                        shapeLocks: true,
+                        shapeProperties: ShapeProperties(
+                          transform2D: Transform2D(
+                            offset: Offset.zero(),
+                            extents: AnnotationExtents(
+                              cx: widthVertical,
+                              cy: heightVertical,
+                            ),
+                          ),
+                          geometryComponent: PresetGeometry(
+                            preset: PresetShapeType.rectangle,
+                          ),
+                          fill: SolidFill(
+                            data: Color.rgb(0xFF0000),
+                          ),
+                          outline: ShapeOutline(
+                            color: Color.rgb(0xFF0000),
+                            width: emu,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
         Paragraph(data: <RunBase<dynamic>>[
           Run(
             component: DrawingML(
@@ -138,6 +202,7 @@ Future<void> main() async {
 
   final Uint8List? bytes = await DocxMetadataPacker()
       .dynamicFontSearch(true)
+      .logPath(DocxPaths.documentFilePath)
       .bytes(doc, applyCustomTheme: false);
 
   if (bytes != null) {

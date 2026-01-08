@@ -93,7 +93,7 @@ class AnchorConfig {
       wrapType: WrapType.none,
       wrapSide: WrapSide.largest,
       behindDoc: true,
-      zOrder: -1,
+      zOrder: 0,
     );
   }
 

@@ -40,10 +40,7 @@ Future<void> main() async {
                         shapeProperties: ShapeProperties(
                           transform2D: Transform2D(
                             offset: Offset.zero(),
-                            extents: AnnotationExtents(
-                              cx: size,
-                              cy: size,
-                            ),
+                            extents: AnnotationExtents.zero(),
                           ),
                           geometryComponent:
                               PresetGeometry(preset: PresetShapeType.heart),
@@ -53,25 +50,6 @@ Future<void> main() async {
                           outline: ShapeOutline(
                             width: 2.toEmuFromPoints(),
                             color: Color.rgb(0x660000),
-                          ),
-                          effects: ThreeDEffectComponent(
-                            data: ThreeDEffect(
-                              extrusionHeight: 5,
-                              extrusionColor: Color.theme('accent1'),
-                              contourWidth: 1,
-                              contourColor: Color.rgb(0x666666),
-                              material: PresetMaterial.plastic,
-                              topBevel: Bevel(
-                                width: 2.0.toEmuFromPoints(),
-                                height: 1.0.toEmuFromPoints(),
-                                preset: BevelPreset.softRound,
-                              ),
-                              bottomBevel: Bevel(
-                                width: 2.0.toEmuFromPoints(),
-                                height: 1.0.toEmuFromPoints(),
-                                preset: BevelPreset.softRound,
-                              ),
-                            ),
                           ),
                         ),
                       ),

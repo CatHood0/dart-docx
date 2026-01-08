@@ -38,7 +38,10 @@ class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
         'a:prstGeom',
         isSelfClosing: false,
         attributes: <XmlAttribute>[
-          XmlAttribute(XmlName.fromString('prst'), preset.name),
+          XmlAttribute(
+            XmlName.fromString('prst'),
+            preset.xmlValue,
+          ),
         ],
         children: children,
       ),

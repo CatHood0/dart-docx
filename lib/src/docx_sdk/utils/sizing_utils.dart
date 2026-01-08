@@ -334,5 +334,8 @@ extension DoubleConversions on num {
   /// Converts DXA to centimeters.
   num toCmFromDxa() => dxaToCentimeters(this);
 
+  int toPointsFromDxa() => dxaToPoints(this).round();
+
   int toLineSpacingFromInch() => inchToLineSpacing(this);
+  int toEmuFromDxa() => toPointsFromDxa().toEmuFromPoints();
 }

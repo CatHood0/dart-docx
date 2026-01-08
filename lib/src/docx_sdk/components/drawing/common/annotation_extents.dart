@@ -5,6 +5,11 @@ import '../../../../../docx.dart';
 class AnnotationExtents extends DocxTreeNode<dynamic> {
   AnnotationExtents({required this.cx, required this.cy}) : super(data: null);
 
+  AnnotationExtents.zero()
+      : cx = 0,
+        cy = 0,
+        super(data: null);
+
   final num cx;
   final num cy;
 

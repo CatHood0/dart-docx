@@ -216,7 +216,7 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
         // if offset is null, then we require alignment
         // if offset isnt null, then we always will prefer
         // precise positioning over alignment
-        if (alignment != null && alignment!.isNotEmpty && offset == null || offset == 0)
+        if (alignment != null && alignment!.isNotEmpty && offset == null)
           XmlElement.tag(
             'wp:align',
             children: <XmlNode>[

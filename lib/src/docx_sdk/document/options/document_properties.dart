@@ -83,6 +83,8 @@ class DocumentOptions {
     List<NumberingOptions>? numberingOptions,
     PageSettings? pageSize,
     List<String> keywords = const <String>[],
+    DocumentMargins? margins,
+    Orientation defaultOrientation = Orientation.portrait,
   }) {
     return DocumentOptions(
       lastModifiedBy: creator,
@@ -96,6 +98,8 @@ class DocumentOptions {
       section: section ??
           SectionOptions(
             columns: ColumnSettings(),
+            margins: margins,
+            orientation: defaultOrientation,
             size: pageSize ?? PageSettings.a4,
           ),
       title: title ?? 'Unnamed',
