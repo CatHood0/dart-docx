@@ -1,5 +1,6 @@
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
+import '../../../../core/extensions/cast_ext.dart';
 import '../../../../core/extensions/string_ext.dart';
 
 /// Text box container within a shape (wps:txbx).
@@ -11,6 +12,15 @@ class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
+    final List<XmlNode> children = <XmlNode>[];
+    for (final DocxTreeNode<dynamic> element in data.content) {
+      if (element is IgnorableMixin &&
+          element.cast<IgnorableMixin>().shouldIgnore()) {
+        continue;
+      }
+      context.currentContentPart = element;
+      children.addAll(element.buildXml(context: context));
+    }
     context.currentContentPart = this;
     final XmlElement textBoxElement = XmlElement.tag(
       'wps:txbx',
@@ -18,7 +28,7 @@ class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
         // Rich text content inside the text box
         XmlElement.tag(
           'w:txbxContent',
-          children: data.content.buildXml(context: context),
+          children: children,
         ),
       ],
     );
@@ -108,11 +118,14 @@ class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
   }) {
     if (shouldGetElement(this)) return <ShapeTextBox>[this];
     if (!visitChildrenIfNeeded) return null;
-
-    return data.content.visitAllElement(
-      shouldGetElement,
-      visitChildrenIfNeeded: visitChildrenIfNeeded,
-    );
+    for (final DocxTreeNode<dynamic> el in data.content) {
+      final List<DocxTreeNode<dynamic>>? result = el.visitAllElement(
+        shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded,
+      );
+      if (result != null) return result;
+    }
+    return null;
   }
 
   @override
@@ -122,11 +135,14 @@ class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-
-    return data.content.visitElement(
-      shouldGetElement,
-      visitChildrenIfNeeded: visitChildrenIfNeeded,
-    );
+    for (final DocxTreeNode<dynamic> el in data.content) {
+      final DocxTreeNode<dynamic>? result = el.visitElement(
+        shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded,
+      );
+      if (result != null) return result;
+    }
+    return null;
   }
 }
 
@@ -145,14 +161,14 @@ class ShapeTextBoxData {
           'allow square and none wrapping types',
         );
 
-  final DocxTreeNode<dynamic> content;
+  final Iterable<DocxTreeNode<dynamic>> content;
   final EdgeInsets margin;
   final WrapType wrapping;
   final VerticalAlignment verticalAlignment;
   final Alignment horizontalAlignment;
 
   ShapeTextBoxData get copy => ShapeTextBoxData(
-        content: content.copy,
+        content: content,
         margin: margin,
         wrapping: wrapping,
         verticalAlignment: verticalAlignment,

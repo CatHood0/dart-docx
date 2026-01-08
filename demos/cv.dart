@@ -47,7 +47,8 @@ Future<void> main() async {
                   heightEmu: heightVertical,
                   name: 'vertical rectangle',
                   config: AnchorConfig(
-                    wrapType: WrapType.none,
+                    wrapType: WrapType.square,
+                    wrapSide: WrapSide.right,
                     zOrder: 0,
                     allowOverlap: true,
                     layoutInCell: false,
@@ -76,9 +77,45 @@ Future<void> main() async {
                           ),
                           fill: SolidFill(
                             data: Color.rgb(
-                              0xFF0000,
-                              0.35.toAlphaUnit(),
+                              0xFF0066,
+                              0.25.toAlphaUnit(),
                             ),
+                          ),
+                        ),
+                        textBox: ShapeTextBox(
+                          data: ShapeTextBoxData(
+                            content: <DocxTreeNode<dynamic>>[
+                              Paragraph(data: <RunBase<dynamic>>[
+                                Run(
+                                  component: DrawingML(
+                                    data: FloatingImage(
+                                      data: ImageData(
+                                        buffer:
+                                            await File('assets/cv_person.png')
+                                                .readAsBytes(),
+                                        extension: 'png',
+                                        anchorConfig: AnchorConfig(
+                                          wrapType: WrapType.none,
+                                          wrapSide: null,
+                                          anchorOffsetX: 0.5.toEmuFromInches(),
+                                          anchorOffsetY: 0,
+                                          horizontalAnchor:
+                                              HorizontalAnchorPosition
+                                                  .paragraph,
+                                          verticalAnchor:
+                                              VerticalAnchorPosition.paragraph,
+                                          horizontalPosition:
+                                              AnchorPosition.left,
+                                          verticalPosition: AnchorPosition.top,
+                                        ),
+                                        width: 1.toEmuFromInches(),
+                                        height: 1.toEmuFromInches(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ])
+                            ],
                           ),
                         ),
                       ),
@@ -89,44 +126,7 @@ Future<void> main() async {
             ),
           ],
         ),
-        TextFrame(
-          data: <DocxTreeNode<dynamic>>[
-            TextRun.fromString(
-              text: 'This is an example',
-            ),
-          ],
-          hAnchor: HorizontalAnchorPosition.page,
-          vAnchor: VerticalAnchorPosition.page,
-          wrap: FrameWrap.none,
-          offsetX: 1.5.toEmuFromPoints(),
-          offsetY: 50.toEmuFromPoints(),
-          width: 100.toEmuFromPoints(),
-          height: 100.toEmuFromPoints(),
-        ),
-        Paragraph(data: <RunBase<dynamic>>[
-          Run(
-            component: DrawingML(
-              data: FloatingImage(
-                data: ImageData(
-                  buffer: await File('assets/cv_person.png').readAsBytes(),
-                  extension: 'png',
-                  anchorConfig: AnchorConfig(
-                    wrapType: WrapType.none,
-                    wrapSide: null,
-                    anchorOffsetX: 0.5.toEmuFromInches(),
-                    anchorOffsetY: 0,
-                    horizontalAnchor: HorizontalAnchorPosition.paragraph,
-                    verticalAnchor: VerticalAnchorPosition.paragraph,
-                    horizontalPosition: AnchorPosition.left,
-                    verticalPosition: AnchorPosition.top,
-                  ),
-                  width: 1.toEmuFromInches(),
-                  height: 1.toEmuFromInches(),
-                ),
-              ),
-            ),
-          ),
-        ]),
+
         Paragraph(
           data: <RunBase<dynamic>>[
             TextRun(
