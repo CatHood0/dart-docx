@@ -1,6 +1,9 @@
 import '../../../../docx.dart';
 import '../../xml_components/settings/entities/settings.dart';
 
+//TODO: add page type (:type) to allow
+// configuring how sections are added and
+// its behavior
 class DocumentLayout {
   DocumentLayout({
     required this.columns,

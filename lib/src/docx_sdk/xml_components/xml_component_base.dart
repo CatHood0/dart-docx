@@ -21,7 +21,7 @@ abstract class XmlComponentBase<T> {
   ///
   XmlDocument buildDocument(DocumentContext context) {
     return XmlDocument(
-      [
+      <XmlNode>[
         XmlDefaults.declaration,
         buildXml(context),
       ],
@@ -83,7 +83,7 @@ class XmlEmptyElementComponent<T> extends XmlComponentBase<T> {
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
       xmlKey,
-      attributes: [
+      attributes: <XmlAttribute>[
         if (value != null)
           XmlAttribute(
             (attrName ?? 'w:val').toName(),
@@ -104,5 +104,19 @@ class RawElement extends XmlComponentBase<XmlElement> {
   @override
   XmlElement buildXml(DocumentContext context) {
     return value;
+  }
+}
+
+class XmlElementWithChild extends XmlComponentBase<XmlComponentBase> {
+  XmlElementWithChild({required super.xmlKey, required super.value});
+
+  @override
+  XmlElement buildXml(DocumentContext context) {
+    return XmlElement.tag(
+      xmlKey,
+      children: <XmlNode>[
+        value.buildXml(context),
+      ],
+    );
   }
 }

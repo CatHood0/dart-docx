@@ -5,18 +5,18 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:xml/xml.dart' as xml;
 
-import '../../docx.dart';
-import 'events/docx_event.dart';
-import 'utils/logger/logger_configs.dart';
-import 'xml_components/docProps/xml_app_component.dart';
-import 'xml_components/docProps/xml_core_component.dart';
-import 'xml_components/document/xml_body_component.dart';
-import 'xml_components/rels/xml_document_rels_component.dart';
-import 'xml_components/rels/xml_rels_component.dart';
-import 'xml_components/styles/xml_styles_component.dart';
-import 'xml_components/themes/xml_theme_component.dart';
-import 'xml_components/web_settings/xml_web_settings_component.dart';
-import 'xml_components/xml_content_type_component.dart';
+import '../../../docx.dart';
+import '../events/docx_event.dart';
+import '../utils/logger/logger_configs.dart';
+import '../xml_components/docProps/xml_app_component.dart';
+import '../xml_components/docProps/xml_core_component.dart';
+import '../xml_components/document/xml_body_component.dart';
+import '../xml_components/rels/xml_document_rels_component.dart';
+import '../xml_components/rels/xml_rels_component.dart';
+import '../xml_components/styles/xml_styles_component.dart';
+import '../xml_components/themes/xml_theme_component.dart';
+import '../xml_components/web_settings/xml_web_settings_component.dart';
+import '../xml_components/xml_content_type_component.dart';
 
 class LoggablePhaseConfig {
   const LoggablePhaseConfig({
@@ -31,7 +31,9 @@ class LoggablePhaseConfig {
 
   void _init() {
     if (enabled) {
-      LoggerConfiguration().activeHandler(printer: log);
+      LoggerConfiguration()
+        ..all()
+        ..activeHandler(printer: log);
     }
   }
 
@@ -263,7 +265,7 @@ class DocxCompiler {
         XmlContentTypeComponent(
           applyCustomTheme: applyCustomTheme,
           overrides: mediaStore.overrides,
-          extensions: [
+          extensions: <String>[
             ...mediaStore.extensions,
             ...fontStore.extensions,
           ],

@@ -20,7 +20,7 @@ class XmlBodyComponent extends XmlComponentBase<DocxDocument> {
       children: [
         ...value.buildXml(context: context),
         XmlDocumentSectionSettingsComponent(
-          options: context.options,
+          options: context.options.layoutOptions,
           themeId: themeId,
         ).buildXml(context),
       ],

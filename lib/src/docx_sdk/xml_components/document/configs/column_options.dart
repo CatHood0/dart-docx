@@ -35,6 +35,8 @@ class ColumnWidth {
   final int width;
 
   /// The spacing after this column in twips.
+  ///
+  /// This spacing is applied between this column and the next one.
   final int? spaceAfter;
 }
 

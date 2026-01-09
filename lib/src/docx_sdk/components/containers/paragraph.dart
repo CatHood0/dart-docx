@@ -26,8 +26,27 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     }
   }
 
+  factory Paragraph.text({
+    required String text,
+    Iterable<Style> styles = const <Style>[],
+    Iterable<Style> runStyles = const <Style>[],
+    ParagraphPagebreak pageBreak = ParagraphPagebreak.none,
+    Numbering? numbering,
+    Alignment? align,
+  }) =>
+      Paragraph(
+        styles: styles,
+        runStyles: runStyles,
+        numbering: numbering,
+        alignment: align,
+        pageBreak: pageBreak,
+        data: <RunBase<dynamic>>[
+          TextRun.fromString(text: text),
+        ],
+      );
+
   factory Paragraph.empty() => Paragraph(
-        data: <RunBase>[
+        data: <RunBase<dynamic>>[
           TextRun.empty(),
         ],
       );

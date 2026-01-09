@@ -153,3 +153,10 @@ class TextPart {
     return 'TextPart(data: $text, styles: $styles)';
   }
 }
+
+class TextStyle {
+  TextStyle({required this.bold, required this.italic});
+
+  final bool bold;
+  final bool italic;
+}

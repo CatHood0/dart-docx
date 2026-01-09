@@ -13,9 +13,10 @@ import 'xml_columns_settings_component.dart';
 class XmlDocumentSectionSettingsComponent
     extends XmlComponentBase<List<XmlComponentBase>> {
   XmlDocumentSectionSettingsComponent({
-    required DocumentOptions options,
+    required DocumentLayout options,
     String? themeId,
   }) : super(
+          xmlKey: 'w:sectPr',
           // Build the list of child components directly
           value: <XmlComponentBase>[
             // Page Size (w:pgSz) component
@@ -38,7 +39,6 @@ class XmlDocumentSectionSettingsComponent
               ),
             //TODO: we need configurations for headers/footers references etc.
           ],
-          xmlKey: 'w:sectPr',
         );
 
   @override

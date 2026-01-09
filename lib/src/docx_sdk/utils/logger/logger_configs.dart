@@ -60,7 +60,6 @@ class LoggerConfiguration {
   LogLevel get level => _level;
 
   void activeHandler({
-    bool force = false,
     void Function(String)? printer,
   }) {
     handler = printer ?? print;

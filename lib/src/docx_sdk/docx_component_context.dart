@@ -4,6 +4,10 @@ import 'utils/logger/logger_configs.dart';
 import 'xml_components/numbering/abstract_numbering_component.dart';
 import 'xml_components/numbering/concrete_numbering_component.dart';
 
+///TODO: we will need to pass more context info
+/// and make a context for every component
+/// to avoid sharing some parts and avoid
+/// mutation issues
 class DocumentContext {
   DocumentContext({
     required this.options,
