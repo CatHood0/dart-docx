@@ -21,6 +21,11 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
         ..parent = this
         ..index = index
         ..depth = depth + 1;
+      // the last column need to ignore the break
+      if (content is Column && index + 1 >= sections.length) {
+        // ignore: invalid_use_of_protected_member
+        content.ignoreBreak = true;
+      }
       index++;
     }
   }

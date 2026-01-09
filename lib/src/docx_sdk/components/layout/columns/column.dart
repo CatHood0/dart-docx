@@ -45,7 +45,8 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
-    if (context.options.columns == null || context.options.columns!.numColumns == null) {
+    if (context.options.columns == null ||
+        context.options.columns!.numColumns == null) {
       CompilerLogger.root.w(
         'Its not recommended the use of "$runtimeType:$id" in none '
         'multi-column documents (ColumnOptions is not defined or numColumns is null). '
@@ -71,11 +72,12 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     }
     return <XmlElement>[
       ...elements,
-      ...Paragraph(
-        data: <RunBase<dynamic>>[
-          Run(component: Break(data: BreakType.column)),
-        ],
-      ).buildXml(context: context),
+      if (!ignoreBreak)
+        ...Paragraph(
+          data: <RunBase<dynamic>>[
+            Run(component: Break(data: BreakType.column)),
+          ],
+        ).buildXml(context: context),
     ];
   }
 

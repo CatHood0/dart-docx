@@ -98,27 +98,6 @@ Future<void> main() async {
             )
           ],
         ),
-        Column(
-          children: <DocxTreeNode<dynamic>>[
-            Paragraph(
-              data: <RunBase<dynamic>>[
-                TextRun(
-                  data: TextPart(
-                    text: 'M.Sc. Computer Science — '
-                        'University of Examples (2013 - 2015)',
-                  ),
-                ),
-                Run(component: Break.lineBreak(), wrapInRunMark: true),
-                TextRun(
-                  data: TextPart(
-                    text: 'B.Sc. Computer Science — '
-                        'College of Samples (2009 - 2013)',
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
       ],
     ),
   );
