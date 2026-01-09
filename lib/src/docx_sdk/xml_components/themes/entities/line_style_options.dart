@@ -33,7 +33,7 @@ class LineStyleOptions {
       attributes: <XmlAttribute>[
         XmlAttribute(
           XmlName('w'),
-          num.tryParse(width)!.toEmuFromInches().toString(),
+          num.tryParse(width)!.inchesToEmu().toString(),
         ),
         XmlAttribute(
           XmlName('cap'),

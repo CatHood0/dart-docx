@@ -1,11 +1,35 @@
 import '../../../utils/sizing_utils.dart';
 
 /// Represents the width and optional spacing for an individual column.
-class ColumnWidthSetting {
-  ColumnWidthSetting({
-    required int width,
+class ColumnWidth {
+  ColumnWidth({
+    required this.width,
     this.spaceAfter,
-  }) : width = width.toTwipsFromPoints();
+  });
+
+  ColumnWidth.points({
+    required int width,
+    int? spaceAfter,
+  })  : width = width.ptToTwips(),
+        spaceAfter = spaceAfter?.ptToTwips();
+
+  ColumnWidth.inches({
+    required double width,
+    double? spaceAfter,
+  })  : width = width.inchesToTwips(),
+        spaceAfter = spaceAfter?.inchesToTwips();
+
+  ColumnWidth.cm({
+    required double width,
+    double? spaceAfter,
+  })  : width = width.centimetersToTwips(),
+        spaceAfter = spaceAfter?.centimetersToTwips();
+
+  ColumnWidth.mm({
+    required double width,
+    int? spaceAfter,
+  })  : width = width.millimetersToTwips(),
+        spaceAfter = spaceAfter?.millimetersToTwips();
 
   /// The width of the column in twips.
   final int width;
@@ -25,15 +49,14 @@ class ColumnWidthSetting {
 /// [columnWidths] for each column.
 /// [columnWidths] A list of individual column width and spacing settings.
 /// This is required if [equalWidth] is `false`.
-class ColumnSettings {
-  ColumnSettings({
+class ColumnOptions {
+  ColumnOptions({
     int? space,
     this.numColumns,
     this.separator = false,
-    // Default to equal width for simplicity
-    this.equalWidth = true,
+    this.equalWidth = false,
     this.columnWidths,
-  })  : space = space?.toTwipsFromPoints(),
+  })  : space = space?.ptToTwips(),
         assert(
           equalWidth == true || columnWidths != null && columnWidths.isNotEmpty,
           'If equalWidth is false, columnWidths must be provided.',
@@ -55,5 +78,5 @@ class ColumnSettings {
 
   /// A list of individual column width and spacing settings.
   /// This is used when [equalWidth] is `false`.
-  final List<ColumnWidthSetting>? columnWidths;
+  final List<ColumnWidth>? columnWidths;
 }

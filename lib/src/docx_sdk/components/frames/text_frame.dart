@@ -36,13 +36,12 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
     this.hAnchor = HorizontalAnchorPosition.page,
     this.xAlign = AnchorPosition.left,
     this.yAlign = AnchorPosition.top,
-    this.offsetX, // Optional absolute X position in twips
-    this.offsetY, // Optional absolute Y position in twips
-    this.border, // Optional borders for the frame
-  })  : width = width.toTwipsFromPixels96dpi(),
-        height = height.toTwipsFromPixels96dpi(),
+    this.offsetX,
+    this.offsetY,
+    this.border,
+  })  : width = width.pixelsToTwips(),
+        height = height.pixelsToTwips(),
         super(data: data) {
-    // Set parent for all children
 
     int index = 0;
     for (final DocxTreeNode<dynamic> content in data) {

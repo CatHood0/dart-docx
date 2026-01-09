@@ -6,7 +6,7 @@ import 'package:docx/docx.dart';
 /// with some effects
 Future<void> main() async {
   final File outFile = File('test_resources/heart_shape_with_border.docx');
-  final int size = 200.toEmuFromPoints();
+  final int size = 200.ptToEmu();
 
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(
@@ -48,7 +48,7 @@ Future<void> main() async {
                             data: Color.rgb(0xFF0000),
                           ),
                           outline: ShapeOutline(
-                            width: 2.toEmuFromPoints(),
+                            width: 2.ptToEmu(),
                             color: Color.rgb(0x660000),
                           ),
                         ),

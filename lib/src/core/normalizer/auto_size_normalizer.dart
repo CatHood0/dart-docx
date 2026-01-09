@@ -8,7 +8,7 @@ class AutoSizeNormalizer {
   /// Like convert 1024x1024
   static NormalizedSizeResult resizeImageBySettings(
     Size size,
-    PageSettings pageSize,
+    PageSize pageSize,
     DocumentMargins margins,
     int? cDpi,
   ) {
@@ -25,7 +25,7 @@ class AutoSizeNormalizer {
 
     // 0.5" margins
     final double availableWidth =
-        pageSize.width - margins.left.toInchesFromEmu();
+        pageSize.width - margins.left.emuToInches();
     if (widthInches > availableWidth) {
       final double scale = availableWidth / widthInches;
       widthInches = availableWidth;

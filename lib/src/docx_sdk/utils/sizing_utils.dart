@@ -1,348 +1,157 @@
 import '../../../docx.dart';
 
-int inchToLineSpacing(num inches) {
-  return (inches * lineSpacingPerInch).round();
-}
+/// Provides a comprehensive set of unit conversion methods as extensions on [num].
+/// This allows converting between various sizing units like DXA, EMU, Twips,
+/// inches, centimeters, millimeters, points, and pixels.
+extension SizingConversions on num {
+  /// Converts inches to line spacing units.
+  int toLineSpacingFromInch() => (this * lineSpacingPerInch).round();
 
-/// Maximum alpha value in EMU (1.0 = 100% opacity).
-int toAlphaUnitValue(num alpha) {
-  return (alpha.clamp(0.0, 1.0) * maxAlphaEmu).round();
-}
+  /// Converts an alpha value (0.0 - 1.0) to maximum alpha EMU value.
+  int toAlphaUnit() => (clamp(0.0, 1.0) * maxAlphaEmu).round();
 
-/// Converts points to half-points.
-/// 1 point = 2 half-points.
-int pointsToHalfPoints(num points) {
-  return (points * 2).round();
-}
+  /// Converts points to half-points.
+  /// 1 point = 2 half-points.
+  int ptToHalfPoints() => (this * 2).round();
 
-/// Converts half-points to points.
-double halfPointsToPoints(num halfPoints) {
-  return halfPoints / 2;
-}
+  /// Converts half-points to points.
+  double ealfPointsToPt() => this / 2;
 
-/// Converts inches to DXA.
-int inchesToDxa(num inches) {
-  return (inches * dxaPerInch).round();
-}
+  // MARK: - DXA Conversions
 
-/// Converts DXA to inches.
-double dxaToInches(num dxa) {
-  return dxa / dxaPerInch;
-}
+  /// Converts inches to DXA.
+  int inchesToDxa() => (this * dxaPerInch).round();
 
-/// Converts centimeters to DXA.
-int centimetersToDxa(num centimeters) {
-  return (centimeters * dxaPerCm).round();
-}
+  /// Converts DXA to inches.
+  double dxaToInches() => this / dxaPerInch;
 
-/// Converts DXA to centimeters.
-double dxaToCentimeters(num dxa) {
-  return dxa / dxaPerCm;
-}
+  /// Converts centimeters to DXA.
+  int centimetersToDxa() => (this * dxaPerCm).round();
 
-/// Converts millimeters to DXA.
-int millimetersToDxa(num millimeters) {
-  return (millimeters * dxaPerMm).round();
-}
+  /// Converts DXA to centimeters.
+  double dxaToCentimeters() => this / dxaPerCm;
 
-/// Converts DXA to millimeters.
-double dxaToMillimeters(num dxa) {
-  return dxa / dxaPerMm;
-}
+  /// Converts millimeters to DXA.
+  int millimetersToDxa() => (this * dxaPerMm).round();
 
-/// Converts points to DXA.
-int pointsToDxa(num points) {
-  return (points * dxaPerPt).round();
-}
+  /// Converts DXA to millimeters.
+  double dxaToMillimeters() => this / dxaPerMm;
 
-/// Converts DXA to points.
-double dxaToPoints(num dxa) {
-  return dxa / dxaPerPt;
-}
+  /// Converts points to DXA.
+  int ptToDxa() => (this * dxaPerPt).round();
 
-/// Converts pixels (at a specified DPI) to DXA.
-/// Default DPI is 96.
-int pixelsToDxa(num pixels, {num dpi = 96}) {
-  // pixels to inches, then inches to dxa
-  return (pixels / dpi * dxaPerInch).round();
-}
+  /// Converts DXA to points.
+  /// Returns an [int] representing rounded points, as per previous implementation logic.
+  int dxaToPt() => (this / dxaPerPt).round();
 
-/// Converts DXA to pixels (at a specified DPI).
-/// Default DPI is 96.
-double dxaToPixels(num dxa, {num dpi = 96}) {
-  // dxa to inches, then inches to pixels
-  return dxa / dxaPerInch * dpi;
-}
+  /// Converts pixels (at a specified DPI) to DXA.
+  /// Default DPI is 96.
+  int pixelsToDxa({num dpi = 96}) => (this / dpi * dxaPerInch).round();
 
-double emuToInches(num emus) {
-  return emus / emuPerInch;
-}
+  /// Converts DXA to pixels (at a specified DPI).
+  /// Default DPI is 96.
+  double dxaToPixels({num dpi = 96}) => this / dxaPerInch * dpi;
 
-int inchesToEmu(num inches) {
-  return (inches * emuPerInch).round();
-}
+  // MARK: - EMU Conversions
 
-double emuToCentimeters(num emus) {
-  return emus / emuPerCm;
-}
+  /// Converts EMU to inches.
+  double emuToInches() => this / emuPerInch;
 
-int centimetersToEmu(num centimeters) {
-  return (centimeters * emuPerCm).round();
-}
+  /// Converts inches to EMU.
+  int inchesToEmu() => (this * emuPerInch).round();
 
-double emuToMillimeters(num emus) {
-  return emus / emuPerMm;
-}
+  /// Converts EMU to centimeters.
+  double emuToCentimeters() => this / emuPerCm;
 
-int millimetersToEmu(num millimeters) {
-  return (millimeters * emuPerMm).round();
-}
+  /// Converts centimeters to EMU.
+  int centimetersToEmu() => (this * emuPerCm).round();
 
-double emuToPoints(num emus) {
-  return emus / emuPerPt;
-}
+  /// Converts EMU to millimeters.
+  double emuToMillimeters() => this / emuPerMm;
 
-int pointsToEmu(num points) {
-  return (points * emuPerPt).round();
-}
+  /// Converts millimeters to EMU.
+  int millimetersToEmu() => (this * emuPerMm).round();
 
-int pixelsToEmu96dpi(num pixels) {
-  return (pixels * emuPerInch / 96).round();
-}
+  /// Converts EMU to points.
+  double emuToPt() => this / emuPerPt;
 
-int pixelsToEmudpi(num pixels, {int dpi = 96}) {
-  return (pixels * emuPerInch / dpi).round();
-}
+  /// Converts points to EMU.
+  int ptToEmu() => (this * emuPerPt).round();
 
-double emuToPixels96dpi(num emus) {
-  return emus * 96 / emuPerInch;
-}
+  /// Converts pixels to EMU (at a specified DPI).
+  /// Default DPI is 96.
+  num pixelsToEmu({num dpi = 96}) => (this * emuPerInch / dpi).round();
 
-int pixelsToEmu(num pixels, num dpi) {
-  return (pixels * emuPerInch / dpi).round();
-}
+  /// Converts EMU to pixels (at a specified DPI).
+  /// Default DPI is 96.
+  num emuToPixels({num dpi = 96}) => this * dpi / emuPerInch;
 
-String formatEmuToInches(num emus, {int decimalPlaces = 4}) {
-  final inches = emuToInches(emus);
-  return inches.toStringAsFixed(decimalPlaces);
-}
+  /// Formats EMU to inches with a specified number of decimal places.
+  String formatEmuToInches({int decimalPlaces = 4}) {
+    final double inches = emuToInches();
+    return inches.toStringAsFixed(decimalPlaces);
+  }
 
-int toEmu(num value, Unit unit) {
-  if (unit == Unit.inch) return inchesToEmu(value);
-  if (unit == Unit.cm) return centimetersToEmu(value);
-  if (unit == Unit.mm) return millimetersToEmu(value);
-  if (unit == Unit.pt) return pointsToEmu(value);
-  if (unit == Unit.pixels96) return pixelsToEmu96dpi(value);
+  /// Converts a [num] value from a specified [Unit] to EMU.
+  num unitToEmu(Unit unit) {
+    if (unit == Unit.inch) return inchesToEmu();
+    if (unit == Unit.cm) return centimetersToEmu();
+    if (unit == Unit.mm) return millimetersToEmu();
+    if (unit == Unit.pt) return ptToEmu();
+    if (unit == Unit.pixels96) return pixelsToEmu(dpi: 96);
+    throw ArgumentError('Debes proporcionar al menos un valor a convertir');
+  }
 
-  throw ArgumentError('Debes proporcionar al menos un valor a convertir');
-}
+  /// Converts DXA to EMU via points.
+  num dxaToEmu() => dxaToPt().ptToEmu();
 
-/// Converts inches to twips.
-int inchesToTwips(num inches) {
-  return (inches * twipsPerInch).round();
-}
+  // MARK: - Twips Conversions
 
-/// Converts twips to inches.
-double twipsToInches(num twips) {
-  return twips / twipsPerInch;
-}
+  /// Converts inches to twips.
+  int inchesToTwips() => (this * twipsPerInch).round();
 
-/// Converts centimeters to twips.
-int centimetersToTwips(num centimeters) {
-  return (centimeters * twipsPerCm).round();
-}
+  /// Converts twips to inches.
+  double twipsToInches() => this / twipsPerInch;
 
-/// Converts twips to centimeters.
-double twipsToCentimeters(num twips) {
-  return twips / twipsPerCm;
-}
+  /// Converts centimeters to twips.
+  int centimetersToTwips() => (this * twipsPerCm).round();
 
-/// Converts millimeters to twips.
-int millimetersToTwips(num millimeters) {
-  return (millimeters * twipsPerMm).round();
-}
+  /// Converts twips to centimeters.
+  double twipsToCentimeters() => this / twipsPerCm;
 
-/// Converts twips to millimeters.
-double twipsToMillimeters(num twips) {
-  return twips / twipsPerMm;
-}
+  /// Converts millimeters to twips.
+  int millimetersToTwips() => (this * twipsPerMm).round();
 
-/// Converts points to twips.
-int pointsToTwips(num points) {
-  return (points * twipsPerPt).round();
-}
+  /// Converts twips to millimeters.
+  double twipsToMillimeters() => this / twipsPerMm;
 
-/// Converts twips to points.
-double twipsToPoints(num twips) {
-  return twips / twipsPerPt;
-}
+  /// Converts points to twips.
+  int ptToTwips() => (this * twipsPerPt).round();
 
-/// Converts pixels (at a specified DPI) to twips.
-/// Default DPI is 96.
-int pixelsToTwips(num pixels, {num dpi = 96}) {
-  // pixels to inches, then inches to twips
-  return (pixels / dpi * twipsPerInch).round();
-}
+  /// Converts twips to points.
+  double twipsToPt() => this / twipsPerPt;
 
-/// Converts twips to pixels (at a specified DPI).
-/// Default DPI is 96.
-double twipsToPixels(num twips, {num dpi = 96}) {
-  // twips to inches, then inches to pixels
-  return twips / twipsPerInch * dpi;
-}
+  /// Converts pixels (at a specified DPI) to twips.
+  /// Default DPI is 96.
+  int pixelsToTwips({num dpi = 96}) => (this / dpi * twipsPerInch).round();
 
-/// Converts a [value] from a specified [Unit] to Twips.
-int toTwips(num value, Unit unit) {
-  if (unit == Unit.inch) return inchesToTwips(value);
-  if (unit == Unit.cm) return centimetersToTwips(value);
-  if (unit == Unit.mm) return millimetersToTwips(value);
-  if (unit == Unit.pt) return pointsToTwips(value);
-  // Assuming 96 DPI for pixel to twips conversion if not specified otherwise
-  if (unit == Unit.pixels96) return pixelsToTwips(value, dpi: 96);
-
-  throw ArgumentError(
-      'The provided unit is not supported for Twips conversion.');
-}
-
-extension TwipsConversions on int {
-  /// Converts Twips to Inches.
-  double toInchesFromTwips() => twipsToInches(this);
-
-  /// Converts Twips to Centimeters.
-  double toCentimetersFromTwips() => twipsToCentimeters(this);
-
-  /// Converts Twips to Millimeters.
-  double toMillimetersFromTwips() => twipsToMillimeters(this);
-
-  /// Converts Twips to Points.
-  double toPointsFromTwips() => twipsToPoints(this);
-
-  /// Converts Twips to Pixels (assuming 96 DPI).
-  double toPixels96dpiFromTwips() => twipsToPixels(this, dpi: 96);
+  /// Converts twips to pixels (at a specified DPI).
+  /// Default DPI is 96.
+  num twipsToPixels({num dpi = 96}) => this / twipsPerInch * dpi;
 
   /// Converts Twips to EMUs (approximate, as they are different base units,
   /// but useful if you need to go from one to the other indirectly via inches).
-  int toEmuFromTwips() => inchesToEmu(twipsToInches(this));
-}
+  int twipsToEmu() => twipsToInches().inchesToEmu();
 
-//TODO: probably we will unify both extensions
-extension Conversions on int {
-  double toInchesFromEmu() => emuToInches(this);
+  /// Converts a [num] value from a specified [Unit] to Twips.
+  num unitToTwips(Unit unit) {
+    if (unit == Unit.inch) return inchesToTwips();
+    if (unit == Unit.cm) return centimetersToTwips();
+    if (unit == Unit.mm) return millimetersToTwips();
+    if (unit == Unit.pt) return ptToTwips();
+    if (unit == Unit.pixels96) return pixelsToTwips(dpi: 96);
 
-  double toCentimetersFromEmu() => emuToCentimeters(this);
-
-  double toMillimetersFromEmu() => emuToMillimeters(this);
-
-  double toPointsFromEmu() => emuToPoints(this);
-
-  double toPixels96dpiFromEmu() => emuToPixels96dpi(this);
-
-  int toEmuFromInches() => inchesToEmu(this);
-
-  int toEmuFromCentimeters() => centimetersToEmu(this);
-
-  int toEmuFromMillimeters() => millimetersToEmu(this);
-
-  int toEmuFromPoints() => pointsToEmu(this);
-
-  int toEmuFromPixels96dpi() => pixelsToEmu96dpi(this);
-  int toEmuFromPixelsdpi({int dpi = 96}) => pixelsToEmudpi(this, dpi: dpi);
-
-  int toEmuFromUnit(Unit unit) => toEmu(this, unit);
-
-  // New Twips conversions for num
-  /// Converts a [num] value (e.g., inches, cm, px) to Twips.
-  /// Use with Unit enum (e.g., `1.0.toTwipsFromUnit(Unit.inch)`).
-  int toTwipsFromUnit(Unit unit) => toTwips(this, unit);
-
-  /// Converts inches to twips.
-  int toTwipsFromInches() => inchesToTwips(this);
-
-  /// Converts centimeters to twips.
-  int toTwipsFromCentimeters() => centimetersToTwips(this);
-
-  /// Converts millimeters to twips.
-  int toTwipsFromMillimeters() => millimetersToTwips(this);
-
-  /// Converts points to twips.
-  int toTwipsFromPoints() => pointsToTwips(this);
-
-  /// Converts pixels (at 96 DPI) to twips.
-  int toTwipsFromPixels96dpi() => pixelsToTwips(this, dpi: 96);
-
-  /// Converts points (this int) to half-points.
-  int toHalfPointsFromPoints() => pointsToHalfPoints(this);
-
-  /// Converts half-points (this int) to points.
-  num toPointsFromHalfPoints() => halfPointsToPoints(this);
-}
-
-extension DoubleConversions on num {
-  int toEmuFromInches() => inchesToEmu(this);
-
-  int toEmuFromCentimeters() => centimetersToEmu(this);
-
-  int toEmuFromMillimeters() => millimetersToEmu(this);
-
-  int toEmuFromPoints() => pointsToEmu(this);
-
-  int toEmuFromPixels96dpi() => pixelsToEmu96dpi(this);
-
-  int toEmuFromUnit(Unit unit) => toEmu(this, unit);
-
-  double toInchesFromEmu() => emuToInches(this);
-
-  double toCentimetersFromEmu() => emuToCentimeters(this);
-
-  double toMillimetersFromEmu() => emuToMillimeters(this);
-
-  double toPointsFromEmu() => emuToPoints(this);
-
-  double toPixels96dpiFromEmu() => emuToPixels96dpi(this);
-
-  /// Converts a [num] value (e.g., inches, cm, px) to Twips.
-  /// Use with Unit enum (e.g., `1.0.toTwipsFromUnit(Unit.inch)`).
-  int toTwipsFromUnit(Unit unit) => toTwips(this, unit);
-
-  /// Converts inches to twips.
-  int toTwipsFromInches() => inchesToTwips(this);
-
-  /// Converts centimeters to twips.
-  int toTwipsFromCentimeters() => centimetersToTwips(this);
-
-  /// Converts millimeters to twips.
-  int toTwipsFromMillimeters() => millimetersToTwips(this);
-
-  /// Converts points to twips.
-  int toTwipsFromPoints() => pointsToTwips(this);
-
-  /// Converts pixels (at 96 DPI) to twips.
-  int toTwipsFromPixels96dpi() => pixelsToTwips(this, dpi: 96);
-
-  int toDxaFromPixels() => pixelsToDxa(this);
-
-  /// Converts points (this num) to half-points.
-  num toHalfPointsFromPoints() => pointsToHalfPoints(this);
-
-  /// Converts half-points (this num) to points.
-  num toPointsFromHalfPoints() => halfPointsToPoints(this);
-
-  /// Converts DXA to inches.
-  num toInchesFromDxa() => dxaToInches(this);
-
-  /// Converts inches to DXA.
-  num toDxaFromInches() => inchesToDxa(this);
-
-  /// Converts centimeters to DXA.
-  num toDxaFromCm() => centimetersToDxa(this);
-
-  /// Converts DXA to centimeters.
-  num toCmFromDxa() => dxaToCentimeters(this);
-
-  int toPointsFromDxa() => dxaToPoints(this).round();
-
-  int toLineSpacingFromInch() => inchToLineSpacing(this);
-  int toEmuFromDxa() => toPointsFromDxa().toEmuFromPoints();
-
-  int toAlphaUnit() => toAlphaUnitValue(this);
+    throw ArgumentError(
+        'The provided unit is not supported for Twips conversion.');
+  }
 }

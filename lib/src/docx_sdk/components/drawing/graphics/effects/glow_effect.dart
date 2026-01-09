@@ -86,16 +86,16 @@ class GlowEffect {
     required this.color,
     double radius = 1.0,
     double transparency = 0,
-  })  : radius = radius.toEmuFromPoints(),
-        transparency = transparency.toEmuFromPoints();
+  })  : radius = radius.ptToEmu(),
+        transparency = transparency.ptToEmu();
 
   GlowEffect.inches({
     required this.color,
     //TODO: fix this
     double radius = 0.1,
     double transparency = 0,
-  })  : radius = radius.toEmuFromInches(),
-        transparency = transparency.toEmuFromInches();
+  })  : radius = radius.inchesToEmu(),
+        transparency = transparency.inchesToEmu();
 
   final Color color;
 

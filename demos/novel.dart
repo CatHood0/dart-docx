@@ -72,8 +72,8 @@ Future<void> main() async {
       lastModifiedBy: 'Me',
       editorSettings: EditorOptions(
         fontFamily: 'Arial',
-        fontSize: 12.toHalfPointsFromPoints(),
-        complexScriptFontSize: 12.toHalfPointsFromPoints(),
+        fontSize: 12.ptToHalfPoints(),
+        complexScriptFontSize: 12.ptToHalfPoints(),
         //TODO:  we need to work of headers and footers
         headerType: 'default',
         footerType: 'default',
@@ -90,7 +90,7 @@ Future<void> main() async {
         showLineNumber: false,
         decodeUnicode: false,
       ),
-      section: SectionOptions(columns: ColumnSettings()),
+      layoutOptions: DocumentLayout(columns: ColumnOptions()),
       description: 'A psychological thriller about memory and redemption',
       subject: 'Fiction / Thriller',
       keywords: <String>['noir', 'mystery', 'psychological', 'thriller'],
@@ -101,14 +101,14 @@ Future<void> main() async {
                 'Title': LanguageCodes.englishUS,
                 'Título': LanguageCodes.spanishMX,
               })
-              .fontSize(28.toHalfPointsFromPoints())
+              .fontSize(28.ptToHalfPoints())
               .fontFamily('Georgia')
               .bold()
               .alignment(Alignment.center)
               .qFormat(true)
               .spacing(
-                before: 12.toHalfPointsFromPoints(),
-                after: 6.toHalfPointsFromPoints(),
+                before: 12.ptToHalfPoints(),
+                after: 6.ptToHalfPoints(),
               )
               .uiPriority(20)
               .build(),
@@ -118,7 +118,7 @@ Future<void> main() async {
                 'Subtitle': LanguageCodes.englishUS,
                 'Subtítulo': LanguageCodes.spanishMX,
               })
-              .fontSize(14.toHalfPointsFromPoints())
+              .fontSize(14.ptToHalfPoints())
               .fontFamily('Georgia')
               .italic()
               .runColor(Color.rgb(0x666666))
@@ -133,7 +133,7 @@ Future<void> main() async {
                 'Chapter': LanguageCodes.englishUS,
                 'Capítulo': LanguageCodes.spanishMX,
               })
-              .fontSize(20.toHalfPointsFromPoints())
+              .fontSize(20.ptToHalfPoints())
               .fontFamily('Georgia')
               .bold()
               .smallCaps()
@@ -150,7 +150,7 @@ Future<void> main() async {
                 'Body Text': LanguageCodes.englishUS,
                 'Texto Cuerpo': LanguageCodes.spanishMX,
               })
-              .fontSize(13.toHalfPointsFromPoints())
+              .fontSize(13.ptToHalfPoints())
               .fontFamily('Times New Roman')
               .alignment(Alignment.left)
               .qFormat(true)
@@ -165,7 +165,7 @@ Future<void> main() async {
                 'Quote': LanguageCodes.englishUS,
                 'Cita': LanguageCodes.spanishMX,
               })
-              .fontSize(12.toHalfPointsFromPoints())
+              .fontSize(12.ptToHalfPoints())
               .fontFamily('Times New Roman')
               .italic()
               .runColor(Color.rgb(0x444444))
@@ -182,7 +182,7 @@ Future<void> main() async {
                 'Epilogue': LanguageCodes.englishUS,
                 'Epilogo': LanguageCodes.spanishMX,
               })
-              .fontSize(12.toHalfPointsFromPoints())
+              .fontSize(12.ptToHalfPoints())
               .fontFamily('Times New Roman')
               .italic()
               .alignment(Alignment.left)
@@ -194,7 +194,7 @@ Future<void> main() async {
         ],
       ),
       settings: SettingsOptions.base(
-        defaultTabStop: 0.5.toTwipsFromInches().toString(),
+        defaultTabStop: 0.5.inchesToTwips().toString(),
         zoomPercent: '100',
         trackRevisions: false,
         autoHyphenation: false,
@@ -481,7 +481,7 @@ Future<void> main() async {
               data: TextPart(
                 text: '© 2023 Midnight Press',
                 styles: <Object>[
-                  FontSizeAttribute(9.toHalfPointsFromPoints().toInt()),
+                  FontSizeAttribute(9.ptToHalfPoints().toInt()),
                   ForegroundTextColorAttribute('999999'),
                 ],
               ),
@@ -491,7 +491,7 @@ Future<void> main() async {
               data: TextPart(
                 text: 'All rights reserved',
                 styles: <Object>[
-                  FontSizeAttribute(8.toHalfPointsFromPoints().toInt()),
+                  FontSizeAttribute(8.ptToHalfPoints().toInt()),
                   ForegroundTextColorAttribute('999999'),
                 ],
               ),

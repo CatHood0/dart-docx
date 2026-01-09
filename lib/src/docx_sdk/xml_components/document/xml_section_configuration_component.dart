@@ -90,9 +90,9 @@ class XmlPageMarginsComponent extends XmlComponentBase<DocumentMargins> {
 /// Represents the `<w:pgSz>` element in WordML, defining the page size
 /// and orientation for a section.
 class XmlPageSizeComponent
-    extends XmlComponentBase<({PageSettings size, Orientation orientation})> {
+    extends XmlComponentBase<({PageSize size, Orientation orientation})> {
   XmlPageSizeComponent({
-    required PageSettings size,
+    required PageSize size,
     required Orientation orientation,
   }) : super(
           value: (size: size, orientation: orientation),

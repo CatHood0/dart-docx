@@ -5,7 +5,7 @@ import 'package:docx/docx.dart';
 /// Simple demo that generates a basic document with a centered heart
 Future<void> main() async {
   final File outFile = File('test_resources/heart_shape.docx');
-  final int size = 200.toEmuFromPoints();
+  final int size = 200.ptToEmu();
 
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(

@@ -161,8 +161,8 @@ class ShapePath {
     double height = 1,
     this.fill = PathFill.normal,
     this.stroke = false,
-  })  : width = width.toEmuFromPoints(),
-        height = height.toEmuFromPoints();
+  })  : width = width.ptToEmu(),
+        height = height.ptToEmu();
 
   final List<PathCommand> commands;
   final int width;

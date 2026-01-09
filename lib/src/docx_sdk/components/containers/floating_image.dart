@@ -57,8 +57,8 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
         imageDpi,
       );
 
-      imgWidthEmu ??= resultSize.width?.toEmuFromInches();
-      imgHeightEmu ??= resultSize.height?.toEmuFromInches();
+      imgWidthEmu ??= resultSize.width?.inchesToEmu();
+      imgHeightEmu ??= resultSize.height?.inchesToEmu();
     }
 
     return <XmlElement>[

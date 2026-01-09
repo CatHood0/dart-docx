@@ -7,6 +7,7 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
   DocumentRoot({
     required Iterable<DocxTreeNode> sections,
     super.parent,
+    super.id,
   })  : assert(
             parent == null,
             'root must not be in any other '
@@ -30,6 +31,10 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
   @override
   set index(int value) {}
 
+  void addImage() {}
+  void addParagraph() {}
+  void addShape() {}
+
   bool get isEmpty => data.isEmpty;
 
   @override
@@ -40,9 +45,10 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
           (section as IgnorableMixin).shouldIgnore()) {
         continue;
       }
-      context.currentContentPart = section;
+      context.currentContentPart = this;
       content.addAll(section.buildXml(context: context));
     }
+
     return content;
   }
 
@@ -52,31 +58,33 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
   }
 
   @override
-  DocumentRoot get copy => DocumentRoot(sections: data, parent: parent);
+  DocumentRoot get copy => DocumentRoot(
+        id: id,
+        sections: data,
+        parent: parent,
+      );
 
   @override
   List<DocxTreeNode<dynamic>>? visitAllElement(
     bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (data.isEmpty) return [];
-    final List<DocxTreeNode> elements = [];
+    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (!visitChildrenIfNeeded) return null;
     for (final DocxTreeNode element in data) {
       if (shouldGetElement(element)) {
-        elements.add(element);
+        return <DocxTreeNode<dynamic>>[element];
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode>? foundedEl = element
-            .visitAllElement(
-              shouldGetElement,
-              visitChildrenIfNeeded: true,
-            )
-            ?.cast<DocxTreeNode>();
-        if (foundedEl != null) {
-          elements.addAll(foundedEl);
+        final List<DocxTreeNode<dynamic>>? els = element.visitAllElement(
+          shouldGetElement,
+          visitChildrenIfNeeded: true,
+        );
+        if (els != null) {
+          return els;
         }
       }
     }
-    return elements;
+    return null;
   }
 
   @override
@@ -84,7 +92,21 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
     bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    // TODO: implement visitElement
-    throw UnimplementedError();
+    if (shouldGetElement(this)) return this;
+    if (!visitChildrenIfNeeded) return null;
+    for (final DocxTreeNode element in data) {
+      if (shouldGetElement(element)) {
+        return element;
+      } else if (visitChildrenIfNeeded) {
+        final DocxTreeNode<dynamic>? els = element.visitElement(
+          shouldGetElement,
+          visitChildrenIfNeeded: true,
+        );
+        if (els != null) {
+          return els;
+        }
+      }
+    }
+    return null;
   }
 }

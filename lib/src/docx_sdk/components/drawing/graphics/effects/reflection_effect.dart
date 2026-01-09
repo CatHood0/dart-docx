@@ -129,8 +129,8 @@ class ReflectionEffect {
     double endPosition = 1.0,
     double startOpacity = 1.0,
     double endOpacity = 0.0,
-  })  : blurRadius = blurRadius.toEmuFromPoints(),
-        distance = distance.toEmuFromPoints(),
+  })  : blurRadius = blurRadius.ptToEmu(),
+        distance = distance.ptToEmu(),
         direction = (direction * (degressTh / 360)).round(),
         fadeDirection = (fadeDirection * (degressTh / 360)).round(),
         startPosition = startPosition.toAlphaUnit(),
@@ -430,10 +430,10 @@ class ReflectionEffect {
   final int endOpacity;
 
   /// Gets the blur radius in points.
-  double get blurRadiusInPoints => blurRadius.toPointsFromEmu();
+  double get blurRadiusInPoints => blurRadius.emuToPt();
 
   /// Gets the distance in points.
-  double get distanceInPoints => distance.toPointsFromEmu();
+  double get distanceInPoints => distance.emuToPt();
 
   /// Gets the direction in degrees.
   double get directionInDegrees => direction / (60000 / 360);

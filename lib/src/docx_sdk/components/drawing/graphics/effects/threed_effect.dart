@@ -213,8 +213,8 @@ class ThreeDEffect {
     this.bottomBevel,
     double lightingAngle = 45.0,
     double lightingIntensity = 0.8,
-  })  : extrusionHeight = extrusionHeight.toEmuFromPoints(),
-        contourWidth = contourWidth.toEmuFromPoints(),
+  })  : extrusionHeight = extrusionHeight.ptToEmu(),
+        contourWidth = contourWidth.ptToEmu(),
         lightingAngle = (lightingAngle * (60000 / 360)).round(),
         lightingIntensity =
             (lightingIntensity * 100000).clamp(0, 100000).toInt();
@@ -280,13 +280,13 @@ class ThreeDEffect {
       material: PresetMaterial.plastic,
       contourWidth: width,
       topBevel: Bevel(
-        width: 2.toEmuFromPoints(),
-        height: 2.toEmuFromPoints(),
+        width: 2.ptToEmu(),
+        height: 2.ptToEmu(),
         preset: BevelPreset.softRound,
       ),
       bottomBevel: Bevel(
-        width: 2.toEmuFromPoints(),
-        height: 2.toEmuFromPoints(),
+        width: 2.ptToEmu(),
+        height: 2.ptToEmu(),
         preset: BevelPreset.softRound,
       ),
       lightingAngle: 45,
@@ -356,10 +356,10 @@ class ThreeDEffect {
   final int lightingIntensity;
 
   /// Gets the extrusion height in points.
-  double get extrusionHeightInPoints => extrusionHeight.toPointsFromEmu();
+  double get extrusionHeightInPoints => extrusionHeight.emuToPt();
 
   /// Gets the contour width in points.
-  double get contourWidthInPoints => contourWidth.toPointsFromEmu();
+  double get contourWidthInPoints => contourWidth.emuToPt();
 
   /// Gets the lighting angle in degrees.
   double get lightingAngleInDegrees => lightingAngle / (60000 / 360);
@@ -456,25 +456,25 @@ class Bevel {
     required double width,
     required double height,
     this.preset = BevelPreset.circle,
-  })  : width = width.toEmuFromPoints(),
-        height = height.toEmuFromPoints();
+  })  : width = width.ptToEmu(),
+        height = height.ptToEmu();
 
   Bevel.inches({
     required double width,
     required double height,
     this.preset = BevelPreset.circle,
-  })  : width = width.toEmuFromInches(),
-        height = height.toEmuFromInches();
+  })  : width = width.inchesToEmu(),
+        height = height.inchesToEmu();
 
   final int width;
   final int height;
   final BevelPreset preset;
 
   /// Gets the width in points.
-  double get widthInPoints => width.toPointsFromEmu();
+  double get widthInPoints => width.emuToPt();
 
   /// Gets the height in points.
-  double get heightInPoints => height.toPointsFromEmu();
+  double get heightInPoints => height.emuToPt();
 
   Bevel copyWith({
     int? width,

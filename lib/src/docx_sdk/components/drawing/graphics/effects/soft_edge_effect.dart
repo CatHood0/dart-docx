@@ -58,10 +58,10 @@ class SoftEdgeEffect {
   const SoftEdgeEffect({required this.radius});
 
   SoftEdgeEffect.inches({required double radius})
-      : radius = radius.toEmuFromInches();
+      : radius = radius.inchesToEmu();
 
   SoftEdgeEffect.points({required double radius})
-      : radius = radius.toEmuFromPoints();
+      : radius = radius.ptToEmu();
 
   final int radius;
 }

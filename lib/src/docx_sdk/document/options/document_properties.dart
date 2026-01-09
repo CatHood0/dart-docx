@@ -1,13 +1,13 @@
 import '../../../../docx.dart';
 import '../../xml_components/settings/entities/settings.dart';
 
-class SectionOptions {
-  SectionOptions({
+class DocumentLayout {
+  DocumentLayout({
     required this.columns,
-    PageSettings? size,
+    PageSize? size,
     DocumentMargins? margins,
     this.orientation = Orientation.portrait,
-  }) : pageSize = size ?? PageSettings.a4 {
+  }) : pageSize = size ?? PageSize.a4 {
     final bool isPortraitOrientation = orientation == defaultOrientation;
     this.margins = margins ??
         (isPortraitOrientation
@@ -17,8 +17,8 @@ class SectionOptions {
         pageSize.width - this.margins.left - this.margins.right;
   }
 
-  final ColumnSettings? columns;
-  final PageSettings pageSize;
+  final ColumnOptions? columns;
+  final PageSize pageSize;
   final Orientation orientation;
 
   late final DocumentMargins margins;
@@ -43,7 +43,7 @@ class DocumentOptions {
     required this.description,
     required this.createdAt,
     required this.editorSettings,
-    required this.section,
+    required this.layoutOptions,
     this.revisions = 0,
     this.fonts = const <FontProperties>[],
     this.preserveWhitespacesWhenRequired = true,
@@ -66,7 +66,7 @@ class DocumentOptions {
         encoding = 'UTF-8';
 
   factory DocumentOptions.standard({
-    SectionOptions? section,
+    DocumentLayout? section,
     String? title,
     String creator = 'Unnamed',
     String subject = '',
@@ -81,7 +81,7 @@ class DocumentOptions {
     ThemeOptions? theme,
     Set<String>? supportedFileExtensions,
     List<NumberingOptions>? numberingOptions,
-    PageSettings? pageSize,
+    PageSize? pageSize,
     List<String> keywords = const <String>[],
     DocumentMargins? margins,
     Orientation defaultOrientation = Orientation.portrait,
@@ -95,12 +95,12 @@ class DocumentOptions {
       settings: settings,
       numberingOptions: numberingOptions,
       webSettings: webSettings,
-      section: section ??
-          SectionOptions(
-            columns: ColumnSettings(),
+      layoutOptions: section ??
+          DocumentLayout(
+            columns: ColumnOptions(equalWidth: true),
             margins: margins,
             orientation: defaultOrientation,
-            size: pageSize ?? PageSettings.a4,
+            size: pageSize ?? PageSize.a4,
           ),
       title: title ?? 'Unnamed',
       revisions: revisions,
@@ -115,11 +115,11 @@ class DocumentOptions {
     );
   }
 
-  Orientation get orientation => section.orientation;
-  PageSettings get pageSize => section.pageSize;
-  double get availableDocumentSpace => section.availableDocumentSpace;
-  DocumentMargins get margins => section.margins;
-  ColumnSettings? get columns => section.columns;
+  Orientation get orientation => layoutOptions.orientation;
+  PageSize get pageSize => layoutOptions.pageSize;
+  double get availableDocumentSpace => layoutOptions.availableDocumentSpace;
+  DocumentMargins get margins => layoutOptions.margins;
+  ColumnOptions? get columns => layoutOptions.columns;
 
   final Iterable<FontProperties> fonts;
 
@@ -131,7 +131,7 @@ class DocumentOptions {
   final String subject;
   final String lastModifiedBy;
   final String keywords;
-  final SectionOptions section;
+  final DocumentLayout layoutOptions;
 
   /// Insert `xml:space="preserve"` in all `TextRun` instances
   /// that contains two or more consecutive spaces

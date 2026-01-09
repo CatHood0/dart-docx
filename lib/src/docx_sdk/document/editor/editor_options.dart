@@ -1,8 +1,4 @@
-import '../../utils/constants.dart';
-import '../../utils/language_codes.dart';
-import '../../xml_components/numbering/formats.dart';
-import 'editor_metadata.dart';
-import 'page_settings.dart';
+import '../../../../docx.dart';
 
 class DocxLanguage {
   DocxLanguage({
@@ -34,7 +30,7 @@ class EditorOptions {
   });
 
   factory EditorOptions.standard({
-    PageSettings? size,
+    PageSize? size,
     EditorMetadata? metadata,
     DocxLanguage? language,
   }) {

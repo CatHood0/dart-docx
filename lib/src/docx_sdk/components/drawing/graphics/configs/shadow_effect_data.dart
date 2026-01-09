@@ -25,7 +25,7 @@ class ShadowEffectData {
     double opacity = 0.25,
     this.isInner = false,
   })  : color = color ?? Color.rgb(0x000000),
-        blur = blurRadius.toEmuFromPoints(),
+        blur = blurRadius.ptToEmu(),
         distance = _calculateDistance(offsetX, offsetY),
         direction = _calculateDirection(offsetX, offsetY, angle),
         alpha = (opacity.clamp(0.0, 1.0) * maxAlphaEmu).toInt();
@@ -186,7 +186,7 @@ class ShadowEffectData {
   final bool isInner;
 
   /// Gets the blur radius in points for external use.
-  double get blurRadius => blur.toPointsFromEmu();
+  double get blurRadius => blur.emuToPt();
 
   /// Gets the shadow opacity (0.0 to 1.0).
   double get opacity => alpha / maxAlphaEmu;
@@ -202,7 +202,7 @@ class ShadowEffectData {
   /// Gets the offset components in points.
   (double x, double y) get offset {
     final double radians = angle * (pi / 180);
-    final double distPoints = distance.toPointsFromEmu();
+    final double distPoints = distance.emuToPt();
     return (
       distPoints * cos(radians),
       -distPoints * sin(radians), // Negate for DOCX coordinate system
@@ -484,7 +484,7 @@ class ShadowEffectData {
   static int _calculateDistance(double offsetX, double offsetY) {
     // Calculate Euclidean distance in points, then convert to EMU
     final double distancePoints = sqrt(offsetX * offsetX + offsetY * offsetY);
-    return distancePoints.toEmuFromPoints();
+    return distancePoints.ptToEmu();
   }
 
   static int _calculateDirection(double offsetX, double offsetY, double angle) {

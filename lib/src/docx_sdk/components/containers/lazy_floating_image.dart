@@ -89,8 +89,8 @@ class LazyFloatingImage extends ComponentContainer<ImageData<File>>
         imageDpi,
       );
 
-      imgWidthEmu ??= resultSize.width?.toEmuFromInches();
-      imgHeightEmu ??= resultSize.height?.toEmuFromInches();
+      imgWidthEmu ??= resultSize.width?.inchesToEmu();
+      imgHeightEmu ??= resultSize.height?.inchesToEmu();
     }
 
     return <XmlElement>[

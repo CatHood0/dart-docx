@@ -13,6 +13,38 @@ class DocumentMargins {
     required this.gutter,
   });
 
+  DocumentMargins.fromCm({
+    required num top,
+    required num right,
+    required num left,
+    required num bottom,
+    required num header,
+    required num footer,
+    required num gutter,
+  })  : top = top.centimetersToDxa(),
+        right = right.centimetersToDxa(),
+        left = left.centimetersToDxa(),
+        bottom = bottom.centimetersToDxa(),
+        header = header.centimetersToDxa(),
+        footer = footer.centimetersToDxa(),
+        gutter = gutter.centimetersToDxa();
+
+  DocumentMargins.fromPoints({
+    required num top,
+    required num right,
+    required num left,
+    required num bottom,
+    required num header,
+    required num footer,
+    required num gutter,
+  })  : top = top.ptToDxa(),
+        right = right.ptToDxa(),
+        left = left.ptToDxa(),
+        bottom = bottom.ptToDxa(),
+        header = header.ptToDxa(),
+        footer = footer.ptToDxa(),
+        gutter = gutter.ptToDxa();
+
   DocumentMargins.fromInches({
     required num top,
     required num right,
@@ -21,23 +53,23 @@ class DocumentMargins {
     required num header,
     required num footer,
     required num gutter,
-  })  : top = top.toDxaFromPixels(),
-        right = right.toDxaFromPixels(),
-        left = left.toDxaFromPixels(),
-        bottom = bottom.toDxaFromPixels(),
-        header = header.toDxaFromPixels(),
-        footer = footer.toDxaFromPixels(),
-        gutter = gutter.toDxaFromPixels();
+  })  : top = top.inchesToDxa(),
+        right = right.inchesToDxa(),
+        left = left.inchesToDxa(),
+        bottom = bottom.inchesToDxa(),
+        header = header.inchesToDxa(),
+        footer = footer.inchesToDxa(),
+        gutter = gutter.inchesToDxa();
 
   DocumentMargins toInches() {
     return DocumentMargins(
-      top: top.toInchesFromDxa(),
-      right: right.toInchesFromDxa(),
-      left: left.toInchesFromDxa(),
-      bottom: bottom.toInchesFromDxa(),
-      header: header.toInchesFromDxa(),
-      footer: footer.toInchesFromDxa(),
-      gutter: gutter.toInchesFromDxa(),
+      top: top.dxaToInches(),
+      right: right.dxaToInches(),
+      left: left.dxaToInches(),
+      bottom: bottom.dxaToInches(),
+      header: header.dxaToInches(),
+      footer: footer.dxaToInches(),
+      gutter: gutter.dxaToInches(),
     );
   }
 

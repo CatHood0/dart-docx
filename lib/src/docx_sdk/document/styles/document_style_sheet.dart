@@ -29,7 +29,7 @@ class DocumentStylesSheet {
           StyleBuilder.singularC()
               .fontFamily(options?.fontFamily ?? 'Times New Roman')
               .fontSize(
-                (options?.fontSize ?? (12).toHalfPointsFromPoints()).toDouble(),
+                (options?.fontSize ?? (12).ptToHalfPoints()).toDouble(),
                 options?.complexScriptFontSize.toDouble(),
               )
               .lang(options?.language ??

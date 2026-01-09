@@ -73,10 +73,10 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
     num? imgWidthEmu;
     num? imgHeightEmu;
     if (data.width != null) {
-      imgWidthEmu = data.width!.toEmuFromUnit(data.unit);
+      imgWidthEmu = data.width!.unitToEmu(data.unit);
     }
     if (data.height != null) {
-      imgHeightEmu = data.height!.toEmuFromUnit(data.unit);
+      imgHeightEmu = data.height!.unitToEmu(data.unit);
     }
 
     //TODO: we will need to create our own decoders for different

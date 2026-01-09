@@ -78,9 +78,9 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl0')
                   .indent(
-                    left: 0.5.toTwipsFromInches(), // 0.5 inch
+                    left: 0.5.inchesToTwips(), // 0.5 inch
                     hanging:
-                        0.25.toTwipsFromInches(), // 0.25 inch hanging indent
+                        0.25.inchesToTwips(), // 0.25 inch hanging indent
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -94,8 +94,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl1')
                   .indent(
-                    left: 1.0.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 1.0.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -109,8 +109,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl2')
                   .indent(
-                    left: 1.5.toTwipsFromInches(), // 1.5 inch
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 1.5.inchesToTwips(), // 1.5 inch
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -124,8 +124,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl3')
                   .indent(
-                    left: 2.0.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 2.0.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -139,8 +139,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl4')
                   .indent(
-                    left: 2.5.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 2.5.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -154,8 +154,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl5')
                   .indent(
-                    left: 3.0.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 3.0.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -169,8 +169,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl6')
                   .indent(
-                    left: 3.5.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 3.5.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -184,8 +184,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl7')
                   .indent(
-                    left: 4.0.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 4.0.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -199,8 +199,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl8')
                   .indent(
-                    left: 4.5.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 4.5.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -219,8 +219,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl0')
                   .indent(
-                    left: 0.5.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 0.5.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),
@@ -231,8 +231,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl1')
                   .indent(
-                    left: 1.0.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 1.0.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),
@@ -243,8 +243,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl2')
                   .indent(
-                    left: 1.5.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 1.5.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),
@@ -256,8 +256,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl3')
                   .indent(
-                    left: 2.0.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 2.0.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),
@@ -268,8 +268,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl4')
                   .indent(
-                    left: 2.5.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 2.5.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),
@@ -280,8 +280,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl5')
                   .indent(
-                    left: 3.0.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 3.0.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),
@@ -292,8 +292,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl6')
                   .indent(
-                    left: 3.5.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 3.5.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),
@@ -304,8 +304,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl7')
                   .indent(
-                    left: 4.0.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 4.0.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),
@@ -316,8 +316,8 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl8')
                   .indent(
-                    left: 4.5.toTwipsFromInches(),
-                    hanging: 0.25.toTwipsFromInches(),
+                    left: 4.5.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
             ),

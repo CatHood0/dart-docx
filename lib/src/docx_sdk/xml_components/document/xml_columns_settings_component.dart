@@ -6,9 +6,9 @@ import '../../../core/extensions/string_ext.dart';
 /// for a section of the document.
 ///
 /// This component is typically a child of `<w:sectPr>`.
-class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnSettings> {
+class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnOptions> {
   XmlColumnsSettingsComponent({
-    required ColumnSettings settings,
+    required ColumnOptions settings,
   }) : super(
           value: settings,
           xmlKey: 'w:cols',
@@ -66,7 +66,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnSettings> {
 
     // Add individual <w:col> elements if equalWidth is false and columnWidths are provided
     if (!value.equalWidth && value.columnWidths != null) {
-      for (final ColumnWidthSetting colSetting in value.columnWidths!) {
+      for (final ColumnWidth colSetting in value.columnWidths!) {
         final List<XmlAttribute> colAttrs = [
           XmlAttribute(
             'w:w'.toName(),

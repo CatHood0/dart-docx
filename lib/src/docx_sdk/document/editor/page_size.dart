@@ -1,26 +1,26 @@
 import '../../../../docx.dart';
 
-class PageSettings {
-  PageSettings.raw(double widthCm, double heightCm)
+class PageSize {
+  PageSize.raw(double widthCm, double heightCm)
       : width = widthCm,
         height = heightCm {
     assert(heightCm > 0, 'El alto debe ser mayor que 0');
     assert(widthCm > 0, 'El ancho debe ser mayor que 0');
   }
-  PageSettings.fromCm(double widthCm, double heightCm)
+  PageSize.fromCm(double widthCm, double heightCm)
       : width = (widthCm * dxaPerCm).roundToDouble(),
         height = (heightCm * dxaPerCm).roundToDouble() {
     assert(heightCm > 0, 'El alto debe ser mayor que 0');
     assert(widthCm > 0, 'El ancho debe ser mayor que 0');
   }
 
-  PageSettings.fromMm(double widthMm, double heightMm)
+  PageSize.fromMm(double widthMm, double heightMm)
       : this.fromCm(widthMm / 10.0, heightMm / 10.0);
 
-  PageSettings.fromInches(double widthIn, double heightIn)
+  PageSize.fromInches(double widthIn, double heightIn)
       : this.fromCm(widthIn * 2.54, heightIn * 2.54);
 
-  PageSettings.fromDxa(this.width, this.height) {
+  PageSize.fromDxa(this.width, this.height) {
     assert(width > 0, 'El ancho en dxa debe ser mayor que 0');
     assert(height > 0, 'El alto en dxa debe ser mayor que 0');
   }
@@ -31,20 +31,20 @@ class PageSettings {
   /// The height of the page in dxa unit
   final double height;
 
-  static PageSettings get a4 => PageSettings.fromCm(21.0, 29.7);
-  static PageSettings get letter => PageSettings.fromCm(21.59, 27.94);
-  static PageSettings get legal => PageSettings.fromCm(21.59, 35.56);
-  static PageSettings get a5 => PageSettings.fromCm(14.8, 21.0);
-  static PageSettings get a3 => PageSettings.fromCm(29.7, 42.0);
+  static PageSize get a4 => PageSize.fromCm(21.0, 29.7);
+  static PageSize get letter => PageSize.fromCm(21.59, 27.94);
+  static PageSize get legal => PageSize.fromCm(21.59, 35.56);
+  static PageSize get a5 => PageSize.fromCm(14.8, 21.0);
+  static PageSize get a3 => PageSize.fromCm(29.7, 42.0);
 
-  PageSettings toCm() {
+  PageSize toCm() {
     final values = inCm;
-    return PageSettings.raw(values.$1, values.$2);
+    return PageSize.raw(values.$1, values.$2);
   }
 
-  PageSettings toInches() {
+  PageSize toInches() {
     final values = inInches;
-    return PageSettings.raw(values.$1, values.$2);
+    return PageSize.raw(values.$1, values.$2);
   }
 
   (double, double) get inCm => (width / dxaPerCm, height / dxaPerCm);
@@ -59,9 +59,9 @@ class PageSettings {
     return (widthCm / 2.54, heightCm / 2.54);
   }
 
-  PageSettings toLandscape() => PageSettings.fromDxa(height, width);
+  PageSize toLandscape() => PageSize.fromDxa(height, width);
 
-  PageSettings toPortrait() => PageSettings.fromDxa(
+  PageSize toPortrait() => PageSize.fromDxa(
       width < height ? width : height, width > height ? width : height);
 
   @override
@@ -72,7 +72,7 @@ class PageSettings {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PageSettings &&
+      other is PageSize &&
           runtimeType == other.runtimeType &&
           width == other.width &&
           height == other.height;
