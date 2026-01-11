@@ -224,7 +224,7 @@ _Under active development_
 
 The `docx` library provides flexible options for positioning images within your document. You can control whether an image flows with text like a character, or floats relative to paragraphs, margins, or even the page.
 
-These APIs map directly to WordprocessingML concepts, but are exposed through a Dart-first declarative API.”
+These APIs map directly to `WordprocessingML` concepts, but are exposed through a Dart-first declarative API.
 
 #### Basic Block image 
 
@@ -326,8 +326,8 @@ final paragraph = Paragraph(
             buffer: File(
               'assets/inline_icon.png'),
             extension: 'png',
-            width: 0.2.toEmuFromInches(),
-            height: 0.2.toEmuFromInches(),
+            width: 0.2.inchesToEmu(),
+            height: 0.2.inchesToEmu(),
           ),
           asInline: true,
         ),
@@ -518,8 +518,8 @@ final Style customRedCenteredParagraph = StyleBuilder.paragraph('CustomRedCenter
     .name('Red Centered Paragraph')
     .basedOn('Normal') // Based on common "Normal" style 
     .next('Normal') // Next paragraph must have applied normal paragraph 
-    .color('FF0000') // Red 
-    .fontSize(12) // Font size of 12pt
+    .color(Color.rgb(0xFF0000) 
+    .fontSize(12.ptToHalfPoints()) // Font size of 12pt
     .bold() 
     .alignment(Alignment.center)
     .spacing(before: 200, after: 200)
@@ -540,12 +540,8 @@ final paragraph = Paragraph(
 **Optionally**, you can register this `Style` in a `DocumentStylesSheet` to avoid reusing the same instance every time. Just register it and use `Style.reference` constructor to reference the style and let to the component decided how get and build it.
 
 ```dart
-DocumentStylesSheet myCustomStyles = DocumentStylesSheet(
-  styles: [
-    // Optional: keep default styles
-    ...DefaultDocumentStyles.kDefaultDocumentStyleSheet.styles,
-    customRedCenteredParagraph,
-  ],
+DocumentStylesSheet myCustomStyles = DocumentStylesSheet.base().withNewStyles(
+  <Style>[customRedCenteredParagraph],
 );
 
 //Then, in your DocxDocumentSdk:
@@ -554,15 +550,10 @@ final DocumentOptions options = DocumentOptions(
   styles: myCustomStyles,
 );
 
-final paragraph = Paragraph(
+final paragraph = Paragraph.text(
+  text: 'This text uses my custom style.',
   styles: <Style>[Style.reference('CustomRedCentered')],
-  data: <RunBase<dynamic>>[
-      TextRun(
-        data: TextPart(text: 'This text uses my custom style.'),
-      ),
-    ],
-  ),
-),
+);
 ````
 
 ### Document Settings Configuration
