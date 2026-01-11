@@ -116,30 +116,30 @@ Future<void> main() async {
             ),
             ...getRepeatedSection(
               title: 'EXPERIENCIA',
-              subtitle1: 'Empresa,',
+              subtitle1: 'Empresa, ',
               subtitle2: 'Ubicación — ',
               subtitle3: 'Puesto',
               date: 'MES de 20XX - PRESENTE',
-              content: 'Inserta tu text aquí '
-                  'Inserta tu text aquí '
-                  'Inserta tu text aquí '
-                  'Inserta tu text aquí '
-                  'Inserta tu text aquí ',
+              content: 'Inserta tu texto aquí '
+                  'Inserta tu texto aquí '
+                  'Inserta tu texto aquí '
+                  'Inserta tu texto aquí '
+                  'Inserta tu texto aquí ',
               repeat: 3,
             ),
             ...getRepeatedSection(
               title: 'EDUCACIÓN',
-              subtitle1: 'Nombre de la escuela,',
+              subtitle1: 'Nombre de la escuela, ',
               subtitle2: 'Ubicación — ',
               subtitle3: 'Título',
               date: 'MES de 20XX - MES DE 20XX',
-              content: 'Inserta tu text aquí '
-                  'Inserta tu text aquí '
-                  'Inserta tu text aquí '
-                  'Inserta tu text aquí '
-                  'Inserta tu text aquí '
-                  'Inserta tu text aquí '
-                  'Inserta tu text aquí ',
+              content: 'Inserta tu texto aquí '
+                  'Inserta tu texto aquí '
+                  'Inserta tu texto aquí '
+                  'Inserta tu texto aquí '
+                  'Inserta tu texto aquí '
+                  'Inserta tu texto aquí '
+                  'Inserta tu texto aquí ',
               repeat: 3,
             ),
             ...getRepeatedSection(
@@ -148,7 +148,7 @@ Future<void> main() async {
               subtitle2: ' — ',
               subtitle3: 'Detalle',
               date: '',
-              content: 'Inserta tu text aquí ',
+              content: 'Inserta tu texto aquí ',
               repeat: 1,
             ),
           ],
@@ -308,8 +308,8 @@ Future<void> main() async {
             ...getRepeatedSection(
               title: 'IDIOMAS',
               date: '',
-              content: 'Inserta tu text aquí '
-                  'Inserta tu text aquí ',
+              content: 'Inserta tu texto aquí '
+                  'Inserta tu texto aquí ',
               repeat: 1,
             ),
           ],
