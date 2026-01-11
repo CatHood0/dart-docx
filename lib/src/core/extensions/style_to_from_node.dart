@@ -47,6 +47,68 @@ extension StyleToNode on Style {
     );
   }
 
+  List<XmlElement> forTableStyle({
+    bool shouldShowStyleRef = true,
+    bool useConfigurators = true,
+  }) {
+    final StyleConfigurator configs = !useConfigurators
+        ? StyleConfigurator.invalid()
+        : getConfigurator(
+            xmlTablePropertiesNode,
+            fullName: true,
+          );
+    assert(
+        styleId.isNotEmpty,
+        'styleId must not '
+        'have empty string at this build phase.');
+
+    return <XmlElement>[
+      if (shouldShowStyleRef)
+        XmlElement.tag(
+          xmlTableStyleNode,
+          attributes: <XmlAttribute>[
+            XmlAttribute(
+              'w:val'.toName(),
+              styleId,
+            ),
+          ],
+          isSelfClosing: true,
+        ),
+      if (useConfigurators) ...configs.childrenToXmlNodes(),
+    ];
+  }
+
+  List<XmlElement> forTableRowStyle({
+    bool shouldShowStyleRef = true,
+    bool useConfigurators = true,
+  }) {
+    final StyleConfigurator configs = !useConfigurators
+        ? StyleConfigurator.invalid()
+        : getConfigurator(
+            xmlTableRowPropertiesNode,
+            fullName: true,
+          );
+    assert(
+        styleId.isNotEmpty,
+        'styleId must not '
+        'have empty string at this build phase.');
+
+    return <XmlElement>[
+      if (shouldShowStyleRef)
+        XmlElement.tag(
+          xmlTableStyleNode,
+          attributes: <XmlAttribute>[
+            XmlAttribute(
+              'w:val'.toName(),
+              styleId,
+            ),
+          ],
+          isSelfClosing: true,
+        ),
+      if (useConfigurators) ...configs.childrenToXmlNodes(),
+    ];
+  }
+
   List<XmlElement> forRunStyle({
     bool shouldShowStyleRef = true,
     bool useConfigurators = true,

@@ -3,6 +3,22 @@ import 'package:xml/xml.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
 
+/// Text run that contains hyperlink functionality.
+///
+/// Represents clickable text that links to external URLs or internal
+/// document locations. Hyperlink runs can be styled like regular text
+/// but also contain link metadata.
+///
+/// Currently supports external URLs only; internal document links
+/// (bookmarks, cross-references) are planned for future implementation.
+///
+/// Example usage:
+/// ```dart
+/// final link = HyperlinkRun.pure(
+///   link: 'https://example.com',
+///   styles: [Style.reference('Hyperlink')],
+/// );
+/// ```
 //NOTE: probably we will need to implement internal
 // link relations. See http://officeopenxml.com/WPhyperlink.php
 class HyperlinkRun extends RunBase<HyperlinkTextPart> {
@@ -109,6 +125,10 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   }
 }
 
+/// Text part specialized for hyperlink content.
+///
+/// Extends [TextPart] with a hyperlink URL and validation to ensure
+/// the URL is properly formatted.
 class HyperlinkTextPart extends TextPart {
   HyperlinkTextPart({
     required super.text,

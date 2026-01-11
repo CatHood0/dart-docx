@@ -1,5 +1,4 @@
 import 'package:docx/docx.dart';
-import 'package:docx/src/docx_sdk/utils/language_codes.dart';
 import 'package:docx/src/docx_sdk/xml_components/styles/xml_styles_component.dart';
 import 'package:test/test.dart';
 import 'package:xml/xml.dart';

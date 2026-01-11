@@ -4,7 +4,26 @@ import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../mixins/ignorable_mixin.dart';
 
-// Represents wp:inline
+/// Inline drawing element for images and shapes that flow with text.
+///
+/// Represents the `wp:inline` element in DrawingML, used for images and
+/// shapes that are positioned inline with text (similar to text characters).
+/// Inline elements have fixed positioning within the text flow and cannot
+/// be wrapped around by text.
+///
+/// This is typically used for small icons, emojis, or images that should
+/// behave like text characters in the document flow.
+///
+/// Example usage:
+/// ```dart
+/// final inline = Inline(
+///   name: 'logo.png',
+///   width: 1000000, // EMU units
+///   height: 500000, // EMU units
+///   distance: TextDistance.all(0),
+///   components: [myGraphic],
+/// );
+/// ```
 class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
   Inline({
     required Iterable<DocxTreeNode> components,
@@ -24,11 +43,20 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
     }
   }
 
+  /// Text wrapping distances around the inline element.
   final TextDistance distance;
 
+  /// Unique element identifier for this inline drawing
+  /// required for [DocProperties]
   int? elementId;
+
+  /// Descriptive name for the inline element.
   final String name;
+
+  /// Width of the inline element in EMU units (English Metric Units).
   final num width;
+
+  /// Height of the inline element in EMU units (English Metric Units).
   final num height;
 
   @override
@@ -124,10 +152,5 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
       if (result != null) return result;
     }
     return null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
-    return [];
   }
 }

@@ -4,6 +4,29 @@ import '../../../../docx.dart';
 import '../../../core/extensions/num_extensions.dart';
 import '../../../core/extensions/string_ext.dart';
 
+/// Anchor element for floating content positioning.
+///
+/// Represents the `wp:anchor` element in DrawingML, used to position
+/// floating content (images, shapes) independently of text flow.
+/// Anchors provide precise control over positioning, wrapping behavior,
+/// and layering of floating elements.
+///
+/// Anchors support various positioning modes:
+/// - Relative to page margins
+/// - Relative to paragraph bounds
+/// - Relative to specific characters
+/// - Absolute page coordinates
+///
+/// Example usage:
+/// ```dart
+/// final anchor = Anchor(
+///   component: myImage,
+///   widthEmu: 2000000,
+///   heightEmu: 1500000,
+///   name: 'Floating Image',
+///   config: AnchorConfig.block(),
+/// );
+/// ```
 class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   Anchor({
     required DocxTreeNode component,
@@ -180,5 +203,79 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   @override
   bool shouldIgnore() {
     return data is IgnorableMixin && (data as IgnorableMixin).shouldIgnore();
+  }
+}
+
+/// XML component for precise positioning of floating elements.
+///
+/// Represents either `wp:positionH` (horizontal) or `wp:positionV` (vertical)
+/// positioning elements in DrawingML. Used for precise placement of
+/// floating images and shapes relative to various reference points.
+///
+/// Example usage:
+/// ```dart
+/// final position = XmlOffsetPosition(
+///   relativeFrom: 'margin',
+///   alignment: 'center',
+///   x: true,
+/// );
+/// ```
+class XmlOffsetPosition extends XmlComponentBase<void> {
+  XmlOffsetPosition({
+    required this.relativeFrom,
+    required bool x,
+    this.alignment,
+    this.offset,
+  }) : super(
+          xmlKey: x ? 'wp:positionH' : 'wp:positionV',
+          value: null,
+        );
+
+  /// Reference point for positioning:
+  /// - "margin": Relative to page margins
+  /// - "page": Absolute page position
+  /// - "column": Within text column
+  /// - "character": Relative to specific character
+  /// - "paragraph": Relative to paragraph bounds
+  final String relativeFrom;
+
+  /// Numeric offset in EMU units (used when no alignment specified)
+  final num? offset;
+
+  /// Text alignment: "left", "center", "right", "inside", "outside"
+  /// (takes precedence over offset when both are provided)
+  final String? alignment;
+
+  @override
+  XmlElement buildXml(DocumentContext context) {
+    return XmlElement.tag(
+      xmlKey,
+      isSelfClosing: false,
+      attributes: <XmlAttribute>[
+        XmlAttribute(
+          'relativeFrom'.toName(),
+          relativeFrom,
+        ),
+      ],
+      children: <XmlNode>[
+        // if offset is null, then we require alignment
+        // if offset isnt null, then we always will prefer
+        // precise positioning over alignment
+        if (alignment != null && alignment!.isNotEmpty && offset == null)
+          XmlElement.tag(
+            'wp:align',
+            children: <XmlNode>[
+              XmlText(alignment ?? AnchorPosition.left.name),
+            ],
+          )
+        else
+          XmlElement.tag(
+            'wp:posOffset',
+            children: <XmlNode>[
+              XmlText(offset!.toString()),
+            ],
+          ),
+      ],
+    );
   }
 }

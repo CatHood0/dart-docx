@@ -3,6 +3,21 @@ import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
 
+/// Basic text run element for inline text content.
+///
+/// Represents a run of text with consistent formatting within a paragraph.
+/// Text runs can have multiple styles applied (bold, italic, color, etc.)
+/// and preserve whitespace when configured.
+///
+/// This is the fundamental building block for text content in DOCX documents.
+///
+/// Example usage:
+/// ```dart
+/// final run = TextRun.text(
+///   text: 'Hello World',
+///   styles: [BoldAttribute(), Style.reference('Emphasis')],
+/// );
+/// ```
 class TextRun extends RunBase<TextPart> {
   TextRun({
     required super.data,
@@ -32,11 +47,13 @@ class TextRun extends RunBase<TextPart> {
           ),
         );
 
+  /// Regular expression to detect consecutive whitespace characters.
   static final RegExp _consecutiveWhitespacesRegExp = RegExp(r'\s{2,}');
 
   @override
   bool get isEmptyData => data.text.replaceAll('\n', '').isEmpty;
 
+  /// Determines if this text run requires whitespace preservation.
   bool get requirePreserve => _consecutiveWhitespacesRegExp.hasMatch(
         data.text,
       );
@@ -121,6 +138,13 @@ class TextRun extends RunBase<TextPart> {
   }
 }
 
+/// Container for text content and its associated styles.
+///
+/// This class holds the actual text string and the styles that should be
+/// applied to it. It's used as the data payload for [TextRun] elements.
+///
+/// Note: Text cannot contain newline characters ('\n') - use separate
+/// paragraphs for multi-line text.
 class TextPart {
   TextPart({
     required this.text,
@@ -139,6 +163,7 @@ class TextPart {
               element is Style || element is TextRunAttribution,
         ));
 
+  /// The text content.
   final String text;
 
   /// All the related styles with this run
@@ -154,6 +179,7 @@ class TextPart {
   }
 }
 
+/// Simple text style properties.
 class TextStyle {
   TextStyle({required this.bold, required this.italic});
 

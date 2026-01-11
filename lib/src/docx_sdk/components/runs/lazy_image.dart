@@ -7,6 +7,24 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 
+/// Lazy-loaded image component with file-based data.
+///
+/// This class represents an image loaded from a file, with lazy evaluation
+/// of image dimensions. It's useful for large images or when working with
+/// file systems, as it only reads the image data when needed.
+///
+/// Similar to [Image], this can render as inline or floating, but defers
+/// file reading until compilation time.
+///
+/// Example usage:
+/// ```dart
+/// final lazyImage = LazyImage(
+///   data: ImageData(
+///     buffer: File('path/to/image.png'),
+///     extension: 'png',
+///   ),
+/// );
+/// ```
 class LazyImage extends DocxTreeNode<ImageData<File>> {
   LazyImage({
     required super.data,
@@ -18,8 +36,13 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
     this.transformOffsetY = 0,
   });
 
+  /// Whether the image should be rendered inline with text.
   bool asInline;
+
+  /// Horizontal transformation offset in EMU units.
   final int transformOffsetX;
+
+  /// Vertical transformation offset in EMU units.
   final int transformOffsetY;
   int? elementId;
 

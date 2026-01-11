@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
 
+
 /// Simple demo that generates a minimal CV as a .docx file.
 Future<void> main() async {
   final File outFile = File('test_resources/cv.docx');
@@ -431,5 +432,6 @@ List<DocxTreeNode> getRepeatedSection({
             .build(),
       ],
     ).repeat(repeat),
+
   ];
 }

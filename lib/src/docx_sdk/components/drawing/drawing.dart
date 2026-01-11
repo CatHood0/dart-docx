@@ -21,6 +21,7 @@ export 'graphics/effects/soft_edge_effect.dart';
 export 'graphics/effects/threed_effect.dart';
 export 'graphics/fill/no_fill.dart';
 export 'graphics/fill/pattern_fill.dart';
+export 'graphics/fill/shading.dart';
 export 'graphics/geometry/custom_geometry.dart';
 export 'graphics/geometry/guide_list.dart';
 export 'graphics/geometry/handle_list.dart';

@@ -35,8 +35,12 @@ const String xmlProofErrorNode = 'w:proofErr', xmlProofErrorPlaceTypeNode = 'w:t
 /// _<w:rPr> can be founded into <w:r>_
 const String xmlParagraphInlineAttsrNode = 'w:rPr';
 
+const String xmlTablePropertiesNode = 'w:tblPr';
+const String xmlTableRowPropertiesNode = 'w:trPr';
+
 /// text
 const String xmlTextNode = 'w:t', xmlTextRunNode = 'w:r';
+const String xmlTableStyleNode = 'w:tblStyle'; // w:val="any_type_value"
 
 /// <w:r> can be founded internally
 // seems it works as paragraph node

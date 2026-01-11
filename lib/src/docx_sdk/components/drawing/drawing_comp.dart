@@ -2,6 +2,19 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 
+/// Wrapper component for DrawingML (Drawing Markup Language) elements.
+///
+/// This class serves as a container for drawing elements like shapes,
+/// images, and other graphical content in DOCX documents. It generates
+/// the `w:drawing` XML element that contains DrawingML content.
+///
+/// DrawingML is the XML-based format used by Microsoft Office for
+/// representing vector graphics, images, and other drawing elements.
+///
+/// Example usage:
+/// ```dart
+/// final drawing = DrawingML(data: myShapeComponent);
+/// ```
 class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   DrawingML({
     required super.data,
@@ -72,4 +85,3 @@ class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
     return data is IgnorableMixin && (data as IgnorableMixin).shouldIgnore();
   }
 }
-

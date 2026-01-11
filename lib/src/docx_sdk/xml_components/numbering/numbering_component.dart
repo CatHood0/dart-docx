@@ -1,22 +1,56 @@
 // I want to thanks to the author of https://github.com/dolanmiu/docx
-// since his/her implementation inspired me to make the API
+// since  implementation inspired me to make the API
 // of dart-docx with the same target: be easy for developers
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
-import 'abstract_numbering_component.dart';
-import 'concrete_numbering_component.dart';
+import '../../xml_components/numbering/abstract_numbering_component.dart';
+import '../../xml_components/numbering/concrete_numbering_component.dart';
 
+/// Configuration for document numbering (lists and outlines).
+///
+/// This class defines the properties for creating numbered or bulleted lists
+/// in a DOCX document. It serves as a high-level configuration that is
+/// transformed into the appropriate XML components during document generation.
+///
+/// Example usage:
+/// ```dart
+/// final numbering = NumberingOptions(
+///   refKey: 'myList',
+///   levels: [
+///     LevelOptions(
+///       level: 0,
+///       format: NumberFormat.decimal,
+///       text: '%1.',
+///       alignment: Alignment.left,
+///       start: 1,
+///     ),
+///   ],
+/// );
+/// ```
 class NumberingOptions {
   NumberingOptions({
     required this.levels,
     required this.refKey,
   });
 
+  /// List level definitions for multi-level numbering.
   final List<LevelOptions> levels;
+
+  /// Reference key used to identify this numbering configuration.
   final String refKey;
 }
 
+/// XML component for document numbering (lists and outlines).
+///
+/// This class is responsible for generating the `w:numbering` XML element
+/// in a DOCX document. It manages both abstract numbering definitions
+/// (templates) and concrete numbering instances (actual list instances).
+///
+/// The component maintains maps for abstract and concrete numbering
+/// configurations and handles the generation of unique IDs for both.
+///
+/// Inspired by the https://github.com/dolanmiu/docx implementation.
 class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
   XmlNumberingComponent({
     required List<NumberingOptions> options,
@@ -25,7 +59,7 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
           value: <NumberingOptions>[],
           xmlKey: 'w:numbering',
           //TODO: use XmlDocAttribute instead
-          attrs: XmlComponentAttributes(xmlAttributes: {
+          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
             'xmlns:w': namespaces['w']!,
             'xmlns:ve': namespaces['ve']!,
             'xmlns:o': namespaces['o']!,
@@ -45,7 +79,7 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
       referenceConfigMap[con.refKey] = con.levels;
     }
     // we need to check if the id is not duplicated
-    final Set<num> temp = {};
+    final Set<num> temp = <num>{};
     for (final XmlAbstractNumComponent comp in abstractNumberingMap.values) {
       if (temp.contains(comp.id)) {
         throw 'Duplicate abstract id("${comp.id}") in $temp'
@@ -55,18 +89,37 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     }
   }
 
-  // to allow to context getting these styles from just ref ids
-  // we use these variables
+  /// Map of abstract numbering templates by reference key.
+  ///
+  /// Abstract numbering defines the template/structure of a list.
   final Map<String, XmlAbstractNumComponent> abstractNumberingMap =
       <String, XmlAbstractNumComponent>{};
+
+  /// Map of concrete numbering instances by reference key.
+  ///
+  /// Concrete numbering represents actual list instances in the document.
   final Map<String, XmlConcreteNumberingComponent> concreteNumberingMap =
       <String, XmlConcreteNumberingComponent>{};
-  final Map<String, List<LevelOptions>> referenceConfigMap = {};
+
+  /// Map of reference configurations by reference key.
+  final Map<String, List<LevelOptions>> referenceConfigMap = <String, List<LevelOptions>>{};
+
+  /// Function to generate unique IDs for abstract numbering.
   final int Function() abstractNumUniqueNumericId =
       abstractNumUniqueNumericIdGen;
+
+  /// Function to generate unique IDs for concrete numbering.
   final int Function() concreteNumUniqueNumericId =
       concreteNumUniqueNumericIdGen;
 
+  /// Applies document context to the numbering component.
+  ///
+  /// Registers the numbering component with the document context, making
+  /// its abstract and concrete numbering configurations available to
+  /// other document components (like paragraphs).
+  ///
+  /// Parameters:
+  /// - [context]: The document context to register with.
   void applyContext(DocumentContext context) {
     // when the context is applied, this means that we
     // are ready to insert list styles, so, we need to ensure
@@ -82,7 +135,15 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
       ..getConcreteNumbering = ((String ref) => concreteNumberingMap[ref]);
   }
 
-  // every paragraph should manage its own ref instances
+  /// Registers a concrete numbering instance for a given reference.
+  ///
+  /// Creates a concrete numbering instance based on an abstract numbering
+  /// template. This is called when a paragraph uses a particular numbering
+  /// reference key.
+  ///
+  /// Parameters:
+  /// - [ref]: The reference key of the abstract numbering template.
+  /// - [numRefId]: The instance ID for this concrete numbering.
   void registerConcreteInstance(String ref, int numRefId) {
     final XmlAbstractNumComponent? abstractN = abstractNumberingMap[ref];
     if (abstractN == null) return;
@@ -111,6 +172,15 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     );
   }
 
+  /// Builds the XML element for the numbering component.
+  ///
+  /// Generates the complete `w:numbering` element containing both
+  /// abstract numbering definitions and concrete numbering instances.
+  ///
+  /// Parameters:
+  /// - [context]: The document context for building XML.
+  ///
+  /// Returns: The complete XML element for document numbering.
   @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(

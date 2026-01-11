@@ -1,7 +1,31 @@
-//TODO: we need to make values allowing pass them as inches
-// and transform to emu
-import '../sdk.dart';
+import '../../../docx.dart';
 
+/// Handles document margin specifications with support for multiple units.
+///
+/// This class provides a comprehensive way to define document margins (top,
+/// right, left, bottom, header, footer, and gutter) with conversion between
+/// different measurement units commonly used in document processing:
+/// - dxa (twentieths of a point)
+/// - centimeters (cm)
+/// - points (pt)
+/// - inches (in)
+///
+/// Example usage:
+/// ```dart
+/// // Create margins from centimeters
+/// final margins = DocumentMargins.fromCm(
+///   top: 2.5,
+///   right: 2.5,
+///   left: 3.0,
+///   bottom: 2.5,
+///   header: 1.0,
+///   footer: 1.0,
+///   gutter: 0.0,
+/// );
+///
+/// // Convert to inches
+/// final marginsInInches = margins.toInches();
+/// ```
 class DocumentMargins {
   const DocumentMargins({
     required this.top,
@@ -13,6 +37,10 @@ class DocumentMargins {
     required this.gutter,
   });
 
+  /// Creates a [DocumentMargins] instance from centimeter values.
+  ///
+  /// All values are automatically converted to dxa units using
+  /// [centimetersToDxa] extension method.
   DocumentMargins.fromCm({
     required num top,
     required num right,
@@ -29,6 +57,10 @@ class DocumentMargins {
         footer = footer.centimetersToDxa(),
         gutter = gutter.centimetersToDxa();
 
+  /// Creates a [DocumentMargins] instance from point values.
+  ///
+  /// All values are automatically converted to dxa units using
+  /// [ptToDxa] extension method.
   DocumentMargins.fromPoints({
     required num top,
     required num right,
@@ -45,6 +77,10 @@ class DocumentMargins {
         footer = footer.ptToDxa(),
         gutter = gutter.ptToDxa();
 
+  /// Creates a [DocumentMargins] instance from inch values.
+  ///
+  /// All values are automatically converted to dxa units using
+  /// [inchesToDxa] extension method.
   DocumentMargins.fromInches({
     required num top,
     required num right,
@@ -61,6 +97,12 @@ class DocumentMargins {
         footer = footer.inchesToDxa(),
         gutter = gutter.inchesToDxa();
 
+  /// Converts the current margin values from dxa to inches.
+  ///
+  /// Returns a new [DocumentMargins] instance with all values converted
+  /// to inches using [dxaToInches] extension method.
+  ///
+  /// Useful for displaying margin values in inch-based interfaces.
   DocumentMargins toInches() {
     return DocumentMargins(
       top: top.dxaToInches(),
@@ -73,11 +115,27 @@ class DocumentMargins {
     );
   }
 
+  /// Top margin in dxa units (twentieths of a point).
   final num top;
+
+  /// Right margin in dxa units (twentieths of a point).
   final num right;
+
+  /// Left margin in dxa units (twentieths of a point).
   final num left;
+
+  /// Bottom margin in dxa units (twentieths of a point).
   final num bottom;
+
+  /// Header margin in dxa units (twentieths of a point).
+  /// Represents the distance from the top of the page to the header content.
   final num header;
+
+  /// Footer margin in dxa units (twentieths of a point).
+  /// Represents the distance from the bottom of the page to the footer content.
   final num footer;
+
+  /// Gutter margin in dxa units (twentieths of a point).
+  /// Represents additional space added to the inside margins for binding.
   final num gutter;
 }

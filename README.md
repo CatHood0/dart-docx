@@ -49,6 +49,14 @@ Each example is available as runnable code under the `demos/` directory.
 → [heart_shape.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/heart_shape.dart)
 → [heart_with_border.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/heart_with_border.dart)
 
+### Tables
+![](./assets/tables.png)
+
+_Idk why this work on non LibreOffice editors. I think that is just a compatibility issue, so, I can't do more. The picture was taken in OnlyOffice_
+
+→ [tables.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/tables.dart)
+
+
 ## Key Features
 
 *   **Programmatic DOCX Generation:** Create `.docx` files from scratch using an object-based Dart API.

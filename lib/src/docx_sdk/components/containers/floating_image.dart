@@ -5,6 +5,29 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
 
+/// Floating image component with advanced positioning options.
+///
+/// Represents an image that can be positioned independently of text flow,
+/// with various wrapping strategies (square, tight, through, topAndBottom).
+/// Floating images are wrapped in an `Anchor` element that provides
+/// precise positioning relative to page margins, paragraphs, or characters.
+///
+/// Unlike inline images, floating images support text wrapping around them
+/// and complex positioning scenarios.
+///
+/// Example usage:
+/// ```dart
+/// final floatingImage = FloatingImage(
+///   data: ImageData(
+///     buffer: imageBytes,
+///     extension: 'jpg',
+///     anchorConfig: AnchorConfig.block()
+///       .wrapType(WrapType.square)
+///       .horizontalAnchor(HorizontalAnchorPosition.margin)
+///       .verticalAnchor(VerticalAnchorPosition.paragraph),
+///   ),
+/// );
+/// ```
 class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
   FloatingImage({
     required super.data,

@@ -17,12 +17,12 @@ import '../sdk.dart';
 ///   styleName: 'Heading 1',
 ///   configurators: [
 ///     StyleConfigurator.noSelfClosing(
-///       propertyName: 'rPr',
 ///       prefix: 'w',
+///       propertyName: 'rPr',
 ///       configurators: [
 ///         StyleConfigurator.selfClosing(
-///           propertyName: 'b',
 ///           prefix: 'w',
+///           propertyName: 'b',
 ///           value: true,
 ///         ),
 ///       ],
@@ -149,6 +149,7 @@ class Style extends IterableConfigurators {
   // Style type constants
   static const String paragraphType = 'paragraph';
   static const String characterType = 'character';
+  static const String tableType = 'table';
 
   // Internal state
   bool _onlyReference = false;

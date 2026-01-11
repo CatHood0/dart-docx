@@ -4,6 +4,26 @@ import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 
+/// Fundamental document unit for organizing text content.
+///
+/// Paragraphs are the primary structural element in DOCX documents,
+/// containing one or more text runs and optional formatting properties.
+/// They support styling, alignment, numbering (lists), and page breaks.
+///
+/// Paragraphs can be thought of as analogous to `<p>` tags in HTML.
+///
+/// Example usage:
+/// ```dart
+/// final paragraph = Paragraph(
+///   data: [
+///     TextRun.text(text: 'First line of text.'),
+///     TextRun.text(text: ' Second line.'),
+///   ],
+///   styles: [Style.reference('Normal')],
+///   alignment: Alignment.center,
+///   numbering: Numbering(reference: 'bulletList', level: 0),
+/// );
+/// ```
 class Paragraph extends ComponentContainer<List<RunBase>> {
   Paragraph({
     required Iterable<RunBase> data,
@@ -273,16 +293,30 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }
 }
 
+/// Controls page break behavior for paragraphs.
 enum ParagraphPageBreak {
+  /// Insert page break after this paragraph.
   after,
+
+  /// Insert page break before this paragraph.
   before,
+
+  /// No page break (default).
   none,
 }
 
+/// Configuration for numbered or bulleted list items.
+///
+/// Defines how a paragraph participates in document numbering (lists).
+/// Each numbering reference corresponds to a list definition in the
+/// document's numbering store.
 class Numbering {
   Numbering({required this.reference, this.level = 0, this.instance});
 
+  /// Reference key to a numbering definition in [NumberingOptions].
   final String reference;
+
+  /// List nesting level (0-9). Level 0 is the top-level list item.
   final int level;
 
   /// Usually you set an instance num

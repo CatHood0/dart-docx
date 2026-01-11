@@ -1,7 +1,6 @@
 import 'package:xml/xml.dart';
 
 import '../sdk.dart';
-import 'root/document_root.dart';
 
 class DocxDocument {
   DocxDocument({

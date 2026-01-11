@@ -5,9 +5,28 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
-import '../../../core/extensions/string_ext.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
 
+/// Standard image component with in-memory byte data.
+///
+/// This class represents an image stored as raw bytes in memory.
+/// It handles image insertion into DOCX documents with automatic
+/// size detection and proper XML generation for the DrawingML format.
+///
+/// The image can be rendered as either inline (flows with text)
+/// or floating (positioned independently with text wrap options).
+///
+/// Example usage:
+/// ```dart
+/// final image = Image(
+///   data: ImageData(
+///     buffer: imageBytes,
+///     extension: 'png',
+///     width: 2.inchesToEmu(),
+///     height: 1.5.inchesToEmu(),
+///   ),
+/// );
+/// ```
 class Image extends DocxTreeNode<ImageData<Uint8List>> {
   Image({
     required super.data,
@@ -19,9 +38,15 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     this.transformOffsetY = 0,
   });
 
+  /// Whether the image should be rendered inline with text.
   bool asInline;
+
+  /// Horizontal transformation offset in EMU units.
   final int transformOffsetX;
+
+  /// Vertical transformation offset in EMU units.
   final int transformOffsetY;
+
   int? elementId;
 
   @override
@@ -172,65 +197,5 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <Image>[this] : null;
-  }
-}
-
-class XmlOffsetPosition extends XmlComponentBase<void> {
-  XmlOffsetPosition({
-    required this.relativeFrom,
-    required bool x,
-    this.alignment,
-    this.offset,
-  }) : super(
-          xmlKey: x ? 'wp:positionH' : 'wp:positionV',
-          value: null,
-        );
-
-  /// Reference point for positioning:
-  /// - "margin": Relative to page margins
-  /// - "page": Absolute page position
-  /// - "column": Within text column
-  /// - "character": Relative to specific character
-  /// - "paragraph": Relative to paragraph bounds
-  final String relativeFrom;
-
-  /// Numeric offset in EMU units (used when no alignment specified)
-  final num? offset;
-
-  /// Text alignment: "left", "center", "right", "inside", "outside"
-  /// (takes precedence over offset when both are provided)
-  final String? alignment;
-
-  @override
-  XmlElement buildXml(DocumentContext context) {
-    return XmlElement.tag(
-      xmlKey,
-      isSelfClosing: false,
-      attributes: <XmlAttribute>[
-        XmlAttribute(
-          'relativeFrom'.toName(),
-          relativeFrom,
-        ),
-      ],
-      children: <XmlNode>[
-        // if offset is null, then we require alignment
-        // if offset isnt null, then we always will prefer
-        // precise positioning over alignment
-        if (alignment != null && alignment!.isNotEmpty && offset == null)
-          XmlElement.tag(
-            'wp:align',
-            children: <XmlNode>[
-              XmlText(alignment ?? AnchorPosition.left.name),
-            ],
-          )
-        else
-          XmlElement.tag(
-            'wp:posOffset',
-            children: <XmlNode>[
-              XmlText(offset!.toString()),
-            ],
-          ),
-      ],
-    );
   }
 }

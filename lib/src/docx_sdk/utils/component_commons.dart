@@ -81,6 +81,15 @@ enum BorderAlignment {
   }
 }
 
+enum UniversalAlignment {
+  left,
+  center,
+  right,
+  top,
+  middle,
+  bottom,
+}
+
 /// Represents the horizontal alignment options
 enum Alignment {
   /// left align text
