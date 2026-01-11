@@ -42,10 +42,24 @@ class LoggablePhaseConfig {
   }
 }
 
-/// [DocxCompiler] is responsible for compiling a [DocxDocument] object
-/// into a .docx file (a ZIP archive containing XML and media files).
-/// It orchestrates the generation of various XML parts of the document,
-/// manages relationships between them, and includes embedded media.
+/// Core compiler that transforms [DocxDocument] objects into .docx files.
+///
+/// This class orchestrates the entire document compilation process, including:
+/// - XML generation for all document components (styles, content, properties)
+/// - Media management (images, fonts, hyperlinks)
+/// - ZIP archive creation with proper DOCX structure
+/// - Progress reporting through event streams
+///
+/// The compiler follows the Open Packaging Conventions (OPC) to create
+/// valid .docx files that are compatible with Microsoft Word and other editors.
+///
+/// Example usage:
+/// ```dart
+/// final compiler = DocxCompiler(config: LoggablePhaseConfig(enabled: true));
+/// final archive = await compiler.compile(document);
+/// final bytes = ZipEncoder().encode(archive);
+/// await File('output.docx').writeAsBytes(bytes!);
+/// ```
 class DocxCompiler {
   DocxCompiler({
     LoggablePhaseConfig? config,
@@ -56,26 +70,25 @@ class DocxCompiler {
   late final StreamController<DocxEvent> _eventController =
       StreamController<DocxEvent>.broadcast();
 
-  /// Determines if the fonts will be registing also using the content
-  /// of the document to build an efficient [fontTable] file
+  /// Enables dynamic font discovery from document content.
   ///
-  /// If not, set to false, and use [fonts] properties from
-  /// [DocumentOptions] to skip this step. Will throw Exception
-  /// if [dynamicFontSearch] is false and [fonts] is not setted
+  /// When true, the compiler analyzes text runs to automatically register
+  /// required fonts. When false, only fonts specified in [DocumentOptions.fonts]
+  /// are used.
   bool dynamicFontSearch = true;
 
-  /// Determines if the paragraph will be created referencing the
-  /// "Normal" style when it does not contain a paragraph level
-  /// style reference or configuration
+  /// Automatically applies the "Normal" paragraph style to unstyled paragraphs.
+  ///
+  /// When true, paragraphs without explicit styling will receive the default
+  /// "Normal" style reference.
   bool applyNormalStyleIfNeeded = true;
 
-  /// Determines the "Normal" style to be applied using
-  /// `applyNormalStyleIfNeeded` as the falg
+  /// The default "Normal" style to apply when [applyNormalStyleIfNeeded] is true.
   Style defaultNormalStyle = Style.reference('Normal');
 
-  /// Determines if the run instances will be preserve its whitespaces
-  /// since this confirm to the compiler to assign to every text
-  /// object a "preserve" attribute
+  /// Preserves whitespace in text runs by adding `xml:space="preserve"` attributes.
+  ///
+  /// When true, all text runs preserve their original whitespace formatting.
   bool noTrim = true;
 
   Stream<DocxEvent> get eventStream => _eventController.stream;
@@ -112,6 +125,19 @@ class DocxCompiler {
     );
   }
 
+  /// Compiles a [DocxDocument] into a .docx archive.
+  ///
+  /// This is the main entry point for document generation. It orchestrates:
+  /// 1. Document structure analysis and preparation
+  /// 2. Media discovery and registration
+  /// 3. XML generation for all document parts
+  /// 4. ZIP archive assembly with proper relationships
+  ///
+  /// Parameters:
+  /// - [document]: The document to compile
+  /// - [applyCustomTheme]: Whether to include custom theme XML
+  ///
+  /// Returns: A ZIP archive ready for saving as .docx file, or null on failure.
   Future<Archive?> compile(
     DocxDocument document, {
     bool applyCustomTheme = false,
@@ -161,7 +187,7 @@ class DocxCompiler {
     if (columns != null) {
       int index = 0;
       for (final Column column in columns) {
-        if (index % 2 != 0) {
+        if (index > 0) {
           final DocxTreeNode<dynamic>? paragraph = column.data.firstOrNull;
           if (paragraph == null || paragraph is! Paragraph) {
             CompilerLogger.root.i(
