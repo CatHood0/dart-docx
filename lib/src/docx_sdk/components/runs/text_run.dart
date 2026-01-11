@@ -10,7 +10,7 @@ class TextRun extends RunBase<TextPart> {
     super.id,
   });
 
-  TextRun.fromString({
+  TextRun.text({
     required String text,
     List<Object> styles = const <Object>[],
     super.parent,
@@ -58,20 +58,20 @@ class TextRun extends RunBase<TextPart> {
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
-    return [
+    return <XmlElement>[
       super.runParent(
         runProperties: buildXmlStyle(context: context),
         nodes: <XmlNode>[
           XmlElement.tag(
             xmlTextNode,
-            attributes: [
-              if (requirePreserve)
+            attributes: <XmlAttribute>[
+              if (requirePreserve || context.noTrim)
                 XmlAttribute(
                   'xml:space'.toName(),
                   'preserve',
                 ),
             ],
-            children: [
+            children: <XmlNode>[
               XmlText(data.text),
             ],
             isSelfClosing: false,
@@ -94,7 +94,7 @@ class TextRun extends RunBase<TextPart> {
     for (final Object style in styles) {
       if (style is Style && style.isInvalid) continue;
       if (style is TextRunAttribution) {
-        final el = style.toXml();
+        final XmlElement? el = style.toXml();
         if (el != null) xmlStyles.add(el);
       } else {
         final List<XmlElement> elements = (style as Style).forRunStyle(

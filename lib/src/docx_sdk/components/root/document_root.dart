@@ -75,10 +75,10 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
-    if (!visitChildrenIfNeeded) return null;
+    final List<DocxTreeNode> elements = <DocxTreeNode<dynamic>>[];
     for (final DocxTreeNode element in data) {
       if (shouldGetElement(element)) {
-        return <DocxTreeNode<dynamic>>[element];
+        elements.add(element);
       } else if (visitChildrenIfNeeded) {
         final List<DocxTreeNode<dynamic>>? els = element.visitAllElement(
           shouldGetElement,
@@ -89,7 +89,7 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
         }
       }
     }
-    return null;
+    return elements;
   }
 
   @override
@@ -98,7 +98,6 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
-    if (!visitChildrenIfNeeded) return null;
     for (final DocxTreeNode element in data) {
       if (shouldGetElement(element)) {
         return element;

@@ -4,6 +4,11 @@
 
 Planned parsers include HTML, Markdown, plain text, and Quill Delta, enabling structured transformations between common content formats and Word documents while preserving document semantics.
 
+> [!WARNING]
+> * Additional format parsers: planned
+> * Incremental editing: planned / experimental
+> * Shapes effects (e.g., shadows, gradients): are experimental at this points, since the documentation about DrawingML is limited.
+
 ## Examples
 
 The following documents were generated entirely using the `docx` declarative API.
@@ -14,22 +19,16 @@ Each example is available as runnable code under the `demos/` directory.
 
 → `novel.dart`
 
-### Curriculum Vitae
-![](./assets/cv.png)
+### Curriculum
+![](./assets/curriculum.png)
 
 → `cv.dart`
 
 ### Vector shapes (DrawingML)
 ![](./assets/heart_shape.png)
-![](./assets/heart_with_border.png)
 
 → `heart_shape.dart`  
 → `heart_with_border.dart`
-
-> [!WARNING]
-> * Additional format parsers: planned
-> * Incremental editing: planned / experimental
-> * Shapes effects (e.g., shadows, gradients): are experimental at this points, since the documentation about DrawingML is limited.
 
 ## Key Features
 
@@ -58,34 +57,31 @@ dependencies:
 
 Your document content is structured using classes that extend `DocxContent` and `ComponentContainer`. `DocxDocument` is the, and within it you can add `Paragraph`s, `TextRun`s, `Image`s, `HyperlinkRun`s, etc.
 
-Here is an example of how to create a simple document with a paragraph and an image:
+Here is an example of how to create a simple document:
 
 ```dart
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:docx/docx.dart';
 
 Future<void> main() async {
   final DocxDocument document = DocxDocument(
-    options: DocumentOptions(
-        title: 'My First DOCX Document',
-        author: 'CodeCompanion',
-        subject: 'docx_transformer example',
-        // you can configure the 
-        // columns in the document
-        // section: SectionOptions(
-        //   columns: ColumnSettings(),
-        // ),
+    options: DocumentOptions.standard(
+      title: 'My First DOCX Document',
+      creator: 'me',
+      subject: 'example',
     ),
-    sections: <DocxContent<dynamic>>[
-      Paragraph(
-        data: <RunBase>[ 
+    root: DocumentRoot(
+      sections: <DocxTreeNode<dynamic>>[
+        Paragraph(
+          data: <RunBase>[
             TextRun(
               data: TextPart(
                 text: 'This is a paragraph with bold text. ',
-                styles: [
+                styles: <Object>[
                   // we can use styles and attributes together
                   // if we want
-                  Style.reference('code'), 
+                  Style.reference('code'),
                   BoldAttribute(),
                 ],
               ),
@@ -94,63 +90,59 @@ Future<void> main() async {
               data: HyperlinkTextPart(
                 hyperlink: 'https://github.com/your-user/your-repo',
                 text: 'Visit my GitHub repository',
-                style: <Style>[
-                  Style.reference('Hyperlink')
-                ],
+                styles: <Style>[Style.reference('Hyperlink')],
               ),
             ),
             TextRun(
               data: TextPart(text: ' and here the paragraph ends.'),
             ),
-        ],
-        styles: <Style>[], 
-        // decides where break the page
-        pageBreak: ParagraphPageBreak.none,
-      ),
-      Paragraph(
-        data: <RunBase>[
-          TextRun(
-            data: TextPart(text: 'Here is a line break.'),
-          ),
-        ],
-      ),
-      // loads and shows the image: 
-      // * if it exists 
-      // * if it can be used
-      Paragraph(
-        data: <RunBase<dynamic>>[
-          Run(
-            component: Drawing(
-              data: LazyFloatingImage(
-                data: ImageData(
-                  buffer: File('test_resources/image.jpg'),
-                  extension: 'jpg',
-                  anchorConfig: AnchorConfig.block().copyWith(
-                    horizontalAnchor: RelativeHorizontalAnchor.paragraph,
-                    horizontalAlign: RelativeHorizontalAlign.left,
-                    verticalAnchor: RelativeVerticalAnchor.paragraph,
-                    verticalAlign: RelativeVerticalAlign.top,
+          ],
+          styles: <Style>[],
+          // decides where break the page
+          pageBreak: ParagraphPageBreak.none,
+        ),
+        Paragraph(
+          data: <RunBase>[
+            TextRun(
+              data: TextPart(text: 'Here is a line break.'),
+            ),
+          ],
+        ),
+        // loads and shows the image:
+        // * if it exists
+        // * if it can be used
+        Paragraph(
+          data: <RunBase<dynamic>>[
+            Run(
+              component: DrawingML(
+                data: LazyFloatingImage(
+                  data: ImageData(
+                    buffer: File('test_resources/image.jpg'),
+                    extension: 'jpg',
+                    anchorConfig: AnchorConfig.block().copyWith(
+                      horizontalAnchor: HorizontalAnchorPosition.paragraph,
+                      horizontalPosition: AnchorPosition.left,
+                      verticalAnchor: VerticalAnchorPosition.paragraph,
+                      verticalPosition: AnchorPosition.top,
+                    ),
+                    width: 0.5.inchesToEmu(),
+                    height: 0.55.inchesToEmu(),
                   ),
-                  width: 0.5.toEmuFromInches(),
-                  height: 0.55.toEmuFromInches(),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    ],
+          ],
+        ),
+      ],
+    ),
   );
 
   final File file = File('generated_document.docx');
-  final bytes = await DocxMetadataPacker.instance
-      // to allow registering fonts used in the
-      // runs that user pass, set this to true
+  final Uint8List? bytes = await DocxPacker.instance
       .dynamicFontSearch(true)
-      .bytes(documentContent);
+      .noTrimRuns()
+      .bytes(document);
   await file.writeAsBytes(bytes!);
-
-  print('DOCX document generated at: $outputPath');
 }
 ```
 
@@ -225,7 +217,7 @@ final paragraph = Paragraph(
     Run(
       // to follow Word standards, we need to wrap
       // shapes or images with Drawing component
-      component: Drawing( 
+      component: DrawingML( 
         // there is also its own Lazy version
         data: FloatingImage(
           data: ImageData(
@@ -233,15 +225,15 @@ final paragraph = Paragraph(
             extension: 'png',
             // Configure anchoring relative to the paragraph
             anchorConfig: AnchorConfig(
-              wrapType: WrapType.none,
+              wrapType: WrapType.noWrap,
               wrapSide: null,
-              verticalAnchor: RelativeVerticalAnchor.paragraph,
-              horizontalAnchor: RelativeHorizontalAnchor.paragraph,
-              horizontalAlign: RelativeHorizontalAlign.left,
-              verticalAlign: RelativeVerticalAlign.top,
+              verticalAnchor: VerticalAnchorPosition.paragraph,
+              horizontalAnchor: HorizontalAnchorPosition.paragraph,
+              horizontalPosition: AnchorPosition.left,
+              verticalPosition: AnchorPosition.top,
             ),
-            width: 1.5.toEmuFromInches(),
-            height: 1.5.toEmuFromInches(),
+            width: 1.5.inchesToEmu(),
+            height: 1.5.inchesToEmu(),
           ),
         ),
       ),
@@ -267,7 +259,7 @@ final paragraph = Paragraph(
     Run(
       // to follow Word standards, we need to wrap
       // shapes or images with Drawing component
-      component: Drawing( 
+      component: DrawingML( 
         data: FloatingImage(
           data: ImageData(
             buffer: await File('assets/image.png').readAsBytes(),
@@ -276,16 +268,15 @@ final paragraph = Paragraph(
             anchorConfig: AnchorConfig(
               wrapType: WrapType.square,
               wrapSide: WrapSide.bothSides,
-              horizontalAnchor: RelativeHorizontalAnchor.paragraph,
-              horizontalAlign: RelativeHorizontalAlign.center,
-              verticalAnchor: RelativeVerticalAnchor.paragraph,
-              verticalAlign: RelativeVerticalAlign.center,
-              // You can also specify exact offsets if needed
-              // offsetX: 0.5.toEmuFromInches(), 
-              // offsetY: 0.5.toEmuFromInches(),
+              horizontalAnchor: HorizontalAnchorPosition.paragraph,
+              verticalAnchor: VerticalAnchorPosition.paragraph,
+              horizontalPosition: AnchorPosition.center,
+              verticalPosition: AnchorPosition.center,
+              // anchorOffsetX: 0.5.inchesToEmu(), 
+              // anchorOffsetY: 0.5.inchesToEmu(),
             ),
-            width: 1.5.toEmuFromInches(),
-            height: 1.5.toEmuFromInches(),
+            width: 1.5.inchesToEmu(),
+            height: 1.5.inchesToEmu(),
           ),
         ),
       ),
@@ -310,7 +301,7 @@ final paragraph = Paragraph(
     Run(
       // to follow Word standards, we need to wrap
       // shapes or images with Drawing component
-      component: Drawing(
+      component: DrawingML(
         data: LazyImage(
           data: ImageData(
             buffer: File(
@@ -353,17 +344,17 @@ final paragraph = Paragraph(
               wrapSide: WrapSide.bothSides,
               // Anchor relative to a character. 
               // This requires careful positioning.
-              horizontalAnchor: RelativeHorizontalAnchor.character,
+              horizontalAnchor: HorizontalAnchorPosition.character,
               // Anchor to the line of the character
-              verticalAnchor: RelativeVerticalAnchor.line,
+              verticalAnchor: VerticalAnchorPosition.line,
               // Explicit offsets from the anchor point (character).
               // Adjust these values to precisely place the image.
-              anchorOffsetX: 0.1.toEmuFromInches(), 
+              anchorOffsetX: 0.1.inchesToEmu(), 
               // Move slightly above the line
-              anchorOffsetY: -0.2.toEmuFromInches(),
+              anchorOffsetY: -0.2.inchesToEmu(),
             ),
-            width: 0.75.toEmuFromInches(),
-            height: 0.75.toEmuFromInches(),
+            width: 0.75.inchesToEmu(),
+            height: 0.75.inchesToEmu(),
           ),
         ),
       ),
@@ -464,40 +455,10 @@ Future<List<FontProperties>> _getCustomFonts() async {
 //     fonts: await _getCustomFonts(), // Your list of FontProperties here
 //     // ... other options
 //   ),
-//   sections: [
-//     // ... document content using these font names in styles ...
-//     Paragraph(
-//       data: [
-//         TextRun(
-//           data: TextPart(
-//             text: 'This text uses the embedded My Custom Font.',
-//             styles: [
-//               StyleBuilder.character('myCustomFontStyle')
-//                   .fontFamily('My Custom Font') // Reference the font by its name
-//                   .fontSize(14)
-//                   .build(),
-//             ],
-//           ),
-//         ),
-//       ],
-//     ),
-//     Paragraph(
-//       data: [
-//         TextRun(
-//           data: TextPart(
-//             text: 'This text uses the referenced Verdana font.',
-//             styles: [
-//               StyleBuilder.character('verdanaStyle')
-//                   .fontFamily('Verdana')
-//                   .fontSize(12)
-//                   .build(),
-//             ],
-//           ),
-//         ),
-//       ],
-//     ),
-//   ],
+//   sections: [...],
 // );
+//
+// You just need to reference that font family name in your defined styles
 ```
 
 #### How `docx` Handles Fonts Internally

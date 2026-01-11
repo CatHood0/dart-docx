@@ -18,12 +18,14 @@ class DocumentContext {
     required this.setNormalStyleToNotStyledParagraphs,
     required this.defaultNormalStyle,
     required this.drawingStore,
+    this.noTrim = true,
   });
 
   DocumentContext.base({DocumentOptions? options})
       : mediaStore = MediaStore(),
         hyperlinkStore = HyperlinkStore(),
         fontStore = FontStore(),
+        noTrim = true,
         drawingStore = DrawingElementCounterStore(),
         numberingStore = NumberingStore(),
         setNormalStyleToNotStyledParagraphs = true,
@@ -43,6 +45,11 @@ class DocumentContext {
   final HyperlinkStore hyperlinkStore;
   final FontStore fontStore;
   final NumberingStore numberingStore;
+
+  /// Determines if the run instances will be preserve its whitespaces
+  /// since this confirm to the compiler to assign to every text
+  /// object a "preserve" attribute
+  final bool noTrim;
 
   //
   late void Function(String ref, int numId)? registerInstance;

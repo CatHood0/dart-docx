@@ -281,7 +281,7 @@ class StyleBuilder {
   /// [hexColor] is the hexadecimal color code (e.g., 'FF0000' for red).
   StyleBuilder runColor(Color color) {
     assert(color.rgbValue != null, 'run color must have a valid RGB value');
-    _color = color.rgbValue!.toString().substring(2);
+    _color = color.toColorValue()?.toUpperCase();
     return this;
   }
 
@@ -291,7 +291,7 @@ class StyleBuilder {
   StyleBuilder highlight(Color color) {
     assert(
         color.rgbValue != null, 'highlight color must have a valid RGB value');
-    _highlightColor = color.rgbValue!.toString().substring(2);
+    _highlightColor = color.toColorValue()?.toUpperCase();
     return this;
   }
 

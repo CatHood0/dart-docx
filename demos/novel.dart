@@ -99,7 +99,7 @@ Future<void> main() async {
           StyleBuilder.paragraph('Title')
               .names(<String, dynamic>{
                 'Title': LanguageCodes.englishUS,
-                'Título': LanguageCodes.spanishMX,
+                'Titulo': LanguageCodes.spanishMX,
               })
               .fontSize(28.ptToHalfPoints())
               .fontFamily('Georgia')
@@ -107,8 +107,8 @@ Future<void> main() async {
               .alignment(Alignment.center)
               .qFormat(true)
               .spacing(
-                before: 12.ptToHalfPoints(),
-                after: 6.ptToHalfPoints(),
+                before: 12.ptToTwips(),
+                after: 6.ptToTwips(),
               )
               .uiPriority(20)
               .build(),
@@ -116,7 +116,7 @@ Future<void> main() async {
           StyleBuilder.paragraph('Subtitle')
               .names(<String, dynamic>{
                 'Subtitle': LanguageCodes.englishUS,
-                'Subtítulo': LanguageCodes.spanishMX,
+                'Subtitulo': LanguageCodes.spanishMX,
               })
               .fontSize(14.ptToHalfPoints())
               .fontFamily('Georgia')
@@ -131,7 +131,7 @@ Future<void> main() async {
           StyleBuilder.paragraph('Chapter')
               .names(<String, dynamic>{
                 'Chapter': LanguageCodes.englishUS,
-                'Capítulo': LanguageCodes.spanishMX,
+                'Capitulo': LanguageCodes.spanishMX,
               })
               .fontSize(20.ptToHalfPoints())
               .fontFamily('Georgia')
@@ -270,7 +270,7 @@ Future<void> main() async {
           styles: <Style>[
             Style.reference('Subtitle'),
           ],
-          pageBreak: ParagraphPagebreak.after,
+          pageBreak: ParagraphPageBreak.after,
         ),
 
         // Prólogo
@@ -290,7 +290,7 @@ Future<void> main() async {
           styles: <Style>[
             Style.reference('BodyText'),
           ],
-          pageBreak: ParagraphPagebreak.after,
+          pageBreak: ParagraphPageBreak.after,
         ),
 
         Paragraph(
@@ -346,7 +346,7 @@ Future<void> main() async {
           styles: <Style>[
             Style.reference('BodyText'),
           ],
-          pageBreak: ParagraphPagebreak.after,
+          pageBreak: ParagraphPageBreak.after,
         ),
 
         Paragraph(
@@ -381,7 +381,7 @@ Future<void> main() async {
           styles: <Style>[
             Style.reference('BodyText'),
           ],
-          pageBreak: ParagraphPagebreak.after,
+          pageBreak: ParagraphPageBreak.after,
         ),
 
         Paragraph(
@@ -506,7 +506,7 @@ Future<void> main() async {
     ),
   );
 
-  final Uint8List? bytes = await DocxMetadataPacker()
+  final Uint8List? bytes = await DocxPacker()
       .dynamicFontSearch(true)
       .bytes(document, applyCustomTheme: false);
 

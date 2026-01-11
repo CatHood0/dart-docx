@@ -8,7 +8,7 @@ Future<void> main() async {
 
   final PageSize pageSize = PageSize.letter;
   final DocumentMargins margins = DocumentMargins.fromCm(
-    top: 1.02,
+    top: 1.52,
     right: 1.52,
     left: 1.52,
     bottom: 1.52,
@@ -19,95 +19,315 @@ Future<void> main() async {
 
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(
-      title: 'Curriculum - Jane Doe',
+      title: 'Curriculum',
       section: DocumentLayout(
         size: pageSize,
         margins: margins,
         columns: ColumnOptions(
           numColumns: 2,
+          equalWidth: false,
           columnWidths: <ColumnWidth>[
             ColumnWidth.points(
-              width: 800,
-              spaceAfter: 10,
+              width: 355.45,
+              spaceAfter: 18,
             ),
-            ColumnWidth.points(width: 500),
+            ColumnWidth.points(
+              width: 152.35,
+              spaceAfter: 0,
+            ),
           ],
         ),
       ),
-      styles: DocumentStylesSheet.base(),
+      styles: DocumentStylesSheet.base().withNewStyles(
+        <Style>[
+          StyleBuilder.paragraph('title')
+              .names(<String, dynamic>{
+                'Title': LanguageCodes.englishUS,
+                'Titulo': <String>[
+                  LanguageCodes.spanishMX,
+                  LanguageCodes.spanishES,
+                ],
+              })
+              .fontSize(36.ptToHalfPoints())
+              .fontFamily('Times New Roman')
+              .bold()
+              .alignment(Alignment.left)
+              .qFormat(true)
+              .spacing(
+                before: 5.ptToTwips(),
+                after: 12.ptToTwips(),
+              )
+              .uiPriority(20)
+              .build(),
+          StyleBuilder.paragraph('body')
+              .names(<String, dynamic>{
+                'Body': LanguageCodes.englishUS,
+                'Cuerpo de texto': <String>[
+                  LanguageCodes.spanishMX,
+                  LanguageCodes.spanishES,
+                ],
+              })
+              .fontSize(9.ptToHalfPoints())
+              .fontFamily('Merryweather')
+              .qFormat(true)
+              .build(),
+          StyleBuilder.paragraph('section')
+              .names(<String, dynamic>{
+                'Subtitle': LanguageCodes.englishUS,
+                'Subtitulo': <String>[
+                  LanguageCodes.spanishMX,
+                  LanguageCodes.spanishES,
+                ],
+              })
+              .fontSize(9.ptToHalfPoints())
+              .fontFamily('FreeSans')
+              .bold()
+              .runColor(Color.rgb(0x2079c7))
+              .spacing(
+                before: 0.35.inchesToTwips(),
+                after: 0.15.inchesToTwips(),
+              )
+              .qFormat(true)
+              .build(),
+        ],
+      ),
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
         Column(
           children: <DocxTreeNode<dynamic>>[
-            Paragraph(
-              data: <RunBase<dynamic>>[
-                TextRun(
-                  data: TextPart(text: 'Experience'),
-                ),
+            Paragraph.text(
+              text: 'Tu nombre',
+              styles: <Style>[
+                Style.reference('title'),
               ],
+            ),
+            Paragraph.text(
+              text: 'Inserta tu texto '
+                  'aquí Inserta tu texto '
+                  'aquí Inserta tu texto aquí',
+              styles: <Style>[
+                StyleBuilder.singularP()
+                    .fontFamily(
+                      'OpenSans',
+                    )
+                    .build(),
+              ],
+            ),
+            ...getRepeatedSection(
+              title: 'EXPERIENCIA',
+              subtitle1: 'Empresa,',
+              subtitle2: 'Ubicación — ',
+              subtitle3: 'Puesto',
+              date: 'MES de 20XX - PRESENTE',
+              content: 'Inserta tu text aquí '
+                  'Inserta tu text aquí '
+                  'Inserta tu text aquí '
+                  'Inserta tu text aquí '
+                  'Inserta tu text aquí ',
+              repeat: 3,
+            ),
+            ...getRepeatedSection(
+              title: 'EDUCACIÓN',
+              subtitle1: 'Nombre de la escuela,',
+              subtitle2: 'Ubicación — ',
+              subtitle3: 'Título',
+              date: 'MES de 20XX - MES DE 20XX',
+              content: 'Inserta tu text aquí '
+                  'Inserta tu text aquí '
+                  'Inserta tu text aquí '
+                  'Inserta tu text aquí '
+                  'Inserta tu text aquí '
+                  'Inserta tu text aquí '
+                  'Inserta tu text aquí ',
+              repeat: 3,
+            ),
+            ...getRepeatedSection(
+              title: 'PROYECTOS',
+              subtitle1: 'Nombre del proyecto',
+              subtitle2: ' — ',
+              subtitle3: 'Detalle',
+              date: '',
+              content: 'Inserta tu text aquí ',
+              repeat: 1,
             ),
           ],
         ),
         Column(
           children: <DocxTreeNode<dynamic>>[
-            Paragraph(
-              data: <RunBase<dynamic>>[
-                TextRun(
-                  data: TextPart(
-                    text: '• Senior Engineer at Acme '
-                        'Corp (2018 - Present)',
-                  ),
-                ),
-                Run(component: Break.lineBreak(), wrapInRunMark: true),
-                TextRun(
-                  data: TextPart(
-                      text: '• Software Developer at '
-                          'Example Inc. (2015 - 2018)'),
-                ),
+            Paragraph.text(
+              text: 'Tu calle 123',
+              runStyles: <Style>[
+                StyleBuilder.singularC()
+                    .fontFamily(
+                      'OpenSans',
+                    )
+                    .build(),
+              ],
+            ),
+            Paragraph.text(
+              text: 'Tu ciudad, Provincia x1234xxx',
+              runStyles: <Style>[
+                StyleBuilder.singularC()
+                    .fontFamily(
+                      'OpenSans',
+                    )
+                    .build(),
+              ],
+            ),
+            Paragraph.text(
+              text: '(54) 00 0 0000',
+              runStyles: <Style>[
+                StyleBuilder.singularC()
+                    .fontFamily(
+                      'OpenSans',
+                    )
+                    .bold()
+                    .build(),
+              ],
+            ),
+            Paragraph.text(
+              text: 'no_reply@example.com',
+              runStyles: <Style>[
+                StyleBuilder.singularC()
+                    .fontFamily(
+                      'OpenSans',
+                    )
+                    .bold()
+                    .build(),
+              ],
+            ),
+            Paragraph.text(
+              text: 'HABILIDADES',
+              styles: <Style>[
+                Style.reference('section'),
+                StyleBuilder.singularP()
+                    .spacing(
+                      before: 0.4.inchesToTwips(),
+                      after: 0.15.inchesToTwips(),
+                    )
+                    .build(),
               ],
             ),
             Paragraph(
               data: <RunBase<dynamic>>[
-                TextRun(
-                  data: TextPart(
-                    text: 'Education',
-                    styles: <Object>[
-                      Style.reference('SectionHeading'),
-                    ],
-                  ),
+                TextRun.text(
+                  text: 'Inserta tu texto aquí',
+                  styles: <Object>[
+                    StyleBuilder.singularC()
+                        .fontSize(
+                          9.ptToHalfPoints(),
+                        )
+                        .build(),
+                  ],
                 ),
+                Run(component: Break.lineBreak()),
+                TextRun.text(
+                  text: 'Inserta tu texto aquí',
+                  styles: <Object>[
+                    StyleBuilder.singularC()
+                        .fontSize(
+                          9.ptToHalfPoints(),
+                        )
+                        .build(),
+                  ],
+                ),
+                Run(component: Break.lineBreak()),
+                TextRun.text(
+                  text: 'Inserta tu texto aquí '
+                      'Inserta tu texto aquí ',
+                  styles: <Object>[
+                    StyleBuilder.singularC()
+                        .fontSize(9.ptToHalfPoints())
+                        .runColor(Color.rgb(
+                          0x666666,
+                          0.5.toAlphaUnit(),
+                        ))
+                        .build(),
+                  ],
+                ),
+                Run(component: Break.lineBreak()),
+                TextRun.text(
+                  text: 'Inserta tu texto aquí '
+                      'Inserta tu texto aquí ',
+                  styles: <Object>[
+                    StyleBuilder.singularC()
+                        .fontSize(9.ptToHalfPoints())
+                        .runColor(Color.rgb(
+                          0x666666,
+                          0.5.toAlphaUnit(),
+                        ))
+                        .build(),
+                  ],
+                ),
+              ],
+              styles: <Style>[
+                Style.reference('body'),
+                StyleBuilder.singularP()
+                    .spacing(
+                      after: 5.ptToTwips(),
+                      line: 1.5.inchesToLineSpacing(),
+                      rule: LineRule.exact,
+                    )
+                    .build(),
               ],
             ),
-            Paragraph(
+            Paragraph.text(
+              text: 'RECONOCIMIENTOS',
+              styles: <Style>[
+                Style.reference('section'),
+              ],
+            ),
+            ...Paragraph(
               data: <RunBase<dynamic>>[
-                TextRun(
-                  data: TextPart(
-                    text: 'M.Sc. Computer Science — '
-                        'University of Examples (2013 - 2015)',
-                  ),
-                ),
-                Run(component: Break.lineBreak(), wrapInRunMark: true),
-                TextRun(
-                  data: TextPart(
-                    text: 'B.Sc. Computer Science — '
-                        'College of Samples (2009 - 2013)',
-                  ),
+                TextRun.text(
+                  text: 'Inserta tu texto aquí '
+                      'Inserta tu texto aquí '
+                      'Inserta tu texto aquí '
+                      'Inserta tu texto aquí ',
+                  styles: <Object>[
+                    StyleBuilder.singularC()
+                        .fontSize(
+                          9.ptToHalfPoints(),
+                        )
+                        .build(),
+                  ],
                 ),
               ],
-            )
+              styles: <Style>[
+                Style.reference('body'),
+                StyleBuilder.singularP()
+                    .spacing(
+                      after: 1.ptToTwips(),
+                      line: 1.5.inchesToLineSpacing(),
+                      rule: LineRule.exact,
+                    )
+                    .build(),
+              ],
+            ).repeat(4),
+            ...getRepeatedSection(
+              title: 'IDIOMAS',
+              date: '',
+              content: 'Inserta tu text aquí '
+                  'Inserta tu text aquí ',
+              repeat: 1,
+            ),
           ],
         ),
       ],
     ),
   );
 
-  final Uint8List? bytes = await DocxMetadataPacker()
+  final Uint8List? bytes = await DocxPacker()
       .dynamicFontSearch(true)
-      .logPaths(<String>[DocxPaths.coreFilePath]).bytes(
-    doc,
-    applyCustomTheme: false,
-  );
+      .noTrimRuns()
+      .setNormalIfNeeded(true)
+      .defaultNormalStyle(Style.reference('body'))
+      .logPath(DocxPaths.documentFilePath)
+      .bytes(
+        doc,
+        applyCustomTheme: false,
+      );
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);
@@ -116,29 +336,100 @@ Future<void> main() async {
   }
 }
 
-        // Paragraph(
-        //   data: <RunBase<dynamic>>[
-        //     Run(
-        //       component: DrawingML(
-        //         data: FloatingImage(
-        //           data: ImageData(
-        //             buffer: await File('assets/cv_person.png').readAsBytes(),
-        //             extension: 'png',
-        //             anchorConfig: AnchorConfig(
-        //               wrapType: WrapType.noWrap,
-        //               wrapSide: null,
-        //               anchorOffsetX: 0.5.inchesToEmu(),
-        //               anchorOffsetY: 0,
-        //               horizontalAnchor: HorizontalAnchorPosition.paragraph,
-        //               verticalAnchor: VerticalAnchorPosition.paragraph,
-        //               horizontalPosition: AnchorPosition.left,
-        //               verticalPosition: AnchorPosition.top,
-        //             ),
-        //             width: 1.inchesToEmu(),
-        //             height: 1.inchesToEmu(),
-        //           ),
-        //         ),
-        //       ),
-        //     ),
-        //   ],
-        // ),
+List<DocxTreeNode> getRepeatedSection({
+  required String title,
+  required String date,
+  required String content,
+  required int repeat,
+  String subtitle1 = '',
+  String subtitle2 = '',
+  String subtitle3 = '',
+}) {
+  return <DocxTreeNode<dynamic>>[
+    Paragraph.text(
+      text: title,
+      styles: <Style>[
+        Style.reference('section'),
+      ],
+    ),
+    ...Paragraph(
+      data: <RunBase<dynamic>>[
+        if (subtitle1.isNotEmpty)
+          TextRun.text(
+            text: subtitle1,
+            styles: <Object>[
+              BoldAttribute(),
+              StyleBuilder.singularC()
+                  .fontSize(
+                    11.ptToHalfPoints(),
+                  )
+                  .build(),
+            ],
+          ),
+        if (subtitle2.isNotEmpty)
+          TextRun.text(
+            text: subtitle2,
+            styles: <Object>[
+              StyleBuilder.singularC()
+                  .fontSize(
+                    11.ptToHalfPoints(),
+                  )
+                  .build(),
+            ],
+          ),
+        if (subtitle3.isNotEmpty)
+          TextRun.text(
+            text: subtitle3,
+            styles: <Object>[
+              ItalicAttribute(),
+              StyleBuilder.singularC()
+                  .fontSize(
+                    11.ptToHalfPoints(),
+                  )
+                  .build(),
+            ],
+          ),
+        if (date.isNotEmpty) Run(component: Break.lineBreak()),
+        if (date.isNotEmpty)
+          TextRun.text(
+            text: date,
+            styles: <Object>[
+              StyleBuilder.singularC()
+                  .fontSize(8.ptToHalfPoints())
+                  .runColor(Color.rgb(
+                    0x666666,
+                    0.5.toAlphaUnit(),
+                  ))
+                  .build(),
+            ],
+          ),
+        if (date.isNotEmpty ||
+            subtitle1.isNotEmpty ||
+            subtitle2.isNotEmpty ||
+            subtitle3.isNotEmpty)
+          Run(component: Break.lineBreak()),
+        TextRun.text(
+          text: content,
+          styles: <Object>[
+            StyleBuilder.singularC()
+                .fontSize(9.ptToHalfPoints())
+                .runColor(Color.rgb(
+                  0x666666,
+                  0.5.toAlphaUnit(),
+                ))
+                .build(),
+          ],
+        ),
+      ],
+      styles: <Style>[
+        Style.reference('body'),
+        StyleBuilder.singularP()
+            .spacing(
+              line: 1.3.inchesToLineSpacing(),
+              rule: LineRule.exact,
+            )
+            .build(),
+      ],
+    ).repeat(repeat),
+  ];
+}

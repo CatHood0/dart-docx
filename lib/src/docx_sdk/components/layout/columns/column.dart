@@ -16,10 +16,6 @@ import '../../../utils/logger/logger_configs.dart';
 /// because when it is not defined, `Column` behaviors works more as a
 /// page breaking instead column breaking
 ///
-/// Using this component avoid making some manual things, since you can do the same
-/// thing just inserting `Paragraph(data: [Run(component: Break.columnBreak()]))` at the document root
-/// after your content.
-///
 /// If the founded number of columns is more than the configured number
 /// in `DocumentLayout`, then column break will behavior like a page breaking
 /// instead.
@@ -42,6 +38,18 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
 
   @protected
   bool ignoreBreak = false;
+
+  void add(DocxTreeNode node) {
+    data.add(node);
+  }
+
+  void addFirst(DocxTreeNode node) {
+    data.insert(0, node);
+  }
+
+  void addAt(int index, DocxTreeNode node) {
+    data.insert(index, node);
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -72,12 +80,12 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     }
     return <XmlElement>[
       ...elements,
-      if (!ignoreBreak)
-        ...Paragraph(
-          data: <RunBase<dynamic>>[
-            Run(component: Break(data: BreakType.column)),
-          ],
-        ).buildXml(context: context),
+      // if (!ignoreBreak)
+      //   ...Paragraph(
+      //     data: <RunBase<dynamic>>[
+      //       Run(component: Break.pageBreak()),
+      //     ],
+      //   ).buildXml(context: context),
     ];
   }
 

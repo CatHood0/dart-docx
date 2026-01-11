@@ -4,18 +4,16 @@ import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 
-class Paragraph extends ComponentContainer<Iterable<RunBase>> {
+class Paragraph extends ComponentContainer<List<RunBase>> {
   Paragraph({
     required Iterable<RunBase> data,
     Iterable<Style> styles = const <Style>[],
-    Iterable<Style> runStyles = const <Style>[],
-    this.pageBreak = ParagraphPagebreak.none,
+    this.pageBreak = ParagraphPageBreak.none,
     this.numbering,
     this.alignment,
     super.id,
   })  : styles = List.from(styles),
-        runStyles = List.from(runStyles),
-        super(parent: null, data: data) {
+        super(parent: null, data: <RunBase<dynamic>>[...data]) {
     int index = 0;
     for (final RunBase content in data) {
       content
@@ -29,19 +27,21 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   factory Paragraph.text({
     required String text,
     Iterable<Style> styles = const <Style>[],
-    Iterable<Style> runStyles = const <Style>[],
-    ParagraphPagebreak pageBreak = ParagraphPagebreak.none,
+    Iterable<Object> runStyles = const <Object>[],
+    ParagraphPageBreak pageBreak = ParagraphPageBreak.none,
     Numbering? numbering,
     Alignment? align,
   }) =>
       Paragraph(
         styles: styles,
-        runStyles: runStyles,
         numbering: numbering,
         alignment: align,
         pageBreak: pageBreak,
         data: <RunBase<dynamic>>[
-          TextRun.fromString(text: text),
+          TextRun.text(
+            text: text,
+            styles: List.from(runStyles),
+          ),
         ],
       );
 
@@ -56,16 +56,25 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   List<Numbering> references = <Numbering>[];
   Numbering? numbering;
 
-  /// All the styles applied to the run
-  List<Style> runStyles;
-  ParagraphPagebreak pageBreak;
+  ParagraphPageBreak pageBreak;
   Alignment? alignment;
+
+  void addRun(RunBase run) {
+    data.add(run);
+  }
+
+  void addRunFirst(RunBase run) {
+    data.insert(0, run);
+  }
+
+  void addRunAt(int index, RunBase run) {
+    data.insert(index, run);
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> paragraphChildren = <XmlNode>[];
     final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
-
     if (paragraphStyles.isNotEmpty) {
       paragraphChildren.add(
         XmlElement.tag(
@@ -76,8 +85,10 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       );
     }
 
-    if (pageBreak == ParagraphPagebreak.before) {
-      styles.add(StyleBuilder.singularP().pageBreakBefore().build());
+    if (pageBreak == ParagraphPageBreak.before) {
+      styles.add(
+        StyleBuilder.singularP().pageBreakBefore().build(),
+      );
     }
 
     if (alignment != null) {
@@ -98,7 +109,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
       paragraphChildren.addAll(element);
     }
 
-    if (pageBreak == ParagraphPagebreak.after) {
+    if (pageBreak == ParagraphPageBreak.after) {
       paragraphChildren.addAll(
         Run(
           // will return this break in a <w:r>
@@ -175,19 +186,31 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
     // right, you don't!
     //TODO: we need to register configurators
     final Map<String, Style> appliedStyles = <String, Style>{};
+
+    if (styles.isEmpty && context.setNormalStyleToNotStyledParagraphs) {
+      assert(
+        context.defaultNormalStyle.isReference,
+        'defaultNormalStyle in DocumentContext is '
+        'not a reference. Please, ensure you are '
+        'setting a reference style',
+      );
+      return <XmlElement>[
+        ...context.defaultNormalStyle.forParagraphStyle(),
+      ];
+    }
+
     for (final Style style in styles) {
-      // references  has not values to be used, so, we will need to get a usable version
       if (style.isInvalid || appliedStyles.containsKey(style.styleId)) {
         continue;
       }
       // when a style isnt in DocumentStylesSheet, we prefer ignoring its
       // w:pStyle ref
       appliedStyles[style.styleId] = style;
-      // references does not require apply of attributes
-      pPrChildren.addAll(style.forParagraphStyle(
+      final List<XmlElement> xml = style.forParagraphStyle(
         shouldShowStyleRef: style.isReference,
         useConfigurators: !style.isReference,
-      ));
+      );
+      pPrChildren.addAll(xml);
     }
     return <XmlElement>[...pPrChildren];
   }
@@ -250,7 +273,7 @@ class Paragraph extends ComponentContainer<Iterable<RunBase>> {
   }
 }
 
-enum ParagraphPagebreak {
+enum ParagraphPageBreak {
   after,
   before,
   none,

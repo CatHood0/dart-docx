@@ -8,7 +8,7 @@ class ColumnWidth {
   });
 
   ColumnWidth.points({
-    required int width,
+    required double width,
     int? spaceAfter,
   })  : width = width.ptToTwips(),
         spaceAfter = spaceAfter?.ptToTwips();
@@ -56,13 +56,9 @@ class ColumnOptions {
     int? space,
     this.numColumns,
     this.separator = false,
-    this.equalWidth = false,
+    this.equalWidth = true,
     this.columnWidths,
-  })  : space = space?.ptToTwips(),
-        assert(
-          equalWidth == true || columnWidths != null && columnWidths.isNotEmpty,
-          'If equalWidth is false, columnWidths must be provided.',
-        );
+  })  : space = space?.ptToTwips();
 
   /// The number of columns.
   final int? numColumns;

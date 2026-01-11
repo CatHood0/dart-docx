@@ -5,7 +5,7 @@ import '../../../docx.dart';
 /// inches, centimeters, millimeters, points, and pixels.
 extension SizingConversions on num {
   /// Converts inches to line spacing units.
-  int toLineSpacingFromInch() => (this * lineSpacingPerInch).round();
+  int inchesToLineSpacing() => (this * lineSpacingPerInch).round();
 
   /// Converts an alpha value (0.0 - 1.0) to maximum alpha EMU value.
   int toAlphaUnit() => (clamp(0.0, 1.0) * maxAlphaEmu).round();

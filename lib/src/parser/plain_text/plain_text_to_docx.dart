@@ -1,8 +1,6 @@
 import 'dart:convert';
 
 import '../../../docx.dart';
-import '../../docx_sdk/components/root/document_root.dart';
-import '../../docx_sdk/packer/docx_metadata_packer.dart';
 import '../parser_events.dart';
 
 class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
@@ -10,7 +8,7 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
     required super.options,
   });
 
-  final DocxMetadataPacker packer = DocxMetadataPacker.instance;
+  final DocxPacker packer = DocxPacker.instance;
 
   @override
   Future<List<int>> build({required String data}) async {

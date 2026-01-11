@@ -11,7 +11,6 @@ class EasyStyles {
       .fontSize(12.ptToHalfPoints())
       .alignment(Alignment.left)
       .spacing(before: 0, after: 160)
-      .lineSpacing(240)
       .lang(DocxLanguage(language: LanguageCodes.englishUS))
       .qFormat(true)
       .build();

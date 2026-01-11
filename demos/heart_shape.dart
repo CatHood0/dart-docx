@@ -66,7 +66,7 @@ Future<void> main() async {
     ),
   );
 
-  final Uint8List? bytes = await DocxMetadataPacker()
+  final Uint8List? bytes = await DocxPacker()
       .dynamicFontSearch(true)
       .bytes(doc, applyCustomTheme: false);
 

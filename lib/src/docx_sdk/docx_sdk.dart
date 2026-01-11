@@ -3,8 +3,6 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 
 import '../../../docx.dart';
-import 'packer/docx_metadata_packer.dart';
-import 'xml_components/settings/entities/settings.dart';
 
 //TODO: add insert, delete, and replacement capabilities
 //TODO: add capabilities to modify styles
@@ -66,10 +64,10 @@ class DocxSdk {
 
   /// Build the entire new .docx file
   Future<Uint8List?> bytes() async {
-    return DocxMetadataPacker().bytes(document);
+    return DocxPacker().bytes(document);
   }
 
   Future<Uint8List?> tryChangesSave() async {
-    return DocxMetadataPacker().bytes(document);
+    return DocxPacker().bytes(document);
   }
 }

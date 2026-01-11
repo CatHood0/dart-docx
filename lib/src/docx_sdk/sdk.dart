@@ -38,7 +38,7 @@ export 'docx_sdk.dart';
 export 'mixins/applicable_attribute_mixin.dart';
 export 'mixins/ignorable_mixin.dart';
 export 'mixins/printable_mixin.dart';
-export 'packer/docx_metadata_packer.dart';
+export 'packer/docx_packer.dart';
 export 'parser/xml_to_docx_objects.dart';
 export 'stores/drawing_element_counter_store.dart';
 export 'stores/font_store.dart';

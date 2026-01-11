@@ -13,44 +13,65 @@ class XmlOverrideFile {
 }
 
 /// Packs various metadata XML files for the DOCX document.
-class DocxMetadataPacker {
+class DocxPacker {
   final DocxCompiler _compiler = DocxCompiler();
   final ZipEncoder _encoder = ZipEncoder();
 
-  static final DocxMetadataPacker instance = DocxMetadataPacker();
+  static final DocxPacker instance = DocxPacker();
 
-  DocxMetadataPacker dynamicFontSearch(bool search) {
+  /// Determines if the fonts will be registing also using the content
+  /// of the document to build an efficient [fontTable] file
+  ///
+  /// If not, set to false, and use [fonts] properties from
+  /// [DocumentOptions] to skip this step. Will throw Exception
+  /// if [dynamicFontSearch] is false and [fonts] is not setted
+  DocxPacker dynamicFontSearch(bool search) {
     _compiler.dynamicFontSearch = search;
     return this;
   }
 
-  DocxMetadataPacker setNormalStyleToNotStyledParagraphs(bool setNormal) {
-    _compiler.setNormalStyleToNotStyledParagraphs = setNormal;
+  /// Determines if the paragraph will be created referencing the
+  /// "Normal" style when it does not contain a paragraph level
+  /// style reference or configuration
+  DocxPacker setNormalIfNeeded(bool setNormal) {
+    _compiler.applyNormalStyleIfNeeded = setNormal;
     return this;
   }
 
-  DocxMetadataPacker defaultNormalStyle(Style style) {
+  DocxPacker noTrimRuns() {
+    _compiler.noTrim = true;
+    return this;
+  }
+
+  DocxPacker trimRuns() {
+    _compiler.noTrim = false;
+    return this;
+  }
+
+  /// Determines the "Normal" style to be applied using 
+  /// `applyNormalStyleIfNeeded` as the falg
+  DocxPacker defaultNormalStyle(Style style) {
     assert(style.isReference, 'the style passed must be a reference instance');
     _compiler.defaultNormalStyle = style;
     return this;
   }
 
-  DocxMetadataPacker setMediaStore(MediaStore store) {
+  DocxPacker setMediaStore(MediaStore store) {
     _compiler.mediaStore = store;
     return this;
   }
 
-  DocxMetadataPacker setFontStore(FontStore store) {
+  DocxPacker setFontStore(FontStore store) {
     _compiler.fontStore = store;
     return this;
   }
 
-  DocxMetadataPacker setPhasesConfig(LoggablePhaseConfig phaseConfig) {
+  DocxPacker setPhasesConfig(LoggablePhaseConfig phaseConfig) {
     _compiler.config = phaseConfig;
     return this;
   }
 
-  DocxMetadataPacker logAllPaths() {
+  DocxPacker logAllPaths() {
     _compiler.config = LoggablePhaseConfig(
       loggablePhases: <String>{
         ...DocxPaths.paths,
@@ -59,7 +80,7 @@ class DocxMetadataPacker {
     return this;
   }
 
-  DocxMetadataPacker logPath(String path) {
+  DocxPacker logPath(String path) {
     _compiler.config = LoggablePhaseConfig(
       loggablePhases: <String>{
         ..._compiler.config.loggablePhases,
@@ -70,7 +91,7 @@ class DocxMetadataPacker {
     return this;
   }
 
-  DocxMetadataPacker logPaths(Iterable<String> paths) {
+  DocxPacker logPaths(Iterable<String> paths) {
     paths.forEach(logPath);
     return this;
   }

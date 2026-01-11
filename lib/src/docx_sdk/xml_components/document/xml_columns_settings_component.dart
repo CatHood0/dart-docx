@@ -1,5 +1,6 @@
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
+import '../../../core/extensions/num_extensions.dart';
 import '../../../core/extensions/string_ext.dart';
 
 /// Represents the `<w:cols>` element in WordML, defining the column layout
@@ -42,7 +43,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnOptions> {
     attributes.add(
       XmlAttribute(
         'w:sep'.toName(),
-        value.separator.toString(),
+        value.separator.toInt().toString(),
       ),
     );
 
@@ -66,6 +67,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnOptions> {
 
     // Add individual <w:col> elements if equalWidth is false and columnWidths are provided
     if (!value.equalWidth && value.columnWidths != null) {
+      int index = 0;
       for (final ColumnWidth colSetting in value.columnWidths!) {
         final List<XmlAttribute> colAttrs = [
           XmlAttribute(
@@ -73,7 +75,8 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnOptions> {
             colSetting.width.toString(),
           ),
         ];
-        if (colSetting.spaceAfter != null) {
+        if (index + 1 < value.columnWidths!.length &&
+            colSetting.spaceAfter != null) {
           colAttrs.add(
             XmlAttribute(
               'w:space'.toName(),
@@ -88,6 +91,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnOptions> {
             isSelfClosing: true,
           ),
         );
+        index++;
       }
     }
 

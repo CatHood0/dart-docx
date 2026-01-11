@@ -65,12 +65,18 @@ class DocxCompiler {
   bool dynamicFontSearch = true;
 
   /// Determines if the paragraph will be created referencing the
-  /// "Normal" style
-  bool setNormalStyleToNotStyledParagraphs = true;
+  /// "Normal" style when it does not contain a paragraph level
+  /// style reference or configuration
+  bool applyNormalStyleIfNeeded = true;
 
-  /// Determines if the paragraph will be created referencing the
-  /// "Normal" style
+  /// Determines the "Normal" style to be applied using
+  /// `applyNormalStyleIfNeeded` as the falg
   Style defaultNormalStyle = Style.reference('Normal');
+
+  /// Determines if the run instances will be preserve its whitespaces
+  /// since this confirm to the compiler to assign to every text
+  /// object a "preserve" attribute
+  bool noTrim = true;
 
   Stream<DocxEvent> get eventStream => _eventController.stream;
   void _emit(DocxEvent event) => _eventController.add(event);
@@ -101,7 +107,8 @@ class DocxCompiler {
       numberingStore: numberingStore,
       drawingStore: drawingStore,
       defaultNormalStyle: defaultNormalStyle,
-      setNormalStyleToNotStyledParagraphs: setNormalStyleToNotStyledParagraphs,
+      setNormalStyleToNotStyledParagraphs: applyNormalStyleIfNeeded,
+      noTrim: noTrim,
     );
   }
 
@@ -135,13 +142,51 @@ class DocxCompiler {
     final DocumentContext documentContext = buildContext(options);
     CompilerLogger.root.d('Document context built successfully.');
 
-    if (setNormalStyleToNotStyledParagraphs) {
+    if (applyNormalStyleIfNeeded) {
       assert(
         options.docStyles.getStyleById(defaultNormalStyle.styleId) != null,
         'The style "${defaultNormalStyle.styleId}" not '
         'exist in your DocumentStylesSheet',
       );
       CompilerLogger.root.d('Normal style check passed.');
+    }
+
+    final List<Column>? columns = document.root.visitAllElement(
+      visitChildrenIfNeeded: false,
+      (DocxTreeNode<dynamic> el) {
+        return el is Column;
+      },
+    )?.cast();
+
+    if (columns != null) {
+      int index = 0;
+      for (final Column column in columns) {
+        if (index % 2 != 0) {
+          final DocxTreeNode<dynamic>? paragraph = column.data.firstOrNull;
+          if (paragraph == null || paragraph is! Paragraph) {
+            CompilerLogger.root.i(
+              'Inserting column '
+              'break in element at $index by no '
+              'existent paragraph',
+            );
+            column.addFirst(
+              Paragraph(
+                data: <RunBase<dynamic>>[
+                  Run(component: Break.columnBreak()),
+                ],
+              ),
+            );
+            break;
+          }
+          CompilerLogger.root.i(
+            'Inserting column '
+            'break in first '
+            'element of the column at $index',
+          );
+          paragraph.addRunFirst(Run(component: Break.columnBreak()));
+        }
+        index++;
+      }
     }
 
     numberingStore.initializeAndApplyContext(documentContext);
