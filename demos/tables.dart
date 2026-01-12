@@ -176,8 +176,6 @@ Future<void> main() async {
       .dynamicFontSearch(true)
       .noTrimRuns()
       .setNormalIfNeeded(true)
-      .defaultNormalStyle(Style.reference('body'))
-      .logPath(DocxPaths.documentFilePath)
       .bytes(
         doc,
         applyCustomTheme: false,

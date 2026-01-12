@@ -240,6 +240,9 @@ class Style extends IterableConfigurators {
   ///
   /// Returns a new Style instance with all inherited properties merged.
   Style getDeepStyleRelation(DocumentStylesSheet styles) {
+    if (basedOn == null) {
+      return this;
+    }
     const int maxAttempts = 200;
     final List<Style> styleHierarchy = <Style>[this];
     Style? currentStyleInChain = this;
@@ -758,20 +761,20 @@ abstract class IterableConfigurators {
     return getConfiguratorOrNull('w:spacing');
   }
 
-  StyleConfigurator? get spacingBefore {
-    return spacing?.getConfiguratorOrNull('w:before');
+  int? get spacingBefore {
+    return spacing?.attributes?['w:before'];
   }
 
-  StyleConfigurator? get spacingAfter {
-    return spacing?.getConfiguratorOrNull('w:after');
+  int? get spacingAfter {
+    return spacing?.attributes?['w:after'];
   }
 
-  StyleConfigurator? get lineSpacing {
-    return spacing?.getConfiguratorOrNull('w:line');
+  num? get lineSpacing {
+    return spacing?.attributes?['w:line'];
   }
 
-  StyleConfigurator? get lineRule {
-    return spacing?.getConfiguratorOrNull('w:lineRule');
+  String? get lineRule {
+    return spacing?.attributes?['w:lineRule'];
   }
 
   StyleConfigurator? get indent {

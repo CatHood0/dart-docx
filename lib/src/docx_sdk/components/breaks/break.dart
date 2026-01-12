@@ -7,6 +7,7 @@ enum BreakType {
   column,
   page,
   newline,
+tab,
 }
 
 class Break extends RunBase<BreakType> {

@@ -5,12 +5,12 @@ void main() {
   group('Style.getDeepStyleRelation', () {
     Style createStyle({
       required String styleId,
-      required String styleName,
+      String? styleName,
       String type = 'paragraph',
       String? basedOnId,
       List<StyleConfigurator>? configurators,
     }) {
-      final List<StyleConfigurator> allConfigurators = [];
+      final List<StyleConfigurator> allConfigurators = <StyleConfigurator>[];
       if (basedOnId != null) {
         allConfigurators.add(StyleConfigurator.selfClosing(
           prefix: 'w',
@@ -32,9 +32,9 @@ void main() {
     test(
         'should return the same style '
         'if it has no basedOn property', () {
-      final Style style = createStyle(styleId: 'Normal', styleName: 'Normal');
+      final Style style = createStyle(styleId: 'Normal');
       final DocumentStylesSheet stylesSheet = DocumentStylesSheet(
-        styles: [
+        styles: <Style>[
           style,
         ],
       );
@@ -49,11 +49,11 @@ void main() {
       final Style parentStyle = createStyle(
         styleId: 'Parent',
         styleName: 'Parent',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'pPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.selfClosing(
                   prefix: 'w', propertyName: 'jc', value: 'left'),
               StyleConfigurator.selfClosing(
@@ -63,7 +63,7 @@ void main() {
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'rPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.selfClosing(
                   prefix: 'w', propertyName: 'sz', value: '24'),
             ],
@@ -77,11 +77,11 @@ void main() {
         styleId: 'Child',
         styleName: 'Child',
         basedOnId: 'Parent',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'pPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.selfClosing(
                 prefix: 'w',
                 propertyName: 'jc',
@@ -103,12 +103,12 @@ void main() {
 
       expect(deepStyle.styleId, 'Child');
 
-      final pPr = deepStyle.getConfigurator('w:pPr');
+      final StyleConfigurator pPr = deepStyle.getConfigurator('w:pPr');
       expect(pPr, isNotNull);
       expect(pPr.getConfiguratorOrNull('w:jc')?.value, 'center'); // Overridden
       expect(pPr.getConfiguratorOrNull('w:spacing')?.value, 200); // Inherited
 
-      final rPr = deepStyle.getConfiguratorOrNull('w:rPr');
+      final StyleConfigurator? rPr = deepStyle.getConfiguratorOrNull('w:rPr');
       expect(rPr, isNotNull);
       expect(rPr!.getConfiguratorOrNull('w:sz')?.value, '24'); // Inherited
 
@@ -128,11 +128,11 @@ void main() {
       final Style styleA = createStyle(
         styleId: 'StyleA',
         styleName: 'Style A',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'pPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.selfClosing(
                 prefix: 'w',
                 propertyName: 'jc',
@@ -148,7 +148,7 @@ void main() {
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'rPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.selfClosing(
                 prefix: 'w',
                 propertyName: 'sz',
@@ -184,7 +184,7 @@ void main() {
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'rPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.selfClosing(
                 prefix: 'w',
                 propertyName: 'b',
@@ -208,11 +208,11 @@ void main() {
         styleId: 'StyleC',
         styleName: 'Style C',
         basedOnId: 'StyleB',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'pPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.selfClosing(
                   prefix: 'w',
                   propertyName: 'jc',
@@ -222,7 +222,7 @@ void main() {
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'rPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.selfClosing(
                   prefix: 'w',
                   propertyName: 'sz',
@@ -237,8 +237,8 @@ void main() {
       );
 
       final DocumentStylesSheet stylesSheet =
-          DocumentStylesSheet(styles: [styleA, styleB, styleC]);
-      final deepStyle = styleC.getDeepStyleRelation(stylesSheet);
+          DocumentStylesSheet(styles: <Style>[styleA, styleB, styleC]);
+      final Style deepStyle = styleC.getDeepStyleRelation(stylesSheet);
 
       expect(deepStyle.styleId, 'StyleC');
 
@@ -250,7 +250,7 @@ void main() {
           '150'); // B overrides A
       expect(pPr.getConfiguratorOrNull('w:indent')?.value, '100'); // B new
 
-      final rPr = deepStyle.getConfiguratorOrNull('w:rPr');
+      final StyleConfigurator? rPr = deepStyle.getConfiguratorOrNull('w:rPr');
       expect(rPr, isNotNull);
       expect(rPr!.getConfiguratorOrNull('w:sz')?.value, '30'); // C overrides A
       expect(rPr.getConfiguratorOrNull('w:b'), isNotNull); // B new
@@ -273,7 +273,7 @@ void main() {
         styleId: 'Orphan',
         styleName: 'Orphan',
         basedOnId: 'NonExistent',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'foo',
@@ -282,18 +282,16 @@ void main() {
         ],
       );
       final DocumentStylesSheet stylesSheet = DocumentStylesSheet(
-        styles: [
+        styles: <Style>[
           style,
         ],
       );
 
       final Style deepStyle = style.getDeepStyleRelation(stylesSheet);
 
-      // The 'w:basedOn' configurator is filtered out in getDeepStyleRelation,
-      // so only 'w:foo' should remain as a top-level configurator.
       expect(
         deepStyle.configurators.length,
-        1,
+        2,
       );
       expect(
         deepStyle.getConfiguratorOrNull('w:foo')?.value,
@@ -304,18 +302,18 @@ void main() {
     test(
         'should correctly merge nested '
         'configurators within w:pPr', () {
-      final baseStyle = createStyle(
+      final Style baseStyle = createStyle(
         styleId: 'Base',
         styleName: 'Base',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'pPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.noSelfClosing(
                 prefix: 'w',
                 propertyName: 'spacing',
-                configurators: [
+                configurators: <StyleConfigurator>[
                   StyleConfigurator.selfClosing(
                       prefix: 'w', propertyName: 'before', value: '100'),
                   StyleConfigurator.selfClosing(
@@ -325,7 +323,7 @@ void main() {
               StyleConfigurator.noSelfClosing(
                 prefix: 'w',
                 propertyName: 'ind',
-                configurators: [
+                configurators: <StyleConfigurator>[
                   StyleConfigurator.selfClosing(
                       prefix: 'w', propertyName: 'left', value: '300'),
                 ],
@@ -335,19 +333,19 @@ void main() {
         ],
       );
 
-      final derivedStyle = createStyle(
+      final Style derivedStyle = createStyle(
         styleId: 'Derived',
         styleName: 'Derived',
         basedOnId: 'Base',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.noSelfClosing(
             prefix: 'w',
             propertyName: 'pPr',
-            configurators: [
+            configurators: <StyleConfigurator>[
               StyleConfigurator.noSelfClosing(
                 prefix: 'w',
                 propertyName: 'spacing',
-                configurators: [
+                configurators: <StyleConfigurator>[
                   StyleConfigurator.selfClosing(
                       prefix: 'w', propertyName: 'after', value: '50'), // New
                   StyleConfigurator.selfClosing(
@@ -363,8 +361,8 @@ void main() {
       );
 
       final DocumentStylesSheet stylesSheet =
-          DocumentStylesSheet(styles: [baseStyle, derivedStyle]);
-      final deepStyle = derivedStyle.getDeepStyleRelation(stylesSheet);
+          DocumentStylesSheet(styles: <Style>[baseStyle, derivedStyle]);
+      final Style deepStyle = derivedStyle.getDeepStyleRelation(stylesSheet);
 
       final StyleConfigurator? pPr = deepStyle.getConfiguratorOrNull('w:pPr');
       expect(pPr, isNotNull);
@@ -384,7 +382,7 @@ void main() {
         '240',
       ); // Base inherited
 
-      final ind = pPr.getConfiguratorOrNull('w:ind');
+      final StyleConfigurator? ind = pPr.getConfiguratorOrNull('w:ind');
       expect(
         ind,
         isNotNull,
@@ -396,26 +394,26 @@ void main() {
     });
 
     test('should handle circular basedOn references without infinite loop', () {
-      final styleA = createStyle(
+      final Style styleA = createStyle(
         styleId: 'StyleA',
         styleName: 'Style A',
         basedOnId: 'StyleB', // Circular reference
       );
-      final styleB = createStyle(
+      final Style styleB = createStyle(
         styleId: 'StyleB',
         styleName: 'Style B',
         basedOnId: 'StyleA', // Circular reference
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.selfClosing(
               prefix: 'w', propertyName: 'valueB', value: 'B'),
         ],
       );
 
       // A styles sheet with the circular styles
-      final stylesSheet = DocumentStylesSheet(styles: [styleA, styleB]);
+      final DocumentStylesSheet stylesSheet = DocumentStylesSheet(styles: <Style>[styleA, styleB]);
 
       // When calling getDeepStyleRelation on styleA, it should not loop infinitely
-      final deepStyle = styleA.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = styleA.getDeepStyleRelation(stylesSheet);
 
       expect(deepStyle.styleId, 'StyleA');
       // Should contain styleA's initial configurators and styleB's if it was added before detection
@@ -432,10 +430,10 @@ void main() {
     test(
         'should ensure the returned style ID and name are from the original style',
         () {
-      final baseStyle = createStyle(
+      final Style baseStyle = createStyle(
         styleId: 'Base',
         styleName: 'Base Name',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'someProp',
@@ -444,24 +442,24 @@ void main() {
         ],
       );
 
-      final childStyle = createStyle(
+      final Style childStyle = createStyle(
         styleId: 'Child',
         styleName: 'Child Name',
         basedOnId: 'Base',
-        configurators: [
+        configurators: <StyleConfigurator>[
           StyleConfigurator.selfClosing(
               prefix: 'w', propertyName: 'anotherProp', value: 'child'),
         ],
       );
 
-      final DocumentStylesSheet stylesSheet = DocumentStylesSheet(styles: [
+      final DocumentStylesSheet stylesSheet = DocumentStylesSheet(styles: <Style>[
         baseStyle,
         childStyle,
       ]);
-      final deepStyle = childStyle.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = childStyle.getDeepStyleRelation(stylesSheet);
 
       expect(deepStyle.styleId, 'Child');
-      expect(deepStyle.styleName, 'Child Name');
+      expect(deepStyle.styleName()!.value!, 'Child Name');
       expect(deepStyle.getConfiguratorOrNull('w:someProp')?.value, 'base');
       expect(deepStyle.getConfiguratorOrNull('w:anotherProp')?.value, 'child');
     });

@@ -67,7 +67,7 @@ class DocxCompiler {
 
   LoggablePhaseConfig config;
 
-  late final StreamController<DocxEvent> _eventController =
+  late StreamController<DocxEvent> _eventController =
       StreamController<DocxEvent>.broadcast();
 
   /// Enables dynamic font discovery from document content.
@@ -413,6 +413,8 @@ class DocxCompiler {
     try {
       CompilerLogger.root.i('Docx compilation completed successfully.');
       _emit(DocxEvent.end(result: archive));
+      _eventController.close();
+      _eventController = StreamController<DocxEvent>.broadcast();
       return archive;
     } catch (e, s) {
       CompilerLogger.root.e(
@@ -421,6 +423,7 @@ class DocxCompiler {
         s,
       );
       _emit(DocxEvent.end(error: e));
+      _eventController = StreamController<DocxEvent>.broadcast();
       return null;
     }
   }

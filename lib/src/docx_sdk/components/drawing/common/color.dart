@@ -21,14 +21,10 @@ class Color extends DocxTreeNode<void> {
   Color.rgb(int value, [int? alpha])
       : type = ColorType.rgb,
         alpha = alpha ?? -1,
-        rgbValue = value,
+        rgbValue =
+            value.toString().startsWith('0x') ? value : int.parse('0x$value'),
         themeColor = null,
         systemColor = null,
-        assert(
-          value.toString().length >= 8,
-          'value must match '
-          'with the pattern 0xRRGGBB or 0xAARRGGBB',
-        ),
         super(data: null);
 
   Color.theme(String themeColorName)

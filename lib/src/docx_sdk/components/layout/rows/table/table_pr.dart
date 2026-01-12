@@ -306,6 +306,15 @@ class TableBorders {
     this.insideVertical,
   });
 
+  TableBorders.all({
+    TableBorder? all,
+    this.insideHorizontal,
+    this.insideVertical,
+  })  : top = all,
+        right = all,
+        bottom = all,
+        left = all;
+
   final TableBorder? top;
   final TableBorder? right;
   final TableBorder? bottom;
@@ -334,6 +343,13 @@ class TableCellBorders {
     this.bottom,
     this.left,
   });
+
+  TableCellBorders.all({
+    TableBorder? all,
+  })  : top = all,
+        right = all,
+        bottom = all,
+        left = all;
 
   final TableBorder? top;
   final TableBorder? right;

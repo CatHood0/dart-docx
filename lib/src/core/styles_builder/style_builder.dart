@@ -73,8 +73,8 @@ class StyleBuilder {
   /// chinese, japanase and Korean characters
   num? _fontEastAsiaSize;
   String? _fontFamily;
-  String? _color;
-  String? _highlightColor;
+  Color? _color;
+  Color? _highlightColor;
   bool isBold = false;
   bool isItalic = false;
   bool isUnderline = false;
@@ -281,7 +281,7 @@ class StyleBuilder {
   /// [hexColor] is the hexadecimal color code (e.g., 'FF0000' for red).
   StyleBuilder runColor(Color color) {
     assert(color.rgbValue != null, 'run color must have a valid RGB value');
-    _color = color.toColorValue()?.toUpperCase();
+    _color = color;
     return this;
   }
 
@@ -291,7 +291,7 @@ class StyleBuilder {
   StyleBuilder highlight(Color color) {
     assert(
         color.rgbValue != null, 'highlight color must have a valid RGB value');
-    _highlightColor = color.toColorValue()?.toUpperCase();
+    _highlightColor = color;
     return this;
   }
 
@@ -834,7 +834,7 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'color',
-          value: _color,
+          value: _color!.toColorValue()!.toUpperCase(),
         ),
       );
     }
@@ -844,7 +844,7 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'highlight',
-          value: _highlightColor,
+          value: _highlightColor!.toColorValue()!.toUpperCase(),
         ),
       );
     }

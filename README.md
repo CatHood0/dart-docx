@@ -4,10 +4,10 @@
 
 Planned parsers include HTML, Markdown, plain text, and Quill Delta, enabling structured transformations between common content formats and Word documents while preserving document semantics.
 
-> [!WARNING]
-> * Additional format parsers: planned
-> * Incremental editing: planned / experimental
-> * Shapes effects (e.g., shadows, gradients): are experimental at this points, since the documentation about DrawingML is limited.
+> [!NOTE]
+> * Additional format parsers are planned.
+> * Incremental editing is planned but in a lorge term. 
+> * Shape effects (e.g., shadows, gradients) are experimental at this points.
 
 ## Examples
 
@@ -29,17 +29,17 @@ Each example is available as runnable code under the `demos/` directory.
 
 | Feature | Google Docs Template | Our library output |
 |---------|---------------------|--------------------|
-| **Layout** | table with 2 columns layout | 2-column layout |
+| **Layout** | table with 2 columns layout | native multi-column layout |
 | **Styling** | Consistent typography and spacing | Similar font families, sizes, and colors |
-| **Content flow** | Logical section ordering | Exact same section structure |
+| **Content flow** | Logical section ordering | Very similar section structure |
 | **Compatibility** | Google Docs format | Native .docx (MS Word compatible) |
 
 #### Viewer compatibility
 | Viewer | Screenshot | Notes |
 |--------|------------|-------|
-| **OnlyOffice** | ![](./assets/curriculum_onlyoffice.png) | Perfect rendering with column support |
+| **OnlyOffice** | ![](./assets/curriculum_onlyoffice.png) | Good fidelity with the template |
 | **LibreOffice** | ![](./assets/curriculum_libreoffice.png) | Good compatibility, minor spacing differences |
-| **Microsoft Word** | ![](./assets/curriculum_word.png) | Native format, identical to template |
+| **Microsoft Word** | ![](./assets/curriculum_word.png) | (no tested yet) |
 
 → [cv.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/cv.dart)
 
@@ -52,7 +52,7 @@ Each example is available as runnable code under the `demos/` directory.
 ### Tables
 ![](./assets/tables.png)
 
-_Idk why this work on non LibreOffice editors. I think that is just a compatibility issue, so, I can't do more. The picture was taken in OnlyOffice_
+_Works on LibreOffice, but has some rendering issues. It's just a compatibility issue._
 
 → [tables.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/tables.dart)
 
@@ -74,9 +74,6 @@ Add `docx` to your `pubspec.yaml` file:
 dependencies:
   docx: ^latest_version
 ```
-
-
-
 
 ## Basic Usage
 
@@ -177,56 +174,148 @@ Future<void> main() async {
 
 For larger document operations or to display progress to the user, you can use `stream` which returns a `Stream<DocxEvent>`:
 
-_Under active development_
+```dart
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:docx/docx.dart';
 
-<!-- ````dart -->
-<!-- import 'dart:io'; -->
-<!-- import 'package:docx/docx.dart'; -->
-<!---->
-<!-- Future<void> generateDocumentWithStream() async { -->
-<!--   final DocumentOptions options = -->
-<!--       DocumentOptions.blank(title: 'Stream Document'); -->
-<!--     final DocxDocument document =   -->
-<!--     contents: [ -->
-<!--       Paragraph(data: [TextRun(data: TextPart(text: 'Test content.'))]) -->
-<!--     ], -->
-<!--   ); -->
-<!---->
-<!--   final DocxDocumentSdk docxSdk = DocxDocumentSdk(options: options); -->
-<!--   final String outputPath = 'stream_document.docx'; -->
-<!---->
-<!--   await for (final event in docxSdk.createDocumentStream( -->
-<!--     documentContent, -->
-<!--     supportedFileExtensions: {'png'}, -->
-<!--   )) { -->
-<!--     if (event is StartEvent) { -->
-<!--       print('Starting document generation...'); -->
-<!--     } -->
-<!--     if (event is ProgressEvent) { -->
-<!--       print('Progress: ${event.current}/${event.total} - ${event.subject}'); -->
-<!--     } -->
-<!--     if (event is SearchingEvent) { -->
-<!--       print(event.subject); -->
-<!--     } -->
-<!--     if (event is EndEvent) { -->
-<!--       if (event.error != null) { -->
-<!--         print('Error generating document: ${event.error}'); -->
-<!--       } else { -->
-<!--         print('Document generated successfully.'); -->
-<!--         // You can save the Uint8List if needed -->
-<!--         final Uint8List? bytes = Uint8List.fromList(event.result!); -->
-<!--         if (bytes != null) { -->
-<!--           await File(outputPath).writeAsBytes(bytes); -->
-<!--           print('Document saved at: $outputPath'); -->
-<!--         } -->
-<!--       } -->
-<!--     } -->
-<!-- } -->
-<!-- ```` -->
+Future<void> main() async {
+  final DocxDocument doc = DocxDocument(
+    // ...
+  );
 
-### Shapes
+  final Uint8List? bytes = await DocxPacker()
+      .dynamicFontSearch(true)
+      .setNormalIfNeeded(true)
+      .noTrimRuns()
+      .stream(
+        doc,
+        onStream: (Stream<DocxEvent> eventStream) {
+          final subscription = eventStream.listen((DocxEvent event) {
+            switch (event) {
+              case DocxEventStart():
+                print('Initializating compilation...');
+                break;
+              
+              case DocxEventSearching(:final subject):
+                print('Searching: $subject');
+                break;
+              
+              case DocxEventProgress(:final subject, :final current, :final total):
+                final progress = ((current / total) * 100).toStringAsFixed(1);
+                print('$subject: $current/$total ($progress%)');
+                break;
+              
+              case DocxEventUnknownProgress(:final subject):
+                print('⚙️ $subject...');
+                break;
+              
+              case DocxEventEnd(:final result, :final error):
+                if (error != null) {
+                  print('❌ Error: $error');
+                } else {
+                  print('✅ Compilation end sucessfully');
+                }
+                break;
+              
+              default:
+                print('📨 Event: $event');
+            }
+          });
 
-_Under active development_
+          subscription.onError((error) {
+            print('⚠️ Stream-error: $error');
+          });
+          
+          // El stream will be closed when compilation ends 
+        },
+        applyCustomTheme: false,
+      );
+
+  if (bytes != null) {
+    await File('document.docx').writeAsBytes(bytes);
+  }
+}
+```
+
+### Paragraph 
+
+Paragraphs support rich text formatting including bold, italic, underline, strikethrough, font size, font family, and text color. Multiple formatting styles can be combined within a single paragraph or applied to specific text runs.
+
+#### Example: Paragraph with mixed formatting
+```dart
+final pr = Paragraph(
+  data: [
+    TextRun.text(text: 'Normal text '),
+    TextRun.text(text: 'bold text', styles: [BoldAttribute()]),
+    TextRun.text(text: ' and '),
+    TextRun.text(text: 'colored text', styles: [
+      StyleBuilder.singularC()
+          .runColor(Color.rgb(0xFF0000))
+          .build(),
+    ]),
+  ],
+)
+```
+
+Horizontal alignment (left, center, right, justified) and vertical spacing control are fully supported. Spacing can be configured for before/after paragraphs and line spacing within paragraphs with various spacing rules.
+
+#### Example: Centered paragraph with custom spacing
+```dart
+final pr  = Paragraph.text(
+  text: 'Centered Content',
+  paragraphStyles: [Alignment.center],
+  styles: [
+    StyleBuilder.singularP()
+        .spacing(before: 240, after: 120, line: 360)
+        .build(),
+  ],
+)
+```
+
+Paragraph indentation can be controlled for first line, left, right, and hanging indents. This enables complex document layouts including block quotes, nested content, and specialized formatting requirements.
+
+#### Example: Paragraph with first line indent
+```dart
+final pr = Paragraph.text(
+  text: 'Indented paragraph content',
+  styles: [
+    StyleBuilder.singularP()
+        .indent(firstLine: 720, left: 1440)
+        .build(),
+  ],
+)
+```
+
+The system provides control over line breaks, page breaks, and text flow. Paragraphs can be configured to keep lines together or keep with next paragraph, preventing awkward page breaks in document flow.
+
+#### Example: Paragraph with break control
+```dart
+final pr = Paragraph.text(
+  text: 'Important paragraph that should not break',
+  styles: [
+    StyleBuilder.singularP()
+        .keepLines(true)
+        .keepNext(true)
+        .build(),
+  ],
+)
+```
+
+Paragraphs can be formatted as list items with configurable numbering styles and levels. This supports both ordered (numbered) and unordered (bulleted) lists with proper indentation and formatting.
+
+#### Example: Paragraph as list item
+```dart
+final pr = Paragraph(
+  data: [TextRun.text(text: 'List item content')],
+  numbering: Numbering(
+    reference: 'bullet',
+    level: 0,
+    instance: 1,
+  ),
+)
+```
+
 
 ### Images anchoring
 
@@ -392,6 +481,107 @@ final paragraph = Paragraph(
   ],
 );
 ```
+
+### Tables
+
+The table system supports configurable multi-row, multi-column structures with precise dimensional control. Tables can be created with fixed or percentage-based widths, with column definitions in various units (twips, points, inches, centimeters, millimeters). Layout options include fixed column widths and auto-fit behavior where columns adjust to content.
+
+#### Creating a basic 2x2 table with centered alignment and custom widths
+```dart
+final table = Table(
+  tableConfig: TableConfig(
+    width: 5000,
+    widthType: TableWidthType.dxa,
+    alignment: Alignment.center,
+  ),
+  gridCols: [
+    GridColumn(width: 2500),
+    GridColumn(width: 2500),
+  ],
+  rows: [
+    TableRow(
+      cells: [
+        TableCell(
+          cellConfig: TableCellConfig(width: 2500, widthType: TableWidthType.dxa),
+          children: [Paragraph.text(text: 'Header 1')],
+        ),
+        TableCell(
+          cellConfig: TableCellConfig(width: 2500, widthType: TableWidthType.dxa),
+          children: [Paragraph.text(text: 'Header 2')],
+        ),
+      ],
+    ),
+  ],
+);
+```
+
+Complex table layouts are supported through horizontal (colspan) and vertical (rowspan) cell merging. The system handles both starting and continuing merged cells across multiple rows, enabling sophisticated table designs for data presentation and forms.
+
+#### Example: Creating merged cells with colspan and rowspan
+```dart
+final cell = TableCell(
+  cellConfig: TableCellConfig(
+    gridSpan: 2,  // Spans 2 columns horizontally
+    rowSpan: 3,   // Spans 3 rows vertically
+  ),
+  children: [Paragraph.text(text: 'Merged Area')],
+)
+```
+
+Tables and individual cells support comprehensive border styling with configurable styles (single, double, dashed, dotted, wavy), thickness (measured in eighths of a point), spacing, and color specifications. Borders can be applied to the entire table or customized per cell side.
+
+#### Example: Table with custom border styling
+```dart
+final config = TableProperties(
+  borders: TableBorders(
+    top: TableBorder(style: BorderStyle.double, size: 8, color: Color.rgb(0xFF0000)),
+    bottom: TableBorder(style: BorderStyle.dashed, size: 4),
+    insideHorizontal: TableBorder(style: BorderStyle.dotted),
+  ),
+)
+```
+
+Individual cells can have customized background colors and shading patterns. The system supports solid fills and various pattern types including diagonal stripes, horizontal stripes, and cross patterns with configurable colors.
+
+#### Example: Cell with background shading
+```dart
+final cellConfig = TableCellConfig(
+  shading: Shading(
+    fill: Color.rgb(0xFFCCCC),
+    style: ShadingPattern.diagStripe,
+  ),
+)
+```
+
+Cell content can be vertically aligned to top, center, or bottom positions within the cell boundaries. This is particularly useful for cells with fixed heights or when creating consistently aligned content across rows.
+
+#### Example: Vertically centered cell content
+```dart
+final cellConfig = TableCellConfig(
+  verticalAlignment: VerticalAlignment.center,
+  height: 1000,
+)
+```
+
+Table rows support configurable height with three height rules: automatic (based on content), at-least (minimum height with expansion), and exact (fixed height regardless of content). Rows can be prevented from splitting across page boundaries and can be designated as repeating headers for multi-page tables.
+
+#### Example: Row with fixed height and page break protection
+```dart
+final row = TableRow(
+  rowConfig: TableStyleBuilder.singularTable().rowProperties(
+    height: 1008,
+    heightRule: TableHeightRule.exact,
+    cantSplit: true,
+  ),
+  cells: [/* cell definitions */],
+)
+```
+
+
+
+### Shapes
+
+_Under active development_
 
 ### Font Management
 

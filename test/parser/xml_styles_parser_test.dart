@@ -64,9 +64,7 @@ void main() {
       expect(heading1Style.qFormat, isNotNull);
       expect(headingBlockProperties!.spacing, isNotNull);
       expect(
-        headingBlockProperties.spacing!
-            .getConfiguratorOrNull('w:before')
-            ?.value,
+        headingBlockProperties.spacingBefore,
         equals(480),
       );
       expect(headingBlockProperties.keepNext, isNotNull);
@@ -76,7 +74,7 @@ void main() {
         headingInlineProperties!.fontFamily?.attributes?['w:ascii'],
         equals('Times New Roman'),
       );
-      expect(headingInlineProperties.fontSize?.value, equals(24));
+      expect(headingInlineProperties.fontSize?.value, equals(24.ptToHalfPoints()));
       expect(headingInlineProperties.bold, isNotNull);
     });
   });
