@@ -27,7 +27,8 @@ class EasyStyles {
       .keepNext(true)
       .keepLines(true)
       .activateWindowControl()
-      .indent(left: 720, hanging: 360)
+      .contextualSpacing(true)
+      .qFormat(true)
       .build();
 
   static Style get defaultParagraphFont =>
@@ -213,7 +214,9 @@ class EasyStyles {
         left: 7.2.ptToTwips(),
         right: 7.2.ptToTwips(),
       )
-      .rowProperties(height: 1.7.inchesToLineSpacing(), heightRule: TableHeightRule.atLeast)
+      .rowProperties(
+          height: 1.7.inchesToLineSpacing(),
+          heightRule: TableHeightRule.atLeast)
       .cellVerticalAlignment(Alignment.center)
       .qFormat(true)
       .build();
@@ -242,7 +245,9 @@ class EasyStyles {
         left: 7.2.ptToTwips(),
         right: 7.2.ptToTwips(),
       )
-      .rowProperties(height: 1.7.inchesToLineSpacing(), heightRule: TableHeightRule.atLeast)
+      .rowProperties(
+          height: 1.7.inchesToLineSpacing(),
+          heightRule: TableHeightRule.atLeast)
       .cellVerticalAlignment(Alignment.center)
       .rowBandSize('1')
       .colBandSize('1')
@@ -297,7 +302,9 @@ class EasyStyles {
         left: 7.2.ptToTwips(),
         right: 7.2.ptToTwips(),
       )
-      .rowProperties(height: 1.7.inchesToLineSpacing(), heightRule: TableHeightRule.atLeast)
+      .rowProperties(
+          height: 1.7.inchesToLineSpacing(),
+          heightRule: TableHeightRule.atLeast)
       .cellVerticalAlignment(Alignment.center)
       .rowBandSize('1')
       .colBandSize('1')
@@ -355,7 +362,9 @@ class EasyStyles {
         left: 7.2.ptToTwips(),
         right: 7.2.ptToTwips(),
       )
-      .rowProperties(height: 1.7.inchesToLineSpacing(), heightRule: TableHeightRule.atLeast)
+      .rowProperties(
+          height: 1.7.inchesToLineSpacing(),
+          heightRule: TableHeightRule.atLeast)
       .cellVerticalAlignment(Alignment.center)
       .rowBandSize('1')
       .colBandSize('1')
@@ -407,7 +416,9 @@ class EasyStyles {
         left: 7.2.ptToTwips(),
         right: 7.2.ptToTwips(),
       )
-      .rowProperties(height: 1.7.inchesToLineSpacing(), heightRule: TableHeightRule.atLeast)
+      .rowProperties(
+          height: 1.7.inchesToLineSpacing(),
+          heightRule: TableHeightRule.atLeast)
       .cellVerticalAlignment(Alignment.center)
       .rowBandSize('1')
       // First row with bottom border only
@@ -539,7 +550,9 @@ class EasyStyles {
         left: 7.2.ptToTwips(),
         right: 7.2.ptToTwips(),
       )
-      .rowProperties(height: 1.7.inchesToLineSpacing(), heightRule: TableHeightRule.atLeast)
+      .rowProperties(
+          height: 1.7.inchesToLineSpacing(),
+          heightRule: TableHeightRule.atLeast)
       .cellVerticalAlignment(Alignment.center)
       .rowBandSize('1')
       // First row with dark shading and white bold text
@@ -586,7 +599,9 @@ class EasyStyles {
         left: 7.2.ptToTwips(),
         right: 7.2.ptToTwips(),
       )
-      .rowProperties(height: 1.7.inchesToLineSpacing(), heightRule: TableHeightRule.atLeast)
+      .rowProperties(
+          height: 1.7.inchesToLineSpacing(),
+          heightRule: TableHeightRule.atLeast)
       .cellVerticalAlignment(Alignment.center)
       .rowBandSize('1')
       // First row with black background and white bold text

@@ -78,9 +78,9 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl0')
                   .indent(
-                    left: 0.5.inchesToTwips(), // 0.5 inch
+                    left: 0.5.inchesToTwips(),
                     hanging:
-                        0.25.inchesToTwips(), // 0.25 inch hanging indent
+                        0.25.inchesToTwips(),
                   )
                   .build(),
               runStyle: StyleBuilder.paragraph('unordered-lvl0')
@@ -109,7 +109,7 @@ class NumberingStore {
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl2')
                   .indent(
-                    left: 1.5.inchesToTwips(), // 1.5 inch
+                    left: 1.5.inchesToTwips(),
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),

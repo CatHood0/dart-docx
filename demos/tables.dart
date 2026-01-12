@@ -531,7 +531,7 @@ Table _buildComplexContentTable() {
                 numbering: Numbering(
                   reference: 'unordered',
                   level: 0,
-                  instance: 1,
+                  refId: 1,
                 ),
               ),
               Paragraph(
@@ -541,7 +541,7 @@ Table _buildComplexContentTable() {
                 numbering: Numbering(
                   reference: 'unordered',
                   level: 0,
-                  instance: 1,
+                  refId: 1,
                 ),
               ),
               Paragraph(
@@ -560,7 +560,7 @@ Table _buildComplexContentTable() {
                 numbering: Numbering(
                   reference: 'unordered',
                   level: 0,
-                  instance: 1,
+                  refId: 1,
                 ),
               ),
               Paragraph.text(text: ''),

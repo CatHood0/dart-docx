@@ -63,6 +63,7 @@ class StyleBuilder {
   bool _qFormat = false;
   bool _semiHidden = false;
   bool _unhideWhenUsed = false;
+  bool _contextualSpacing = false;
 
   // Run properties (character formatting)
   /// Usually used for w:sz that settings the size of
@@ -206,6 +207,11 @@ class StyleBuilder {
   /// This setting is applicable only to paragraph styles.
   StyleBuilder activateWindowControl() {
     _widowControl = true;
+    return this;
+  }
+
+  StyleBuilder contextualSpacing(bool shouldUse) {
+    _contextualSpacing = shouldUse;
     return this;
   }
 
@@ -646,6 +652,15 @@ class StyleBuilder {
             prefix: 'w',
             propertyName: 'widowControl',
             value: true,
+          ),
+        );
+      }
+
+      if (_contextualSpacing) {
+        paragraphConfigs.add(
+          StyleConfigurator.selfClosing(
+            prefix: 'w',
+            propertyName: 'contextualSpacing',
           ),
         );
       }

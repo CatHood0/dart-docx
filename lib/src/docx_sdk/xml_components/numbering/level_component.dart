@@ -77,7 +77,8 @@ class LevelComponent extends XmlComponentBase<List<XmlComponentBase<dynamic>>> {
             if (options.text.isNotEmpty) LevelTextComponent(options.text),
             LevelAlignmentComponent(options.alignment),
             if (options.suffix != null)
-              XmlEmptyElementComponent(xmlKey: 'w:suff', value: options.suffix!),
+              XmlEmptyElementComponent(
+                  xmlKey: 'w:suff', value: options.suffix!),
             if (options.isLegalNumberingStyle)
               XmlEmptyElementComponent<void>(xmlKey: 'w:isLgl', value: null),
             if (options.paragraphStyle != null)
@@ -91,7 +92,9 @@ class LevelComponent extends XmlComponentBase<List<XmlComponentBase<dynamic>>> {
           ],
           attrs: XmlComponentAttributes(xmlAttributes: {
             'w:ilvl': ensureInteger(options.level),
-            'w15:tentative': '1',
+            // only will show the component if there is no compatibility
+            // issues
+            // 'w15:tentative': '1',
           }),
         );
 

@@ -167,10 +167,10 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       );
       context.registerInstance!.call(
         numbering!.reference,
-        numbering!.instance ?? 0,
+        numbering!.refId ?? 0,
       );
       final String reference =
-          '${numbering!.reference}-${numbering!.instance ?? 0}';
+          '${numbering!.reference}-${numbering!.refId ?? 0}';
       pPrChildren.add(
         XmlElement.tag(
           'w:numPr',
@@ -216,6 +216,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       );
       return <XmlElement>[
         ...context.defaultNormalStyle.forParagraphStyle(),
+        ...pPrChildren,
       ];
     }
 
@@ -311,18 +312,24 @@ enum ParagraphPageBreak {
 /// Each numbering reference corresponds to a list definition in the
 /// document's numbering store.
 class Numbering {
-  Numbering({required this.reference, this.level = 0, this.instance});
+  Numbering({
+    required this.reference,
+    this.level = 0,
+    this.refId,
+  });
 
   /// Reference key to a numbering definition in [NumberingOptions].
   final String reference;
 
   /// List nesting level (0-9). Level 0 is the top-level list item.
   final int level;
-
-  /// Usually you set an instance num
-  /// when you want to separate the current
-  /// element from other lists
-  //NOTE: should we manage these values internally
-  // to make this more easy to maintain?
-  final int? instance;
+  
+  /// The unique reference id of this item
+  ///
+  /// Share the same id when you need a continuous 
+  /// count of your items
+  ///
+  /// Change the id between the item when you need
+  /// to reset the list count
+  final int? refId;
 }
