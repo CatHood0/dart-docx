@@ -39,7 +39,7 @@ Each example is available as runnable code under the `demos/` directory.
 |--------|------------|-------|
 | **OnlyOffice** | ![](./assets/curriculum_onlyoffice.png) | Good fidelity with the template |
 | **LibreOffice** | ![](./assets/curriculum_libreoffice.png) | Good compatibility, minor spacing differences |
-| **Microsoft Word** | ![](./assets/curriculum_word.png) | (no tested yet) |
+| **Microsoft Word** | ![](./assets/curriculum_word.png) | minor differences |
 
 → [cv.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/cv.dart)
 
