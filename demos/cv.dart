@@ -239,11 +239,9 @@ Future<void> main() async {
                       'Inserta tu texto aquí ',
                   styles: <Object>[
                     StyleBuilder.singularC()
-                        .fontSize(9.ptToHalfPoints())
-                        .runColor(Color.rgb(
-                          0x666666,
-                          0.5.toAlphaUnit(),
-                        ))
+                        .fontSize(
+                          9.ptToHalfPoints(),
+                        )
                         .build(),
                   ],
                 ),
@@ -253,11 +251,9 @@ Future<void> main() async {
                       'Inserta tu texto aquí ',
                   styles: <Object>[
                     StyleBuilder.singularC()
-                        .fontSize(9.ptToHalfPoints())
-                        .runColor(Color.rgb(
-                          0x666666,
-                          0.5.toAlphaUnit(),
-                        ))
+                        .fontSize(
+                          9.ptToHalfPoints(),
+                        )
                         .build(),
                   ],
                 ),
@@ -311,6 +307,9 @@ Future<void> main() async {
               date: '',
               content: 'Inserta tu texto aquí '
                   'Inserta tu texto aquí ',
+              contentStyle: StyleBuilder.singularC()
+                .fontSize(9.ptToHalfPoints())
+                .build(),
               repeat: 1,
             ),
           ],
@@ -345,6 +344,7 @@ List<DocxTreeNode> getRepeatedSection({
   String subtitle1 = '',
   String subtitle2 = '',
   String subtitle3 = '',
+  Style? contentStyle,
 }) {
   return <DocxTreeNode<dynamic>>[
     Paragraph.text(
@@ -412,7 +412,7 @@ List<DocxTreeNode> getRepeatedSection({
         TextRun.text(
           text: content,
           styles: <Object>[
-            StyleBuilder.singularC()
+            contentStyle ?? StyleBuilder.singularC()
                 .fontSize(9.ptToHalfPoints())
                 .runColor(Color.rgb(
                   0x666666,
