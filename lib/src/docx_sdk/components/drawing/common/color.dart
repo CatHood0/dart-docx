@@ -13,7 +13,7 @@ class Color extends DocxTreeNode<void> {
   Color.bgr(int value, [int? alpha])
       : type = ColorType.bgr,
         alpha = alpha ?? -1,
-        rgbValue = value,
+        rgbValue = int.parse('$value'),
         themeColor = null,
         systemColor = null,
         super(data: null);
@@ -21,8 +21,7 @@ class Color extends DocxTreeNode<void> {
   Color.rgb(int value, [int? alpha])
       : type = ColorType.rgb,
         alpha = alpha ?? -1,
-        rgbValue =
-            value.toString().startsWith('0x') ? value : int.parse('0x$value'),
+        rgbValue = int.parse('$value'),
         themeColor = null,
         systemColor = null,
         super(data: null);
@@ -51,10 +50,11 @@ class Color extends DocxTreeNode<void> {
 
   String? toColorValue() {
     if (rgbValue != null) {
-      return rgbValue!.toRadixString(16).padLeft(
+      final String value = rgbValue!.toRadixString(16).padLeft(
             6,
             '0',
           );
+      return value;
     }
     return null;
   }

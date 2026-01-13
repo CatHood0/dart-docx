@@ -9,7 +9,7 @@ class XmlAppComponent extends XmlComponentBase<void> {
     this.characters = 0,
   }) : super(
           xmlKey: 'Properties',
-          attrs: XmlComponentAttributes(xmlAttributes: {
+          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
             'xmlns': namespaces['o']!,
             'xmlns:vt': namespaces['vt']!,
           }),
@@ -26,7 +26,7 @@ class XmlAppComponent extends XmlComponentBase<void> {
       children: <XmlNode>[
         XmlElement.tag(
           'Application',
-          children: [
+          children: <XmlNode>[
             XmlDefaults.text(title),
           ],
           isSelfClosing: false,
@@ -34,21 +34,21 @@ class XmlAppComponent extends XmlComponentBase<void> {
         //TODO: we need to get metadata
         XmlElement.tag(
           'Pages',
-          children: [
+          children: <XmlNode>[
             XmlDefaults.text('$pages'),
           ],
           isSelfClosing: false,
         ),
         XmlElement.tag(
           'Words',
-          children: [
+          children: <XmlNode>[
             XmlDefaults.text('$words'),
           ],
           isSelfClosing: false,
         ),
         XmlElement.tag(
           'Characters',
-          children: [
+          children: <XmlNode>[
             XmlDefaults.text('$characters'),
           ],
           isSelfClosing: false,
