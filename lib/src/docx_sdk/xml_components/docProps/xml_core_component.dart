@@ -51,7 +51,9 @@ class XmlCoreComponent extends XmlComponentBase<List<XmlComponentBase>> {
                   'xsi:type': 'dcterms:W3CDTF',
                 },
               ),
-              value: options.modifiedAt.toIso8601String(),
+              value: options.modifiedAt
+                  .toIso8601String()
+                  .replaceAll(RegExp(r'\..*'), 'Z'),
             ),
           ],
         );
