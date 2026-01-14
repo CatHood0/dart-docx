@@ -70,10 +70,13 @@ class XmlPageMarginsComponent extends XmlComponentBase<DocumentMargins> {
               'w:bottom': margins.bottom.toInt().toString(),
               'w:left': margins.left.toInt().toString(),
               'w:right': margins.right.toInt().toString(),
-              'w:header': margins.header.toInt().toString(),
-              'w:footer': margins.footer.toInt().toString(),
-              'w:gutter': margins.gutter.toInt().toString(),
-            }, // Attributes are built in buildXml
+              if (margins.header != null)
+                'w:header': margins.header!.toInt().toString(),
+              if (margins.footer != null)
+                'w:footer': margins.footer!.toInt().toString(),
+              if (margins.gutter != null)
+                'w:gutter': margins.gutter!.toInt().toString(),
+            },
           ),
         );
 

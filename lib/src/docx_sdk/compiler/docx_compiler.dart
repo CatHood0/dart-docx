@@ -109,7 +109,8 @@ class DocxCompiler {
   /// Manages all drawing definitions for the current compilation process.
   late DrawingElementCounterStore drawingStore = DrawingElementCounterStore();
 
-  int lastRId = 1000;
+  /// Manages all drawing definitions for the current compilation process.
+  late DocumentRelsCounterStore docRelsStore = DocumentRelsCounterStore();
 
   DocumentContext buildContext(DocumentOptions options) {
     return DocumentContext(
@@ -156,7 +157,7 @@ class DocxCompiler {
     _emit(DocxEvent.start());
     await archive.clear();
 
-    lastRId = 1000;
+    docRelsStore.reset();
     mediaStore.reset();
     hyperlinkStore.reset();
     numberingStore.reset();
@@ -164,6 +165,8 @@ class DocxCompiler {
     drawingStore.reset();
     mediaStore.drawingStore = drawingStore;
     drawingStore.mediaStore = mediaStore;
+    mediaStore.docRelsStore = docRelsStore;
+    hyperlinkStore.docRelsStore = docRelsStore;
 
     final DocumentContext documentContext = buildContext(options);
     CompilerLogger.root.d('Document context built successfully.');
@@ -217,6 +220,11 @@ class DocxCompiler {
 
     numberingStore.initializeAndApplyContext(documentContext);
     CompilerLogger.root.d('Numbering store initialized.');
+    final List<RelationShip> defaultDocRelations =
+        XmlDocumentRelsComponent.defaultDocumentFileRelations(
+      applyCustomTheme,
+      docRelsStore,
+    );
 
     _emit(DocxEvent.searching(subject: 'Searching media (images)'));
     CompilerLogger.root.d('Initiating media search.');
@@ -231,23 +239,22 @@ class DocxCompiler {
         'Hyperlink search completed. Found ${hyperlinkStore.hyperlinks.length} hyperlinks.');
 
     // Discover fonts (either dynamically or from DocumentOptions)
-    _emit(DocxEvent.searching(subject: 'Discovering fonts'));
-    CompilerLogger.root.d('Initiating font discovery.');
-    fontStore.discoverFonts(
-      document,
-      dynamicSearchEnabled: dynamicFontSearch,
-    );
-    CompilerLogger.root.d(
-        'Font discovery completed. Found ${fontStore.hasFonts ? fontStore.fonts.length : 0} fonts.');
+      _emit(DocxEvent.searching(subject: 'Discovering fonts'));
+      CompilerLogger.root.d('Initiating font discovery.');
+      fontStore.discoverFonts(
+        document,
+        dynamicSearchEnabled: dynamicFontSearch,
+      );
+      CompilerLogger.root.d(
+          'Font discovery completed. Found ${fontStore.hasFonts ? fontStore.fonts.length : 0} fonts.');
 
-    _emit(DocxEvent.unknownProgress(subject: 'Registering images'));
+      _emit(DocxEvent.unknownProgress(subject: 'Registering images'));
     // this part register all the media allow context
     // and different part of the nodes
     // to access to image references
     CompilerLogger.root.d('Registering images and building relationships.');
     final List<RelationShip> imageRelationships =
         await mediaStore.registerAndBuildImageRelationships(
-      lastRId,
       namespaces['images']!,
     );
     CompilerLogger.root
@@ -256,24 +263,33 @@ class DocxCompiler {
     // Update lastRId after adding images
     _emit(DocxEvent.unknownProgress(subject: 'Registering links'));
     CompilerLogger.root.d('Registering hyperlinks and building relationships.');
-    lastRId += imageRelationships.length;
     final List<RelationShip> hyperlinkRelationships =
         hyperlinkStore.buildHyperlinkRelationships(
-      lastRId,
       namespaces['hyperlinks']!,
     );
 
     CompilerLogger.root.d(
         'Hyperlink relationships built. Count: ${hyperlinkRelationships.length}.');
 
-    // Update lastRId after adding hyperlinks
-    lastRId += hyperlinkRelationships.length;
     String? theme;
     CompilerLogger.root.d('Building XML components.');
 
     final List<(String, XmlComponentBase)> components =
         <(String, XmlComponentBase<dynamic>)>[
-      (DocxPaths.relsFilePath, XmlRelsComponent()),
+      (
+        DocxPaths.contentTypesPath,
+        XmlContentTypeComponent(
+          applyCustomTheme: applyCustomTheme,
+          overrides: mediaStore.overrides,
+          extensions: <String>[
+            ...mediaStore.extensions,
+            ...fontStore.extensions,
+
+          ],
+        )
+      ),
+    (DocxPaths.relsFilePath, XmlRelsComponent()),
+    (DocxPaths.coreFilePath, XmlCoreComponent(options: document.options)),
       (
         DocxPaths.appFilePath,
         XmlAppComponent(
@@ -284,7 +300,6 @@ class DocxCompiler {
               documentContext.options.editorSettings.metadata.characters,
         )
       ),
-      (DocxPaths.coreFilePath, XmlCoreComponent(options: document.options)),
       // since we need register first the theme
       // we pass document.xml.rels
       // first to take then the generated theme id
@@ -292,9 +307,7 @@ class DocxCompiler {
         DocxPaths.documentXmlRelsFilePath,
         XmlDocumentRelsComponent(
           relations: <RelationShip>[
-            ...XmlDocumentRelsComponent.defaultDocumentFileRelations(
-              applyCustomTheme,
-            ),
+            ...defaultDocRelations,
             ...imageRelationships,
             ...hyperlinkRelationships,
           ],
@@ -325,23 +338,13 @@ class DocxCompiler {
           documentContext,
         ),
       ),
-      (
-        DocxPaths.fontTableXmlRelsFilePath,
-        fontStore.buildFontTableRelsXmlDocument(
-          documentContext,
+      if (dynamicFontSearch && fontStore.fontRelations.isNotEmpty)
+        (
+          DocxPaths.fontTableXmlRelsFilePath,
+          fontStore.buildFontTableRelsXmlDocument(
+            documentContext,
+          ),
         ),
-      ),
-      (
-        DocxPaths.contentTypesPath,
-        XmlContentTypeComponent(
-          applyCustomTheme: applyCustomTheme,
-          overrides: mediaStore.overrides,
-          extensions: <String>[
-            ...mediaStore.extensions,
-            ...fontStore.extensions,
-          ],
-        )
-      ),
       (
         DocxPaths.settingsXmlFilePath,
         XmlSettingsComponent(

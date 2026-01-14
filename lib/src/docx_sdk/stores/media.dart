@@ -20,6 +20,10 @@ class MediaStore {
   // to get and set elements with fastly
   late DrawingElementCounterStore drawingStore;
 
+  // both are closely related, so, both have a pointer
+  // to get and set elements with fastly
+  late DocumentRelsCounterStore docRelsStore;
+
   /// Stores registered [MediaData] objects, keyed by their generated unique name.
   final Map<String, MediaData> media = <String, MediaData>{};
 
@@ -88,11 +92,9 @@ class MediaStore {
   /// Returns a [Future] that completes with a list of [RelationShip] objects
   /// corresponding to the registered images.
   Future<List<RelationShip>> registerAndBuildImageRelationships(
-    int startingRId,
     String imageNamespace, {
     void Function(int, int)? onProgress,
   }) async {
-    int currentRId = startingRId;
     final List<RelationShip> imageRelationships = <RelationShip>[];
 
     for (int index = 0; index < mediaComponents.values.length; index++) {
@@ -107,7 +109,7 @@ class MediaStore {
       }
 
       // Increment RId for each new image relationship
-      currentRId++;
+      final int currentRId = docRelsStore.getNextId(imgComponent.id);
       // Assign unique rId to the component
 
       final String generatedMediaName = generateMediaName(
@@ -138,7 +140,8 @@ class MediaStore {
 
       onProgress?.call(index + 1, mediaComponents.values.length);
 
-      final String fullPath = '$mediaPath${mediaData.fileName}.${mediaData.extension}';
+      final String fullPath =
+          '$mediaPath${mediaData.fileName}.${mediaData.extension}';
 
       // these things are passed to the content type since it's used
       // to let to the editor to know how use images
@@ -228,8 +231,7 @@ class MediaStore {
     return null;
   }
 
-
-  /// Gets the index of the graphic where this media is 
+  /// Gets the index of the graphic where this media is
   int getIndexId() {
     return drawingStore.getNextId();
   }

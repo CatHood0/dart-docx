@@ -1,6 +1,7 @@
 import 'package:xml/xml.dart';
 
 import '../../../docx.dart';
+import '../../core/extensions/skippable_iterations_ext.dart';
 
 class XmlContentTypeComponent
     extends XmlComponentBase<Iterable<XmlComponentBase>> {
@@ -22,16 +23,13 @@ class XmlContentTypeComponent
             ),
 
             XmlDefaultElementTypeComponent(
-              type: 'fntdata',
-              contentType: 'application/x-fontdata',
-            ),
-            XmlDefaultElementTypeComponent(
               type: 'xml',
               contentType: 'application/xml',
             ),
-            ...extensions.map<XmlDefaultElementTypeComponent>((
+            ...extensions.skippableMap<XmlDefaultElementTypeComponent>((
               String ext,
             ) {
+              if (ext == 'odttf') return null;
               return XmlDefaultElementTypeComponent(
                 type: ext,
                 contentType: mimetypeFromExt(ext),

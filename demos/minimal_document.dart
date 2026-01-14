@@ -11,9 +11,8 @@ Future<void> main() async {
     right: 1.52,
     left: 1.52,
     bottom: 1.52,
-    header: 0,
-    footer: 0,
-    gutter: 0,
+    header: 1.1,
+    footer: 1.1,
   );
 
   final DocxDocument doc = DocxDocument(
@@ -38,7 +37,7 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(true)
+      .dynamicFontSearch(false)
       .noTrimRuns()
       .setNormalIfNeeded(true)
       .defaultNormalStyle(Style.reference('body'))

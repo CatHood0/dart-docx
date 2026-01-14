@@ -15,40 +15,41 @@ class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
 
   static List<RelationShip> defaultDocumentFileRelations([
     bool applyCustomTheme = false,
+    DocumentRelsCounterStore? store,
   ]) {
     return <RelationShip>[
       //NOTE: to avoid conflicts
       // with users relations, we prefer
       // just having random ids
       RelationShip(
-        rId: 'rId${nanoid(7)}',
+        rId: 'rId${store?.getNextId() ?? nanoid(7)}',
         type: namespaces['styles']!,
         target: 'styles.xml',
         mode: null,
       ),
       RelationShip(
-        rId: 'rId${nanoid(7)}',
+        rId: 'rId${store?.getNextId() ?? nanoid(7)}',
         type: namespaces['settings']!,
         target: 'settings.xml',
       ),
       RelationShip(
-        rId: 'rId${nanoid(7)}',
+        rId: 'rId${store?.getNextId() ?? nanoid(7)}',
         type: namespaces['fontTable']!,
         target: 'fontTable.xml',
       ),
       RelationShip(
-        rId: 'rId${nanoid(7)}',
+        rId: 'rId${store?.getNextId() ?? nanoid(7)}',
         type: namespaces['webSettings']!,
         target: 'webSettings.xml',
       ),
       RelationShip(
-        rId: 'rId${nanoid(7)}',
+        rId: 'rId${store?.getNextId() ?? nanoid(7)}',
         type: namespaces['numbering']!,
         target: 'numbering.xml',
       ),
       if (applyCustomTheme)
         RelationShip(
-          rId: 'rId${nanoid(7)}',
+          rId: 'rId${store?.getNextId() ?? nanoid(7)}',
           type: namespaces['themes']!,
           target: 'theme/theme1.xml',
         ),

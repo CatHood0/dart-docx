@@ -10,8 +10,6 @@ class SettingsOptions {
     required this.trackRevisions,
     required this.defaultTabStop,
     required this.characterSpacingControl,
-    required this.footnoteProperties,
-    required this.endnoteProperties,
     required this.compatSettings,
     required this.mathProperties,
     required this.themeFontLanguage,
@@ -19,6 +17,8 @@ class SettingsOptions {
     required this.colorSchemeMapping,
     required this.decimalSymbol,
     required this.listSeparator,
+    this.footnoteProperties,
+    this.endnoteProperties,
     this.autoHyphenation = true,
   });
 
@@ -28,20 +28,16 @@ class SettingsOptions {
     this.defaultTabStop = '720',
     this.characterSpacingControl = 'doNotCompress',
     this.autoHyphenation = true,
-    this.footnoteProperties = const NotePropertiesOptions(
-      position: NotePosition.pageBottom,
-      numberFormat: NoteNumberFormat.decimal,
-      numberStart: '1',
-      numberRestart: NoteNumberRestart.continuous,
-    ),
-    this.endnoteProperties = const NotePropertiesOptions(
-      position: NotePosition.docEnd,
-      numberFormat: NoteNumberFormat.lowerRoman,
-      numberStart: '1',
-      numberRestart: NoteNumberRestart.continuous,
-    ),
+    this.footnoteProperties,
+    this.endnoteProperties,
     List<CompatSetting>? compatSettings,
-    this.mathProperties,
+    this.mathProperties = const MathPropertiesOptions(
+      mathFont: 'Cambria Math',
+      breakBinary: BreakBinaryType.before,
+      breakBinarySubtraction: BreakBinarySubtractionType.minusMinus,
+      integerLimit: true,
+      wrapIndent: '1440',
+    ),
     this.themeFontLanguage = 'en-US',
     this.themeFontLanguageEastAsia = 'zh-CN',
     this.colorSchemeMapping = const <String, String>{
@@ -65,14 +61,38 @@ class SettingsOptions {
               ...defaultCompatibilitySettings,
             ];
 
-
   static final List<CompatSetting> defaultCompatibilitySettings =
       List<CompatSetting>.unmodifiable(
     <CompatSetting>[
+      // usually these are the common compatibility
+      // options that Word 2016 inserts automatically
       CompatSetting(
         name: 'compatibilityMode',
         uri: namespaces['word']!,
-        val: '12',
+        // we can use '12' val, but
+        // for compatibility with modern
+        // versions, we prefer this
+        val: '15',
+      ),
+      CompatSetting(
+        name: 'overrideTableStyleFontSizeAndJustification',
+        uri: namespaces['word']!,
+        val: '1',
+      ),
+      CompatSetting(
+        name: 'enableOpenTypeFeatures',
+        uri: namespaces['word']!,
+        val: '1',
+      ),
+      CompatSetting(
+        name: 'doNotFLipMirrorIndents',
+        uri: namespaces['word']!,
+        val: '1',
+      ),
+      CompatSetting(
+        name: 'differentiateMultirowTableHeaders',
+        uri: namespaces['word']!,
+        val: '1',
       ),
     ],
   );
@@ -103,10 +123,10 @@ class SettingsOptions {
   final String characterSpacingControl;
 
   /// Options for configuring footnote properties.
-  final NotePropertiesOptions footnoteProperties;
+  final NotePropertiesOptions? footnoteProperties;
 
   /// Options for configuring endnote properties.
-  final NotePropertiesOptions endnoteProperties;
+  final NotePropertiesOptions? endnoteProperties;
 
   /// A list of compatibility settings for the document.
   ///

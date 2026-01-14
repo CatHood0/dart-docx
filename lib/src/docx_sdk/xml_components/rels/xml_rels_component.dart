@@ -12,7 +12,7 @@ class XmlRelsComponent extends XmlComponentBase<List<RelationShip>> {
           attrs: XmlDocAttributes(
             relations: true,
           ),
-          value: [
+          value: <RelationShip>[
             RelationShip(
               rId: 'rId1',
               type: namespaces['officeDocumentRelation']!,
@@ -38,8 +38,8 @@ class XmlRelsComponent extends XmlComponentBase<List<RelationShip>> {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
-      children: [
-        ...value.map((el) => el.toXml()),
+      children: <XmlNode>[
+        ...value.map((RelationShip el) => el.toXml()),
       ],
     );
   }

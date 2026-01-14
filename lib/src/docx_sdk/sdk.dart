@@ -45,6 +45,7 @@ export 'mixins/ignorable_mixin.dart';
 export 'mixins/printable_mixin.dart';
 export 'packer/docx_packer.dart';
 export 'parser/xml_to_docx_objects.dart';
+export 'stores/document_rels_counter_store.dart';
 export 'stores/drawing_element_counter_store.dart';
 export 'stores/font_store.dart';
 export 'stores/hyperlink_store.dart';

@@ -47,10 +47,10 @@ class RelationShip {
           XmlName.fromString('Target'),
           target,
         ),
-        if (target.isNotEmpty)
+        if (mode != null)
           XmlAttribute(
             XmlName.fromString('TargetMode'),
-            target,
+            mode!,
           ),
       ],
       isSelfClosing: true,

@@ -11,6 +11,10 @@ class HyperlinkStore {
 
   List<HyperlinkRun> get hyperlinks => List<HyperlinkRun>.from(_hyperlinks);
 
+  // both are closely related, so, both have a pointer
+  // to get and set elements with fastly
+  late DocumentRelsCounterStore docRelsStore;
+
   /// Resets the hyperlink store to its initial state, clearing all discovered data.
   void reset() {
     _hyperlinks.clear();
@@ -57,14 +61,13 @@ class HyperlinkStore {
   ///
   /// Returns a list of [RelationShip]s for all discovered hyperlinks.
   List<RelationShip> buildHyperlinkRelationships(
-    int startingRId,
     String hyperlinkNamespace,
   ) {
-    final List<RelationShip> hyperlinkRelationships = [];
+    final List<RelationShip> hyperlinkRelationships = <RelationShip>[];
 
     for (final HyperlinkRun hyperlink in _hyperlinks) {
-      startingRId++;
-      hyperlink.rId ??= 'rId$startingRId';
+      final int id = docRelsStore.getNextId(hyperlink.id);
+      hyperlink.rId ??= 'rId$id';
       hyperlinkRelationships.add(
         RelationShip(
           rId: hyperlink.rId!,

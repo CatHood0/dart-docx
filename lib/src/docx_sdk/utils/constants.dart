@@ -83,6 +83,8 @@ final RegExp linkDetectorMatcher = RegExp(
 
 typedef UniqueNumericIdCreator = int Function();
 
+//TODO: change these global vars to be part
+// of the store pattern
 int _uniqueNumId = 0;
 int _abstractUniqueNumId = 0;
 int _concreteUniqueNumId = 0;

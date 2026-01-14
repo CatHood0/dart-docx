@@ -1,7 +1,6 @@
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
-import '_xlm_doc_protection_component.dart';
 import '_xml_base_note_pr_component.dart';
 import '_xml_character_spacing_control_component.dart';
 import '_xml_color_scheme_map_component.dart';
@@ -46,13 +45,25 @@ class XmlSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
           value: <XmlComponentBase>[
             XmlZoomComponent(percent: options.zoomPercent),
             XmlTrackRevisionsComponent(val: options.trackRevisions),
-            XmlDocumentProtectionComponent(),
+            //XmlDocumentProtectionComponent(),
             XmlDefaultTabStopComponent(val: options.defaultTabStop),
+            XmlEmptyElementComponent<dynamic>(
+              xmlKey: 'w:proofState',
+              attrs: const XmlComponentAttributes(
+                xmlAttributes: <String, Object>{
+                  'w:spelling': 'clean',
+                  'w:grammar': 'clean',
+                },
+              ),
+              value: null,
+            ),
             XmlCharacterSpacingControlComponent(
               val: options.characterSpacingControl,
             ),
-            XmlFootnotePrComponent(options: options.footnoteProperties),
-            XmlEndnotePrComponent(options: options.endnoteProperties),
+            if (options.footnoteProperties != null)
+              XmlFootnotePrComponent(options: options.footnoteProperties!),
+            if (options.endnoteProperties != null)
+              XmlEndnotePrComponent(options: options.endnoteProperties!),
             XmlCompatComponent(compatSettings: options.compatSettings),
             if (options.mathProperties != null)
               XmlMathPrComponent(options: options.mathProperties!),

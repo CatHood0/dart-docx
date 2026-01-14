@@ -77,6 +77,7 @@ class XmlEmptyElementComponent<T> extends XmlComponentBase<T> {
     required super.xmlKey,
     required super.value,
     this.attrName,
+    super.attrs,
   });
 
   @override
@@ -89,6 +90,7 @@ class XmlEmptyElementComponent<T> extends XmlComponentBase<T> {
             (attrName ?? 'w:val').toName(),
             value.toString(),
           ),
+        ...super.attributes.buildXml(),
       ],
       isSelfClosing: true,
     );
