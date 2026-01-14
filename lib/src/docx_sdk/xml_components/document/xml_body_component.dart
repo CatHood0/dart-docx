@@ -1,3 +1,4 @@
+import 'package:xml/src/xml/nodes/node.dart';
 import 'package:xml/xml.dart' show XmlElement;
 
 import '../../../../docx.dart';
@@ -17,7 +18,7 @@ class XmlBodyComponent extends XmlComponentBase<DocxDocument> {
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
       xmlKey,
-      children: [
+      children: <XmlNode>[
         ...value.buildXml(context: context),
         XmlDocumentSectionSettingsComponent(
           options: context.options.layoutOptions,

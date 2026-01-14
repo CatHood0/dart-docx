@@ -39,14 +39,6 @@ class XmlContentTypeComponent
             }),
             if (overrides != null) ...overrides,
             XmlOverrideElementTypeComponent(
-              part: '/${DocxPaths.relsFilePath}',
-              contentType: namespaces['relationsXml']!,
-            ),
-            XmlOverrideElementTypeComponent(
-              part: '/${DocxPaths.documentXmlRelsFilePath}',
-              contentType: namespaces['relationsXml']!,
-            ),
-            XmlOverrideElementTypeComponent(
               part: '/${DocxPaths.documentFilePath}',
               contentType: namespaces['documentType']!,
             ),

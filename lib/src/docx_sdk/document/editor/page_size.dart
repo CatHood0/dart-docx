@@ -24,7 +24,7 @@ import '../../../../docx.dart';
 /// ```
 class PageSize {
   /// Creates a page size with raw centimeter values.
-  PageSize.raw(double widthCm, double heightCm)
+  PageSize.raw(int widthCm, int heightCm)
       : width = widthCm,
         height = heightCm {
     assert(heightCm > 0, 'Height must be greater than 0');
@@ -33,8 +33,8 @@ class PageSize {
 
   /// Creates a page size from centimeter values, converting to DXA units.
   PageSize.fromCm(double widthCm, double heightCm)
-      : width = (widthCm * dxaPerCm).roundToDouble(),
-        height = (heightCm * dxaPerCm).roundToDouble() {
+      : width = (widthCm * dxaPerCm).round(),
+        height = (heightCm * dxaPerCm).round() {
     assert(heightCm > 0, 'Height must be greater than 0');
     assert(widthCm > 0, 'Width must be greater than 0');
   }
@@ -54,10 +54,10 @@ class PageSize {
   }
 
   /// The width of the page in DXA units (twentieths of a point).
-  final double width;
+  final int width;
 
   /// The height of the page in DXA units (twentieths of a point).
-  final double height;
+  final int height;
 
   /// Standard A4 page size: 21.0 cm × 29.7 cm.
   static PageSize get a4 => PageSize.fromCm(21.0, 29.7);
@@ -79,7 +79,7 @@ class PageSize {
   /// Returns: A new [PageSize] instance with raw centimeter values.
   PageSize toCm() {
     final (double, double) values = inCm;
-    return PageSize.raw(values.$1, values.$2);
+    return PageSize.raw(values.$1.toInt(), values.$2.toInt());
   }
 
   /// Converts the page size to inch-based values.
@@ -87,7 +87,7 @@ class PageSize {
   /// Returns: A new [PageSize] instance with raw inch values.
   PageSize toInches() {
     final (double, double) values = inInches;
-    return PageSize.raw(values.$1, values.$2);
+    return PageSize.raw(values.$1.toInt(), values.$2.toInt());
   }
 
   /// Gets the page dimensions in centimeters as a tuple.

@@ -4,6 +4,7 @@
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
+import '../../utils/logger/logger_configs.dart';
 import '../../xml_components/numbering/abstract_numbering_component.dart';
 import '../../xml_components/numbering/concrete_numbering_component.dart';
 
@@ -102,7 +103,8 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
       <String, XmlConcreteNumberingComponent>{};
 
   /// Map of reference configurations by reference key.
-  final Map<String, List<LevelOptions>> referenceConfigMap = <String, List<LevelOptions>>{};
+  final Map<String, List<LevelOptions>> referenceConfigMap =
+      <String, List<LevelOptions>>{};
 
   /// Function to generate unique IDs for abstract numbering.
   final int Function() abstractNumUniqueNumericId =
@@ -155,34 +157,44 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     final int? firstLevelStartNumber = referenceConfig?.firstOrNull?.start;
 
     final ConcreteNumberingOptions concreteOptions = ConcreteNumberingOptions(
+      // to avoid some issues, we generates automatically an numId
+      // for new concrete instances
+      //
+      // usually should be the same than numRefId, but we use it
+      // together with  the abstract num key reference,
+      // for create an unique string reference and we can get it
+      // through the context during build phase
       numId: concreteNumUniqueNumericIdGen(),
       abstractRefId: abstractN.id.toInt(),
       refKey: ref,
       copyId: numRefId,
       overrides: <ConcreteLevelOverride>[
-        ConcreteLevelOverride(
-          indentLevel: 0,
-          startAt: firstLevelStartNumber ?? 1,
-        ),
+        if (firstLevelStartNumber != null)
+          ConcreteLevelOverride(
+            indentLevel: 0,
+            startAt: firstLevelStartNumber,
+          ),
       ],
     );
 
-    concreteNumberingMap[effectiveReference] = XmlConcreteNumberingComponent(
-      concreteOptions,
-    );
+    // then with just the key and the instance value
+    // we can get it
+    concreteNumberingMap[effectiveReference] =
+        XmlConcreteNumberingComponent(concreteOptions);
   }
 
   /// Builds the XML element for the numbering component.
-  ///
-  /// Generates the complete `w:numbering` element containing both
-  /// abstract numbering definitions and concrete numbering instances.
-  ///
-  /// Parameters:
-  /// - [context]: The document context for building XML.
-  ///
-  /// Returns: The complete XML element for document numbering.
   @override
   XmlElement buildXml(DocumentContext context) {
+    // if there is no concrete instances, then we
+    // add some to avoid conflicts
+    if (concreteNumberingMap.isEmpty) {
+      CompilerLogger.root.d('Detected empty concrete instances.');
+      abstractNumberingMap.forEach((String k, XmlAbstractNumComponent v) {
+        CompilerLogger.root.d('Registering concrete instance for "$k".');
+        registerConcreteInstance(k, 1);
+      });
+    }
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[...attributes.buildXml()],

@@ -1,7 +1,5 @@
 import 'package:xml/xml.dart';
 
-import '../../../docx.dart';
-
 class RelationShip {
   RelationShip({
     required this.rId,
@@ -37,11 +35,25 @@ class RelationShip {
   }
 
   XmlElement toXml() {
-    return XmlDefaults.relation(
-      rId: rId,
-      type: type,
-      target: target,
-      targetMode: mode,
+    return XmlElement.tag(
+      'Relationship',
+      attributes: <XmlAttribute>[
+        XmlAttribute(XmlName.fromString('Id'), rId),
+        XmlAttribute(
+          XmlName.fromString('Type'),
+          type,
+        ),
+        XmlAttribute(
+          XmlName.fromString('Target'),
+          target,
+        ),
+        if (target.isNotEmpty)
+          XmlAttribute(
+            XmlName.fromString('TargetMode'),
+            target,
+          ),
+      ],
+      isSelfClosing: true,
     );
   }
 }

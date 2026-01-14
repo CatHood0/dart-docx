@@ -1,6 +1,6 @@
 import '../../../docx.dart';
+import '../extensions/num_extensions.dart';
 import '../extensions/skippable_iterations_ext.dart';
-
 /// A builder class for creating and configuring table [Style] objects.
 ///
 /// This class provides a fluent API to define table styles including
@@ -41,9 +41,9 @@ class TableStyleBuilder {
   bool _qFormat = false;
   bool _semiHidden = false;
   bool _unhideWhenUsed = false;
-  bool _defaultValue = false;
+  Object? _defaultValue;
 
-  // ========== TABLE PROPERTIES (w:tblPr) ==========
+  // ========== (w:tblPr) ==========
   // Table-level properties
   Alignment? _tableAlignment;
   int? _tableWidth;
@@ -117,7 +117,7 @@ class TableStyleBuilder {
   final Map<String, Map<String, String>> _paragraphBorders =
       <String, Map<String, String>>{};
 
-  // ========== CHARACTER PROPERTIES (w:rPr) ==========
+  // ========== (w:rPr) ==========
   // These apply to text within table cells
   num? _fontSize;
   num? _fontEastAsiaSize;
@@ -134,7 +134,6 @@ class TableStyleBuilder {
   Script? _verticalAlign;
   DocxLanguage? _language;
 
-  // ========== CONDITIONAL FORMATTING ==========
   final List<ConditionalTableStyle> _conditionalStyles =
       <ConditionalTableStyle>[];
 
@@ -196,8 +195,8 @@ class TableStyleBuilder {
     return this;
   }
 
-  TableStyleBuilder defaultValue(bool isDefault) {
-    _defaultValue = isDefault;
+  TableStyleBuilder defaultValue(bool value) {
+    _defaultValue = value.toInt();
     return this;
   }
 

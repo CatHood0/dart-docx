@@ -9,7 +9,7 @@ class ConcreteNumberingOptions {
     required this.abstractRefId,
     required this.refKey,
     required this.copyId,
-    this.overrides = const [],
+    this.overrides = const <ConcreteLevelOverride>[],
   });
 
   ///
@@ -48,7 +48,7 @@ class XmlConcreteNumberingComponent
         super(
           xmlKey: 'w:num',
           value: <XmlComponentBase<dynamic>>[
-            XmlEmptyElementComponent(
+            XmlEmptyElementComponent<int>(
               xmlKey: 'w:abstractNumId',
               value: options.abstractRefId,
             ),
@@ -61,7 +61,7 @@ class XmlConcreteNumberingComponent
               );
             }),
           ],
-          attrs: XmlComponentAttributes(xmlAttributes: {
+          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
             'w:numId': ensureInteger(options.numId),
           }),
         );
@@ -92,7 +92,7 @@ class ConcreteLevelOverrideComponent
     int? startAt,
   }) : super(
           xmlKey: 'w:lvlOverride',
-          attrs: XmlComponentAttributes(xmlAttributes: {
+          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
             'w:ilvl': indentLevel,
           }),
           value: <XmlComponentBase<dynamic>>[

@@ -65,14 +65,14 @@ class XmlPageMarginsComponent extends XmlComponentBase<DocumentMargins> {
           value: margins,
           xmlKey: 'w:pgMar',
           attrs: XmlComponentAttributes(
-            xmlAttributes: {
-              'w:top': margins.top.toString(),
-              'w:bottom': margins.bottom.toString(),
-              'w:left': margins.left.toString(),
-              'w:right': margins.right.toString(),
-              'w:header': margins.header.toString(),
-              'w:footer': margins.footer.toString(),
-              'w:gutter': margins.gutter.toString(),
+            xmlAttributes: <String, Object>{
+              'w:top': margins.top.toInt().toString(),
+              'w:bottom': margins.bottom.toInt().toString(),
+              'w:left': margins.left.toInt().toString(),
+              'w:right': margins.right.toInt().toString(),
+              'w:header': margins.header.toInt().toString(),
+              'w:footer': margins.footer.toInt().toString(),
+              'w:gutter': margins.gutter.toInt().toString(),
             }, // Attributes are built in buildXml
           ),
         );
@@ -98,9 +98,9 @@ class XmlPageSizeComponent
           value: (size: size, orientation: orientation),
           xmlKey: 'w:pgSz',
           attrs: XmlComponentAttributes(
-            xmlAttributes: {
-              'w:w': size.width.toString(),
-              'w:h': size.height.toString(),
+            xmlAttributes: <String, Object>{
+              'w:w': size.width.toInt().toString(),
+              'w:h': size.height.toInt().toString(),
               'w:orientation': orientation.name,
             },
           ),

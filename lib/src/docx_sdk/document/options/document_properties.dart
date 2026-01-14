@@ -48,7 +48,7 @@ class DocumentLayout {
   late final DocumentMargins margins;
 
   /// Calculated available width for content after accounting for margins.
-  late final double availableDocumentSpace;
+  late final num availableDocumentSpace;
 }
 
 /// Page orientation options.
@@ -111,7 +111,7 @@ class DocumentOptions {
     required this.createdAt,
     required this.editorSettings,
     required this.layoutOptions,
-    this.revisions = 0,
+    this.revisions = 1,
     this.fonts = const <FontProperties>[],
     this.preserveWhitespacesWhenRequired = true,
     Set<String>? supportedFileExtensions,
@@ -163,7 +163,7 @@ class DocumentOptions {
     String creator = 'Unnamed',
     String subject = '',
     String description = '',
-    int revisions = 0,
+    int revisions = 1,
     DocumentStylesSheet? styles,
     bool preserveWhitespacesWhenRequired = true,
     Orientation? orientation,
@@ -214,7 +214,7 @@ class DocumentOptions {
   PageSize get pageSize => layoutOptions.pageSize;
 
   /// Available content width after accounting for margins.
-  double get availableDocumentSpace => layoutOptions.availableDocumentSpace;
+  num get availableDocumentSpace => layoutOptions.availableDocumentSpace;
 
   /// Current page margins from layout options.
   DocumentMargins get margins => layoutOptions.margins;

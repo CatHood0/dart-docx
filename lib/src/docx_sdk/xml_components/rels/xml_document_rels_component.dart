@@ -6,15 +6,16 @@ class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
   XmlDocumentRelsComponent({
     required List<RelationShip> relations,
   }) : super(
-          attrs: XmlComponentAttributes(xmlAttributes: {
+          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
             'xmlns': namespaces['relationship']!,
           }),
           xmlKey: 'Relationships',
           value: relations,
         );
 
-  static List<RelationShip> defaultDocumentFileRelations(
-      [bool applyCustomTheme = false]) {
+  static List<RelationShip> defaultDocumentFileRelations([
+    bool applyCustomTheme = false,
+  ]) {
     return <RelationShip>[
       //NOTE: to avoid conflicts
       // with users relations, we prefer
@@ -27,35 +28,35 @@ class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
       ),
       RelationShip(
         rId: 'rId${nanoid(7)}',
-        type: namespaces['settingsType']!,
+        type: namespaces['settings']!,
         target: 'settings.xml',
       ),
       RelationShip(
         rId: 'rId${nanoid(7)}',
-        type: namespaces['fontTableType']!,
+        type: namespaces['fontTable']!,
         target: 'fontTable.xml',
       ),
       RelationShip(
         rId: 'rId${nanoid(7)}',
-        type: namespaces['webSettingsType']!,
+        type: namespaces['webSettings']!,
         target: 'webSettings.xml',
       ),
       RelationShip(
         rId: 'rId${nanoid(7)}',
-        type: namespaces['numberingType']!,
+        type: namespaces['numbering']!,
         target: 'numbering.xml',
       ),
       if (applyCustomTheme)
         RelationShip(
           rId: 'rId${nanoid(7)}',
-          type: namespaces['themeType']!,
-          target: 'theme1.xml',
+          type: namespaces['themes']!,
+          target: 'theme/theme1.xml',
         ),
     ];
   }
 
   String? get theme {
-    final rel = value.firstWhere((element) {
+    final RelationShip rel = value.firstWhere((RelationShip element) {
       return element.target == 'theme1.xml';
     }, orElse: RelationShip.invalid);
     if (rel.rId.isEmpty || rel.target.isEmpty || rel.type.isEmpty) {
@@ -66,12 +67,12 @@ class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
 
   @override
   XmlElement buildXml(DocumentContext context) {
-    final Map<String, dynamic> rels = {};
+    final Map<String, dynamic> rels = <String, dynamic>{};
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
-      children: [
-        ...value.map((re) {
+      children: <XmlNode>[
+        ...value.map((RelationShip re) {
           // we cant allow duplcates
           if (rels[re.rId] != null) {
             throw Exception(

@@ -1,4 +1,5 @@
 import '../../../docx.dart';
+import '../extensions/num_extensions.dart';
 import '../extensions/skippable_iterations_ext.dart';
 
 /// A builder class for creating and configuring [Style] objects.
@@ -24,6 +25,22 @@ class StyleBuilder {
     return StyleBuilder._(id, Style.paragraphType);
   }
 
+  /// Creates a [StyleBuilder] for a list style.
+  ///
+  /// [id] is the internal ID for the style.
+  /// [name] is the display name of the style. If not provided, [id] is used.
+  factory StyleBuilder.list(String id) {
+    return StyleBuilder._(id, Style.listType);
+  }
+
+  /// Creates a [StyleBuilder] for a numbering style.
+  ///
+  /// [id] is the internal ID for the style.
+  /// [name] is the display name of the style. If not provided, [id] is used.
+  factory StyleBuilder.numbering(String id) {
+    return StyleBuilder._(id, Style.numberingType);
+  }
+
   /// Creates a [StyleBuilder] for a character style.
   ///
   /// [id] is the internal ID for the style.
@@ -44,6 +61,18 @@ class StyleBuilder {
     return StyleBuilder._(nanoid(5), Style.characterType);
   }
 
+  /// Creates a [StyleBuilder] for a list style
+  /// that is not in DocumentStylesSheet
+  factory StyleBuilder.singularL() {
+    return StyleBuilder._(nanoid(5), Style.listType);
+  }
+
+  /// Creates a [StyleBuilder] for a numbering style
+  /// that is not in DocumentStylesSheet
+  factory StyleBuilder.singularN() {
+    return StyleBuilder._(nanoid(5), Style.numberingType);
+  }
+
   /// The internal identifier of the style, used in `w:styleId`.
   final String id;
 
@@ -58,7 +87,7 @@ class StyleBuilder {
   String? _basedOn;
   String? _next;
   bool _widowControl = false;
-  bool? _defaultValue;
+  Object? _defaultValue;
   int? _uiPriority;
   bool _qFormat = false;
   bool _semiHidden = false;
@@ -225,10 +254,8 @@ class StyleBuilder {
   }
 
   /// Sets whether this style is a default style for the document.
-  ///
-  /// [isDefault] true if it's a default style, false otherwise.
-  StyleBuilder defaultValue(bool isDefault) {
-    _defaultValue = isDefault;
+  StyleBuilder defaultValue(bool value) {
+    _defaultValue = value.toInt();
     return this;
   }
 
@@ -467,7 +494,7 @@ class StyleBuilder {
   /// [pattern] is the shading pattern (e.g., [ShadingPattern.solid]).
   /// This setting is applicable only to paragraph styles.
   StyleBuilder paragraphShading({String? color, ShadingPattern? pattern}) {
-    if (type != Style.paragraphType) {
+    if (type == Style.paragraphType) {
       return this;
     }
     if (color != null) _shadingColor = color;
@@ -611,7 +638,7 @@ class StyleBuilder {
       );
     }
 
-    if (type == Style.paragraphType) {
+    if (type != Style.characterType) {
       final List<StyleConfigurator> paragraphConfigs = <StyleConfigurator>[];
 
       if (_spacingBefore != null ||

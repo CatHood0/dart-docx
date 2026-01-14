@@ -148,6 +148,8 @@ class Style extends IterableConfigurators {
 
   // Style type constants
   static const String paragraphType = 'paragraph';
+  static const String listType = 'list';
+  static const String numberingType = 'numbering';
   static const String characterType = 'character';
   static const String tableType = 'table';
 
@@ -412,7 +414,7 @@ class Style extends IterableConfigurators {
       attributes: <XmlAttribute>[
         XmlAttribute('w:type'.toName(), type),
         XmlAttribute('w:styleId'.toName(), styleId),
-        if (defaultValue != null)
+        if (defaultValue != null && defaultValue is num)
           XmlAttribute('w:default'.toName(), defaultValue!.toString()),
         if (revisionIdDefault != null)
           XmlAttribute(

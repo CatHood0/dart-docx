@@ -1,10 +1,12 @@
 import '../sdk.dart';
 
 int ensureInteger(num number) {
-  if (number.isNaN) {
-    throw Exception('Invalid value "$number" specified. Must be an integer.');
+  if (number.isNaN || number.isInfinite) {
+    throw Exception('Invalid value '
+        '"$number" specified. '
+        'Must be an integer.');
   }
-  return number.floor();
+  return number.toInt();
 }
 
 /// Generates a unique GUID string suitable for fontKey.

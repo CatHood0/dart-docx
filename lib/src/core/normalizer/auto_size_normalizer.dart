@@ -20,12 +20,15 @@ class AutoSizeNormalizer {
 
     // 3. Too vertical or horizontal
     if (aspectRatio < 0.1 || aspectRatio > 10.0) {
-      return _handleExtremeAspect(widthInches, heightInches, pageSize.width);
+      return _handleExtremeAspect(
+        widthInches,
+        heightInches,
+        pageSize.width.toDouble(),
+      );
     }
 
     // 0.5" margins
-    final double availableWidth =
-        pageSize.width - margins.left.emuToInches();
+    final double availableWidth = pageSize.width - margins.left.emuToInches();
     if (widthInches > availableWidth) {
       final double scale = availableWidth / widthInches;
       widthInches = availableWidth;

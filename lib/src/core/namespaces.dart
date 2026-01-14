@@ -58,43 +58,13 @@ final UnmodifiableMapView<String, String> namespaces = UnmodifiableMapView(
       'ignorable': 'w14 w15 w16se w16cid w16 w16cex w16sdtdh wp14',
       'xsd': 'http://www.w3.org/2001/XMLSchema',
       'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-      'numbering':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
-      'font':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font',
-      'fontTable':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
-      'hyperlinks':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
-      'images':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
-      'styles':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
-      'headers':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header',
-      'footers':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer',
-      'themes':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
-      'extendedProperties':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties',
-      'coreProperties':
-          'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
-      'officeDocumentRelation':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
-      'corePropertiesRelation':
-          'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
       'spreadsheet':
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'settingsRelation':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
-      'webSettingsRelation':
-          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings',
       'contentTypes':
           'http://schemas.openxmlformats.org/package/2006/content-types',
       'relationship':
           'http://schemas.openxmlformats.org/package/2006/relationships',
-      // content types namespaces
+      // for content type overrides
       'relationsXml':
           'application/vnd.openxmlformats-package.relationships+xml',
       'documentType':
@@ -115,6 +85,37 @@ final UnmodifiableMapView<String, String> namespaces = UnmodifiableMapView(
       'appType':
           'application/vnd.openxmlformats-officedocument.extended-properties+xml',
       'coreType': 'application/vnd.openxmlformats-package.core-properties+xml',
+      // for _rels
+      'officeDocumentRelation':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument',
+      'numbering':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering',
+      'font':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font',
+      'fontTable':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable',
+      'hyperlinks':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink',
+      'images':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
+      'styles':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles',
+      'headers':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/header',
+      'settings':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings',
+      'webSettings':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/webSettings',
+      'footers':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer',
+      'themes':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
+      'extendedProperties':
+          'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties',
+      'coreProperties':
+          'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
+      'corePropertiesRelation':
+          'http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties',
     },
   ),
 );
