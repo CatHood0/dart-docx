@@ -153,6 +153,6 @@ class XmlDocAttributes extends XmlComponentAttributes {
           if (w16) 'xmlns:w16': namespaces['w16']!,
           if (w16sdtdh) 'xmlns:w16sdtdh': namespaces['w16sdtdh']!,
           if (w16se) 'xmlns:w16se': namespaces['w16se']!,
-          if (ignorables.isNotEmpty) 'mc:Ignorables': ignorables,
+          if (ignorables.isNotEmpty) 'mc:Ignorable': ignorables,
         });
 }

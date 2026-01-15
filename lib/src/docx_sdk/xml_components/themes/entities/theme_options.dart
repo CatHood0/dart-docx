@@ -141,7 +141,7 @@ class ThemeOptions {
       schemeClrVal: SchemeColorType.phClr,
     );
     const LineStyleOptions ln1 = LineStyleOptions(
-      width: '6350',
+      width: 1,
       cap: LineCapType.flat,
       cmpd: CompoundLineType.sng,
       algn: LineAlignmentType.ctr,
@@ -150,7 +150,7 @@ class ThemeOptions {
       miter: '800000',
     );
     const LineStyleOptions ln2 = LineStyleOptions(
-      width: '12700',
+      width: 2,
       cap: LineCapType.flat,
       cmpd: CompoundLineType.sng,
       algn: LineAlignmentType.ctr,
@@ -159,7 +159,7 @@ class ThemeOptions {
       miter: '800000',
     );
     const LineStyleOptions ln3 = LineStyleOptions(
-      width: '19050',
+      width: 3,
       cap: LineCapType.flat,
       cmpd: CompoundLineType.sng,
       algn: LineAlignmentType.ctr,

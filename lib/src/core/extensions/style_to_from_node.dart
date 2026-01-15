@@ -2,7 +2,6 @@ import 'package:xml/xml.dart';
 
 import '../../../docx.dart';
 import 'node_to_configurator.dart';
-import 'skippable_iterations_ext.dart';
 import 'string_ext.dart';
 
 extension StyleToNode on Style {
@@ -141,15 +140,6 @@ extension StyleToNode on Style {
           isSelfClosing: true,
         ),
       if (useConfigurators) ...runConfigs.childrenToXmlNodes(),
-      // add values of the style
-      if (useConfigurators)
-        ...configurators
-            .where((StyleConfigurator n) =>
-                n.qualifiedName != runConfigs.qualifiedName &&
-                n.qualifiedName != xmlParagraphBlockAttrsNode)
-            .map(
-              (StyleConfigurator n) => n.toXmlNode(),
-            ),
     ];
   }
 
@@ -159,9 +149,7 @@ extension StyleToNode on Style {
   }) {
     final StyleConfigurator runConfigs = !useConfigurators
         ? StyleConfigurator.invalid()
-        : getConfigurator(
-            xmlParagraphBlockAttrsNode,
-          );
+        : getConfigurator(xmlParagraphBlockAttrsNode, fullName: true);
 
     return <XmlElement>[
       if (shouldShowStyleRef)
@@ -176,12 +164,6 @@ extension StyleToNode on Style {
           isSelfClosing: true,
         ),
       if (useConfigurators) ...runConfigs.childrenToXmlNodes(),
-      // add values of the style
-      if (useConfigurators)
-        ...configurators.skippableMap(
-          (StyleConfigurator n) =>
-              n.propertyName == runConfigs.propertyName ? null : n.toXmlNode(),
-        ),
     ];
   }
 }

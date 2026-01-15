@@ -35,7 +35,6 @@ class TableStyleBuilder {
   final List<StyleConfigurator> _configurators = <StyleConfigurator>[];
 
   // Basic style properties
-  String? _basedOn;
   String? _next;
   int? _uiPriority;
   bool _qFormat = false;
@@ -148,11 +147,6 @@ class TableStyleBuilder {
     return this;
   }
 
-  TableStyleBuilder basedOn(String styleId) {
-    _basedOn = styleId;
-    return this;
-  }
-
   TableStyleBuilder next(String styleId) {
     _next = styleId;
     return this;
@@ -249,52 +243,55 @@ class TableStyleBuilder {
   }) {
     if (top != null) {
       _tableBorders['top'] = <String, String>{
-        'val': top.value,
-        'sz': (topSize ?? 4).toString(),
-        'color': topColor ?? 'auto',
+        'w:val': top.value,
+        'w:sz': (topSize ?? 4).toString(),
+        'w:color': topColor ?? 'auto',
       };
     }
     if (bottom != null) {
       _tableBorders['bottom'] = <String, String>{
-        'val': bottom.value,
-        'sz': (bottomSize ?? 4).toString(),
-        'color': bottomColor ?? 'auto',
+        'w:val': bottom.value,
+        'w:sz': (bottomSize ?? 4).toString(),
+        'w:color': bottomColor ?? 'auto',
       };
     }
     if (left != null) {
       _tableBorders['left'] = <String, String>{
-        'val': left.value,
-        'sz': (leftSize ?? 4).toString(),
-        'color': leftColor ?? 'auto',
+        'w:val': left.value,
+        'w:sz': (leftSize ?? 4).toString(),
+        'w:color': leftColor ?? 'auto',
       };
     }
     if (right != null) {
       _tableBorders['right'] = <String, String>{
-        'val': right.value,
-        'sz': (rightSize ?? 4).toString(),
-        'color': rightColor ?? 'auto',
+        'w:val': right.value,
+        'w:sz': (rightSize ?? 4).toString(),
+        'w:color': rightColor ?? 'auto',
       };
     }
     if (insideH != null) {
       _tableBorders['insideH'] = <String, String>{
-        'val': insideH.value,
-        'sz': (insideHSize ?? 4).toString(),
-        'color': insideHColor ?? 'auto',
+        'w:val': insideH.value,
+        'w:sz': (insideHSize ?? 4).toString(),
+        'w:color': insideHColor ?? 'auto',
       };
     }
     if (insideV != null) {
       _tableBorders['insideV'] = <String, String>{
-        'val': insideV.value,
-        'sz': (insideVSize ?? 4).toString(),
-        'color': insideVColor ?? 'auto',
+        'w:val': insideV.value,
+        'w:sz': (insideVSize ?? 4).toString(),
+        'w:color': insideVColor ?? 'auto',
       };
     }
     return this;
   }
 
-  TableStyleBuilder tableShading({Color? color, ShadingPattern? pattern}) {
-    if (color != null) _tableShadingColor = color;
-    if (pattern != null) _tableShadingPattern = pattern;
+  TableStyleBuilder tableShading({
+    required Color color,
+    ShadingPattern pattern = ShadingPattern.clear,
+  }) {
+    _tableShadingColor = color;
+    _tableShadingPattern = pattern;
     return this;
   }
 
@@ -326,13 +323,13 @@ class TableStyleBuilder {
       };
     }
     if (left != null) {
-      _cellMargins['left'] = <String, dynamic>{
+      _cellMargins['start'] = <String, dynamic>{
         'w:w': left.toString(),
         'w:type': leftType ?? 'dxa',
       };
     }
     if (right != null) {
-      _cellMargins['right'] = <String, dynamic>{
+      _cellMargins['end'] = <String, dynamic>{
         'w:w': right.toString(),
         'w:type': rightType ?? 'dxa',
       };
@@ -482,30 +479,30 @@ class TableStyleBuilder {
   }) {
     if (top != null) {
       _paragraphBorders['top'] = <String, String>{
-        'val': top.value,
-        'sz': (topSize ?? 4).toString(),
-        'color': topColor ?? 'auto',
+        'w:val': top.value,
+        'w:sz': (topSize ?? 4).toString(),
+        'w:color': topColor ?? 'auto',
       };
     }
     if (bottom != null) {
       _paragraphBorders['bottom'] = <String, String>{
-        'val': bottom.value,
-        'sz': (bottomSize ?? 4).toString(),
+        'w:val': bottom.value,
+        'w:sz': (bottomSize ?? 4).toString(),
         'color': bottomColor ?? 'auto',
       };
     }
     if (left != null) {
       _paragraphBorders['left'] = <String, String>{
-        'val': left.value,
-        'sz': (leftSize ?? 4).toString(),
-        'color': leftColor ?? 'auto',
+        'w:val': left.value,
+        'w:sz': (leftSize ?? 4).toString(),
+        'w:color': leftColor ?? 'auto',
       };
     }
     if (right != null) {
       _paragraphBorders['right'] = <String, String>{
-        'val': right.value,
-        'sz': (rightSize ?? 4).toString(),
-        'color': rightColor ?? 'auto',
+        'w:val': right.value,
+        'w:sz': (rightSize ?? 4).toString(),
+        'w:color': rightColor ?? 'auto',
       };
     }
     return this;
@@ -606,16 +603,6 @@ class TableStyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'qFormat',
-        ),
-      );
-    }
-
-    if (_basedOn != null) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'basedOn',
-          value: _basedOn!,
         ),
       );
     }
@@ -745,14 +732,10 @@ class TableStyleBuilder {
       );
     }
 
-    if (_tableShadingColor != null || _tableShadingPattern != null) {
+    if (_tableShadingColor != null && _tableShadingPattern != null) {
       final Map<String, dynamic> shdAttributes = <String, dynamic>{};
-      if (_tableShadingColor != null) {
-        shdAttributes['w:fill'] = _tableShadingColor?.toColorValue()!;
-      }
-      if (_tableShadingPattern != null) {
-        shdAttributes['w:val'] = _tableShadingPattern!.value;
-      }
+      shdAttributes['w:fill'] = _tableShadingColor!.toColorValue()!;
+      shdAttributes['w:val'] = _tableShadingPattern!.value;
       tblPrConfigs.add(
         StyleConfigurator.selfClosing(
           prefix: 'w',
@@ -1123,16 +1106,6 @@ class TableStyleBuilder {
       );
     }
 
-    if (pPrConfigs.isNotEmpty) {
-      configurators.add(
-        StyleConfigurator.noSelfClosing(
-          prefix: 'w',
-          propertyName: 'pPr',
-          configurators: pPrConfigs,
-        ),
-      );
-    }
-
     // ========== BUILD CHARACTER PROPERTIES (w:rPr) ==========
     final List<StyleConfigurator> rPrConfigs = <StyleConfigurator>[];
 
@@ -1293,8 +1266,18 @@ class TableStyleBuilder {
       );
     }
 
+    final List<StyleConfigurator> tcPr = <StyleConfigurator>[];
+    if (pPrConfigs.isNotEmpty) {
+      tcPr.add(
+        StyleConfigurator.noSelfClosing(
+          prefix: 'w',
+          propertyName: 'pPr',
+          configurators: pPrConfigs,
+        ),
+      );
+    }
     if (rPrConfigs.isNotEmpty) {
-      configurators.add(
+      tcPr.add(
         StyleConfigurator.noSelfClosing(
           prefix: 'w',
           propertyName: 'rPr',
@@ -1303,7 +1286,15 @@ class TableStyleBuilder {
       );
     }
 
-    // ========== ADD CONDITIONAL STYLES (w:tblStylePr) ==========
+    if (tcPr.isNotEmpty) {
+      configurators.add(StyleConfigurator.noSelfClosing(
+        prefix: 'w',
+        propertyName: 'tcPr',
+        configurators: tcPr,
+      ));
+    }
+
+    // ========== (w:tblStylePr) ==========
     for (final ConditionalTableStyle condStyle in _conditionalStyles) {
       configurators.add(condStyle.toStyleConfigurator());
     }

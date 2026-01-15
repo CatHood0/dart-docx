@@ -11,6 +11,10 @@ const String kDefaultBorderColor = 'bf4f15';
 const int commonBorderSize = 4;
 const int commonBorderSpace = 6;
 
+
+const int maxLineWidth = 20116800;
+/// 1 point = 6350 EMU
+const int lineWidthEmuPerPoint = 6350;
 const int lineSpacingPerInch = 240;
 const int maxAlphaEmu = 100000;
 const int degressTh = 60000;

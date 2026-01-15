@@ -1,8 +1,6 @@
 import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
-import 'enums.dart';
-import 'solid_fill_options.dart';
 
 /// Options for a line style.
 class LineStyleOptions {
@@ -16,8 +14,8 @@ class LineStyleOptions {
     required this.miter,
   });
 
-  /// The width in inches units
-  final String width;
+  /// The width in point units
+  final int width;
   final LineCapType cap;
   final CompoundLineType cmpd;
   final LineAlignmentType algn;
@@ -33,7 +31,7 @@ class LineStyleOptions {
       attributes: <XmlAttribute>[
         XmlAttribute(
           XmlName('w'),
-          num.tryParse(width)!.inchesToEmu().toString(),
+          width.ptToLineEmu().toString(),
         ),
         XmlAttribute(
           XmlName('cap'),

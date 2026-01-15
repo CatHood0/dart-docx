@@ -41,11 +41,12 @@ Future<void> main() async {
       .noTrimRuns()
       .setNormalIfNeeded(true)
       .defaultNormalStyle(Style.reference('body'))
-      .logPath(DocxPaths.documentFilePath)
-      .bytes(
-        doc,
-        applyCustomTheme: true,
-      );
+      .logPaths(<String>[
+    DocxPaths.stylesXmlFilePath,
+  ]).bytes(
+    doc,
+    applyCustomTheme: true,
+  );
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);

@@ -12,13 +12,13 @@ class XmlMathPrComponent extends XmlComponentBase<MathPropertiesOptions> {
 
   @override
   XmlElement buildXml(DocumentContext context) {
-    final List<XmlNode> children = [];
+    final List<XmlNode> children = <XmlNode>[];
 
     if (value.mathFont != null) {
       children.add(
         XmlElement(
           XmlName('m:mathFont'),
-          [
+          <XmlAttribute>[
             XmlAttribute(
               XmlName('m:val'),
               value.mathFont!,
@@ -31,7 +31,7 @@ class XmlMathPrComponent extends XmlComponentBase<MathPropertiesOptions> {
       children.add(
         XmlElement(
           XmlName('m:brkBin'),
-          [
+          <XmlAttribute>[
             XmlAttribute(
               XmlName('m:val'),
               value.breakBinary!.name,
@@ -44,10 +44,10 @@ class XmlMathPrComponent extends XmlComponentBase<MathPropertiesOptions> {
       children.add(
         XmlElement(
           XmlName('m:brkBinSub'),
-          [
+          <XmlAttribute>[
             XmlAttribute(
               XmlName('m:val'),
-              value.breakBinarySubtraction!.name,
+              value.breakBinarySubtraction!.value,
             ),
           ],
         ),
@@ -57,7 +57,7 @@ class XmlMathPrComponent extends XmlComponentBase<MathPropertiesOptions> {
       children.add(
         XmlElement(
           XmlName('m:dispLMargin'),
-          [
+          <XmlAttribute>[
             XmlAttribute(
               XmlName('m:val'),
               value.displayLoop!.name,
@@ -66,14 +66,15 @@ class XmlMathPrComponent extends XmlComponentBase<MathPropertiesOptions> {
         ),
       );
     }
-    if (value.integerLimit == true) {
+    if (value.integerLimit != null) {
       children.add(
-        XmlElement(
-          XmlName('m:intLim'),
-          [
+        XmlElement.tag(
+          'm:intLim',
+          isSelfClosing: true,
+          attributes: <XmlAttribute>[
             XmlAttribute(
               XmlName('m:val'),
-              '1',
+              value.integerLimit! ? 'subSup' : 'undOvr',
             ),
           ],
         ),
@@ -83,7 +84,7 @@ class XmlMathPrComponent extends XmlComponentBase<MathPropertiesOptions> {
       children.add(
         XmlElement(
           XmlName('m:wrapIndent'),
-          [
+          <XmlAttribute>[
             XmlAttribute(
               XmlName('m:val'),
               value.wrapIndent!,

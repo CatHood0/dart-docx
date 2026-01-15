@@ -13,7 +13,6 @@ import '_xml_shape_defaults_component.dart';
 import '_xml_theme_font_language_component.dart';
 import '_xml_track_revisions_component.dart';
 import '_xml_zoom_component.dart';
-import 'entities/settings.dart';
 
 //TODO: we need to add examples on how coustomizing these
 // options can change our docx output
@@ -30,33 +29,22 @@ class XmlSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
   }) : super(
           xmlKey: 'w:settings',
           attrs: XmlDocAttributes(
+            w: true,
             mc: true,
             o: true,
             r: true,
             m: true,
             v: true,
             w10: true,
-            w: true,
             w14: true,
             w15: true,
             sl: true,
-            ignorables: 'w14 w15',
           ),
           value: <XmlComponentBase>[
             XmlZoomComponent(percent: options.zoomPercent),
             XmlTrackRevisionsComponent(val: options.trackRevisions),
             //XmlDocumentProtectionComponent(),
             XmlDefaultTabStopComponent(val: options.defaultTabStop),
-            XmlEmptyElementComponent<dynamic>(
-              xmlKey: 'w:proofState',
-              attrs: const XmlComponentAttributes(
-                xmlAttributes: <String, Object>{
-                  'w:spelling': 'clean',
-                  'w:grammar': 'clean',
-                },
-              ),
-              value: null,
-            ),
             XmlCharacterSpacingControlComponent(
               val: options.characterSpacingControl,
             ),

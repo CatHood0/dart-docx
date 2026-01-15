@@ -128,6 +128,13 @@ extension SizingConversions on num {
   /// Converts points to twips.
   int ptToTwips() => (this * twipsPerPt).round();
 
+  /// Converts points to twips.
+  int ptToLineEmu() =>
+      (this * lineWidthEmuPerPoint).round().clamp(0, maxLineWidth);
+
+  /// Converts line emu to points.
+  double lineEmuToPt() => this / lineWidthEmuPerPoint;
+
   /// Converts twips to points.
   double twipsToPt() => this / twipsPerPt;
 

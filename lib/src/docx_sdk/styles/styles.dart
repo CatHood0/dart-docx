@@ -60,14 +60,16 @@ class Style extends IterableConfigurators {
             configurators ?? <StyleConfigurator>[],
           ),
         ) {
-    super.configurators.insert(
-          0,
-          StyleConfigurator.selfClosing(
-            prefix: 'w',
-            propertyName: 'name',
-            value: styleName ?? 'Unnamed-$styleId',
-          ),
-        );
+    if (styleName != null) {
+      super.configurators.insert(
+            0,
+            StyleConfigurator.selfClosing(
+              prefix: 'w',
+              propertyName: 'name',
+              value: styleName,
+            ),
+          );
+    }
   }
 
   /// Creates a lightweight style reference for lookup/search purposes only.

@@ -1,5 +1,4 @@
 import '../../../docx.dart';
-import '../../docx_sdk/utils/language_codes.dart';
 
 class EasyStyles {
   static Style get normal => StyleBuilder.paragraph('Normal')
@@ -194,7 +193,7 @@ class EasyStyles {
       // Conditional style for banded rows (even rows)
       .addConditionalStyle(
         ConditionalTableStyle(
-          'band1H',
+          'band1Horz',
           TableStyleBuilder.table('LightShadingBand1H')
               .tableShading(color: Color.rgb(0xF2F2F2)),
         ),
@@ -245,7 +244,7 @@ class EasyStyles {
       // Banded rows with light blue shade
       .addConditionalStyle(
         ConditionalTableStyle(
-          'band1H',
+          'band1Horz',
           TableStyleBuilder.table('MediumShading1Band1H')
               .tableShading(color: Color.rgb(0xDCE6F1)),
         ),
@@ -299,7 +298,7 @@ class EasyStyles {
       // Banded rows with light red shade
       .addConditionalStyle(
         ConditionalTableStyle(
-          'band1H',
+          'band1Horz',
           TableStyleBuilder.table('MediumShading2Band1H')
               .tableShading(color: Color.rgb(0xF2DCDB)),
         ),
@@ -418,7 +417,7 @@ class EasyStyles {
       // Banded rows with light gray background
       .addConditionalStyle(
         ConditionalTableStyle(
-            'band1H',
+            'band1Horz',
             TableStyleBuilder.table('PlainTable1Band1H')
                 .tableShading(color: Color.rgb(0xF2F2F2))),
       )
@@ -462,7 +461,7 @@ class EasyStyles {
       // Banded rows with light blue shading
       .addConditionalStyle(
         ConditionalTableStyle(
-          'band1H',
+          'band1Horz',
           TableStyleBuilder.table('GridTable4Band1H')
               .tableShading(color: Color.rgb(0xD9E2F3)),
         ),
@@ -505,7 +504,7 @@ class EasyStyles {
       // Even rows with dark gray background
       .addConditionalStyle(
         ConditionalTableStyle(
-            'band1H',
+            'band1Horz',
             TableStyleBuilder.table('GridTable5DarkBand1H')
                 .tableShading(color: Color.rgb(0x404040))
                 .runColor(Color.rgb(0xFFFFFF))),
@@ -513,7 +512,7 @@ class EasyStyles {
       // Odd rows with lighter gray background
       .addConditionalStyle(
         ConditionalTableStyle(
-            'band2H',
+            'band2Horz',
             TableStyleBuilder.table('GridTable5DarkBand2H')
                 .tableShading(color: Color.rgb(0x808080))
                 .runColor(Color.rgb(0xFFFFFF))),

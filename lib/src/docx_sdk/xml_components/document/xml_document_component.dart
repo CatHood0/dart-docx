@@ -9,6 +9,7 @@ class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
           value: body,
           xmlKey: 'w:document',
           attrs: XmlDocAttributes(
+            ignorables: 'w14 w15 w16',
             wpc: true,
             pic: true,
             a: true,

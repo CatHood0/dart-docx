@@ -85,7 +85,7 @@ class SettingsOptions {
         val: '1',
       ),
       CompatSetting(
-        name: 'doNotFLipMirrorIndents',
+        name: 'doNotFlipMirrorIndents',
         uri: namespaces['word']!,
         val: '1',
       ),
@@ -98,8 +98,6 @@ class SettingsOptions {
   );
 
   /// The zoom percentage for the document view.
-  ///
-  /// Defaults to '100'.
   final String zoomPercent;
 
   /// Whether revision tracking is enabled.

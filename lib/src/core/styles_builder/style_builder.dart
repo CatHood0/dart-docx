@@ -499,30 +499,30 @@ class StyleBuilder {
 
     if (top != null) {
       _borders['top'] = <String, String>{
-        'val': top.value,
-        'sz': (topSize ?? 4).toString(), // Default 0.5pt
-        'color': topColor ?? 'auto',
+        'w:val': top.value,
+        'w:sz': (topSize ?? 4).toString(), // Default 0.5pt
+        'w:color': topColor ?? 'auto',
       };
     }
     if (bottom != null) {
       _borders['bottom'] = <String, String>{
-        'val': bottom.value,
-        'sz': (bottomSize ?? 4).toString(),
-        'color': bottomColor ?? 'auto',
+        'w:val': bottom.value,
+        'w:sz': (bottomSize ?? 4).toString(),
+        'w:color': bottomColor ?? 'auto',
       };
     }
     if (left != null) {
       _borders['left'] = <String, String>{
-        'val': left.value,
-        'sz': (leftSize ?? 4).toString(),
-        'color': leftColor ?? 'auto',
+        'w:val': left.value,
+        'w:sz': (leftSize ?? 4).toString(),
+        'w:color': leftColor ?? 'auto',
       };
     }
     if (right != null) {
       _borders['right'] = <String, String>{
-        'val': right.value,
-        'sz': (rightSize ?? 4).toString(),
-        'color': rightColor ?? 'auto',
+        'w:val': right.value,
+        'w:sz': (rightSize ?? 4).toString(),
+        'w:color': rightColor ?? 'auto',
       };
     }
     return this;
@@ -538,15 +538,6 @@ class StyleBuilder {
 
     if (_configurators.isNotEmpty) {
       configurators.addAll(_configurators);
-    }
-
-    if (_qFormat) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'qFormat',
-        ),
-      );
     }
 
     if (_basedOn != null) {
@@ -575,6 +566,16 @@ class StyleBuilder {
           prefix: 'w',
           propertyName: 'uiPriority',
           value: _uiPriority!.toString(),
+        ),
+      );
+    }
+
+
+    if (_qFormat) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'qFormat',
         ),
       );
     }

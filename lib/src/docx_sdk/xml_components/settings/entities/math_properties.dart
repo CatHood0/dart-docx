@@ -59,13 +59,13 @@ enum BreakBinaryType {
 /// Specifies how subtraction operators are broken across lines.
 enum BreakBinarySubtractionType {
   /// Use a double minus sign.
-  minusMinus('minusMinus'),
+  minusMinus('--'),
 
   /// Break before the subtraction operator.
-  before('before'),
+  before('+-'),
 
   /// Break after the subtraction operator.
-  after('after');
+  after('-+');
 
   const BreakBinarySubtractionType(this.value);
   final String value;

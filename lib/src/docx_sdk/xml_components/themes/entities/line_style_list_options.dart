@@ -17,7 +17,7 @@ class LineStyleListOptions {
   XmlElement buildXml() {
     return XmlElement.tag(
       'a:lnStyleLst',
-      children: [
+      children: <XmlNode>[
         ln1.buildXml(),
         ln2.buildXml(),
         ln3.buildXml(),

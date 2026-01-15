@@ -20,6 +20,7 @@ class XmlDefaultDocStylesComponent
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
+      isSelfClosing: false,
       children: <XmlNode>[
         ...components.map((
           XmlComponentBase<dynamic> e,
@@ -33,7 +34,7 @@ class XmlDefaultDocStylesComponent
 class XmlDefaultParagraphStylesComponent extends XmlComponentBase<List<Style>> {
   XmlDefaultParagraphStylesComponent({
     required super.value,
-  }) : super(xmlKey: 'w:pPr');
+  }) : super(xmlKey: 'w:pPrDefault');
 
   @override
   XmlElement buildXml(DocumentContext context) {
@@ -46,9 +47,11 @@ class XmlDefaultParagraphStylesComponent extends XmlComponentBase<List<Style>> {
     }
     return XmlElement.tag(
       xmlKey,
+      isSelfClosing: false,
       children: <XmlNode>[
         XmlElement.tag(
           xmlParagraphBlockAttrsNode,
+          isSelfClosing: false,
           children: <XmlNode>[
             ...styles,
           ],
@@ -61,7 +64,7 @@ class XmlDefaultParagraphStylesComponent extends XmlComponentBase<List<Style>> {
 class XmlDefaultRunStylesComponent extends XmlComponentBase<List<Style>> {
   XmlDefaultRunStylesComponent({
     required super.value,
-  }) : super(xmlKey: 'w:rPr');
+  }) : super(xmlKey: 'w:rPrDefault');
 
   @override
   XmlElement buildXml(DocumentContext context) {
@@ -80,6 +83,7 @@ class XmlDefaultRunStylesComponent extends XmlComponentBase<List<Style>> {
       children: <XmlNode>[
         XmlElement.tag(
           xmlParagraphInlineAttsrNode,
+          isSelfClosing: false,
           children: <XmlNode>[
             ...styles,
           ],

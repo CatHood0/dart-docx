@@ -13,7 +13,6 @@ class XmlStylesComponent extends XmlComponentBase<void> {
             w: true,
             w14: true,
             w15: true,
-            ignorables: 'w14',
           ),
         );
 
@@ -22,6 +21,7 @@ class XmlStylesComponent extends XmlComponentBase<void> {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
+      isSelfClosing: false,
       children: <XmlNode>[
         XmlDefaultDocStylesComponent(
           value: context.docStyleSheet,
