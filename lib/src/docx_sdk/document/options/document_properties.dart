@@ -16,7 +16,6 @@ import '../../xml_components/settings/entities/settings.dart';
 ///     top: 2.5, right: 2.5, left: 3.0, bottom: 2.5,
 ///     header: 1.0, footer: 1.0, gutter: 0.0,
 ///   ),
-///   orientation: Orientation.portrait,
 /// );
 /// ```
 class DocumentLayout {
@@ -24,7 +23,7 @@ class DocumentLayout {
     this.columns,
     PageSize? size,
     DocumentMargins? margins,
-    this.orientation = Orientation.portrait,
+    Orientation orientation = Orientation.portrait,
   }) : pageSize = size ?? PageSize.a4 {
     final bool isPortraitOrientation = orientation == defaultOrientation;
     this.margins = margins ??
@@ -40,9 +39,6 @@ class DocumentLayout {
 
   /// Physical dimensions of the page.
   final PageSize pageSize;
-
-  /// Page orientation (portrait or landscape).
-  final Orientation orientation;
 
   /// Margins around the page content.
   late final DocumentMargins margins;
@@ -206,9 +202,6 @@ class DocumentOptions {
       supportedFileExtensions: kDefaultAcceptedFileExtensions,
     );
   }
-
-  /// Current page orientation from layout options.
-  Orientation get orientation => layoutOptions.orientation;
 
   /// Current page size from layout options.
   PageSize get pageSize => layoutOptions.pageSize;

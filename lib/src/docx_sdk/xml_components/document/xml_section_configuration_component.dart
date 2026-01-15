@@ -21,7 +21,7 @@ class XmlDocumentSectionSettingsComponent
           value: <XmlComponentBase>[
             // Page Size (w:pgSz) component
             XmlPageSizeComponent(
-                size: options.pageSize, orientation: options.orientation),
+                size: options.pageSize,),
             // Page Margins (w:pgMar) component
             XmlPageMarginsComponent(margins: options.margins),
             if (themeId != null)
@@ -93,18 +93,16 @@ class XmlPageMarginsComponent extends XmlComponentBase<DocumentMargins> {
 /// Represents the `<w:pgSz>` element in WordML, defining the page size
 /// and orientation for a section.
 class XmlPageSizeComponent
-    extends XmlComponentBase<({PageSize size, Orientation orientation})> {
+    extends XmlComponentBase<PageSize> {
   XmlPageSizeComponent({
     required PageSize size,
-    required Orientation orientation,
   }) : super(
-          value: (size: size, orientation: orientation),
+          value: size,
           xmlKey: 'w:pgSz',
           attrs: XmlComponentAttributes(
             xmlAttributes: <String, Object>{
               'w:w': size.width.toInt().toString(),
               'w:h': size.height.toInt().toString(),
-              'w:orientation': orientation.name,
             },
           ),
         );

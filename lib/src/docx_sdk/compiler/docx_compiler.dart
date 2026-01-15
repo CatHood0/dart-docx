@@ -6,6 +6,7 @@ import 'package:archive/archive.dart';
 import 'package:xml/xml.dart' as xml;
 
 import '../../../docx.dart';
+import '../../core/extensions/cast_ext.dart';
 import '../events/docx_event.dart';
 import '../utils/logger/logger_configs.dart';
 import '../xml_components/docProps/xml_app_component.dart';
@@ -218,12 +219,21 @@ class DocxCompiler {
       }
     }
 
+    final bool hasNumberingUsage = document.root.visitAllElement(
+          visitChildrenIfNeeded: true,
+          (DocxTreeNode<dynamic> el) {
+            return el is Paragraph && el.cast<Paragraph>().numbering != null;
+          },
+        )?.isNotEmpty ??
+        false;
+
     numberingStore.initializeAndApplyContext(documentContext);
     CompilerLogger.root.d('Numbering store initialized.');
     final List<RelationShip> defaultDocRelations =
         XmlDocumentRelsComponent.defaultDocumentFileRelations(
       applyCustomTheme,
       docRelsStore,
+      hasNumberingUsage,
     );
 
     _emit(DocxEvent.searching(subject: 'Searching media (images)'));
@@ -239,16 +249,16 @@ class DocxCompiler {
         'Hyperlink search completed. Found ${hyperlinkStore.hyperlinks.length} hyperlinks.');
 
     // Discover fonts (either dynamically or from DocumentOptions)
-      _emit(DocxEvent.searching(subject: 'Discovering fonts'));
-      CompilerLogger.root.d('Initiating font discovery.');
-      fontStore.discoverFonts(
-        document,
-        dynamicSearchEnabled: dynamicFontSearch,
-      );
-      CompilerLogger.root.d(
-          'Font discovery completed. Found ${fontStore.hasFonts ? fontStore.fonts.length : 0} fonts.');
+    _emit(DocxEvent.searching(subject: 'Discovering fonts'));
+    CompilerLogger.root.d('Initiating font discovery.');
+    fontStore.discoverFonts(
+      document,
+      dynamicSearchEnabled: dynamicFontSearch,
+    );
+    CompilerLogger.root.d(
+        'Font discovery completed. Found ${fontStore.hasFonts ? fontStore.fonts.length : 0} fonts.');
 
-      _emit(DocxEvent.unknownProgress(subject: 'Registering images'));
+    _emit(DocxEvent.unknownProgress(subject: 'Registering images'));
     // this part register all the media allow context
     // and different part of the nodes
     // to access to image references
@@ -284,12 +294,11 @@ class DocxCompiler {
           extensions: <String>[
             ...mediaStore.extensions,
             ...fontStore.extensions,
-
           ],
         )
       ),
-    (DocxPaths.relsFilePath, XmlRelsComponent()),
-    (DocxPaths.coreFilePath, XmlCoreComponent(options: document.options)),
+      (DocxPaths.relsFilePath, XmlRelsComponent()),
+      (DocxPaths.coreFilePath, XmlCoreComponent(options: document.options)),
       (
         DocxPaths.appFilePath,
         XmlAppComponent(
@@ -327,10 +336,11 @@ class DocxCompiler {
           ),
         )
       ),
-      (
-        DocxPaths.numberingXmlFilePath,
-        numberingStore.buildNumberingXmlDocumentComponent(),
-      ),
+      if (hasNumberingUsage)
+        (
+          DocxPaths.numberingXmlFilePath,
+          numberingStore.buildNumberingXmlDocumentComponent(),
+        ),
       (DocxPaths.stylesXmlFilePath, XmlStylesComponent()),
       (
         DocxPaths.fontTableXmlFilePath,
