@@ -120,6 +120,7 @@ class FontProperties {
 
   final String name;
   final String? altName;
+
   final String? panose1;
   final CharacterSet? charset;
   final String? family;

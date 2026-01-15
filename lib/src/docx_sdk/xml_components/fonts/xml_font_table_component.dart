@@ -23,7 +23,6 @@ class XmlFontTableComponent extends XmlComponentBase<List<XmlFontComponent>> {
             w16: true,
             w16sdtdh: true,
             w16se: true,
-            ignorables: 'w14 w15 w16se w16cid w16 w16cex w16sdtdh',
           ),
         );
 

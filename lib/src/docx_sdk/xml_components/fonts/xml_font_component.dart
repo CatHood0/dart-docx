@@ -57,7 +57,7 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
     if (value.charset != null) {
       children.add(XmlEmptyElementComponent(
         xmlKey: 'w:charset',
-        value: value.charset!.name,
+        value: value.charset!.value,
       ).buildXml(context));
     }
 
