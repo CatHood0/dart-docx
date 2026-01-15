@@ -1,6 +1,6 @@
 import '../../../docx.dart';
 import '../extensions/num_extensions.dart';
-import '../extensions/skippable_iterations_ext.dart';
+
 /// A builder class for creating and configuring table [Style] objects.
 ///
 /// This class provides a fluent API to define table styles including
@@ -27,7 +27,7 @@ class TableStyleBuilder {
   final String id;
 
   /// The display name of the style, used in `w:name`.
-  final Map<String, dynamic> _names = <String, dynamic>{};
+  String? _name;
 
   /// The type of the style, always 'table' for table styles.
   final String type = Style.tableType;
@@ -143,48 +143,11 @@ class TableStyleBuilder {
   }
 
   /// Sets the display name for the style.
-  TableStyleBuilder name(String styleName, [dynamic language]) {
-    if (language != null &&
-        language is String &&
-        !LanguageCodes.isValid(language)) {
-      throw 'Not valid language code "$language" found. The current '
-          'supported languages are: ${LanguageCodes.languages}';
-    }
-    language ??= LanguageCodes.englishUS;
-
-    if (_names.containsKey(styleName)) {
-      final dynamic element = _names[styleName]!;
-      if (element is! List<String> && element is! String) {
-        throw 'Unsupported '
-            'type "${element.runtimeType}" caught during '
-            'build of the name of $styleName';
-      }
-      if (element is String) {
-        _names[styleName] = language is List<String>
-            ? <String>[element, ...language]
-            : <String>[element, language as String];
-      }
-      if (element is List<String>) {
-        _names[styleName] = language is List<String>
-            ? <String>[...element, ...language]
-            : <String>[...element, language as String];
-      }
-      return this;
-    }
-    _names[styleName] = language;
+  TableStyleBuilder name(String styleName) {
+    _name = styleName;
     return this;
   }
 
-  /// Sets multiple display names for the style.
-  TableStyleBuilder names(Map<String, dynamic> names) {
-    names.forEach(name);
-    return this;
-  }
-
-  /// Gets the current display name of the style.
-  Iterable<String> get getName => _names.keys;
-
-  // ========== BASIC STYLE PROPERTIES ==========
   TableStyleBuilder basedOn(String styleId) {
     _basedOn = styleId;
     return this;
@@ -1350,17 +1313,7 @@ class TableStyleBuilder {
       styleId: id,
       defaultValue: _defaultValue,
       configurators: configurators,
-      alternativeNames: _names.skippableMap<(String, List<String>)>((
-        MapEntry<String, dynamic> entry,
-      ) {
-        if (entry.value is! String && entry.value is! List<String>) {
-          return null;
-        }
-        if (entry.value is String) {
-          return (entry.key, <String>[entry.value]);
-        }
-        return (entry.key, entry.value);
-      }),
+      styleName: _name,
     );
   }
 }

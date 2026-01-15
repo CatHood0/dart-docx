@@ -33,7 +33,7 @@ class XmlDefaultDocStylesComponent
 class XmlDefaultParagraphStylesComponent extends XmlComponentBase<List<Style>> {
   XmlDefaultParagraphStylesComponent({
     required super.value,
-  }) : super(xmlKey: 'w:pPrDefault');
+  }) : super(xmlKey: 'w:pPr');
 
   @override
   XmlElement buildXml(DocumentContext context) {
@@ -61,7 +61,7 @@ class XmlDefaultParagraphStylesComponent extends XmlComponentBase<List<Style>> {
 class XmlDefaultRunStylesComponent extends XmlComponentBase<List<Style>> {
   XmlDefaultRunStylesComponent({
     required super.value,
-  }) : super(xmlKey: 'w:rPrDefault');
+  }) : super(xmlKey: 'w:rPr');
 
   @override
   XmlElement buildXml(DocumentContext context) {

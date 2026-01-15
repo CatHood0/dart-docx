@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
 
-
 /// Simple demo that generates a minimal CV as a .docx file.
 Future<void> main() async {
   final File outFile = File('test_resources/cv.docx');
@@ -42,13 +41,7 @@ Future<void> main() async {
       styles: DocumentStylesSheet.base().withNewStyles(
         <Style>[
           StyleBuilder.paragraph('title')
-              .names(<String, dynamic>{
-                'Title': LanguageCodes.englishUS,
-                'Titulo': <String>[
-                  LanguageCodes.spanishMX,
-                  LanguageCodes.spanishES,
-                ],
-              })
+              .name('Title')
               .fontSize(36.ptToHalfPoints())
               .fontFamily('Times New Roman')
               .bold()
@@ -61,25 +54,13 @@ Future<void> main() async {
               .uiPriority(20)
               .build(),
           StyleBuilder.paragraph('body')
-              .names(<String, dynamic>{
-                'Body': LanguageCodes.englishUS,
-                'Cuerpo de texto': <String>[
-                  LanguageCodes.spanishMX,
-                  LanguageCodes.spanishES,
-                ],
-              })
+              .name('Body')
               .fontSize(9.ptToHalfPoints())
               .fontFamily('Merryweather')
               .qFormat(true)
               .build(),
           StyleBuilder.paragraph('section')
-              .names(<String, dynamic>{
-                'Subtitle': LanguageCodes.englishUS,
-                'Subtitulo': <String>[
-                  LanguageCodes.spanishMX,
-                  LanguageCodes.spanishES,
-                ],
-              })
+              .name('Subtitle')
               .fontSize(9.ptToHalfPoints())
               .fontFamily('FreeSans')
               .bold()
@@ -307,9 +288,8 @@ Future<void> main() async {
               date: '',
               content: 'Inserta tu texto aquí '
                   'Inserta tu texto aquí ',
-              contentStyle: StyleBuilder.singularC()
-                .fontSize(9.ptToHalfPoints())
-                .build(),
+              contentStyle:
+                  StyleBuilder.singularC().fontSize(9.ptToHalfPoints()).build(),
               repeat: 1,
             ),
           ],
@@ -412,13 +392,14 @@ List<DocxTreeNode> getRepeatedSection({
         TextRun.text(
           text: content,
           styles: <Object>[
-            contentStyle ?? StyleBuilder.singularC()
-                .fontSize(9.ptToHalfPoints())
-                .runColor(Color.rgb(
-                  0x666666,
-                  0.5.toAlphaUnit(),
-                ))
-                .build(),
+            contentStyle ??
+                StyleBuilder.singularC()
+                    .fontSize(9.ptToHalfPoints())
+                    .runColor(Color.rgb(
+                      0x666666,
+                      0.5.toAlphaUnit(),
+                    ))
+                    .build(),
           ],
         ),
       ],
@@ -432,6 +413,5 @@ List<DocxTreeNode> getRepeatedSection({
             .build(),
       ],
     ).repeat(repeat),
-
   ];
 }

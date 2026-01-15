@@ -3,10 +3,7 @@ import '../../docx_sdk/utils/language_codes.dart';
 
 class EasyStyles {
   static Style get normal => StyleBuilder.paragraph('Normal')
-      .name(
-        'Normal',
-        LanguageCodes.englishUS,
-      )
+      .name('Normal')
       .fontFamily('Times New Roman')
       .fontSize(12.ptToHalfPoints())
       .alignment(Alignment.left)
@@ -16,13 +13,7 @@ class EasyStyles {
       .build();
 
   static Style get listParagraph => StyleBuilder.paragraph('ListParagraph')
-      .names(<String, dynamic>{
-        'List Paragraph': LanguageCodes.englishUS,
-        'Lista de Parrafo': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('List Paragraph')
       .basedOn('Normal')
       .keepNext(true)
       .keepLines(true)
@@ -33,36 +24,18 @@ class EasyStyles {
 
   static Style get defaultParagraphFont =>
       StyleBuilder.character('DefaultParagraphFont')
-          .names(<String, dynamic>{
-            'Default Paragraph Font': LanguageCodes.englishUS,
-            'Estilo de Parrafo Predeterminado': List<String>.from(<String>[
-              LanguageCodes.spanishES,
-              LanguageCodes.spanishMX,
-            ]),
-          })
+          .name('Default Paragraph Font')
           .defaultValue(true)
           .build();
 
   static Style get hyperlink => StyleBuilder.character('Hyperlink')
-      .names(<String, dynamic>{
-        'Hyperlink': LanguageCodes.englishUS,
-        'Hipervínculo': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Hyperlink')
       .runColor(Color.rgb(0x0563C1))
       .underline()
       .build();
 
   static Style get heading1 => StyleBuilder.paragraph('Heading1')
-      .names(<String, dynamic>{
-        'Heading 1': LanguageCodes.englishUS,
-        'Título 1': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Heading 1')
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -77,13 +50,7 @@ class EasyStyles {
       .build();
 
   static Style get heading2 => StyleBuilder.paragraph('Heading2')
-      .names(<String, dynamic>{
-        'Heading 2': LanguageCodes.englishUS,
-        'Título 2': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Heading 2')
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -99,13 +66,7 @@ class EasyStyles {
       .build();
 
   static Style get heading3 => StyleBuilder.paragraph('Heading3')
-      .names(<String, dynamic>{
-        'Heading 3': LanguageCodes.englishUS,
-        'Título 3': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Heading 3')
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -122,13 +83,7 @@ class EasyStyles {
       .build();
 
   static Style get heading4 => StyleBuilder.paragraph('Heading4')
-      .names(<String, dynamic>{
-        'Heading 4': LanguageCodes.englishUS,
-        'Título 4': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Heading 4')
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -145,13 +100,7 @@ class EasyStyles {
       .build();
 
   static Style get heading5 => StyleBuilder.paragraph('Heading5')
-      .names(<String, dynamic>{
-        'Heading 5': LanguageCodes.englishUS,
-        'Título 5': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Heading 5')
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -168,13 +117,7 @@ class EasyStyles {
       .build();
 
   static Style get heading6 => StyleBuilder.paragraph('Heading6')
-      .names(<String, dynamic>{
-        'Heading 6': LanguageCodes.englishUS,
-        'Título 6': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Heading 6')
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
@@ -192,13 +135,7 @@ class EasyStyles {
 
   /// Table Grid: A basic table with single tableBorders on all cells.
   static Style get tableGrid => TableStyleBuilder.table('TableGrid')
-      .names(<String, dynamic>{
-        'Table Grid': LanguageCodes.englishUS,
-        'Cuadrícula de tabla': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Table Grid')
       .tableWidth(5000, 'pct')
       .tableBorders(
         top: BorderStyle.single,
@@ -223,13 +160,7 @@ class EasyStyles {
 
   /// Light Shading: A table with light shading on the header and banded rows.
   static Style get lightShading => TableStyleBuilder.table('LightShading')
-      .names(<String, dynamic>{
-        'Light Shading': LanguageCodes.englishUS,
-        'Sombreado claro': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Light Shading')
       .tableWidth(5000, 'pct')
       .tableBorders(
         top: BorderStyle.single,
@@ -280,13 +211,7 @@ class EasyStyles {
 
   /// Medium Shading 1: A table with medium shading and accent colors.
   static Style get mediumShading1 => TableStyleBuilder.table('MediumShading1')
-      .names(<String, dynamic>{
-        'Medium Shading 1': LanguageCodes.englishUS,
-        'Sombreado medio 1': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Medium Shading 1')
       .tableWidth(5000, 'pct')
       .tableBorders(
         top: BorderStyle.single,
@@ -340,13 +265,7 @@ class EasyStyles {
 
   /// Medium Shading 2: A table with a different color scheme.
   static Style get mediumShading2 => TableStyleBuilder.table('MediumShading2')
-      .names(<String, dynamic>{
-        'Medium Shading 2': LanguageCodes.englishUS,
-        'Sombreado medio 2': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Medium Shading 2')
       .tableWidth(5000, 'pct')
       .tableBorders(
         top: BorderStyle.single,
@@ -397,13 +316,7 @@ class EasyStyles {
 
   /// Light List: A table with minimal tableBorders, only horizontal lines.
   static Style get lightList => TableStyleBuilder.table('LightList')
-      .names(<String, dynamic>{
-        'Light List': LanguageCodes.englishUS,
-        'Lista clara': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Light List')
       .tableWidth(5000, 'pct')
       .tableBorders(
         top: BorderStyle.single,
@@ -446,13 +359,7 @@ class EasyStyles {
 
   /// Light Grid: A table with tableBorders on the grid lines only.
   static Style get lightGrid => TableStyleBuilder.table('LightGrid')
-      .names(<String, dynamic>{
-        'Light Grid': LanguageCodes.englishUS,
-        'Cuadrícula clara': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Light Grid')
       .tableWidth(5000, 'pct')
       .tableBorders(
         insideH: BorderStyle.single,
@@ -492,13 +399,7 @@ class EasyStyles {
 
   /// Plain Table 1: A table with no tableBorders, only spacing.
   static Style get plainTable1 => TableStyleBuilder.table('PlainTable1')
-      .names(<String, dynamic>{
-        'Plain Table 1': LanguageCodes.englishUS,
-        'Tabla simple 1': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Plain Table 1')
       .tableWidth(5000, 'pct')
       .cellMargins(
         top: 0,
@@ -526,13 +427,7 @@ class EasyStyles {
 
   /// Grid Table 4: A table with thick outside tableBorders and thin inside tableBorders.
   static Style get gridTable4 => TableStyleBuilder.table('GridTable4')
-      .names(<String, dynamic>{
-        'Grid Table 4': LanguageCodes.englishUS,
-        'Tabla de cuadrícula 4': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Grid Table 4')
       .tableWidth(5000, 'pct')
       .tableBorders(
         top: BorderStyle.double,
@@ -577,13 +472,7 @@ class EasyStyles {
 
   /// Grid Table 5 Dark: A table with a dark theme.
   static Style get gridTable5Dark => TableStyleBuilder.table('GridTable5Dark')
-      .names(<String, dynamic>{
-        'Grid Table 5 Dark': LanguageCodes.englishUS,
-        'Tabla de cuadrícula 5 oscura': List<String>.from(<String>[
-          LanguageCodes.spanishES,
-          LanguageCodes.spanishMX,
-        ]),
-      })
+      .name('Grid Table 5 Dark')
       .tableWidth(5000, 'pct')
       .tableBorders(
         top: BorderStyle.single,

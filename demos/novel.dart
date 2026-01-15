@@ -97,10 +97,7 @@ Future<void> main() async {
       styles: DocumentStylesSheet.base().withNewStyles(
         <Style>[
           StyleBuilder.paragraph('Title')
-              .names(<String, dynamic>{
-                'Title': LanguageCodes.englishUS,
-                'Titulo': LanguageCodes.spanishMX,
-              })
+              .name('Title')
               .fontSize(28.ptToHalfPoints())
               .fontFamily('Georgia')
               .bold()
@@ -112,12 +109,8 @@ Future<void> main() async {
               )
               .uiPriority(20)
               .build(),
-
           StyleBuilder.paragraph('Subtitle')
-              .names(<String, dynamic>{
-                'Subtitle': LanguageCodes.englishUS,
-                'Subtitulo': LanguageCodes.spanishMX,
-              })
+              .name('Subtitle')
               .fontSize(14.ptToHalfPoints())
               .fontFamily('Georgia')
               .italic()
@@ -127,12 +120,8 @@ Future<void> main() async {
               .spacing(before: 60, after: 300)
               .uiPriority(19)
               .build(),
-
           StyleBuilder.paragraph('Chapter')
-              .names(<String, dynamic>{
-                'Chapter': LanguageCodes.englishUS,
-                'Capitulo': LanguageCodes.spanishMX,
-              })
+              .name('Chapter')
               .fontSize(20.ptToHalfPoints())
               .fontFamily('Georgia')
               .bold()
@@ -144,12 +133,8 @@ Future<void> main() async {
               .basedOn('Normal')
               .next('BodyText')
               .build(),
-
           StyleBuilder.paragraph('BodyText')
-              .names(<String, dynamic>{
-                'Body Text': LanguageCodes.englishUS,
-                'Texto Cuerpo': LanguageCodes.spanishMX,
-              })
+              .name('Body Text')
               .fontSize(13.ptToHalfPoints())
               .fontFamily('Times New Roman')
               .alignment(Alignment.left)
@@ -159,12 +144,8 @@ Future<void> main() async {
               .uiPriority(10)
               .basedOn('Normal')
               .build(),
-
           StyleBuilder.paragraph('Quote')
-              .names(<String, dynamic>{
-                'Quote': LanguageCodes.englishUS,
-                'Cita': LanguageCodes.spanishMX,
-              })
+              .name('Quote')
               .fontSize(12.ptToHalfPoints())
               .fontFamily('Times New Roman')
               .italic()
@@ -176,12 +157,8 @@ Future<void> main() async {
               .uiPriority(15)
               .basedOn('Normal')
               .build(),
-
           StyleBuilder.paragraph('Epilogue')
-              .names(<String, dynamic>{
-                'Epilogue': LanguageCodes.englishUS,
-                'Epilogo': LanguageCodes.spanishMX,
-              })
+              .name('Epilogue')
               .fontSize(12.ptToHalfPoints())
               .fontFamily('Times New Roman')
               .italic()

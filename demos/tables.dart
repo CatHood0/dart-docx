@@ -26,10 +26,7 @@ Future<void> main() async {
       styles: DocumentStylesSheet.base().withNewStyles(
         <Style>[
           StyleBuilder.paragraph('Title')
-              .names(<String, dynamic>{
-                'Title': LanguageCodes.englishUS,
-                'Titulo': LanguageCodes.spanishMX,
-              })
+              .name('Title')
               .fontSize(28.ptToHalfPoints())
               .fontFamily('Georgia')
               .bold()
@@ -42,10 +39,7 @@ Future<void> main() async {
               .uiPriority(20)
               .build(),
           StyleBuilder.paragraph('Subtitle')
-              .names(<String, dynamic>{
-                'Subtitle': LanguageCodes.englishUS,
-                'Subtitulo': LanguageCodes.spanishMX,
-              })
+              .name('Subtitle')
               .fontSize(20.ptToHalfPoints())
               .fontFamily('Georgia')
               .bold()

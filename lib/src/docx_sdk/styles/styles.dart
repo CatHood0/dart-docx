@@ -47,11 +47,6 @@ class Style extends IterableConfigurators {
     required this.type,
     required this.styleId,
     String? styleName,
-    String? defaultStyleNameLanguage,
-    Iterable<(String, List<String>)> alternativeNames = const <(
-      String,
-      List<String>
-    )>[],
     this.defaultValue,
     Iterable<StyleConfigurator>? configurators,
     this.revisionIdDefault,
@@ -65,36 +60,14 @@ class Style extends IterableConfigurators {
             configurators ?? <StyleConfigurator>[],
           ),
         ) {
-    final List<StyleConfigurator> resultAlternatives = <StyleConfigurator>[];
-    // since one name can have multiple languages that have the same
-    // exact characters, and we store them in a single map
-    // to avoid losing that data, we allow to set a list of languages
-    // to save that one name with its variants
-    for (final (String, List<String>) element in alternativeNames) {
-      for (final String language in element.$2.reversed) {
-        resultAlternatives.insert(0, StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'name',
-          value: element.$1,
-          attributes: <String, dynamic>{
-            'w:lang': language,
-          },
-        ));
-      }
-    }
-    if (styleName != null) {
-      resultAlternatives.insert(0, StyleConfigurator.selfClosing(
-        prefix: 'w',
-        propertyName: 'name',
-        value: styleName,
-        attributes: defaultStyleNameLanguage == null
-            ? null
-            : <String, dynamic>{
-                'w:lang': defaultStyleNameLanguage,
-              },
-      ));
-    }
-    super.configurators.insertAll(0, resultAlternatives);
+    super.configurators.insert(
+          0,
+          StyleConfigurator.selfClosing(
+            prefix: 'w',
+            propertyName: 'name',
+            value: styleName ?? 'Unnamed-$styleId',
+          ),
+        );
   }
 
   /// Creates a lightweight style reference for lookup/search purposes only.
