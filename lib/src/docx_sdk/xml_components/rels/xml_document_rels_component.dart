@@ -16,6 +16,7 @@ class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
   static List<RelationShip> defaultDocumentFileRelations([
     bool applyCustomTheme = false,
     DocumentRelsCounterStore? store,
+    bool hasNumberingUsage = true,
   ]) {
     return <RelationShip>[
       //NOTE: to avoid conflicts
@@ -42,11 +43,12 @@ class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
         type: namespaces['webSettings']!,
         target: 'webSettings.xml',
       ),
-      RelationShip(
-        rId: 'rId${store?.getNextId() ?? nanoid(7)}',
-        type: namespaces['numbering']!,
-        target: 'numbering.xml',
-      ),
+      if (hasNumberingUsage)
+        RelationShip(
+          rId: 'rId${store?.getNextId() ?? nanoid(7)}',
+          type: namespaces['numbering']!,
+          target: 'numbering.xml',
+        ),
       if (applyCustomTheme)
         RelationShip(
           rId: 'rId${store?.getNextId() ?? nanoid(7)}',

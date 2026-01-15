@@ -41,6 +41,14 @@ class XmlContentTypeComponent
               contentType: namespaces['documentType']!,
             ),
             XmlOverrideElementTypeComponent(
+              part: '/${DocxPaths.documentXmlRelsFilePath}',
+              contentType: namespaces['relationsXml']!,
+            ),
+            XmlOverrideElementTypeComponent(
+              part: '/${DocxPaths.relsFilePath}',
+              contentType: namespaces['relationsXml']!,
+            ),
+            XmlOverrideElementTypeComponent(
               part: '/${DocxPaths.appFilePath}',
               contentType: namespaces['appType']!,
             ),
