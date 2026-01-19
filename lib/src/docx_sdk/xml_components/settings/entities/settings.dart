@@ -36,7 +36,6 @@ class SettingsOptions {
       breakBinary: BreakBinaryType.before,
       breakBinarySubtraction: BreakBinarySubtractionType.minusMinus,
       integerLimit: true,
-      wrapIndent: '1440',
     ),
     this.themeFontLanguage = 'en-US',
     this.themeFontLanguageEastAsia = 'zh-CN',
