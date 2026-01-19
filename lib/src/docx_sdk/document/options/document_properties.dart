@@ -103,6 +103,8 @@ class DocumentOptions {
     required this.subject,
     required this.title,
     required this.modifiedAt,
+    required this.sharedDoc,
+    required this.company,
     required this.description,
     required this.createdAt,
     required this.editorSettings,
@@ -134,8 +136,10 @@ class DocumentOptions {
   /// Most parameters are optional with reasonable defaults.
   ///
   /// Parameters:
-  /// - [section]: Document layout configuration (page size, margins, etc.).
   /// - [title]: Document title (defaults to 'Unnamed').
+  /// - [wordVersion]: The version of Word that we aiming to use for this doc. It's not default since we
+  ///   can't know what version is requried
+  /// - [section]: Document layout configuration (page size, margins, etc.).
   /// - [creator]: Document author (defaults to 'Unnamed').
   /// - [subject]: Document subject (defaults to empty).
   /// - [description]: Document description (defaults to empty).
@@ -157,11 +161,13 @@ class DocumentOptions {
     DocumentLayout? section,
     String? title,
     String creator = 'Unnamed',
+    String company = '',
     String subject = '',
     String description = '',
     int revisions = 1,
     DocumentStylesSheet? styles,
     bool preserveWhitespacesWhenRequired = true,
+    bool sharedDoc = false,
     Orientation? orientation,
     Iterable<FontProperties>? fonts,
     SettingsOptions? settings,
@@ -173,6 +179,7 @@ class DocumentOptions {
     List<String> keywords = const <String>[],
     DocumentMargins? margins,
     Orientation defaultOrientation = Orientation.portrait,
+    EditorMetadata? metadata,
   }) {
     return DocumentOptions(
       lastModifiedBy: creator,
@@ -180,6 +187,8 @@ class DocumentOptions {
       subject: subject,
       fonts: fonts ?? const <FontProperties>[],
       theme: theme,
+      company: company,
+      sharedDoc: sharedDoc,
       settings: settings,
       numberingOptions: numberingOptions,
       webSettings: webSettings,
@@ -193,7 +202,10 @@ class DocumentOptions {
       title: title ?? 'Unnamed',
       revisions: revisions,
       description: description,
-      editorSettings: EditorOptions.standard(),
+      editorSettings: EditorOptions.standard(
+        metadata: metadata ?? EditorMetadata.zero(),
+        size: pageSize,
+      ),
       keywords: <String>[...keywords],
       styles: styles,
       modifiedAt: DateTime.now(),
@@ -229,6 +241,12 @@ class DocumentOptions {
 
   /// Document subject or topic.
   final String subject;
+
+  /// Document subject or topic.
+  final String company;
+
+  /// 
+  final bool sharedDoc;
 
   /// Person who last modified the document.
   final String lastModifiedBy;

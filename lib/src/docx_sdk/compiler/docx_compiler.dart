@@ -302,12 +302,7 @@ class DocxCompiler {
       (
         DocxPaths.appFilePath,
         XmlAppComponent(
-          title: documentContext.options.title,
-          pages: documentContext.options.editorSettings.metadata.pages,
-          words: documentContext.options.editorSettings.metadata.words,
-          characters:
-              documentContext.options.editorSettings.metadata.characters,
-        )
+            metadata: documentContext.options.editorSettings.metadata)
       ),
       // since we need register first the theme
       // we pass document.xml.rels

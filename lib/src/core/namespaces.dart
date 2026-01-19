@@ -111,8 +111,10 @@ final UnmodifiableMapView<String, String> namespaces = UnmodifiableMapView(
           'http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer',
       'themes':
           'http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme',
-      'extendedProperties':
+      'extendedPropertiesRelation':
           'http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties',
+      'extendedProperties':
+          'http://schemas.openxmlformats.org/officeDocument/2006/extended-properties',
       'coreProperties':
           'http://schemas.openxmlformats.org/package/2006/metadata/core-properties',
       'corePropertiesRelation':

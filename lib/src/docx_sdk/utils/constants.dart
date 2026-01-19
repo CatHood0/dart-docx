@@ -11,8 +11,8 @@ const String kDefaultBorderColor = 'bf4f15';
 const int commonBorderSize = 4;
 const int commonBorderSpace = 6;
 
-
 const int maxLineWidth = 20116800;
+
 /// 1 point = 6350 EMU
 const int lineWidthEmuPerPoint = 6350;
 const int lineSpacingPerInch = 240;
@@ -152,10 +152,14 @@ EditorMetadata defaultEditorMetadata({
   required String content,
 }) =>
     EditorMetadata(
+      docSecurity: 0,
+      hyperlinksChanged: false,
+      linksUpToDate: false,
+      wordVersion: '16.0000',
       paragraphs: content.countParagraphs,
-      lines: content.isEmpty ? 0 : content.countLines,
+      lines: content.isEmpty ? 1 : content.countLines,
       characters: content.charsLength,
       charactersWithSpaces: content.charsWithoutSpaces,
       words: content.countWords,
-      pages: 0,
+      pages: 1,
     );

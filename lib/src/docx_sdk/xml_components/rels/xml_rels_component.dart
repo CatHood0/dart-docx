@@ -14,20 +14,20 @@ class XmlRelsComponent extends XmlComponentBase<List<RelationShip>> {
           ),
           value: <RelationShip>[
             RelationShip(
-              rId: 'rId1',
-              type: namespaces['officeDocumentRelation']!,
-              target: DocxPaths.documentFilePath,
+              rId: 'rId3',
+              type: namespaces['corePropertiesRelation']!,
+              target: DocxPaths.coreFilePath,
               mode: null,
             ),
             RelationShip(
               rId: 'rId2',
-              type: namespaces['extendedProperties']!,
+              type: namespaces['extendedPropertiesRelation']!,
               target: DocxPaths.appFilePath,
             ),
             RelationShip(
-              rId: 'rId3',
-              type: namespaces['corePropertiesRelation']!,
-              target: DocxPaths.coreFilePath,
+              rId: 'rId1',
+              type: namespaces['officeDocumentRelation']!,
+              target: DocxPaths.documentFilePath,
               mode: null,
             ),
           ],

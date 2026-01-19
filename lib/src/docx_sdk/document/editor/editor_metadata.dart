@@ -14,7 +14,7 @@
 ///   characters: 2560,
 ///   charactersWithSpaces: 2780,
 ///   words: 420,
-///   pages: 3, 
+///   pages: 3,
 /// );
 ///
 /// // Initialize with zero values
@@ -37,18 +37,34 @@ class EditorMetadata {
     required this.charactersWithSpaces,
     required this.words,
     required this.pages,
-  });
+    required this.wordVersion,
+    required this.docSecurity,
+    required this.linksUpToDate,
+    required this.hyperlinksChanged,
+    this.application = kDefaultAppName,
+  })  : assert(pages > 0, 'pages cannot be less or equals than zero');
 
   /// Creates an [EditorMetadata] instance with all values set to zero.
   ///
   /// Useful as a default or initial state before document analysis.
   EditorMetadata.zero()
       : paragraphs = 0,
+        wordVersion = '',
+        docSecurity = 1,
+        application = kDefaultAppName,
         lines = 0,
         characters = 0,
         charactersWithSpaces = 0,
+        linksUpToDate = false,
+        hyperlinksChanged = false,
         words = 0,
-        pages = 0;
+        pages = 1;
+
+  static const String kDefaultAppName = 'Microsoft Office Word';
+
+  final String wordVersion;
+
+  final String application;
 
   /// Number of paragraphs in the document.
   ///
@@ -69,6 +85,10 @@ class EditorMetadata {
   ///
   /// This count includes all characters including spaces, tabs, and other whitespace.
   final int charactersWithSpaces;
+
+  final int docSecurity;
+  final bool linksUpToDate;
+  final bool hyperlinksChanged;
 
   /// Number of words in the document.
   ///
