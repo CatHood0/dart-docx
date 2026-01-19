@@ -80,19 +80,6 @@ class XmlMathPrComponent extends XmlComponentBase<MathPropertiesOptions> {
         ),
       );
     }
-    if (value.wrapIndent != null) {
-      children.add(
-        XmlElement(
-          XmlName('m:wrapIndent'),
-          <XmlAttribute>[
-            XmlAttribute(
-              XmlName('m:val'),
-              value.wrapIndent!,
-            ),
-          ],
-        ),
-      );
-    }
 
     return XmlElement.tag(
       xmlKey,

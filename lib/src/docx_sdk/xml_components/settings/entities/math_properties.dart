@@ -10,14 +10,12 @@ class MathPropertiesOptions {
   /// [displayLoop]: Specifies whether math zones are displayed on a single line or wrapped.
   ///   Values: 'noBreak', 'break'.
   /// [integerLimit]: Specifies whether the math auto-correct integer limit is enabled.
-  /// [wrapIndent]: Specifies the indent for wrapped math objects.
   const MathPropertiesOptions({
     this.mathFont,
     this.breakBinary,
     this.breakBinarySubtraction,
     this.displayLoop,
     this.integerLimit,
-    this.wrapIndent,
   });
 
   /// The default font for mathematical text (e.g., 'Cambria Math').
@@ -34,11 +32,6 @@ class MathPropertiesOptions {
 
   /// Specifies whether the math auto-correct integer limit is enabled.
   final bool? integerLimit;
-
-  /// Specifies the indent for wrapped math objects (in TWIPs).
-  final String? wrapIndent;
-
-  // Add more math properties as needed from the OOXML spec.
 }
 
 /// Specifies how binary operators (e.g., +, -) are broken across lines.
