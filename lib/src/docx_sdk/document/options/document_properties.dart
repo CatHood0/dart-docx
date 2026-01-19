@@ -103,12 +103,12 @@ class DocumentOptions {
     required this.subject,
     required this.title,
     required this.modifiedAt,
-    required this.sharedDoc,
-    required this.company,
     required this.description,
     required this.createdAt,
     required this.editorSettings,
     required this.layoutOptions,
+    this.sharedDoc = false,
+    this.company = '',
     this.revisions = 1,
     this.fonts = const <FontProperties>[],
     this.preserveWhitespacesWhenRequired = true,
@@ -128,7 +128,8 @@ class DocumentOptions {
         docStyles = styles ?? DocumentStylesSheet.base(),
         standalone = 'yes',
         keywords = keywords.join(','),
-        encoding = 'UTF-8';
+        encoding = 'UTF-8',
+        assert(revisions > 0, 'revisions cannot be less or equals than zero');
 
   /// Factory constructor for creating standard document configurations.
   ///
@@ -180,6 +181,8 @@ class DocumentOptions {
     DocumentMargins? margins,
     Orientation defaultOrientation = Orientation.portrait,
     EditorMetadata? metadata,
+    DateTime? modifiedAt,
+    DateTime? createdAt,
   }) {
     return DocumentOptions(
       lastModifiedBy: creator,
@@ -208,8 +211,8 @@ class DocumentOptions {
       ),
       keywords: <String>[...keywords],
       styles: styles,
-      modifiedAt: DateTime.now(),
-      createdAt: DateTime.now(),
+      modifiedAt: modifiedAt ?? DateTime.now(),
+      createdAt: createdAt ?? DateTime.now(),
       preserveWhitespacesWhenRequired: preserveWhitespacesWhenRequired,
       supportedFileExtensions: kDefaultAcceptedFileExtensions,
     );
@@ -245,7 +248,7 @@ class DocumentOptions {
   /// Document subject or topic.
   final String company;
 
-  /// 
+  ///
   final bool sharedDoc;
 
   /// Person who last modified the document.

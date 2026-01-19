@@ -74,7 +74,7 @@ class XmlCoreComponent extends XmlComponentBase<List<XmlComponentBase>> {
                   'xsi:type': 'dcterms:W3CDTF',
                 },
               ),
-              value: DateTime.now()
+              value: options.createdAt
                   .toIso8601String()
                   .replaceAll(RegExp(r'\..*'), 'Z'),
             ),
