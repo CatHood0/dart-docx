@@ -6,8 +6,9 @@ import '../extensions/num_extensions.dart';
 /// This class provides a fluent API to define various paragraph and character
 /// style properties such as font, size, color, alignment, spacing, and borders.
 ///
-/// TODO: refactor this file and separate elements in granular parts
-/// TODO: we need to make this immutable
+// TODO: we need to filter or make a way to filter some rPr properties
+// for styles.xml, since is not allowed using things like bold, italic,
+// or toggle attributes. Idk exactly why, but we need to fix it
 class StyleBuilder {
   /// Internal constructor for [StyleBuilder].
   ///
@@ -704,7 +705,7 @@ class StyleBuilder {
       }
 
       if (_keepNext) {
-        paragraphConfigs.add(
+        configurators.add(
           StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'keepNext',

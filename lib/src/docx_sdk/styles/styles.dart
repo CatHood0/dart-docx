@@ -121,6 +121,16 @@ class Style extends IterableConfigurators {
     );
   }
 
+  List<StyleConfigurator> prioritySort() {
+    configurators.sort((a, b) {
+      if (a.qualifiedName == xmlStyleName) {
+        return -1;
+      }
+      return 0;
+    });
+    return configurators;
+  }
+
   // Style type constants
   static const String paragraphType = 'paragraph';
   static const String listType = 'list';

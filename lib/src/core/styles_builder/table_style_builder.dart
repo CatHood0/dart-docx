@@ -492,7 +492,7 @@ class TableStyleBuilder {
       };
     }
     if (left != null) {
-      _paragraphBorders['left'] = <String, String>{
+      _paragraphBorders[''] = <String, String>{
         'w:val': left.value,
         'w:sz': (leftSize ?? 4).toString(),
         'w:color': leftColor ?? 'auto',

@@ -1,6 +1,10 @@
 
 const String xmlDocDefaultsNode = 'w:docDefaults';
 const String xmlStyleNode = 'w:style';
+const String xmlStyleName = 'w:name';
+const String xmlBasedOn = 'w:basedOn';
+const String xmlUiPriority = 'w:uiPriority';
+const String xmlqFormat = 'w:qFormat';
 const String xmlParagraphNode = 'w:p';
 // internals of <w:p>
 // block

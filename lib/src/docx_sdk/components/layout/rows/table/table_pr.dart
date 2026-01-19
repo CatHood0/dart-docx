@@ -208,8 +208,8 @@ class TableProperties extends DocxTreeNode<void> {
               _buildCellMargin('right', cellMargins!.right!),
             if (cellMargins!.bottom != null)
               _buildCellMargin('bottom', cellMargins!.bottom!),
-            if (cellMargins!.left != null)
-              _buildCellMargin('left', cellMargins!.left!),
+            // if (cellMargins!.left != null)
+            //   _buildCellMargin('left', cellMargins!.left!),
           ],
           isSelfClosing: false,
         ),
