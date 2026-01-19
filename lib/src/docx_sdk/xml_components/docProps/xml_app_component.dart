@@ -97,7 +97,7 @@ class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
           isSelfClosing: false,
         ),
         XmlElement.tag(
-          'hyperlinkschanged',
+          'HyperlinksChanged',
           children: <XmlNode>[
             XmlDefaults.text('${value.hyperlinksChanged}'),
           ],
