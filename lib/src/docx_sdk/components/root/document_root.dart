@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
-import '../../mixins/ignorable_mixin.dart';
+import '../../../core/extensions/cast_ext.dart';
 
-class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
+class DocumentRoot extends DocxTreeNode<List<DocxTreeNode>> {
   DocumentRoot({
     required Iterable<DocxTreeNode> sections,
     super.parent,
@@ -12,7 +14,7 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
             parent == null,
             'root must not be in any other '
             'point than the main build of the tree'),
-        super(data: sections) {
+        super(data: <DocxTreeNode<dynamic>>[...sections]) {
     this.index = -1;
     depth = -1;
     int index = 0;
@@ -36,9 +38,69 @@ class DocumentRoot extends DocxTreeNode<Iterable<DocxTreeNode>> {
   @override
   set index(int value) {}
 
-  void addImage() {}
-  void addParagraph() {}
-  void addShape() {}
+  @override
+  void addImage(
+    ImageData<Object> data, {
+    bool anchored = true,
+  }) {
+    if (anchored) {
+      this.data.add(
+            Paragraph.run(
+              DrawingML(
+                data: data.buffer is File
+                    ? LazyFloatingImage(
+                        data: data.cast(),
+                      )
+                    : FloatingImage(
+                        data: data.cast(),
+                      ),
+              ),
+            ),
+          );
+      return;
+    }
+
+    this.data.add(
+          Paragraph.run(
+            DrawingML(
+              data: data.buffer is File
+                  ? LazyImage(
+                      data: data.cast(),
+                      asInline: true,
+                    )
+                  : Image(
+                      data: data.cast(),
+                      asInline: true,
+                    ),
+            ),
+          ),
+        );
+  }
+
+  @override
+  void addParagraph(
+    Paragraph pr, {
+    int? path,
+  }) {
+    super.addParagraph(pr, path: path);
+  }
+
+  @override
+  void text(
+    String text, {
+    List<Object>? styles,
+  }) {
+    super.text(text, styles: styles);
+  }
+
+  @override
+  void addShape({
+    required AnchorConfig config,
+    required int width,
+    required int height,
+  }) {
+    super.addShape(config: config, width: width, height: height);
+  }
 
   bool get isEmpty => data.isEmpty;
 

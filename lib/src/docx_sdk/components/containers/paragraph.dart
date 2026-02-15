@@ -71,6 +71,15 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
         ],
       );
 
+  factory Paragraph.run(DocxTreeNode node) => Paragraph(
+        data: <RunBase<dynamic>>[
+          Run(
+            component: node,
+            wrapInRunMark: true,
+          ),
+        ],
+      );
+
   /// All the styles applied to the paragraph
   List<Style> styles;
   List<Numbering> references = <Numbering>[];
@@ -323,10 +332,10 @@ class Numbering {
 
   /// List nesting level (0-9). Level 0 is the top-level list item.
   final int level;
-  
+
   /// The unique reference id of this item
   ///
-  /// Share the same id when you need a continuous 
+  /// Share the same id when you need a continuous
   /// count of your items
   ///
   /// Change the id between the item when you need

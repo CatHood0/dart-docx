@@ -19,30 +19,6 @@ import '../xml_components/themes/xml_theme_component.dart';
 import '../xml_components/web_settings/xml_web_settings_component.dart';
 import '../xml_components/xml_content_type_component.dart';
 
-class LoggablePhaseConfig {
-  const LoggablePhaseConfig({
-    this.loggablePhases = const <String>{},
-    this.log,
-    this.enabled = true,
-  });
-
-  final Set<String> loggablePhases;
-  final void Function(String)? log;
-  final bool enabled;
-
-  void _init() {
-    if (enabled) {
-      LoggerConfiguration()
-        ..all()
-        ..activeHandler(printer: log);
-    }
-  }
-
-  bool shouldLogPhase(String phaseName) {
-    return loggablePhases.contains(phaseName);
-  }
-}
-
 /// Core compiler that transforms [DocxDocument] objects into .docx files.
 ///
 /// This class orchestrates the entire document compilation process, including:
@@ -144,7 +120,8 @@ class DocxCompiler {
     DocxDocument document, {
     bool applyCustomTheme = false,
   }) async {
-    config._init();
+    config.init();
+
     CompilerLogger.root.i('Starting Docx compilation process.');
     if (document.root.isEmpty) {
       CompilerLogger.root.e('Document content is empty. Aborting compilation.');
@@ -170,6 +147,7 @@ class DocxCompiler {
     hyperlinkStore.docRelsStore = docRelsStore;
 
     final DocumentContext documentContext = buildContext(options);
+
     CompilerLogger.root.d('Document context built successfully.');
 
     if (applyNormalStyleIfNeeded) {
@@ -228,6 +206,7 @@ class DocxCompiler {
         false;
 
     numberingStore.initializeAndApplyContext(documentContext);
+
     CompilerLogger.root.d('Numbering store initialized.');
     final List<RelationShip> defaultDocRelations =
         XmlDocumentRelsComponent.defaultDocumentFileRelations(
@@ -406,7 +385,7 @@ class DocxCompiler {
         subject: 'Adding embedded font files',
       ));
       CompilerLogger.root.d('Adding embedded font files to archive.');
-      await for (final _ in fontStore.addEmbeddedFontFilesToArchive(
+      await for (void _ in fontStore.addEmbeddedFontFilesToArchive(
         archive,
       )) {
         // _emit(DocxEvent.progress(

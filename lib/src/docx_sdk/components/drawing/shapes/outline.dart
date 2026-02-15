@@ -36,7 +36,7 @@ class DashPattern {
 class ShapeOutline extends DocxTreeNode<void> {
   ShapeOutline({
     required this.color,
-    required this.width,
+    this.width = emu,
     this.style = LineStyle.solid,
     this.cap = LineCap.flat,
     this.join = LineJoin.round,

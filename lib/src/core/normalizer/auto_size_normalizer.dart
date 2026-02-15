@@ -8,13 +8,20 @@ class AutoSizeNormalizer {
   /// Like convert 1024x1024
   static NormalizedSizeResult resizeImageBySettings(
     Size size,
-    PageSize pageSize,
-    DocumentMargins margins,
+    PageSize? pageSize,
+    DocumentMargins? margins,
     int? cDpi,
   ) {
     final int dpi = cDpi ?? imageDpi;
     double widthInches = size.width / dpi;
     double heightInches = size.height / dpi;
+    if (pageSize == null || margins == null) {
+      return NormalizedSizeResult(
+        width: widthInches,
+        height: heightInches,
+        error: null,
+      );
+    }
 
     final double aspectRatio = widthInches / heightInches;
 

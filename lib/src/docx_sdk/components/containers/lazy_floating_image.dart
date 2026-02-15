@@ -53,7 +53,7 @@ class LazyFloatingImage extends ComponentContainer<ImageData<File>>
     // at this point
     //
     // if not, just ignore
-    final _ = ImageSizeGetter.getSizeResult(FileInput(data.buffer));
+    final SizeResult _ = ImageSizeGetter.getSizeResult(FileInput(data.buffer));
     // we need to verify even if the file exist
     return data.buffer.existsSync();
   }
@@ -123,7 +123,7 @@ class LazyFloatingImage extends ComponentContainer<ImageData<File>>
 
   @override
   List<XmlAttribute> buildXmlStyle({required DocumentContext context}) {
-    return [];
+    return <XmlAttribute>[];
   }
 
   @override

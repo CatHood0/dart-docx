@@ -868,3 +868,4 @@ Most of the resources that let us build this library comes from:
 * [Ecma-376](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-oe376/db9b9b72-b10b-4e7e-844c-09f88c972219)
 * [Microsoft Open XML SDK docs](https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk) 
 * [OPC DOCX](https://www.loc.gov/preservation/digital/formats/fdd/fdd000397.shtml)
+* [Latent Styles](https://c-rex.net/samples/ooxml/e1/Part4/OOXML_P4_DOCX_latentStyles_topic_ID0EFKMT.html)

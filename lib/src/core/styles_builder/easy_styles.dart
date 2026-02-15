@@ -546,4 +546,8 @@ class EasyStyles {
         heading5,
         heading6,
       ];
+
+  static List<dynamic> latentStyles() {
+    return [];
+  }
 }

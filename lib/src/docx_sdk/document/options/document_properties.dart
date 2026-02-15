@@ -303,4 +303,52 @@ class DocumentOptions {
 
   /// List numbering/outline configurations.
   final List<NumberingOptions> numberingOptions;
+
+  DocumentOptions copyWith({
+    String? lastModifiedBy,
+    String? creator,
+    String? subject,
+    String? title,
+    DateTime? modifiedAt,
+    String? description,
+    DateTime? createdAt,
+    EditorOptions? editorSettings,
+    DocumentLayout? layoutOptions,
+    bool? sharedDoc,
+    String? company,
+    int? revisions,
+    Iterable<FontProperties>? fonts,
+    bool? preserveWhitespacesWhenRequired,
+    Set<String>? supportedFileExtensions,
+    List<String>? keywords,
+    DocumentStylesSheet? styles,
+    SettingsOptions? settings,
+    WebSettingsOptions? webSettings,
+    List<NumberingOptions>? numberingOptions,
+    ThemeOptions? theme,
+  }) {
+    return DocumentOptions(
+      lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
+      creator: creator ?? this.creator,
+      subject: subject ?? this.subject,
+      title: title ?? this.title,
+      modifiedAt: modifiedAt ?? this.modifiedAt,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      editorSettings: editorSettings ?? this.editorSettings,
+      layoutOptions: layoutOptions ?? this.layoutOptions,
+      sharedDoc: sharedDoc ?? this.sharedDoc,
+      company: company ?? this.company,
+      revisions: revisions ?? this.revisions,
+      fonts: fonts ?? this.fonts,
+      preserveWhitespacesWhenRequired: preserveWhitespacesWhenRequired ?? this.preserveWhitespacesWhenRequired,
+      supportedFileExtensions: supportedFileExtensions ?? this.supportedFileExtensions,
+      keywords: keywords ?? this.keywords.split(','),
+      styles: styles ?? docStyles,
+      settings: settings ?? this.settings,
+      webSettings: webSettings ?? this.webSettings,
+      numberingOptions: numberingOptions ?? this.numberingOptions,
+      theme: theme ?? this.theme,
+    );
+  }
 }

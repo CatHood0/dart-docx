@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
 import '../../sdk.dart';
@@ -20,6 +21,42 @@ abstract class DocxTreeNode<T> {
     this.parent,
     String? id,
   }) : id = id ?? nanoid(7);
+
+  @visibleForOverriding
+  void addImage(ImageData data) {}
+
+  @visibleForOverriding
+  void addParagraph(
+    Paragraph pr, {
+    int? path,
+  }) {}
+
+  @visibleForOverriding
+  void text(
+    String text, {
+    List<Object>? styles,
+  }) {}
+
+  @visibleForOverriding
+  @mustCallSuper
+  void addListItem(
+    Paragraph pr, {
+    int? path,
+  }) {
+    assert(
+      pr.numbering != null,
+      'numbering must be defined '
+      'to allow addListItem '
+      'work as expected',
+    );
+  }
+
+  @visibleForOverriding
+  void addShape({
+    required AnchorConfig config,
+    required int width,
+    required int height,
+  }) {}
 
   T data;
 

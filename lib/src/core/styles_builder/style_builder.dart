@@ -93,6 +93,7 @@ class StyleBuilder {
   bool _semiHidden = false;
   bool _unhideWhenUsed = false;
   bool _contextualSpacing = false;
+  bool _locked = false;
 
   // Run properties (character formatting)
   /// Usually used for w:sz that settings the size of
@@ -225,6 +226,12 @@ class StyleBuilder {
   /// [priority] is an integer representing the priority level.
   StyleBuilder uiPriority(int priority) {
     _uiPriority = priority;
+    return this;
+  }
+
+  /// Specifies whether this style should be locked.
+  StyleBuilder locked(bool locked) {
+    _locked = locked;
     return this;
   }
 
@@ -561,40 +568,11 @@ class StyleBuilder {
       );
     }
 
-    if (_uiPriority != null) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'uiPriority',
-          value: _uiPriority!.toString(),
-        ),
-      );
-    }
-
-
     if (_qFormat) {
       configurators.add(
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'qFormat',
-        ),
-      );
-    }
-
-    if (_semiHidden) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'semiHidden',
-        ),
-      );
-    }
-
-    if (_unhideWhenUsed) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'unhideWhenUsed',
         ),
       );
     }
@@ -705,7 +683,7 @@ class StyleBuilder {
       }
 
       if (_keepNext) {
-        configurators.add(
+        paragraphConfigs.add(
           StyleConfigurator.selfClosing(
             prefix: 'w',
             propertyName: 'keepNext',
@@ -962,6 +940,43 @@ class StyleBuilder {
           prefix: 'w',
           propertyName: 'rPr',
           configurators: textConfigs,
+        ),
+      );
+    }
+
+    if (_uiPriority != null) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'uiPriority',
+          value: _uiPriority!.toString(),
+        ),
+      );
+    }
+
+    if (_locked) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'locked',
+        ),
+      );
+    }
+
+    if (_semiHidden) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'semiHidden',
+        ),
+      );
+    }
+
+    if (_unhideWhenUsed) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'unhideWhenUsed',
         ),
       );
     }

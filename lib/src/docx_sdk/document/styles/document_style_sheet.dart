@@ -1,5 +1,6 @@
 import 'package:xml/xml.dart' as xml;
 import '../../../../docx.dart';
+import '../../styles/latent_styles.dart';
 
 /// Manages document styles and default formatting properties.
 ///
@@ -27,6 +28,7 @@ import '../../../../docx.dart';
 class DocumentStylesSheet {
   DocumentStylesSheet({
     required this.styles,
+    required this.latentStyles,
     List<Style> docDefaultParagraphStyles = const <Style>[],
     List<Style> docDefaultRunStyles = const <Style>[],
   })  : _docDefaultParagraphStyles = <Style>[...docDefaultParagraphStyles],
@@ -45,6 +47,7 @@ class DocumentStylesSheet {
   /// Useful as a starting point for creating custom documents from scratch.
   DocumentStylesSheet.empty()
       : styles = <Style>[],
+        latentStyles = LatentStyles.base(),
         _docDefaultParagraphStyles = <Style>[],
         _docDefaultRunStyles = <Style>[];
 
@@ -58,6 +61,7 @@ class DocumentStylesSheet {
   ///   If not provided, defaults to Times New Roman 12pt with US English.
   DocumentStylesSheet.base({EditorOptions? options})
       : styles = <Style>[...EasyStyles.standardDocumentStyles],
+        latentStyles = LatentStyles.base(),
         _docDefaultParagraphStyles = <Style>[],
         _docDefaultRunStyles = <Style>[
           StyleBuilder.singularC()
@@ -70,6 +74,16 @@ class DocumentStylesSheet {
                   DocxLanguage(language: LanguageCodes.englishUS))
               .build(),
         ];
+
+  // Latent styles refer to style definitions known to an application which have not been included in the current document.
+  //
+  // The latentStyles elements provides a mechanism for storing information regarding certain behaviors of such styles
+  // without storing the actual formatting properties of the styles.
+  //
+  // Such behaviors include such things as how many latent styles must be initialized to their defaults when the 
+  // document is opened, whether latent styles should be locked so that instances of the styles cannot be created, 
+  // what the uiPriority should be for latent styles, etc.
+  LatentStyles latentStyles;
 
   /// Default paragraph styles defined in the document.
   ///
@@ -165,9 +179,11 @@ class DocumentStylesSheet {
     List<Style>? styles,
     List<Style>? docDefaultParagraphStyles,
     List<Style>? docDefaultRunStyles,
+    LatentStyles? latentStyles,
   }) {
     return DocumentStylesSheet(
       styles: styles ?? this.styles,
+      latentStyles: latentStyles ?? this.latentStyles,
       docDefaultParagraphStyles:
           docDefaultParagraphStyles ?? _docDefaultParagraphStyles,
       docDefaultRunStyles: docDefaultRunStyles ?? _docDefaultRunStyles,

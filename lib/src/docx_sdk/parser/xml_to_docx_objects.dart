@@ -4,6 +4,7 @@ import '../../../../docx.dart';
 import '../../core/extensions/node_to_configurator.dart';
 import '../../core/extensions/xml_values_to_dart.dart';
 import '../../util/predicate.dart';
+import '../styles/latent_styles.dart';
 import '../xml_components/xml_content_type_component.dart';
 
 //TODO: implement the rest of the components
@@ -97,9 +98,12 @@ class XmlToDocxObjects {
         revisionIdDefault: revisionIdDefault,
       );
     });
+    //TODO: now we need to get all latent styles and parse to LatentStyles instance
+    // final LatentStyles latent = LatentStyles.base();
 
     return DocumentStylesSheet(
       styles: List<Style>.from(styles),
+      latentStyles: LatentStyles.base(),
       docDefaultParagraphStyles: List<Style>.from(paragraphDefaultStyles),
       docDefaultRunStyles: List<Style>.from(runDefaultStyles),
     );

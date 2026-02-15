@@ -1,5 +1,6 @@
 export '../core/default/xml_defaults.dart';
 export 'compiler/docx_compiler.dart';
+export 'compiler/logs/loggable.dart';
 export 'components/base/component_container.dart';
 export 'components/base/docx_tree_node.dart';
 export 'components/base/run_base.dart';

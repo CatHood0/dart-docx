@@ -122,7 +122,7 @@ class Style extends IterableConfigurators {
   }
 
   List<StyleConfigurator> prioritySort() {
-    configurators.sort((a, b) {
+    configurators.sort((StyleConfigurator a, StyleConfigurator b) {
       if (a.qualifiedName == xmlStyleName) {
         return -1;
       }
@@ -816,9 +816,12 @@ abstract class IterableConfigurators {
   /// Gets the first 'name' configurator if present.
   StyleConfigurator? styleName({String? language}) {
     return styleConfiguratorOrNull(configurators.firstWhere(
-      (StyleConfigurator e) => language != null
-          ? e.qualifiedName == 'w:name' && e.attributes!['w:lang'] == language
-          : e.qualifiedName == 'w:name' || e.propertyName == 'name',
+      (StyleConfigurator e) {
+        final dynamic lang = (e.attributes ?? <String, dynamic>{})['w:lang'];
+        return language != null
+          ? e.qualifiedName == 'w:name' && lang == language
+          : e.qualifiedName == 'w:name' || e.propertyName == 'name';
+      },
       orElse: StyleConfigurator.invalid,
     ));
   }

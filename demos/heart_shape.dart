@@ -50,7 +50,6 @@ Future<void> main() async {
                             data: Color.rgb(0xFF0000),
                           ),
                           outline: ShapeOutline(
-                            width: emu,
                             color: Color.rgb(0xFF0000),
                           ),
                         ),
