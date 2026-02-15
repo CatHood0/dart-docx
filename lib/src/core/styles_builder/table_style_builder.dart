@@ -35,9 +35,15 @@ class TableStyleBuilder {
   final List<StyleConfigurator> _configurators = <StyleConfigurator>[];
 
   // Basic style properties
+  //
+  // first metadata that must
+  // be in this order
+  String? _basedOn;
   String? _next;
-  int? _uiPriority;
   bool _qFormat = false;
+  int? _uiPriority;
+  // at the last part, visibility
+  // are setted
   bool _semiHidden = false;
   bool _unhideWhenUsed = false;
   Object? _defaultValue;
@@ -135,6 +141,14 @@ class TableStyleBuilder {
 
   final List<ConditionalTableStyle> _conditionalStyles =
       <ConditionalTableStyle>[];
+
+  /// Specifies the ID of the style on which this style is based.
+  ///
+  /// [styleId] is the `w:styleId` of the base style.
+  TableStyleBuilder basedOn(String styleId) {
+    _basedOn = styleId;
+    return this;
+  }
 
   TableStyleBuilder withConfigurators(Iterable<StyleConfigurator> configs) {
     _configurators.addAll(configs);
@@ -323,13 +337,13 @@ class TableStyleBuilder {
       };
     }
     if (left != null) {
-      _cellMargins['start'] = <String, dynamic>{
+      _cellMargins['left'] = <String, dynamic>{
         'w:w': left.toString(),
         'w:type': leftType ?? 'dxa',
       };
     }
     if (right != null) {
-      _cellMargins['end'] = <String, dynamic>{
+      _cellMargins['right'] = <String, dynamic>{
         'w:w': right.toString(),
         'w:type': rightType ?? 'dxa',
       };
@@ -586,7 +600,8 @@ class TableStyleBuilder {
   }
 
   TableStyleBuilder addConditionalStyle(
-      ConditionalTableStyle conditionalStyle) {
+    ConditionalTableStyle conditionalStyle,
+  ) {
     _conditionalStyles.add(conditionalStyle);
     return this;
   }
@@ -597,12 +612,13 @@ class TableStyleBuilder {
       ..._configurators
     ];
 
-    // Add basic style properties
-    if (_qFormat) {
+
+    if (_basedOn != null) {
       configurators.add(
         StyleConfigurator.selfClosing(
           prefix: 'w',
-          propertyName: 'qFormat',
+          propertyName: 'basedOn',
+          value: _basedOn!,
         ),
       );
     }
@@ -617,30 +633,21 @@ class TableStyleBuilder {
       );
     }
 
+    if (_qFormat) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'qFormat',
+        ),
+      );
+    }
+
     if (_uiPriority != null) {
       configurators.add(
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'uiPriority',
           value: _uiPriority!.toString(),
-        ),
-      );
-    }
-
-    if (_semiHidden) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'semiHidden',
-        ),
-      );
-    }
-
-    if (_unhideWhenUsed) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'unhideWhenUsed',
         ),
       );
     }
@@ -1267,25 +1274,23 @@ class TableStyleBuilder {
     }
 
     final List<StyleConfigurator> tcPr = <StyleConfigurator>[];
-    if (pPrConfigs.isNotEmpty) {
+    if (pPrConfigs.isNotEmpty || rPrConfigs.isNotEmpty) {
       tcPr.add(
         StyleConfigurator.noSelfClosing(
           prefix: 'w',
           propertyName: 'pPr',
-          configurators: pPrConfigs,
+          configurators: <StyleConfigurator>[
+            ...pPrConfigs,
+            if (rPrConfigs.isNotEmpty)
+              StyleConfigurator.noSelfClosing(
+                prefix: 'w',
+                propertyName: 'rPr',
+                configurators: rPrConfigs,
+              ),
+          ],
         ),
       );
     }
-    if (rPrConfigs.isNotEmpty) {
-      tcPr.add(
-        StyleConfigurator.noSelfClosing(
-          prefix: 'w',
-          propertyName: 'rPr',
-          configurators: rPrConfigs,
-        ),
-      );
-    }
-
     if (tcPr.isNotEmpty) {
       configurators.add(StyleConfigurator.noSelfClosing(
         prefix: 'w',
@@ -1297,6 +1302,24 @@ class TableStyleBuilder {
     // ========== (w:tblStylePr) ==========
     for (final ConditionalTableStyle condStyle in _conditionalStyles) {
       configurators.add(condStyle.toStyleConfigurator());
+    }
+
+    if (_semiHidden) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'semiHidden',
+        ),
+      );
+    }
+
+    if (_unhideWhenUsed) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'unhideWhenUsed',
+        ),
+      );
     }
 
     return Style(

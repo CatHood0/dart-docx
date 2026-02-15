@@ -577,6 +577,16 @@ class StyleBuilder {
       );
     }
 
+    if (_uiPriority != null) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'uiPriority',
+          value: _uiPriority!.toString(),
+        ),
+      );
+    }
+
     if (type != Style.characterType) {
       final List<StyleConfigurator> paragraphConfigs = <StyleConfigurator>[];
 
@@ -610,6 +620,24 @@ class StyleBuilder {
             ),
           );
         }
+      }
+
+      if (_keepNext) {
+        paragraphConfigs.add(
+          StyleConfigurator.selfClosing(
+            prefix: 'w',
+            propertyName: 'keepNext',
+          ),
+        );
+      }
+
+      if (_keepLines) {
+        paragraphConfigs.add(
+          StyleConfigurator.selfClosing(
+            prefix: 'w',
+            propertyName: 'keepLines',
+          ),
+        );
       }
 
       if (_widowControl) {
@@ -680,24 +708,6 @@ class StyleBuilder {
             ),
           );
         }
-      }
-
-      if (_keepNext) {
-        paragraphConfigs.add(
-          StyleConfigurator.selfClosing(
-            prefix: 'w',
-            propertyName: 'keepNext',
-          ),
-        );
-      }
-
-      if (_keepLines) {
-        paragraphConfigs.add(
-          StyleConfigurator.selfClosing(
-            prefix: 'w',
-            propertyName: 'keepLines',
-          ),
-        );
       }
 
       if (_outlineLevel != null) {
@@ -944,25 +954,6 @@ class StyleBuilder {
       );
     }
 
-    if (_uiPriority != null) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'uiPriority',
-          value: _uiPriority!.toString(),
-        ),
-      );
-    }
-
-    if (_locked) {
-      configurators.add(
-        StyleConfigurator.selfClosing(
-          prefix: 'w',
-          propertyName: 'locked',
-        ),
-      );
-    }
-
     if (_semiHidden) {
       configurators.add(
         StyleConfigurator.selfClosing(
@@ -977,6 +968,15 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'unhideWhenUsed',
+        ),
+      );
+    }
+
+    if (_locked) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'locked',
         ),
       );
     }
