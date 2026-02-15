@@ -52,6 +52,8 @@ export 'stores/font_store.dart';
 export 'stores/hyperlink_store.dart';
 export 'stores/media.dart';
 export 'stores/numbering_store.dart';
+export 'styles/latent_analyzer.dart';
+export 'styles/latent_styles.dart';
 export 'styles/styles.dart';
 export 'utils/common_node_keys/docx_paths.dart';
 export 'utils/common_node_keys/xml_keys.dart';
