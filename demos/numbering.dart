@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
 
-/// Simple demo that generates a basic document with a centered heart
 Future<void> main() async {
   final File outFile = File('test_resources/numbering.docx');
 
@@ -14,10 +13,8 @@ Future<void> main() async {
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
         Paragraph.text(
-          text: 'My first list item',
-          styles: <Style>[
-            Style.reference('ListParagraph'),
-          ],
+          text: 'First ordered element',
+          styles: <Style>[Style.reference('ListParagraph')],
           numbering: Numbering(
             reference: 'ordered',
             level: 0,
@@ -25,13 +22,56 @@ Future<void> main() async {
           ),
         ),
         Paragraph.text(
-          text: 'My first list item',
-          styles: <Style>[
-            Style.reference('ListParagraph'),
-          ],
+          text: 'Second ordered element',
+          styles: <Style>[Style.reference('ListParagraph')],
           numbering: Numbering(
             reference: 'ordered',
             level: 0,
+            refId: 1,
+          ),
+        ),
+        Paragraph.text(
+          text: 'First nested element',
+          styles: <Style>[Style.reference('ListParagraph')],
+          numbering: Numbering(
+            reference: 'ordered',
+            level: 1,
+            refId: 1,
+          ),
+        ),
+        Paragraph.text(
+          text: 'Second nested element',
+          styles: <Style>[Style.reference('ListParagraph')],
+          numbering: Numbering(
+            reference: 'ordered',
+            level: 2,
+            refId: 1,
+          ),
+        ),
+        Paragraph.text(
+          text: 'New ordered list item',
+          styles: <Style>[Style.reference('ListParagraph')],
+          numbering: Numbering(
+            reference: 'ordered',
+            level: 0,
+            refId: 2,
+          ),
+        ),
+        Paragraph.text(
+          text: 'Bulleted list element',
+          styles: <Style>[Style.reference('ListParagraph')],
+          numbering: Numbering(
+            reference: 'unordered',
+            level: 0,
+            refId: 1,
+          ),
+        ),
+        Paragraph.text(
+          text: 'Nested bulleted list element',
+          styles: <Style>[Style.reference('ListParagraph')],
+          numbering: Numbering(
+            reference: 'unordered',
+            level: 1,
             refId: 1,
           ),
         ),
@@ -39,10 +79,10 @@ Future<void> main() async {
     ),
   );
 
-  final Uint8List? bytes =
-      await DocxPacker().dynamicFontSearch(true).noTrimRuns().logPaths(<String>[
-    DocxPaths.stylesXmlFilePath,
-  ]).execute(doc, applyCustomTheme: false);
+  final Uint8List? bytes = await DocxPacker()
+      .dynamicFontSearch(true)
+      .noTrimRuns()
+      .execute(doc, applyCustomTheme: false);
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);

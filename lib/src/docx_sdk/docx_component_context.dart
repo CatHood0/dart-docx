@@ -52,7 +52,7 @@ class DocumentContext {
   final bool noTrim;
 
   //
-  late void Function(String ref, int numId)? registerInstance;
+  late void Function(String ref, int numId, {int? level})? registerInstance;
   late Iterable<XmlAbstractNumComponent> Function()?
       getAbstractNumberingTemplates;
   late Iterable<XmlConcreteNumberingComponent> Function()?

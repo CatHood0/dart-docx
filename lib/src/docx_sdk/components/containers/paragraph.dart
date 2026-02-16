@@ -177,6 +177,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       context.registerInstance!.call(
         numbering!.reference,
         numbering!.refId ?? 0,
+        level: numbering!.level,
       );
       final String reference =
           '${numbering!.reference}-${numbering!.refId ?? 0}';

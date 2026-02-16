@@ -29,7 +29,7 @@ Each example is available as runnable code under the `demos/` directory.
 
 | Feature | Google Docs Template | Our library output |
 |---------|---------------------|--------------------|
-| **Layout** | table with 2 columns layout | native multi-column layout |
+| **Layout** | Table with 2 columns layout | Native multi-column layout |
 | **Styling** | Consistent typography and spacing | Similar font families, sizes, and colors |
 | **Content flow** | Logical section ordering | Very similar section structure |
 | **Compatibility** | Google Docs format | Native .docx (MS Word compatible) |
@@ -39,7 +39,7 @@ Each example is available as runnable code under the `demos/` directory.
 |--------|------------|-------|
 | **OnlyOffice** | ![](./assets/curriculum_onlyoffice.png) | Good fidelity with the template |
 | **LibreOffice** | ![](./assets/curriculum_libreoffice.png) | Good compatibility, minor spacing differences |
-| **Microsoft Word** | ![](./assets/curriculum_word.png) | minor differences |
+| **Microsoft Word** | ![](./assets/curriculum_word.png) | Good fidelity like OnlyOffice |
 
 → [cv.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/cv.dart)
 
@@ -298,19 +298,25 @@ final pr = Paragraph.text(
 )
 ```
 
+### List and Numberings
+
 Paragraphs can be formatted as list items with configurable numbering styles and levels. This supports both ordered (numbered) and unordered (bulleted) lists with proper indentation and formatting.
 
 #### Example: Paragraph as list item
 ```dart
-final pr = Paragraph(
-  data: [TextRun.text(text: 'List item content')],
+final pr = Paragraph.text(
+  text: 'List item content',
   numbering: Numbering(
-    reference: 'bullet',
+    // default list style implemented by
+    // the docx library
+    reference: 'unordered',
     level: 0,
-    instance: 1,
+    refId: 1,
   ),
 )
 ```
+
+See more about in [Numbering definition](./docs/numbering_internals.md)
 
 
 ### Images anchoring

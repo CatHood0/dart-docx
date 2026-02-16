@@ -146,7 +146,7 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
   /// Parameters:
   /// - [ref]: The reference key of the abstract numbering template.
   /// - [numRefId]: The instance ID for this concrete numbering.
-  void registerConcreteInstance(String ref, int numRefId) {
+  void registerConcreteInstance(String ref, int numRefId, {int? level}) {
     final XmlAbstractNumComponent? abstractN = abstractNumberingMap[ref];
     if (abstractN == null) return;
 
@@ -155,6 +155,9 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
 
     final List<LevelOptions>? referenceConfig = referenceConfigMap[ref];
     final int? firstLevelStartNumber = referenceConfig?.firstOrNull?.start;
+
+    CompilerLogger.root.d('Registering: $ref-$numRefId of level $level');
+    CompilerLogger.root.d('Overrides: first level number => $firstLevelStartNumber');
 
     final ConcreteNumberingOptions concreteOptions = ConcreteNumberingOptions(
       // to avoid some issues, we generates automatically an numId

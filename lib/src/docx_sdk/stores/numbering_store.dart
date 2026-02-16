@@ -226,8 +226,8 @@ class NumberingStore {
             ),
             LevelOptions(
               level: 1,
-              format: LevelFormat.lowerLetter,
-              text: '%1.',
+              format: LevelFormat.upperRoman,
+              text: '%2.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl1')
                   .indent(
@@ -238,8 +238,8 @@ class NumberingStore {
             ),
             LevelOptions(
               level: 2,
-              format: LevelFormat.lowerRoman,
-              text: '%1.',
+              format: LevelFormat.ideographTraditional,
+              text: '%3.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl2')
                   .indent(
@@ -252,7 +252,7 @@ class NumberingStore {
             LevelOptions(
               level: 3,
               format: LevelFormat.decimal,
-              text: '%1.',
+              text: '%4.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl3')
                   .indent(
@@ -264,7 +264,7 @@ class NumberingStore {
             LevelOptions(
               level: 4,
               format: LevelFormat.lowerLetter,
-              text: '%1.',
+              text: '%5.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl4')
                   .indent(
@@ -276,7 +276,7 @@ class NumberingStore {
             LevelOptions(
               level: 5,
               format: LevelFormat.lowerRoman,
-              text: '%1.',
+              text: '%6.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl5')
                   .indent(
@@ -288,7 +288,7 @@ class NumberingStore {
             LevelOptions(
               level: 6,
               format: LevelFormat.decimal,
-              text: '%1.',
+              text: '%7.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl6')
                   .indent(
@@ -300,7 +300,7 @@ class NumberingStore {
             LevelOptions(
               level: 7,
               format: LevelFormat.lowerLetter,
-              text: '%1.',
+              text: '%8.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl7')
                   .indent(
@@ -312,7 +312,7 @@ class NumberingStore {
             LevelOptions(
               level: 8,
               format: LevelFormat.lowerRoman,
-              text: '%1.',
+              text: '%9.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl8')
                   .indent(

@@ -13,20 +13,19 @@ class XmlAbstractNumComponent extends XmlComponentBase<List<XmlComponentBase>> {
           xmlKey: 'w:abstractNum',
           value: <XmlComponentBase<dynamic>>[
             // generates an unique id for word
-            XmlEmptyElementComponent(
-              xmlKey: 'w:nsid',
-              value: nanoid(
-                8,
-              ),
-            ),
-            MultiLevelType('hibridMultiLevel'),
+            // XmlEmptyElementComponent(
+            //   xmlKey: 'w:nsid',
+            //   value: nanoid(
+            //     8,
+            //   ),
+            // ),
+            MultiLevelType('hybridMultiLevel'),
             ...levels.map(
               LevelComponent.new,
             ),
           ],
           attrs: AbstractNumAttributes(
             id: ensureInteger(id),
-            restartNumberingAfterBreak: 0,
           ),
         );
 
@@ -51,11 +50,9 @@ class XmlAbstractNumComponent extends XmlComponentBase<List<XmlComponentBase>> {
 class AbstractNumAttributes extends XmlComponentAttributes {
   AbstractNumAttributes({
     required num id,
-    required int restartNumberingAfterBreak,
   }) : super(
           xmlAttributes: {
             'w:abstractNumId': id,
-            'restartNumberingAfterBreak': restartNumberingAfterBreak,
           },
         );
 }
