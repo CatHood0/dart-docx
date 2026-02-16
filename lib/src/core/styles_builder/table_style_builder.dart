@@ -1299,11 +1299,6 @@ class TableStyleBuilder {
       ));
     }
 
-    // ========== (w:tblStylePr) ==========
-    for (final ConditionalTableStyle condStyle in _conditionalStyles) {
-      configurators.add(condStyle.toStyleConfigurator());
-    }
-
     if (_semiHidden) {
       configurators.add(
         StyleConfigurator.selfClosing(
@@ -1320,6 +1315,12 @@ class TableStyleBuilder {
           propertyName: 'unhideWhenUsed',
         ),
       );
+    }
+
+
+    // ========== (w:tblStylePr) ==========
+    for (final ConditionalTableStyle condStyle in _conditionalStyles) {
+      configurators.add(condStyle.toStyleConfigurator());
     }
 
     return Style(
