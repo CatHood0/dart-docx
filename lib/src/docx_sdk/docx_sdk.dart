@@ -64,10 +64,10 @@ class DocxSdk {
 
   /// Build the entire new .docx file
   Future<Uint8List?> bytes() async {
-    return DocxPacker().bytes(document);
+    return DocxPacker().execute(document);
   }
 
   Future<Uint8List?> tryChangesSave() async {
-    return DocxPacker().bytes(document);
+    return DocxPacker().execute(document);
   }
 }

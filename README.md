@@ -125,12 +125,8 @@ Future<void> main() async {
           // decides where break the page
           pageBreak: ParagraphPageBreak.none,
         ),
-        Paragraph(
-          data: <RunBase>[
-            TextRun(
-              data: TextPart(text: 'Here is a line break.'),
-            ),
-          ],
+        Paragraph.text(
+          text: 'Here is a line break.',
         ),
         // loads and shows the image:
         // * if it exists
@@ -165,7 +161,7 @@ Future<void> main() async {
   final Uint8List? bytes = await DocxPacker.instance
       .dynamicFontSearch(true)
       .noTrimRuns()
-      .bytes(document);
+      .execute(document);
   await file.writeAsBytes(bytes!);
 }
 ```
@@ -173,6 +169,8 @@ Future<void> main() async {
 ### 2. Stream-Based Document Generation
 
 For larger document operations or to display progress to the user, you can use `stream` which returns a `Stream<DocxEvent>`:
+
+_Experimental yet_
 
 ```dart
 import 'dart:io';
@@ -189,8 +187,7 @@ Future<void> main() async {
       .setNormalIfNeeded(true)
       .noTrimRuns()
       .stream(
-        doc,
-        onStream: (Stream<DocxEvent> eventStream) {
+        (Stream<DocxEvent> eventStream) {
           final subscription = eventStream.listen((DocxEvent event) {
             switch (event) {
               case DocxEventStart():
@@ -228,9 +225,8 @@ Future<void> main() async {
           });
           
           // El stream will be closed when compilation ends 
-        },
-        applyCustomTheme: false,
-      );
+       })
+      .execute(doc, applyCustomTheme: false);
 
   if (bytes != null) {
     await File('document.docx').writeAsBytes(bytes);

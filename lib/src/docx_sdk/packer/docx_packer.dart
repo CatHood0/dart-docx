@@ -48,7 +48,7 @@ class DocxPacker {
     return this;
   }
 
-  /// Determines the "Normal" style to be applied using 
+  /// Determines the "Normal" style to be applied using
   /// `applyNormalStyleIfNeeded` as the falg
   DocxPacker defaultNormalStyle(Style style) {
     assert(style.isReference, 'the style passed must be a reference instance');
@@ -101,7 +101,7 @@ class DocxPacker {
     _compiler.release();
   }
 
-  Future<Uint8List?> bytes(
+  Future<Uint8List?> execute(
     DocxDocument document, {
     List<XmlOverrideFile> overrides = const <XmlOverrideFile>[],
     bool applyCustomTheme = false,
@@ -118,22 +118,8 @@ class DocxPacker {
     );
   }
 
-  Future<Uint8List?> stream(
-    DocxDocument document, {
-    required void Function(Stream<DocxEvent>) onStream,
-    List<XmlOverrideFile> overrides = const <XmlOverrideFile>[],
-    bool applyCustomTheme = false,
-  }) async {
-    onStream(_compiler.eventStream);
-    final Archive? zip = await _compiler.compile(
-      document,
-      applyCustomTheme: applyCustomTheme,
-    );
-    if (zip == null) return null;
-    return _encoder.encodeBytes(
-      zip,
-      autoClose: true,
-      level: DeflateLevel.defaultCompression,
-    );
+  DocxPacker stream(void Function(Stream<DocxEvent>) stream) {
+    stream(_compiler.eventStream);
+    return this;
   }
 }

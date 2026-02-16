@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
+import 'package:docx/src/docx_sdk/events/docx_event.dart';
 
 /// Simple demo that generates a minimal CV as a .docx file.
 Future<void> main() async {
@@ -304,7 +305,10 @@ Future<void> main() async {
       .setNormalIfNeeded(true)
       .defaultNormalStyle(Style.reference('body'))
       .logPath(DocxPaths.documentFilePath)
-      .bytes(
+      .stream((events) {
+        final subscriber = events.listen((data) {}); 
+      })
+      .execute(
         doc,
         applyCustomTheme: false,
       );

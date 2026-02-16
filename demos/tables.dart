@@ -170,7 +170,7 @@ Future<void> main() async {
       .dynamicFontSearch(true)
       .noTrimRuns()
       .setNormalIfNeeded(true)
-      .bytes(
+      .execute(
         doc,
         applyCustomTheme: false,
       );

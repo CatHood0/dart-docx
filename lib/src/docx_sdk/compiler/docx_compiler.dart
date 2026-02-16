@@ -23,8 +23,8 @@ import '../xml_components/xml_content_type_component.dart';
 ///
 /// This class orchestrates the entire document compilation process, including:
 /// - XML generation for all document components (styles, content, properties)
-/// - Media management (images, fonts, hyperlinks)
 /// - ZIP archive creation with proper DOCX structure
+/// - Media management (images, fonts, hyperlinks)
 /// - Progress reporting through event streams
 ///
 /// The compiler follows the Open Packaging Conventions (OPC) to create

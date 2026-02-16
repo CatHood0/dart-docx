@@ -42,7 +42,7 @@ Future<void> main() async {
   final Uint8List? bytes =
       await DocxPacker().dynamicFontSearch(true).noTrimRuns().logPaths(<String>[
     DocxPaths.stylesXmlFilePath,
-  ]).bytes(doc, applyCustomTheme: false);
+  ]).execute(doc, applyCustomTheme: false);
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);

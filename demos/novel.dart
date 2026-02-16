@@ -485,7 +485,7 @@ Future<void> main() async {
 
   final Uint8List? bytes = await DocxPacker()
       .dynamicFontSearch(true)
-      .bytes(document, applyCustomTheme: false);
+      .execute(document, applyCustomTheme: false);
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);
