@@ -98,8 +98,13 @@ void main() {
         ],
       );
 
-      final DocumentStyles stylesSheet =
-          DocumentStyles(styles: <Style>[parentStyle, childStyle]);
+      final DocumentStyles stylesSheet = DocumentStyles(
+        latentStyles: LatentStyles.base(),
+        styles: <Style>[
+          parentStyle,
+          childStyle,
+        ],
+      );
       final Style deepStyle = childStyle.getDeepStyleRelation(stylesSheet);
 
       expect(deepStyle.styleId, 'Child');
@@ -237,8 +242,14 @@ void main() {
         ],
       );
 
-      final DocumentStyles stylesSheet =
-          DocumentStyles(styles: <Style>[styleA, styleB, styleC]);
+      final DocumentStyles stylesSheet = DocumentStyles(
+        latentStyles: LatentStyles.base(),
+        styles: <Style>[
+          styleA,
+          styleB,
+          styleC,
+        ],
+      );
       final Style deepStyle = styleC.getDeepStyleRelation(stylesSheet);
 
       expect(deepStyle.styleId, 'StyleC');
@@ -283,6 +294,7 @@ void main() {
         ],
       );
       final DocumentStyles stylesSheet = DocumentStyles(
+        latentStyles: LatentStyles.base(),
         styles: <Style>[
           style,
         ],
@@ -361,8 +373,13 @@ void main() {
         ],
       );
 
-      final DocumentStyles stylesSheet =
-          DocumentStyles(styles: <Style>[baseStyle, derivedStyle]);
+      final DocumentStyles stylesSheet = DocumentStyles(
+        latentStyles: LatentStyles.base(),
+        styles: <Style>[
+          baseStyle,
+          derivedStyle,
+        ],
+      );
       final Style deepStyle = derivedStyle.getDeepStyleRelation(stylesSheet);
 
       final StyleConfigurator? pPr = deepStyle.getConfiguratorOrNull('w:pPr');
@@ -411,7 +428,13 @@ void main() {
       );
 
       // A styles sheet with the circular styles
-      final DocumentStyles stylesSheet = DocumentStyles(styles: <Style>[styleA, styleB]);
+      final DocumentStyles stylesSheet = DocumentStyles(
+        latentStyles: LatentStyles.base(),
+        styles: <Style>[
+          styleA,
+          styleB,
+        ],
+      );
 
       // When calling getDeepStyleRelation on styleA, it should not loop infinitely
       final Style deepStyle = styleA.getDeepStyleRelation(stylesSheet);
@@ -453,10 +476,13 @@ void main() {
         ],
       );
 
-      final DocumentStyles stylesSheet = DocumentStyles(styles: <Style>[
-        baseStyle,
-        childStyle,
-      ]);
+      final DocumentStyles stylesSheet = DocumentStyles(
+        latentStyles: LatentStyles.base(),
+        styles: <Style>[
+          baseStyle,
+          childStyle,
+        ],
+      );
       final Style deepStyle = childStyle.getDeepStyleRelation(stylesSheet);
 
       expect(deepStyle.styleId, 'Child');
