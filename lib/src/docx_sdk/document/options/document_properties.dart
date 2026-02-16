@@ -114,7 +114,7 @@ class DocumentOptions {
     this.preserveWhitespacesWhenRequired = true,
     Set<String>? supportedFileExtensions,
     List<String> keywords = const <String>[],
-    DocumentStylesSheet? styles,
+    DocumentStyles? styles,
     SettingsOptions? settings,
     WebSettingsOptions? webSettings,
     List<NumberingOptions>? numberingOptions,
@@ -125,7 +125,7 @@ class DocumentOptions {
         numberingOptions = numberingOptions ?? <NumberingOptions>[],
         supportedFileExtensions =
             supportedFileExtensions ?? kDefaultAcceptedFileExtensions,
-        docStyles = styles ?? DocumentStylesSheet.base(),
+        docStyles = styles ?? DocumentStyles.base(),
         standalone = 'yes',
         keywords = keywords.join(','),
         encoding = 'UTF-8',
@@ -166,7 +166,7 @@ class DocumentOptions {
     String subject = '',
     String description = '',
     int revisions = 1,
-    DocumentStylesSheet? styles,
+    DocumentStyles? styles,
     bool preserveWhitespacesWhenRequired = true,
     bool sharedDoc = false,
     Orientation? orientation,
@@ -281,7 +281,7 @@ class DocumentOptions {
   final DateTime createdAt;
 
   /// Document stylesheet containing all paragraph and character styles.
-  final DocumentStylesSheet docStyles;
+  final DocumentStyles docStyles;
 
   /// Editor-specific configuration and preferences.
   final EditorOptions editorSettings;
@@ -321,7 +321,7 @@ class DocumentOptions {
     bool? preserveWhitespacesWhenRequired,
     Set<String>? supportedFileExtensions,
     List<String>? keywords,
-    DocumentStylesSheet? styles,
+    DocumentStyles? styles,
     SettingsOptions? settings,
     WebSettingsOptions? webSettings,
     List<NumberingOptions>? numberingOptions,

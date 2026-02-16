@@ -94,7 +94,7 @@ Future<void> main() async {
       description: 'A psychological thriller about memory and redemption',
       subject: 'Fiction / Thriller',
       keywords: <String>['noir', 'mystery', 'psychological', 'thriller'],
-      styles: DocumentStylesSheet.base().withNewStyles(
+      styles: DocumentStyles.base().withNewStyles(
         <Style>[
           StyleBuilder.paragraph('Title')
               .name('Title')

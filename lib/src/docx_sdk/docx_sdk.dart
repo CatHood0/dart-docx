@@ -35,7 +35,7 @@ class DocxSdk {
   void replace(int start, int end, Object data) {}
   void delete(int start, int end) {}
 
-  void insertStyle(DocumentStylesSheet sheet) {}
+  void insertStyle(DocumentStyles sheet) {}
   void removeStyle(String id, {String? name}) {}
   void updateStyle(String styleId, Style style) {}
 

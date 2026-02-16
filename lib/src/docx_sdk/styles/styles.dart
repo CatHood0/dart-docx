@@ -200,7 +200,7 @@ class Style extends IterableConfigurators {
   /// Searches for a w:basedOn configurator and returns the corresponding
   /// Style from the provided [styles] sheet. Returns null if no base style
   /// is defined or if the referenced style doesn't exist.
-  Style? getStyleWhereBaseOn(DocumentStylesSheet styles) {
+  Style? getStyleWhereBaseOn(DocumentStyles styles) {
     final StyleConfigurator? basedOnConfigurator =
         getConfiguratorOrNull('w:basedOn');
     if (basedOnConfigurator == null) return null;
@@ -226,7 +226,7 @@ class Style extends IterableConfigurators {
   /// ```
   ///
   /// Returns a new Style instance with all inherited properties merged.
-  Style getDeepStyleRelation(DocumentStylesSheet styles) {
+  Style getDeepStyleRelation(DocumentStyles styles) {
     if (basedOn == null) {
       return this;
     }

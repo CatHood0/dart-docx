@@ -17,12 +17,12 @@ void main() {
             .buildDocument(
               DocumentContext.base(
                   options: DocumentOptions.standard(
-                styles: DocumentStylesSheet.base(),
+                styles: DocumentStyles.base(),
               )),
             )
             .toXmlString(),
       );
-      final DocumentStylesSheet stylesSheet =
+      final DocumentStyles stylesSheet =
           XmlToDocxObjects.xmlToDocumentStylesSheet(xmlDocument);
 
       expect(

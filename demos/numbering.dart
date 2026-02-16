@@ -9,7 +9,7 @@ Future<void> main() async {
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(
       title: 'Numbering document',
-      styles: DocumentStylesSheet.base(),
+      styles: DocumentStyles.base(),
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[

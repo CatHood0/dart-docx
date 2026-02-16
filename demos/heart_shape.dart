@@ -10,7 +10,7 @@ Future<void> main() async {
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(
       title: 'My Heart Shape Document',
-      styles: DocumentStylesSheet.base(),
+      styles: DocumentStyles.base(),
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[

@@ -38,7 +38,7 @@ Future<void> main() async {
           ],
         ),
       ),
-      styles: DocumentStylesSheet.base().withNewStyles(
+      styles: DocumentStyles.base().withNewStyles(
         <Style>[
           StyleBuilder.paragraph('title')
               .name('Title')

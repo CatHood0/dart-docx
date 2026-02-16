@@ -23,7 +23,7 @@ Future<void> main() async {
         size: pageSize,
         margins: margins,
       ),
-      styles: DocumentStylesSheet.base().withNewStyles(
+      styles: DocumentStyles.base().withNewStyles(
         <Style>[
           StyleBuilder.paragraph('Title')
               .name('Title')

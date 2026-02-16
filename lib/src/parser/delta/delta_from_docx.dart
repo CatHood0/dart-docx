@@ -97,7 +97,7 @@ class DeltaFromDocxParser extends Parser<Uint8List, Delta?, DeltaParserOptions> 
       defaultTabStop: kDefaultTabStop,
     );
 
-    final DocumentStylesSheet docStyles = DocumentStylesSheet.fromXmlStyles(
+    final DocumentStyles docStyles = DocumentStyles.fromXmlStyles(
       styles!,
     );
 

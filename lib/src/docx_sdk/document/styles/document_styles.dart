@@ -25,8 +25,8 @@ import '../../styles/latent_styles.dart';
 /// // Find a style by ID
 /// final headingStyle = stylesheet.getStyleById('Heading1');
 /// ```
-class DocumentStylesSheet {
-  DocumentStylesSheet({
+class DocumentStyles {
+  DocumentStyles({
     required this.styles,
     required this.latentStyles,
     List<Style> docDefaultParagraphStyles = const <Style>[],
@@ -34,18 +34,18 @@ class DocumentStylesSheet {
   })  : _docDefaultParagraphStyles = <Style>[...docDefaultParagraphStyles],
         _docDefaultRunStyles = <Style>[...docDefaultRunStyles];
 
-  /// Factory constructor to create a [DocumentStylesSheet] from XML.
+  /// Factory constructor to create a [DocumentStyles] from XML.
   ///
   /// Parses an existing `styles.xml` document to reconstruct the stylesheet.
   /// This is useful when working with existing DOCX documents or templates.
-  factory DocumentStylesSheet.fromXmlStyles(xml.XmlDocument styleDoc) {
+  factory DocumentStyles.fromXmlStyles(xml.XmlDocument styleDoc) {
     return XmlToDocxObjects.xmlToDocumentStylesSheet(styleDoc);
   }
 
   /// Creates an empty stylesheet with no styles defined.
   ///
   /// Useful as a starting point for creating custom documents from scratch.
-  DocumentStylesSheet.empty()
+  DocumentStyles.empty()
       : styles = <Style>[],
         latentStyles = LatentStyles.base(),
         _docDefaultParagraphStyles = <Style>[],
@@ -59,7 +59,7 @@ class DocumentStylesSheet {
   /// Parameters:
   /// - [options]: Editor configuration including font family, size, and language.
   ///   If not provided, defaults to Times New Roman 12pt with US English.
-  DocumentStylesSheet.base({EditorOptions? options})
+  DocumentStyles.base({EditorOptions? options})
       : styles = <Style>[...EasyStyles.standardDocumentStyles],
         latentStyles = LatentStyles.base(),
         _docDefaultParagraphStyles = <Style>[],
@@ -175,13 +175,13 @@ class DocumentStylesSheet {
   }
 
   /// Creates a copy of the stylesheet with optional modifications.
-  DocumentStylesSheet copyWith({
+  DocumentStyles copyWith({
     List<Style>? styles,
     List<Style>? docDefaultParagraphStyles,
     List<Style>? docDefaultRunStyles,
     LatentStyles? latentStyles,
   }) {
-    return DocumentStylesSheet(
+    return DocumentStyles(
       styles: styles ?? this.styles,
       latentStyles: latentStyles ?? this.latentStyles,
       docDefaultParagraphStyles:
@@ -191,7 +191,7 @@ class DocumentStylesSheet {
   }
 
   /// Creates a new stylesheet with additional styles appended.
-  DocumentStylesSheet withNewStyles(
+  DocumentStyles withNewStyles(
     List<Style> styles, {
     List<Style>? docDefaultParagraphStyles,
     List<Style>? docDefaultRunStyles,

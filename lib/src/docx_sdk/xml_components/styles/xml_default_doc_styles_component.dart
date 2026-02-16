@@ -4,7 +4,7 @@ import '../../../../docx.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 
 class XmlDefaultDocStylesComponent
-    extends XmlComponentBase<DocumentStylesSheet> {
+    extends XmlComponentBase<DocumentStyles> {
   XmlDefaultDocStylesComponent({required super.value})
       : components = <XmlComponentBase<dynamic>>[
           XmlDefaultParagraphStylesComponent(

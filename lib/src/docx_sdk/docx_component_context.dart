@@ -63,7 +63,7 @@ class DocumentContext {
   late num? Function(String ref)? getAbstractNumId;
   late num? Function(String ref)? getConcreteNumId;
 
-  DocumentStylesSheet get docStyleSheet => options.docStyles;
+  DocumentStyles get docStyleSheet => options.docStyles;
 
   // all the media are saved
   // {filename: rid}

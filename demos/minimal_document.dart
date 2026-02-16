@@ -18,7 +18,7 @@ Future<void> main() async {
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(
       title: 'Minimal',
-      styles: DocumentStylesSheet.base(),
+      styles: DocumentStyles.base(),
       section: DocumentLayout(
         size: pageSize,
         margins: margins,

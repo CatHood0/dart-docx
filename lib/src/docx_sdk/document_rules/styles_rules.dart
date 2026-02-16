@@ -1,6 +1,4 @@
-import '../components/docx_document.dart';
-import '../document/styles/document_style_sheet.dart';
-import '../styles/styles.dart';
+import '../../../docx.dart';
 import 'rule.dart';
 
 class NoToggleAttributesRule extends Rule {
@@ -9,7 +7,7 @@ class NoToggleAttributesRule extends Rule {
 
   @override
   RuleException? validate(DocxDocument document) {
-    final DocumentStylesSheet docStyles = document.options.docStyles;
+    final DocumentStyles docStyles = document.options.docStyles;
 
     for (final Style style in docStyles.styles) {
       final StyleConfigurator? pPr = style.paragraphProperties;

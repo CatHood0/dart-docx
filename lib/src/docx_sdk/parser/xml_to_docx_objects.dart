@@ -21,7 +21,7 @@ class XmlToDocxObjects {
   }
 
 //TODO: please, document this
-  static DocumentStylesSheet xmlToDocumentStylesSheet(
+  static DocumentStyles xmlToDocumentStylesSheet(
     xml.XmlDocument xmlStyles,
   ) {
     final List<Style> paragraphDefaultStyles = [];
@@ -63,7 +63,7 @@ class XmlToDocxObjects {
     // common styles configured by the user
     final Iterable<xml.XmlElement> rawStyles =
         mainStyles.findElements(xmlStyleNode);
-    if (rawStyles.isEmpty) return DocumentStylesSheet.empty();
+    if (rawStyles.isEmpty) return DocumentStyles.empty();
     final Iterable<Style> styles =
         rawStyles.map((xml.XmlElement xmlStyleElement) {
       // common values
@@ -101,7 +101,7 @@ class XmlToDocxObjects {
     //TODO: now we need to get all latent styles and parse to LatentStyles instance
     // final LatentStyles latent = LatentStyles.base();
 
-    return DocumentStylesSheet(
+    return DocumentStyles(
       styles: List<Style>.from(styles),
       latentStyles: LatentStyles.base(),
       docDefaultParagraphStyles: List<Style>.from(paragraphDefaultStyles),

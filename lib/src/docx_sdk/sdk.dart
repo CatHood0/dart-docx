@@ -38,7 +38,7 @@ export 'document/editor/editor_metadata.dart';
 export 'document/editor/editor_options.dart';
 export 'document/editor/page_size.dart';
 export 'document/options/document_properties.dart';
-export 'document/styles/document_style_sheet.dart';
+export 'document/styles/document_styles.dart';
 export 'docx_component_context.dart';
 export 'docx_sdk.dart';
 export 'mixins/applicable_attribute_mixin.dart';
