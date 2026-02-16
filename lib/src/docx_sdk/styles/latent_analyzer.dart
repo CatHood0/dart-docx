@@ -84,7 +84,7 @@ class LatentAnalyzer {
 
       if (uiPriority != null &&
           int.parse(uiPriority.value!.cast<String>()) != latent.defUIPriority) {
-        metadata['w:uiPriority'] = uiPriority.value!.cast<num>();
+        metadata['w:uiPriority'] = uiPriority.value!.cast<String>();
       } else if (uiPriority == null) {
         style.addAll(
           StyleBuilder.singularC()
