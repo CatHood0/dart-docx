@@ -6,10 +6,8 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
-import '../../mixins/ignorable_mixin.dart';
-import 'anchor.dart';
 
-class LazyFloatingImage extends ComponentContainer<ImageData<File>>
+class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
     with IgnorableMixin {
   LazyFloatingImage({
     required super.data,
@@ -94,30 +92,25 @@ class LazyFloatingImage extends ComponentContainer<ImageData<File>>
     }
 
     return <XmlElement>[
-      super.runParent(
-        attributes: buildXmlStyle(context: context),
-        children: <XmlNode>[
-          ...Anchor(
-            component: LazyImage(
-              // should be unique by component
-              // by, since blocks are just
-              // wrappers of granular components
-              // we assign to them the same id
-              // to avoid sync issues with stores
-              id: id,
-              data: data,
-              transformOffsetX: transformOffsetX,
-              transformOffsetY: transformOffsetY,
-              asInline: false,
-            ),
-            widthEmu: imgWidthEmu!,
-            heightEmu: imgHeightEmu!,
-            config: data.anchorConfig,
-            name: imageName,
-            elementId: elementId,
-          ).buildXml(context: context),
-        ],
-      ),
+      ...Anchor(
+        component: LazyImage(
+          // should be unique by component
+          // by, since blocks are just
+          // wrappers of granular components
+          // we assign to them the same id
+          // to avoid sync issues with stores
+          id: id,
+          data: data,
+          transformOffsetX: transformOffsetX,
+          transformOffsetY: transformOffsetY,
+          asInline: false,
+        ),
+        widthEmu: imgWidthEmu!,
+        heightEmu: imgHeightEmu!,
+        config: data.anchorConfig,
+        name: imageName,
+        elementId: elementId,
+      ).buildXml(context: context),
     ];
   }
 
