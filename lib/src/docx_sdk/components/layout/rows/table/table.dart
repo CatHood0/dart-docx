@@ -47,9 +47,9 @@ class Table extends DocxTreeNode<List<TableRow>> {
     super.id,
     super.parent,
   })  : assert(gridCols.length == rows.length, 'grid'),
-        super(data: rows) {
+        super(child: rows) {
     int rowIndex = 0;
-    for (final TableRow row in data) {
+    for (final TableRow row in child) {
       row
         ..parent = this
         ..index = rowIndex
@@ -115,7 +115,7 @@ class Table extends DocxTreeNode<List<TableRow>> {
     );
 
     // Build all table rows
-    for (final TableRow row in data) {
+    for (final TableRow row in child) {
       final List<XmlElement> rowXml = row.buildXml(context: context);
       tableChildren.addAll(rowXml);
     }
@@ -132,7 +132,7 @@ class Table extends DocxTreeNode<List<TableRow>> {
   @override
   Table get copy => Table(
         id: id,
-        rows: data,
+        rows: child,
         tableConfig: tableConfig,
         gridCols: gridCols,
         parent: parent,
@@ -143,7 +143,8 @@ class Table extends DocxTreeNode<List<TableRow>> {
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final TableRow element in data) {
+    for (final TableRow element in child) {
+      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
@@ -164,9 +165,10 @@ class Table extends DocxTreeNode<List<TableRow>> {
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (data.isEmpty) return <DocxTreeNode>[];
+    if (child.isEmpty) return <DocxTreeNode>[];
     final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final TableRow element in data) {
+    for (final TableRow element in child) {
+      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {

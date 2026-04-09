@@ -79,11 +79,10 @@ class NumberingStore {
               paragraphStyle: StyleBuilder.paragraph('unordered-lvl0')
                   .indent(
                     left: 0.5.inchesToTwips(),
-                    hanging:
-                        0.25.inchesToTwips(),
+                    hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -98,7 +97,7 @@ class NumberingStore {
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -113,7 +112,7 @@ class NumberingStore {
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -128,7 +127,7 @@ class NumberingStore {
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -143,7 +142,7 @@ class NumberingStore {
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -158,7 +157,7 @@ class NumberingStore {
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -173,7 +172,7 @@ class NumberingStore {
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -188,7 +187,7 @@ class NumberingStore {
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -203,7 +202,7 @@ class NumberingStore {
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.paragraph('unordered-lvl0')
+              runStyle: StyleBuilder.character('unordered-lvl0')
                   .fontFamily('Symbol')
                   .build(),
             ),
@@ -238,7 +237,7 @@ class NumberingStore {
             ),
             LevelOptions(
               level: 2,
-              format: LevelFormat.ideographTraditional,
+              format: LevelFormat.upperLetter,
               text: '%3.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl2')
@@ -263,7 +262,7 @@ class NumberingStore {
             ),
             LevelOptions(
               level: 4,
-              format: LevelFormat.lowerLetter,
+              format: LevelFormat.lowerRoman,
               text: '%5.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl4')
@@ -275,7 +274,7 @@ class NumberingStore {
             ),
             LevelOptions(
               level: 5,
-              format: LevelFormat.lowerRoman,
+              format: LevelFormat.lowerLetter,
               text: '%6.',
               start: 1,
               paragraphStyle: StyleBuilder.paragraph('ordered-lvl5')

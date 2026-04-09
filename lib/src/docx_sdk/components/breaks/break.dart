@@ -7,15 +7,18 @@ enum BreakType {
   column,
   page,
   newline,
-tab,
+  tab,
 }
 
 class Break extends RunBase<BreakType> {
-  Break({required super.data});
+  Break({required super.child});
 
-  Break.lineBreak() : super(data: BreakType.newline);
-  Break.pageBreak() : super(data: BreakType.page);
-  Break.columnBreak() : super(data: BreakType.column);
+  Break.lineBreak() : super(child: BreakType.newline);
+  Break.pageBreak() : super(child: BreakType.page);
+  Break.columnBreak() : super(child: BreakType.column);
+
+  @override
+  int get dataLength => 0;
 
   @override
   List<XmlNode> buildXml({required DocumentContext context}) {
@@ -23,10 +26,10 @@ class Break extends RunBase<BreakType> {
       XmlElement.tag(
         'w:br',
         attributes: [
-          if (data != BreakType.newline)
+          if (child != BreakType.newline)
             XmlAttribute(
               'w:type'.toName(),
-              data.name,
+              child.name,
             ),
         ],
       ),
@@ -39,7 +42,7 @@ class Break extends RunBase<BreakType> {
   }
 
   @override
-  Break get copy => Break(data: data);
+  Break get copy => Break(child: child);
 
   @override
   List<DocxTreeNode<dynamic>>? visitAllElement(
@@ -73,5 +76,26 @@ class Break extends RunBase<BreakType> {
   @override
   String toString() {
     return toPlainText();
+  }
+
+  @override
+  RunBase<dynamic> cut(int offset, int offsetEnd) {
+    return Run(component: this).cut(offset, offsetEnd);
+  }
+
+  @override
+  (RunBase<dynamic>, RunBase<dynamic>, RunBase<dynamic>) cutAll(
+    int offset,
+    int offsetEnd,
+  ) {
+    return Run(component: this).cutAll(offset, offsetEnd);
+  }
+
+  @override
+  (RunBase<dynamic>, RunBase<dynamic>) cutTwo(
+    int offset,
+    int offsetEnd,
+  ) {
+    return Run(component: this).cutTwo(offset, offsetEnd);
   }
 }

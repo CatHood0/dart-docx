@@ -18,19 +18,19 @@ class GeometryGuide {
 class GeometryGuideList extends DocxTreeNode<Iterable<GeometryGuide>> {
   GeometryGuideList({
     Iterable<GeometryGuide> values = const <GeometryGuide>[],
-  }) : super(data: values);
+  }) : super(child: values);
 
   @override
-  GeometryGuideList get copy => GeometryGuideList(values: data);
+  GeometryGuideList get copy => GeometryGuideList(values: child);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'a:gdLst',
-        isSelfClosing: data.isEmpty,
+        isSelfClosing: child.isEmpty,
         children: <XmlNode>[
-          ...data.map((GeometryGuide el) {
+          ...child.map((GeometryGuide el) {
             return XmlElement.tag(
               'a:gd',
               attributes: <XmlAttribute>[

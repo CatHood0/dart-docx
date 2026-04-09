@@ -8,7 +8,7 @@ import '../../shared/effects.dart';
 /// Creates a mirrored copy of the shape below it, fading out to simulate
 /// a reflective surface. Often used for a polished, glossy look.
 class ReflectionEffectComponent extends Effect<ReflectionEffect> {
-  ReflectionEffectComponent({required super.data});
+  ReflectionEffectComponent({required super.child});
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -16,49 +16,49 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
       XmlElement.tag(
         'a:reflection',
         attributes: <XmlAttribute>[
-          if (data.blurRadius != 0)
+          if (child.blurRadius != 0)
             XmlAttribute(
               'blurRad'.toName(),
-              data.blurRadius.toString(),
+              child.blurRadius.toString(),
             ),
-          if (data.distance != 0)
+          if (child.distance != 0)
             XmlAttribute(
               'dist'.toName(),
-              data.distance.toString(),
+              child.distance.toString(),
             ),
-          if (data.direction != 0)
+          if (child.direction != 0)
             XmlAttribute(
               'dir'.toName(),
-              data.direction.toString(),
+              child.direction.toString(),
             ),
-          if (data.fadeDirection != 0)
+          if (child.fadeDirection != 0)
             XmlAttribute(
               'fadeDir'.toName(),
-              data.fadeDirection.toString(),
+              child.fadeDirection.toString(),
             ),
-          if (data.startOpacity != 100000)
+          if (child.startOpacity != 100000)
             XmlAttribute(
               'stA'.toName(),
-              data.startOpacity.toString(),
+              child.startOpacity.toString(),
             ),
-          if (data.endOpacity != 0)
+          if (child.endOpacity != 0)
             XmlAttribute(
               'endA'.toName(),
-              data.endOpacity.toString(),
+              child.endOpacity.toString(),
             ),
-          if (data.startPosition != 0)
+          if (child.startPosition != 0)
             XmlAttribute(
               'stPos'.toName(),
-              data.startPosition.toString(),
+              child.startPosition.toString(),
             ),
-          if (data.endPosition != 100000)
+          if (child.endPosition != 100000)
             XmlAttribute(
               'endPos'.toName(),
-              data.endPosition.toString(),
+              child.endPosition.toString(),
             ),
           XmlAttribute(
             'algn'.toName(),
-            _toWordValidAlignName(data.alignment),
+            _toWordValidAlignName(child.alignment),
           ),
         ],
         isSelfClosing: true,
@@ -67,7 +67,7 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
   }
 
   @override
-  ReflectionEffectComponent get copy => ReflectionEffectComponent(data: data);
+  ReflectionEffectComponent get copy => ReflectionEffectComponent(child: child);
 
   String _toWordValidAlignName(BorderAlignment alignment) {
     return switch (alignment) {

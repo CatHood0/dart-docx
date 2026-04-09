@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:meta/meta.dart';
+
 import 'sdk.dart';
 import 'utils/logger/logger_configs.dart';
 import 'xml_components/numbering/abstract_numbering_component.dart';
@@ -31,6 +33,20 @@ class DocumentContext {
         setNormalStyleToNotStyledParagraphs = true,
         defaultNormalStyle = Style.reference('Normal'),
         options = options ?? DocumentOptions.standard(title: 'unnamed');
+
+  /// A factory designed specificaly for work during testing phases
+  @visibleForTesting
+  DocumentContext.test({DocumentOptions? options})
+      : mediaStore = MediaStore(),
+        hyperlinkStore = HyperlinkStore(),
+        fontStore = FontStore(),
+        noTrim = true,
+        drawingStore = DrawingElementCounterStore(),
+        numberingStore = NumberingStore(),
+        setNormalStyleToNotStyledParagraphs = true,
+        defaultNormalStyle = Style.reference('Normal'),
+        options = options ?? DocumentOptions.standard(title: 'unnamed'),
+        registerInstance = ((String ref, int num, {int? level}) {});
 
   /// Determines if the paragraph will be created referencing the
   /// "Normal" style

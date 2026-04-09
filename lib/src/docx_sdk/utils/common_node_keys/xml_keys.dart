@@ -42,6 +42,8 @@ const String xmlParagraphInlineAttsrNode = 'w:rPr';
 const String xmlTablePropertiesNode = 'w:tblPr';
 const String xmlTableRowPropertiesNode = 'w:trPr';
 
+const String xmlValAttribute = 'w:val';
+
 /// text
 const String xmlTextNode = 'w:t', xmlTextRunNode = 'w:r';
 const String xmlTableStyleNode = 'w:tblStyle'; // w:val="any_type_value"

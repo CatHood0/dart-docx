@@ -486,7 +486,7 @@ Table _buildComplexContentTable() {
                 text: 'Normal text ',
               ),
               Paragraph(
-                data: <RunBase<dynamic>>[
+                children: <RunBase<dynamic>>[
                   TextRun.text(text: 'Text in '),
                   TextRun.text(
                     text: 'bold',
@@ -519,7 +519,7 @@ Table _buildComplexContentTable() {
               ),
               Paragraph.text(text: ''),
               Paragraph(
-                data: <RunBase<dynamic>>[
+                children: <RunBase<dynamic>>[
                   TextRun.text(text: 'List item 1'),
                 ],
                 numbering: Numbering(
@@ -529,7 +529,7 @@ Table _buildComplexContentTable() {
                 ),
               ),
               Paragraph(
-                data: <RunBase<dynamic>>[
+                children: <RunBase<dynamic>>[
                   TextRun.text(text: 'List item 2 with longer text'),
                 ],
                 numbering: Numbering(
@@ -539,7 +539,7 @@ Table _buildComplexContentTable() {
                 ),
               ),
               Paragraph(
-                data: <RunBase<dynamic>>[
+                children: <RunBase<dynamic>>[
                   TextRun.text(text: 'Text '),
                   TextRun.text(
                     text: 'special',

@@ -1,14 +1,18 @@
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
-import '../../mixins/ignorable_mixin.dart';
+import '../../../core/extensions/cast_ext.dart';
+import '../base/empty_node.dart';
 
 class Run extends RunBase<DocxTreeNode> {
   Run({
     required DocxTreeNode component,
     this.wrapInRunMark = true,
-  }) : super(data: component) {
-    data
+    super.id,
+    super.parent,
+  }) : super(child: component) {
+    length += component.length;
+    child
       ..parent = this
       ..index = index
       ..depth = depth + 1;
@@ -17,25 +21,100 @@ class Run extends RunBase<DocxTreeNode> {
   bool wrapInRunMark;
 
   @override
+  bool isEmptyNode() {
+    return child is EmptyNode;
+  }
+
+  @override
+  RunBase cut(int offset, int offsetEnd) {
+    if (child is TextRun) {
+      return child.cast<TextRun>().cut(offset, offsetEnd);
+    }
+    if (child is HyperlinkRun) {
+      return child.cast<TextRun>().cut(offset, offsetEnd);
+    }
+
+    return Run(
+      component: EmptyNode(),
+      id: id,
+      parent: parent,
+    );
+  }
+
+  @override
+  (RunBase, RunBase) cutTwo(int offset, int offsetEnd) {
+    if (child is TextRun) {
+      return child.cast<TextRun>().cutTwo(offset, offsetEnd);
+    }
+    if (child is HyperlinkRun) {
+      return child.cast<TextRun>().cutTwo(offset, offsetEnd);
+    }
+
+    return (
+      Run(
+        component: child,
+        id: id,
+        parent: parent,
+      ),
+      Run(
+        component: EmptyNode(),
+        id: id,
+        parent: parent,
+      )
+    );
+  }
+
+  @override
+  (RunBase, RunBase, RunBase) cutAll(int offset, int offsetEnd) {
+    if (child is TextRun) {
+      return child.cast<TextRun>().cutAll(offset, offsetEnd);
+    }
+    if (child is HyperlinkRun) {
+      return child.cast<TextRun>().cutAll(offset, offsetEnd);
+    }
+
+    return (
+      Run(
+        component: offset > 0 ? EmptyNode() : child,
+        id: id,
+        parent: parent,
+      ),
+      Run(
+        component: EmptyNode(),
+        id: id,
+        parent: parent,
+      ),
+      Run(
+        component: EmptyNode(),
+        id: id,
+        parent: parent,
+      ),
+    );
+  }
+
+  @override
   List<XmlNode> buildXml({required DocumentContext context}) {
     return wrapInRunMark
         ? <XmlNode>[
             super.runParent(
-              nodes: data.buildXml(
+              nodes: child.buildXml(
                 context: context,
               ),
             ),
           ]
-        : data.buildXml(context: context);
+        : child.buildXml(context: context);
   }
 
   @override
   List<XmlNode> buildXmlStyle({required DocumentContext context}) {
-    return [];
+    return <XmlNode>[];
   }
 
   @override
-  Run get copy => Run(component: data.copy);
+  int get dataLength => length;
+
+  @override
+  Run get copy => Run(component: child.copy);
 
   @override
   bool get isEmptyData => false;
@@ -49,7 +128,7 @@ class Run extends RunBase<DocxTreeNode> {
         ? <DocxTreeNode<dynamic>>[this]
         : !visitChildrenIfNeeded
             ? null
-            : data.visitAllElement(
+            : child.visitAllElement(
                 shouldGetElement,
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
@@ -64,7 +143,7 @@ class Run extends RunBase<DocxTreeNode> {
         ? this
         : !visitChildrenIfNeeded
             ? null
-            : data.visitElement(
+            : child.visitElement(
                 shouldGetElement,
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
@@ -72,17 +151,17 @@ class Run extends RunBase<DocxTreeNode> {
 
   @override
   bool shouldIgnore() {
-    return data is IgnorableMixin && (data as IgnorableMixin).shouldIgnore();
+    return child is IgnorableMixin && (child as IgnorableMixin).shouldIgnore();
   }
 
   //TODO: improve these methods
   @override
   String toPlainText() {
-    return data is PrintableMixin ? (data as PrintableMixin).toPlainText() : '';
+    return child is PrintableMixin ? (child as PrintableMixin).toPlainText() : '';
   }
 
   @override
   String toString() {
-    return data.toString();
+    return child.toString();
   }
 }

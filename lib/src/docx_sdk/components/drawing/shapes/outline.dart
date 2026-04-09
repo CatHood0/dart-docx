@@ -33,15 +33,15 @@ class DashPattern {
 ///
 /// Defines the line properties around the shape perimeter, including
 /// color, width, dash pattern, and cap/join styles.
-class ShapeOutline extends DocxTreeNode<void> {
-  ShapeOutline({
+class ShapeBorder extends DocxTreeNode<void> {
+  ShapeBorder({
     required this.color,
     this.width = emu,
     this.style = LineStyle.solid,
     this.cap = LineCap.flat,
     this.join = LineJoin.round,
     this.dashPattern,
-  }) : super(data: null);
+  }) : super(child: null);
 
   final Color color;
 
@@ -53,7 +53,7 @@ class ShapeOutline extends DocxTreeNode<void> {
   final DashPattern? dashPattern;
 
   @override
-  ShapeOutline get copy => ShapeOutline(
+  ShapeBorder get copy => ShapeBorder(
         color: color.copy,
         width: width,
         style: style,
@@ -86,7 +86,7 @@ class ShapeOutline extends DocxTreeNode<void> {
         ],
         children: <XmlNode>[
           ...SolidFill(
-            data: color,
+            color: color,
           ).buildXml(context: context),
           if (style != LineStyle.solid) _buildLineStyle(style, dashPattern),
         ],

@@ -10,16 +10,18 @@ import '../../../core/normalizer/auto_size_normalizer.dart';
 class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
     with IgnorableMixin {
   LazyFloatingImage({
-    required super.data,
+    required super.child,
     super.parent,
     super.id,
     this.transformOffsetX = 0,
     this.transformOffsetY = 0,
   }) : assert(
-          data.anchorConfig.wrapType != WrapType.asCharacter,
+          child.anchorConfig.wrapType != WrapType.asCharacter,
           'the wrapping strategy '
           'cannot be inline in blocks',
-        );
+        ) {
+    super.length = 1;
+  }
 
   final int transformOffsetX;
   final int transformOffsetY;
@@ -29,20 +31,20 @@ class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
         id: id,
         transformOffsetX: transformOffsetX,
         transformOffsetY: transformOffsetY,
-        data: ImageData(
-          buffer: File(data.buffer.path),
-          anchorConfig: data.anchorConfig,
-          extension: data.extension,
-          styles: data.styles,
-          width: data.width,
-          height: data.height,
-          name: data.name,
-          alt: data.alt,
-          unit: data.unit,
+        child: ImageData(
+          buffer: File(child.buffer.path),
+          anchorConfig: child.anchorConfig,
+          extension: child.extension,
+          styles: child.styles,
+          width: child.width,
+          height: child.height,
+          name: child.name,
+          alt: child.alt,
+          unit: child.unit,
         ),
       );
 
-  String get getImageName => data.name ?? '';
+  String get getImageName => child.name ?? '';
 
   @override
   bool shouldIgnore() {
@@ -51,9 +53,9 @@ class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
     // at this point
     //
     // if not, just ignore
-    final SizeResult _ = ImageSizeGetter.getSizeResult(FileInput(data.buffer));
+    final SizeResult _ = ImageSizeGetter.getSizeResult(FileInput(child.buffer));
     // we need to verify even if the file exist
-    return data.buffer.existsSync();
+    return child.buffer.existsSync();
   }
 
   @override
@@ -61,7 +63,7 @@ class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
-        'The image "${data.name}" couldn\'t be '
+        'The image "${this.child.name}" couldn\'t be '
         'founded into the DocxComponentContext',
       );
     }
@@ -70,14 +72,14 @@ class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
     // to get it in more another places
     final int elementId = context.drawingStore.getNextId(id);
 
-    num? imgWidthEmu = data.width;
-    num? imgHeightEmu = data.height;
+    num? imgWidthEmu = this.child.width;
+    num? imgHeightEmu = this.child.height;
 
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
     if (imgWidthEmu == null || imgHeightEmu == null) {
       final Size size =
-          ImageSizeGetter.getSizeResult(FileInput(data.buffer)).size;
+          ImageSizeGetter.getSizeResult(FileInput(this.child.buffer)).size;
       // the result is a size computed in inches
       final NormalizedSizeResult resultSize =
           AutoSizeNormalizer.resizeImageBySettings(
@@ -93,21 +95,21 @@ class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
 
     return <XmlElement>[
       ...Anchor(
-        component: LazyImage(
+        child: LazyImage(
           // should be unique by component
           // by, since blocks are just
           // wrappers of granular components
           // we assign to them the same id
           // to avoid sync issues with stores
           id: id,
-          data: data,
+          child: this.child,
           transformOffsetX: transformOffsetX,
           transformOffsetY: transformOffsetY,
           asInline: false,
         ),
-        widthEmu: imgWidthEmu!,
-        heightEmu: imgHeightEmu!,
-        config: data.anchorConfig,
+        width: imgWidthEmu!,
+        height: imgHeightEmu!,
+        config: this.child.anchorConfig,
         name: imageName,
         elementId: elementId,
       ).buildXml(context: context),
@@ -121,7 +123,7 @@ class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
 
   @override
   String toString() {
-    return 'LazyImage(id: $id, data: $data)';
+    return 'LazyImage(id: $id, data: $child)';
   }
 
   @override

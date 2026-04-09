@@ -7,29 +7,29 @@ import '../../shared/fill.dart';
 /// Fills shape geometry with a repeating pattern, defined by a foreground color
 /// and a background color. The pattern type can be stripes, dots, etc.
 class PatternFillComponent extends Fill<PatternFill> {
-  PatternFillComponent({required super.data});
+  PatternFillComponent({required super.child});
 
   @override
-  PatternFillComponent get copy => PatternFillComponent(data: data.copy);
+  PatternFillComponent get copy => PatternFillComponent(child: child.copy);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[];
 
-    if (data.foregroundColor != null) {
+    if (child.foregroundColor != null) {
       children.add(
         XmlElement.tag(
           'a:fgClr',
-          children: data.foregroundColor!.buildXml(context: context),
+          children: child.foregroundColor!.buildXml(context: context),
         ),
       );
     }
 
-    if (data.backgroundColor != null) {
+    if (child.backgroundColor != null) {
       children.add(
         XmlElement.tag(
           'a:bgClr',
-          children: data.backgroundColor!.buildXml(context: context),
+          children: child.backgroundColor!.buildXml(context: context),
         ),
       );
     }
@@ -38,7 +38,7 @@ class PatternFillComponent extends Fill<PatternFill> {
       XmlElement.tag(
         'a:pattFill',
         attributes: <XmlAttribute>[
-          XmlAttribute(XmlName.fromString('prst'), _patternTypeToXml(data.type)),
+          XmlAttribute(XmlName.fromString('prst'), _patternTypeToXml(child.type)),
         ],
         children: children,
       ),

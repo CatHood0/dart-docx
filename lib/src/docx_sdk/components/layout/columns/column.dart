@@ -25,9 +25,9 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     required Iterable<DocxTreeNode> children,
     super.id,
     super.parent,
-  }) : super(data: List.from(children)) {
+  }) : super(child: List.from(children)) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in data) {
+    for (final DocxTreeNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -40,15 +40,15 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
   bool ignoreBreak = false;
 
   void add(DocxTreeNode node) {
-    data.add(node);
+    child.add(node);
   }
 
   void addFirst(DocxTreeNode node) {
-    data.insert(0, node);
+    child.insert(0, node);
   }
 
   void addAt(int index, DocxTreeNode node) {
-    data.insert(index, node);
+    child.insert(index, node);
   }
 
   @override
@@ -66,7 +66,7 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     }
     context.currentContentPart = this;
     final List<XmlElement> elements = <XmlElement>[];
-    for (final DocxTreeNode<dynamic> e in data) {
+    for (final DocxTreeNode<dynamic> e in child) {
       final List<XmlElement> element = e
           .buildXml(
             context: context,
@@ -97,7 +97,7 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
   @override
   Column get copy => Column(
         id: id,
-        children: data,
+        children: child,
       );
 
   @override
@@ -105,7 +105,8 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxTreeNode<dynamic> element in data) {
+    for (final DocxTreeNode<dynamic> element in child) {
+      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
@@ -126,9 +127,10 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (data.isEmpty) return <DocxTreeNode>[];
+    if (child.isEmpty) return <DocxTreeNode>[];
     final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final DocxTreeNode element in data) {
+    for (final DocxTreeNode element in child) {
+      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {

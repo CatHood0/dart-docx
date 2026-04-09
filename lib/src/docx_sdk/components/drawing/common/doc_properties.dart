@@ -9,7 +9,7 @@ class DocProperties extends DocxTreeNode<dynamic> {
     this.description,
     this.relativeHeight,
   }) : super(
-          data: null,
+          child: null,
           id: docPrId,
         );
 

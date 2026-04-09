@@ -29,8 +29,8 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
     for (final String text in lines) {
       buffer.add(
         Paragraph(
-          data: [
-            TextRun(data: TextPart(text: text)),
+          children: [
+            TextRun(child: TextPart(text: text)),
           ],
         ),
       );

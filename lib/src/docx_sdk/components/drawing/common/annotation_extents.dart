@@ -3,12 +3,12 @@ import '../../../../../docx.dart';
 
 // Represents a:ext
 class AnnotationExtents extends DocxTreeNode<dynamic> {
-  AnnotationExtents({required this.cx, required this.cy}) : super(data: null);
+  AnnotationExtents({required this.cx, required this.cy}) : super(child: null);
 
   AnnotationExtents.zero()
       : cx = 0,
         cy = 0,
-        super(data: null);
+        super(child: null);
 
   final num cx;
   final num cy;

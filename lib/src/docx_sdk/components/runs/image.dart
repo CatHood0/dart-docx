@@ -31,7 +31,7 @@ import '../../../core/normalizer/auto_size_normalizer.dart';
 /// ```
 class Image extends DocxTreeNode<ImageData<Uint8List>> {
   Image({
-    required super.data,
+    required super.child,
     super.parent,
     super.id,
     this.elementId,
@@ -55,23 +55,23 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
   Image get copy {
     return Image(
       id: id,
-      data: ImageData<Uint8List>(
-        buffer: data.buffer,
-        extension: data.extension,
-        styles: data.styles,
-        width: data.width,
-        anchorConfig: data.anchorConfig,
-        height: data.height,
-        name: data.name,
-        alt: data.alt,
-        unit: data.unit,
+      child: ImageData<Uint8List>(
+        buffer: child.buffer,
+        extension: child.extension,
+        styles: child.styles,
+        width: child.width,
+        anchorConfig: child.anchorConfig,
+        height: child.height,
+        name: child.name,
+        alt: child.alt,
+        unit: child.unit,
       ),
       transformOffsetX: transformOffsetX,
       transformOffsetY: transformOffsetY,
     );
   }
 
-  String get getImageName => data.name ?? '';
+  String get getImageName => child.name ?? '';
 
   static ImageSize getSizeForImage(
     ImageData data, {
@@ -120,7 +120,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
-        'The image "${data.name}" couldn\'t be '
+        'The image "${child.name}" couldn\'t be '
         'founded into the DocxComponentContext',
       );
     }
@@ -141,25 +141,25 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     // the index of this image. Literally the
     // relationship id but formatted to a digit
     if (relationshipId == null) {
-      throw Exception('Image($id) with "$data", was not inserted in '
+      throw Exception('Image($id) with "$child", was not inserted in '
           'document.xml.rels, and cannot found relation id');
     }
 
     final ImageSize imageSize = getSizeForImage(
-      data,
+      child,
       pageSize: context.options.pageSize,
       margins: context.options.margins,
     );
 
     final Graphic graphic = Graphic(
-      data: GraphicData(
+      child: GraphicData(
         uri: namespaces['pic']!,
-        data: Picture(
+        child: Picture(
           components: <DocxTreeNode<dynamic>>[
             BlipFill.pic(
               blip: Blip(embedRelId: relationshipId.toString()),
               stretch: Stretch(
-                data: <DocxTreeNode<dynamic>>[
+                child: <DocxTreeNode<dynamic>>[
                   FillRectangle(),
                 ],
               ),
@@ -178,7 +178,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
               nonVisualDrawingProperties: NonVisualDrawingProperties(
                 id: elementId!.toString(),
                 name: imageName,
-                description: data.alt ?? imageName,
+                description: child.alt ?? imageName,
               ),
               nonVisualPictureDrawingProperties:
                   NonVisualPictureDrawingProperties(),
@@ -197,7 +197,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
           width: imageSize.width,
           height: imageSize.height,
           components: <DocxTreeNode<dynamic>>[graphic],
-          distance: data.anchorConfig.distanceFromText,
+          distance: child.anchorConfig.distanceFromText,
         ).buildXml(context: context),
     ];
   }
@@ -209,7 +209,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
 
   @override
   String toString() {
-    return 'Image(id: $id, data: $data)';
+    return 'Image(id: $id, data: $child)';
   }
 
   @override

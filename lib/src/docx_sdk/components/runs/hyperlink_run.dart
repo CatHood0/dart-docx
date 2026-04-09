@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:xml/xml.dart';
 
 import '../../../core/extensions/style_to_from_node.dart';
@@ -23,10 +25,12 @@ import '../../sdk.dart';
 // link relations. See http://officeopenxml.com/WPhyperlink.php
 class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   HyperlinkRun({
-    required super.data,
+    required super.child,
     super.parent,
     super.id,
-  });
+  }) {
+    length = child.text.length;
+  }
 
   HyperlinkRun.pure({
     required String link,
@@ -34,30 +38,128 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     super.parent,
     super.id,
   }) : super(
-          data: HyperlinkTextPart(
+          child: HyperlinkTextPart(
             text: link,
             hyperlink: link,
             styles: List<Object>.from(styles),
           ),
-        );
+        ) {
+    length = child.text.length;
+  }
 
   @override
-  bool get isEmptyData => data.text.isEmpty;
+  HyperlinkRun cut(int offset, int offsetEnd) {
+    final int length = math.min(dataLength, offsetEnd);
+    final int start = math.min(0, offset);
+
+    return HyperlinkRun.pure(
+      link: child.hyperlink.substring(
+        start,
+        length,
+      ),
+      styles: child.styles.toList(),
+      parent: parent,
+    );
+  }
+
+  @override
+  (HyperlinkRun, HyperlinkRun) cutTwo(int offset, int offsetEnd) {
+    final int length = math.min(dataLength, offsetEnd);
+    final int start = math.min(0, offset);
+
+    return (
+      HyperlinkRun.pure(
+        link: child.hyperlink.substring(
+          0,
+          start,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      ),
+      HyperlinkRun.pure(
+        link: child.hyperlink.substring(
+          start,
+          length,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      )
+    );
+  }
+
+  @override
+  (HyperlinkRun, HyperlinkRun, HyperlinkRun) cutAll(int offset, int offsetEnd) {
+    final int length = math.min(dataLength, offsetEnd);
+    final int start = math.min(0, offset);
+
+    return (
+      HyperlinkRun.pure(
+        link: child.hyperlink.substring(
+          0,
+          start,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      ),
+      HyperlinkRun.pure(
+        link: child.hyperlink.substring(
+          start,
+          length,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      ),
+      HyperlinkRun.pure(
+        link: child.hyperlink.substring(
+          length,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      )
+    );
+  }
+
+  @override
+  void insertText(
+    String text, {
+    int? offset,
+    int? path,
+    List<Object>? styles,
+    bool mergeStyles = true,
+  }) {
+    offset ??= dataLength - 1;
+    child._hyperlink = child.text.replaceRange(offset, offset, text);
+  }
+
+  @override
+  void deleteText({
+    required int start,
+    required int length,
+    int? path,
+  }) {
+    child._hyperlink = child.text.replaceRange(start, length, '');
+  }
+
+  @override
+  bool get isEmptyData => child.text.isEmpty;
+
+  @override
+  int get dataLength => child.text.length;
 
   @override
   HyperlinkRun get copy => HyperlinkRun(
         id: id,
-        data: HyperlinkTextPart(
-          hyperlink: data.hyperlink,
-          text: data.text,
-          styles: data.styles,
+        child: HyperlinkTextPart(
+          hyperlink: child.hyperlink,
+          text: child.text,
+          styles: child.styles,
         ),
         parent: parent,
       );
 
   @override
   bool shouldIgnore() {
-    return data.hyperlink.isEmpty;
+    return child.hyperlink.isEmpty;
   }
 
   @override
@@ -66,11 +168,11 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
       super.runParent(
         runProperties: buildXmlStyle(context: context),
         nodes: [
-          if (data.text.isNotEmpty && data.text != '\n')
+          if (child.text.isNotEmpty && child.text != '\n')
             XmlElement.tag(
               xmlTextNode,
               children: [
-                XmlText(data.text.isEmpty ? data.hyperlink : data.text),
+                XmlText(child.text.isEmpty ? child.hyperlink : child.text),
               ],
               isSelfClosing: false,
             )
@@ -81,7 +183,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   List<XmlElement> buildXmlStyle({required DocumentContext context}) {
-    final List<Object> styles = <Object>[...data.styles];
+    final List<Object> styles = <Object>[...child.styles];
     if (styles.any(
         (Object e) => e is TextRunAttribution && e.scope != Scope.portion)) {
       throw Exception('The styles passed in $runtimeType are invalid. '
@@ -107,12 +209,12 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   String toPlainText() {
-    return data.text;
+    return child.text;
   }
 
   @override
   String toString() {
-    return 'HyperlinkRun(id: $id, data: $data)';
+    return 'HyperlinkRun(id: $id, data: $child)';
   }
 
   @override
@@ -132,11 +234,15 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 class HyperlinkTextPart extends TextPart {
   HyperlinkTextPart({
     required super.text,
-    required this.hyperlink,
+    required String hyperlink,
     super.styles,
-  }) : assert(linkDetectorMatcher.hasMatch(hyperlink),
+  })  : _hyperlink = hyperlink,
+        assert(linkDetectorMatcher.hasMatch(hyperlink),
             'The link: "$hyperlink" is not a valid like');
-  final String hyperlink;
+
+  String get hyperlink => _hyperlink;
+
+  String _hyperlink;
 
   @override
   String toString() {

@@ -18,7 +18,7 @@ class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
   AdjustValueList({
     Iterable<AdjustValue> values = const <AdjustValue>[],
   }) : super(
-          data: values
+          child: values
         );
 
   @override
@@ -29,14 +29,14 @@ class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
     return <XmlElement>[
       XmlElement.tag(
         'a:avLst',
-        isSelfClosing: data.isEmpty,
+        isSelfClosing: child.isEmpty,
         children: <XmlNode>[
           // to allow shape compatibility
           // we build geometric formulas
           //
           // them are not useful for images, but for
           // shapes works
-          ...data.skippableMap((el) {
+          ...child.skippableMap((el) {
             if (el.value == null) return null;
             return XmlElement.tag(
               'a:gd',

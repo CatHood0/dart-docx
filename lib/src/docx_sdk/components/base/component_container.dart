@@ -4,7 +4,7 @@ import '../../sdk.dart';
 
 abstract class ComponentContainer<T> extends DocxTreeNode<T> {
   ComponentContainer({
-    required super.data,
+    required super.child,
     super.parent,
     super.id,
   });

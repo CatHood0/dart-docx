@@ -6,7 +6,7 @@ class PictureShapeProperties extends DocxTreeNode<dynamic> {
   PictureShapeProperties({
     required this.transform2D,
     required this.presetGeometry,
-  }) : super(data: null);
+  }) : super(child: null);
 
   final Transform2D transform2D;
   final PresetGeometry presetGeometry;

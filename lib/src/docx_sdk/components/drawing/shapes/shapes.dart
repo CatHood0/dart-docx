@@ -12,7 +12,7 @@ class WordprocessingShape extends DocxTreeNode<DocxTreeNode> {
     this.textBox,
     super.id,
     super.parent,
-  }) : super(data: shapeProperties) {
+  }) : super(child: shapeProperties) {
     final List<DocxTreeNode<dynamic>> components = <DocxTreeNode<dynamic>>[
       shapeProperties,
       if (textBox != null) textBox!,

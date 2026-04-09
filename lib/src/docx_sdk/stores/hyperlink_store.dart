@@ -29,7 +29,7 @@ class HyperlinkStore {
     _hyperlinks.clear();
 
     //TODO: use parent methods of DocumentRoot
-    for (final DocxTreeNode parent in data.root.data) {
+    for (final DocxTreeNode parent in data.root.child) {
       final List<RunBase<HyperlinkTextPart>> foundHyperlinks =
           List<RunBase<HyperlinkTextPart>>.from(
         parent.visitAllElement(
@@ -74,7 +74,7 @@ class HyperlinkStore {
           //NOTE: hyperlink can be  linked
           // to a bookmark, that makes it
           // an internal target
-          target: hyperlink.data.hyperlink,
+          target: hyperlink.child.hyperlink,
           type: hyperlinkNamespace,
           mode: 'External',
         ),

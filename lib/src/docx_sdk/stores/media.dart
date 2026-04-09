@@ -57,22 +57,22 @@ class MediaStore {
     Set<String> supportedFileExtensions = const <String>{},
   ]) {
     //TODO: use parent methods of DocumentRoot
-    for (final DocxTreeNode parent in data.root.data) {
+    for (final DocxTreeNode parent in data.root.child) {
       final DocxTreeNode? image = parent.visitElement(
         visitChildrenIfNeeded: true,
         (DocxTreeNode<dynamic> el) {
-          return el.data is ImageData &&
-              supportedFileExtensions.contains(el.data.extension);
+          return el.child is ImageData &&
+              supportedFileExtensions.contains(el.child.extension);
         },
       );
       if (image != null) {
         final DocxTreeNode<ImageData<Object>> imageComponent = image
             .visitElement(
                 visitChildrenIfNeeded: true,
-                (DocxTreeNode<dynamic> el) => el.data is ImageData)!
+                (DocxTreeNode<dynamic> el) => el.child is ImageData)!
             .cast<DocxTreeNode<ImageData>>();
         mediaComponents[imageComponent.id] = imageComponent;
-        extensions.add(imageComponent.data.extension);
+        extensions.add(imageComponent.child.extension);
       }
     }
   }
@@ -120,7 +120,7 @@ class MediaStore {
       );
 
       imgComponent.rId = 'rId$currentRId';
-      final ImageData<dynamic> imageData = imgComponent.data
+      final ImageData<dynamic> imageData = imgComponent.child
         ..name = generatedMediaName;
 
       final MediaData mediaData = MediaData(
@@ -213,14 +213,14 @@ class MediaStore {
       assert(component.rId != null,
           'rId must be defined at this point of the generation');
       assert(
-        media[component.data.name] != null,
+        media[component.child.name] != null,
         '"name" property of the component '
         'rId: ${component.rId}, id: ${component.id} '
         'must be defined. Ensure you are calling '
         'discoverMedia first and '
         'registerAndBuildImageRelationships then',
       );
-      return media[component.data.name]!.id;
+      return media[component.child.name]!.id;
     }
     for (final MediaData media in media.values) {
       if (media.relationshipId == imageRefId ||
@@ -245,14 +245,14 @@ class MediaStore {
       assert(component.rId != null,
           'rId must be defined at this point of the generation');
       assert(
-        media[component.data.name] != null,
+        media[component.child.name] != null,
         '"name" property of the component '
         'rId: ${component.rId}, id: ${component.id} '
         'must be defined. Ensure you are calling '
         'discoverMedia first and '
         'registerAndBuildImageRelationships then',
       );
-      return media[component.data.name]!.relationshipId;
+      return media[component.child.name]!.relationshipId;
     }
     for (final MediaData media in media.values) {
       if (media.relationshipId == imageRefId ||

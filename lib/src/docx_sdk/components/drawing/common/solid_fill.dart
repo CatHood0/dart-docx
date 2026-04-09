@@ -9,18 +9,18 @@ import '../shared/fill.dart';
 //TODO: support for gradient colors?
 class SolidFill extends Fill<Color> {
   SolidFill({
-    required super.data,
-  });
+    required Color color,
+  }) : super(child: color);
 
   @override
-  SolidFill get copy => SolidFill(data: data.copy);
+  SolidFill get copy => SolidFill(color: child.copy);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'a:solidFill',
-        children: data.buildXml(context: context),
+        children: child.buildXml(context: context),
       ),
     ];
   }
@@ -37,7 +37,7 @@ class SolidFill extends Fill<Color> {
   }) {
     if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
     if (!visitChildrenIfNeeded) return null;
-    return data.visitAllElement(
+    return child.visitAllElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );
@@ -50,7 +50,7 @@ class SolidFill extends Fill<Color> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return data.visitElement(
+    return child.visitElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );

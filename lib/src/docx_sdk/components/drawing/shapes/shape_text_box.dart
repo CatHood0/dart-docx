@@ -8,12 +8,12 @@ import '../../../../core/extensions/string_ext.dart';
 /// Allows adding formatted text content inside a shape, with configurable
 /// margins, wrapping behavior, and vertical/horizontal alignment.
 class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
-  ShapeTextBox({required super.data});
+  ShapeTextBox({required super.child});
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[];
-    for (final DocxTreeNode<dynamic> element in data.content) {
+    for (final DocxTreeNode<dynamic> element in child.content) {
       if (element is IgnorableMixin &&
           element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
@@ -39,22 +39,22 @@ class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
       attributes: <XmlAttribute>[
         XmlAttribute(
           'wrap'.toName(),
-          data.wrapping.name,
+          child.wrapping.name,
         ),
         XmlAttribute(
           'vert'.toName(),
-          _verticalAlignToXml(data.verticalAlignment),
+          _verticalAlignToXml(child.verticalAlignment),
         ),
         XmlAttribute(
           'horz'.toName(),
-          _horizontalAlignToXml(data.horizontalAlignment),
+          _horizontalAlignToXml(child.horizontalAlignment),
         ),
       ],
-      children: _buildInsets(data.margin),
-      isSelfClosing: data.margin.left == 0 &&
-          data.margin.top == 0 &&
-          data.margin.right == 0 &&
-          data.margin.bottom == 0,
+      children: _buildInsets(child.margin),
+      isSelfClosing: child.margin.left == 0 &&
+          child.margin.top == 0 &&
+          child.margin.right == 0 &&
+          child.margin.bottom == 0,
     );
 
     return <XmlElement>[
@@ -104,7 +104,7 @@ class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
   }
 
   @override
-  ShapeTextBox get copy => ShapeTextBox(data: data.copy);
+  ShapeTextBox get copy => ShapeTextBox(child: child.copy);
 
   @override
   List<XmlNode> buildXmlStyle({required DocumentContext context}) {
@@ -118,7 +118,7 @@ class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
   }) {
     if (shouldGetElement(this)) return <ShapeTextBox>[this];
     if (!visitChildrenIfNeeded) return null;
-    for (final DocxTreeNode<dynamic> el in data.content) {
+    for (final DocxTreeNode<dynamic> el in child.content) {
       final List<DocxTreeNode<dynamic>>? result = el.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
@@ -135,7 +135,7 @@ class ShapeTextBox extends DocxTreeNode<ShapeTextBoxData> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    for (final DocxTreeNode<dynamic> el in data.content) {
+    for (final DocxTreeNode<dynamic> el in child.content) {
       final DocxTreeNode<dynamic>? result = el.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,

@@ -7,18 +7,18 @@ import '../../shared/effects.dart';
 /// Creates a colored halo around the shape, often used for emphasis or
 /// to simulate light emission. The glow is typically soft and diffuse.
 class GlowEffectComponent extends Effect<GlowEffect> {
-  GlowEffectComponent({required super.data});
+  GlowEffectComponent({required super.child});
 
   @override
-  GlowEffectComponent get copy => GlowEffectComponent(data: data.copy);
+  GlowEffectComponent get copy => GlowEffectComponent(child: child.copy);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final XmlElement colorElement = XmlElement.tag(
       'a:glow',
       attributes: <XmlAttribute>[
-        if (data.radius != 0)
-          XmlAttribute(XmlName.fromString('rad'), data.radius.toString()),
+        if (child.radius != 0)
+          XmlAttribute(XmlName.fromString('rad'), child.radius.toString()),
       ],
       children: <XmlNode>[
         XmlElement.tag(
@@ -26,19 +26,19 @@ class GlowEffectComponent extends Effect<GlowEffect> {
           attributes: <XmlAttribute>[
             XmlAttribute(
               XmlName.fromString('val'),
-              data.color.rgbValue!
+              child.color.rgbValue!
                   .toRadixString(16)
                   .padLeft(6, '0')
                   .toUpperCase(),
             ),
           ],
           children: <XmlNode>[
-            if (data.transparency != 0)
+            if (child.transparency != 0)
               XmlElement.tag(
                 'a:alpha',
                 attributes: <XmlAttribute>[
                   XmlAttribute(XmlName.fromString('val'),
-                      (100000 - data.transparency).toString()),
+                      (100000 - child.transparency).toString()),
                 ],
                 isSelfClosing: true,
               ),

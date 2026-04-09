@@ -37,5 +37,7 @@ export 'shapes/outline.dart';
 export 'shapes/shape_properties.dart';
 export 'shapes/shape_text_box.dart';
 export 'shapes/shapes.dart';
+export 'shared/effects.dart';
+export 'shared/fill.dart';
+export 'shared/geometry.dart';
 export 'transform/transform2d.dart';
-

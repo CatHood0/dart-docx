@@ -9,21 +9,21 @@ class BlipFill extends Fill<void> {
     required this.blip,
     required this.stretch,
     super.id,
-  }) : super(data: null);
+  }) : super(child: null);
 
   BlipFill.pic({
     required this.blip,
     required this.stretch,
     super.id,
   })  : name = 'pic',
-        super(data: null);
+        super(child: null);
 
   BlipFill.annotation({
     required this.blip,
     required this.stretch,
     super.id,
   })  : name = 'a',
-        super(data: null);
+        super(child: null);
 
   final String name;
   final Blip blip;

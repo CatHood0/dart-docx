@@ -94,7 +94,7 @@ class FontStore {
     final Set<String> discoveredFontNames = {};
 
     //TODO: use parent methods of DocumentRoot
-    for (final DocxTreeNode parent in document.root.data) {
+    for (final DocxTreeNode parent in document.root.child) {
       final List<DocxTreeNode> elementsWithFonts = parent.visitAllElement(
             (
               DocxTreeNode el,
@@ -107,7 +107,7 @@ class FontStore {
       for (final DocxTreeNode content in elementsWithFonts) {
         final List<Style> styles = [];
         if (content is TextRun) {
-          styles.addAll(content.data.styles.whereType<Style>());
+          styles.addAll(content.child.styles.whereType<Style>());
         } else if (content is Paragraph) {
           styles.addAll(content.styles);
         }

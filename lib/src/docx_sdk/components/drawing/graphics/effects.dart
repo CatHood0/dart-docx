@@ -9,9 +9,9 @@ import '../shared/effects.dart';
 class EffectList extends Effect<Iterable<DocxTreeNode>> {
   EffectList({
     required Iterable<DocxTreeNode<dynamic>> children,
-  }) : super(data: children) {
+  }) : super(child: children) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> comp in data) {
+    for (final DocxTreeNode<dynamic> comp in child) {
       comp
         ..parent = this
         ..index = index
@@ -22,14 +22,14 @@ class EffectList extends Effect<Iterable<DocxTreeNode>> {
 
   @override
   EffectList get copy => EffectList(
-        children: data,
+        children: child,
       );
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> effectElements = <XmlNode>[];
 
-    for (final DocxTreeNode<dynamic> child in data) {
+    for (final DocxTreeNode<dynamic> child in child) {
       effectElements.addAll(child.buildXml(context: context));
     }
 
@@ -56,7 +56,7 @@ class EffectList extends Effect<Iterable<DocxTreeNode>> {
     if (!visitChildrenIfNeeded) return null;
 
     final List<DocxTreeNode<dynamic>> results = <DocxTreeNode<dynamic>>[];
-    for (final DocxTreeNode<dynamic> child in data) {
+    for (final DocxTreeNode<dynamic> child in child) {
       final List<DocxTreeNode<dynamic>>? childResult = child.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
@@ -76,7 +76,7 @@ class EffectList extends Effect<Iterable<DocxTreeNode>> {
 
     if (!visitChildrenIfNeeded) return null;
 
-    for (final DocxTreeNode<dynamic> child in data) {
+    for (final DocxTreeNode<dynamic> child in child) {
       final DocxTreeNode<dynamic>? result = child.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,

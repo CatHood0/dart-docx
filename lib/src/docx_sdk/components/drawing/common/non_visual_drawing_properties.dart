@@ -7,7 +7,7 @@ class NonVisualDrawingProperties extends DocxTreeNode<dynamic> {
     required String id,
     required this.name,
     this.description,
-  }) : super(data: null, id: id);
+  }) : super(child: null, id: id);
 
   final String name;
   final String? description;

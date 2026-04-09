@@ -19,17 +19,17 @@ class AdjustHandle {
 class HandlesList extends DocxTreeNode<Iterable<AdjustHandle>> {
   HandlesList({
     Iterable<AdjustHandle> values = const <AdjustHandle>[],
-  }) : super(data: values);
+  }) : super(child: values);
 
   @override
-  HandlesList get copy => HandlesList(values: data);
+  HandlesList get copy => HandlesList(values: child);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'a:ahLst',
-        children: data.map((AdjustHandle handle) {
+        children: child.map((AdjustHandle handle) {
           final List<XmlAttribute> positionAttributes = <XmlAttribute>[
             XmlAttribute(XmlName.fromString('pos'), handle.position),
           ];

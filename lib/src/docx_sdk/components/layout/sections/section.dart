@@ -67,9 +67,9 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
     required this.layout,
     super.id,
     super.parent,
-  }) : super(data: List.from(children)) {
+  }) : super(child: List.from(children)) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in data) {
+    for (final DocxTreeNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -96,7 +96,7 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
   List<XmlElement> buildXml({required DocumentContext context}) {
     context.currentContentPart = this;
     final List<XmlElement> elements = <XmlElement>[];
-    for (final DocxTreeNode<dynamic> e in data) {
+    for (final DocxTreeNode<dynamic> e in child) {
       final List<XmlElement> element = e
           .buildXml(
             context: context,
@@ -125,7 +125,7 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
   @override
   Section get copy => Section(
         id: id,
-        children: data,
+        children: child,
         layout: layout,
       );
 
@@ -134,7 +134,8 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxTreeNode<dynamic> element in data) {
+    for (final DocxTreeNode<dynamic> element in child) {
+      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
@@ -155,9 +156,10 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (data.isEmpty) return <DocxTreeNode>[];
+    if (child.isEmpty) return <DocxTreeNode>[];
     final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final DocxTreeNode element in data) {
+    for (final DocxTreeNode element in child) {
+      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {

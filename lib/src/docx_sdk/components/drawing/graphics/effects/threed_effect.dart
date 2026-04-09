@@ -9,28 +9,28 @@ import '../../shared/effects.dart';
 /// to create the illusion of a 3D object. Can simulate materials like plastic,
 /// metal, or matte surfaces.
 class ThreeDEffectComponent extends Effect<ThreeDEffect> {
-  ThreeDEffectComponent({required super.data});
+  ThreeDEffectComponent({required super.child});
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[];
 
-    if (data.extrusionHeight != 0) {
+    if (child.extrusionHeight != 0) {
       children.add(
         XmlElement.tag(
           'a:extrusionH',
           attributes: <XmlAttribute>[
-            if (data.extrusionColor != null)
+            if (child.extrusionColor != null)
               XmlAttribute(
                 'clr'.toName(),
-                (data.extrusionColor!.rgbValue ??
-                        data.extrusionColor!.themeColor)!
+                (child.extrusionColor!.rgbValue ??
+                        child.extrusionColor!.themeColor)!
                     .toString()
                     .replaceFirst('0x', ''),
               ),
             XmlAttribute(
               'h'.toName(),
-              data.extrusionHeight.toString(),
+              child.extrusionHeight.toString(),
             ),
           ],
           isSelfClosing: true,
@@ -39,21 +39,21 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
     }
 
     // Contour
-    if (data.contourWidth != 0) {
+    if (child.contourWidth != 0) {
       children.add(
         XmlElement.tag(
           'a:contourW',
           attributes: <XmlAttribute>[
-            if (data.contourColor != null)
+            if (child.contourColor != null)
               XmlAttribute(
                 'clr'.toName(),
-                (data.contourColor!.rgbValue ?? data.contourColor!.themeColor)!
+                (child.contourColor!.rgbValue ?? child.contourColor!.themeColor)!
                     .toString()
                     .replaceFirst('0x', ''),
               ),
             XmlAttribute(
               'w'.toName(),
-              data.contourWidth.toString(),
+              child.contourWidth.toString(),
             ),
           ],
           isSelfClosing: true,
@@ -68,7 +68,7 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
         attributes: <XmlAttribute>[
           XmlAttribute(
             'val'.toName(),
-            _materialToXml(data.material),
+            _materialToXml(child.material),
           ),
         ],
         isSelfClosing: true,
@@ -76,23 +76,23 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
     );
 
     // Top bevel
-    if (data.topBevel != null) {
+    if (child.topBevel != null) {
       children.add(
         XmlElement.tag(
           'a:bevelT',
           attributes: <XmlAttribute>[
             XmlAttribute(
               'w'.toName(),
-              data.topBevel!.width.toString(),
+              child.topBevel!.width.toString(),
             ),
             XmlAttribute(
               'h'.toName(),
-              data.topBevel!.height.toString(),
+              child.topBevel!.height.toString(),
             ),
-            if (data.topBevel!.preset != BevelPreset.circle)
+            if (child.topBevel!.preset != BevelPreset.circle)
               XmlAttribute(
                 'prst'.toName(),
-                _bevelPresetToXml(data.topBevel!.preset),
+                _bevelPresetToXml(child.topBevel!.preset),
               ),
           ],
           isSelfClosing: true,
@@ -101,23 +101,23 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
     }
 
     // Bottom bevel
-    if (data.bottomBevel != null) {
+    if (child.bottomBevel != null) {
       children.add(
         XmlElement.tag(
           'a:bevelB',
           attributes: <XmlAttribute>[
             XmlAttribute(
               'w'.toName(),
-              data.bottomBevel!.width.toString(),
+              child.bottomBevel!.width.toString(),
             ),
             XmlAttribute(
               'h'.toName(),
-              data.bottomBevel!.height.toString(),
+              child.bottomBevel!.height.toString(),
             ),
-            if (data.bottomBevel!.preset != BevelPreset.circle)
+            if (child.bottomBevel!.preset != BevelPreset.circle)
               XmlAttribute(
                 'prst'.toName(),
-                _bevelPresetToXml(data.bottomBevel!.preset),
+                _bevelPresetToXml(child.bottomBevel!.preset),
               ),
           ],
           isSelfClosing: true,
@@ -187,7 +187,7 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
   }
 
   @override
-  ThreeDEffectComponent get copy => ThreeDEffectComponent(data: data);
+  ThreeDEffectComponent get copy => ThreeDEffectComponent(child: child);
 }
 
 /// 3D effect configuration for shapes with developer-friendly units.

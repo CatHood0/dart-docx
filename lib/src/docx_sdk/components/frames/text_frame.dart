@@ -41,10 +41,16 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
     this.border,
   })  : width = width.pixelsToTwips(),
         height = height.pixelsToTwips(),
-        super(data: data) {
-
+        super(child: data) {
     int index = 0;
     for (final DocxTreeNode<dynamic> content in data) {
+      if (content is ShapeTextBox) {
+        length += content.child.content
+            .map((DocxTreeNode<dynamic> e) => e.length)
+            .reduce(
+              (int a, int b) => a + b,
+            );
+      }
       content
         ..parent = this
         ..index = index
@@ -67,7 +73,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
   @override
   TextFrame get copy => TextFrame(
         id: id,
-        data: data
+        data: child
             .map(
               (DocxTreeNode<dynamic> e) => e.copy,
             )
@@ -129,7 +135,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
 
     // Add the content of the TextFrame (e.g., actual paragraphs, text runs)
     // directly as children of the w:p element that forms the frame.
-    for (final DocxTreeNode child in data) {
+    for (final DocxTreeNode child in child) {
       final List<XmlNode> element = child.buildXml(context: context);
       if (child is IgnorableMixin &&
               child.cast<IgnorableMixin>().shouldIgnore() ||
@@ -197,9 +203,10 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
     bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (data.isEmpty) return <DocxTreeNode<dynamic>>[];
+    if (child.isEmpty) return <DocxTreeNode<dynamic>>[];
     final List<DocxTreeNode<dynamic>> elements = <DocxTreeNode<dynamic>>[];
-    for (final DocxTreeNode element in data) {
+    for (final DocxTreeNode element in child) {
+      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
@@ -220,7 +227,8 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
     bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    for (final DocxTreeNode element in data) {
+    for (final DocxTreeNode element in child) {
+      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {

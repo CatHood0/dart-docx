@@ -7,7 +7,7 @@ import '../../shared/fill.dart';
 /// Used in [ShapeProperties] to specify that the shape's interior is not filled.
 /// Corresponds to the `<a:noFill>` element in DrawingML.
 class NoFillComponent extends Fill<void> {
-  NoFillComponent() : super(data: null);
+  NoFillComponent() : super(child: null);
 
   @override
   NoFillComponent get copy => NoFillComponent();

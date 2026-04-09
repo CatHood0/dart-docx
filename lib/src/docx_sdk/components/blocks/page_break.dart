@@ -6,32 +6,32 @@ import '../../../core/extensions/string_ext.dart';
 class PageBreak extends ComponentContainer {
   PageBreak._(String type)
       : _type = type,
-        super(parent: null, data: null);
+        super(parent: null, child: null);
 
   PageBreak.next()
       : _type = 'nextPage',
-        super(parent: null, data: null);
+        super(parent: null, child: null);
 
   PageBreak.continuous()
       : _type = 'continuous',
-        super(parent: null, data: null);
+        super(parent: null, child: null);
 
   PageBreak.even()
       : _type = 'evenPage',
-        super(parent: null, data: null);
+        super(parent: null, child: null);
 
   PageBreak.odd()
       : _type = 'oddPage',
-        super(parent: null, data: null);
+        super(parent: null, child: null);
 
   final String _type;
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
-    return [
+    return <XmlElement>[
       XmlElement.tag(
         xmlParagraphNode,
-        children: [
+        children: <XmlNode>[
           ...buildXmlStyle(context: context),
         ],
         isSelfClosing: false,
@@ -47,7 +47,7 @@ class PageBreak extends ComponentContainer {
         children: <XmlNode>[
           XmlElement.tag(
             'w:sectPr',
-            children: [
+            children: <XmlNode>[
               XmlElement.tag(
                 'w:type',
                 attributes: <XmlAttribute>[
@@ -73,7 +73,7 @@ class PageBreak extends ComponentContainer {
     bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return shouldGetElement(this) ? [this] : null;
+    return shouldGetElement(this) ? <DocxTreeNode<dynamic>>[this] : null;
   }
 
   @override

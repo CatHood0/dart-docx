@@ -11,7 +11,7 @@ enum LevelFormat {
   chicago,
   ideographDigital,
   japaneseCounting,
-  aiueo,
+  aeiou,
   iroha,
   decimalFullWidth,
   decimalHalfWidth,

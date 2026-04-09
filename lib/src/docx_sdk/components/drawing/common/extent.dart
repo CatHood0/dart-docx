@@ -3,7 +3,7 @@ import '../../../../../docx.dart';
 
 // Represents wp:extent
 class Extent extends DocxTreeNode<dynamic> {
-  Extent({required this.cx, required this.cy}) : super(data: null);
+  Extent({required this.cx, required this.cy}) : super(child: null);
 
   final num cx;
   final num cy;

@@ -29,16 +29,16 @@ import '../../../core/extensions/string_ext.dart';
 /// ```
 class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   Anchor({
-    required DocxTreeNode component,
-    required this.widthEmu,
-    required this.heightEmu,
+    required DocxTreeNode child,
+    required this.width,
+    required this.height,
     required this.name,
     this.elementId,
     required this.config,
     super.parent,
     super.id,
-  }) : super(data: component) {
-    data
+  }) : super(child: child) {
+    this.child
       ..parent = this
       ..index = 0
       ..depth = depth + 1;
@@ -48,8 +48,13 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   final String name;
   final AnchorConfig config;
 
-  final num widthEmu;
-  final num heightEmu;
+  /// The [width] of the elemento into this [Anchor]
+  /// expressed in EMU units
+  final num width;
+
+  /// The [height] of the elemento into this [Anchor]
+  /// expressed in EMU units
+  final num height;
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -139,15 +144,15 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
             isSelfClosing: true,
           ),
           ...Extent(
-            cx: widthEmu,
-            cy: heightEmu,
+            cx: width,
+            cy: height,
           ).buildXml(context: context),
           ...DocProperties(
             docPrId: elementId.toString(),
             name: name.toString(),
             relativeHeight: '0',
           ).buildXml(context: context),
-          ...data.buildXml(context: context),
+          ...child.buildXml(context: context),
         ],
       ),
     ];
@@ -161,11 +166,11 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   @override
   Anchor get copy => Anchor(
         id: id,
-        component: data,
+        child: this.child,
         config: config,
         parent: parent,
-        widthEmu: widthEmu,
-        heightEmu: heightEmu,
+        width: width,
+        height: height,
         name: name,
         elementId: elementId,
       );
@@ -179,7 +184,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
         ? <DocxTreeNode<dynamic>>[this]
         : !visitChildrenIfNeeded
             ? null
-            : data.visitAllElement(
+            : child.visitAllElement(
                 shouldGetElement,
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
@@ -194,7 +199,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
         ? this
         : !visitChildrenIfNeeded
             ? null
-            : data.visitElement(
+            : child.visitElement(
                 shouldGetElement,
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
@@ -202,7 +207,7 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
 
   @override
   bool shouldIgnore() {
-    return data is IgnorableMixin && (data as IgnorableMixin).shouldIgnore();
+    return child is IgnorableMixin && (child as IgnorableMixin).shouldIgnore();
   }
 }
 

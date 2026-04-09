@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:xml/xml.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
@@ -20,10 +22,12 @@ import '../../sdk.dart';
 /// ```
 class TextRun extends RunBase<TextPart> {
   TextRun({
-    required super.data,
+    required super.child,
     super.parent,
     super.id,
-  });
+  }) {
+    length += child.text.length;
+  }
 
   TextRun.text({
     required String text,
@@ -31,17 +35,19 @@ class TextRun extends RunBase<TextPart> {
     super.parent,
     super.id,
   }) : super(
-          data: TextPart(
+          child: TextPart(
             text: text,
             styles: List<Object>.from(styles),
           ),
-        );
+        ) {
+    length += child.text.length;
+  }
 
   TextRun.empty({
     super.parent,
     super.id,
   }) : super(
-          data: TextPart(
+          child: TextPart(
             text: '',
             styles: <Object>[],
           ),
@@ -51,19 +57,112 @@ class TextRun extends RunBase<TextPart> {
   static final RegExp _consecutiveWhitespacesRegExp = RegExp(r'\s{2,}');
 
   @override
-  bool get isEmptyData => data.text.replaceAll('\n', '').isEmpty;
+  TextRun cut(int offset, int offsetEnd) {
+    final int length = math.min(dataLength, offsetEnd);
+    final int start = math.min(0, offset);
+
+    return TextRun.text(
+      text: child._text.substring(
+        start,
+        length,
+      ),
+      styles: child.styles.toList(),
+      parent: parent,
+    );
+  }
+
+  @override
+  (TextRun, TextRun) cutTwo(int offset, int offsetEnd) {
+    final int length = math.min(dataLength, offsetEnd);
+    final int start = math.min(0, offset);
+
+    return (
+      TextRun.text(
+        text: child._text.substring(
+          0,
+          start,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      ),
+      TextRun.text(
+        text: child._text.substring(
+          start,
+          length,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      )
+    );
+  }
+
+  @override
+  (TextRun, TextRun, TextRun) cutAll(int offset, int offsetEnd) {
+    final int length = math.min(dataLength, offsetEnd);
+    final int start = math.min(0, offset);
+
+    return (
+      TextRun.text(
+        text: child._text.substring(
+          0,
+          start,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      ),
+      TextRun.text(
+        text: child._text.substring(
+          start,
+          length,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      ),
+      TextRun.text(
+        text: child._text.substring(
+          length,
+        ),
+        styles: child.styles.toList(),
+        parent: parent,
+      ),
+    );
+  }
+
+  @override
+  bool get isEmptyData => child.text.replaceAll('\n', '').isEmpty;
 
   /// Determines if this text run requires whitespace preservation.
   bool get requirePreserve => _consecutiveWhitespacesRegExp.hasMatch(
-        data.text,
+        child.text,
       );
+
+  @override
+  void insertText(
+    String text, {
+    int? offset,
+    int? path,
+    List<Object>? styles,
+    bool mergeStyles = true,
+  }) {
+    offset ??= dataLength - 1;
+    child._text = child.text.replaceRange(offset, offset, text);
+  }
+
+  @override
+  void deleteText({
+    required int start,
+    required int length,
+    int? path,
+  }) {
+    child._text = child.text.replaceRange(start, length, '');
+  }
 
   @override
   TextRun get copy => TextRun(
         id: id,
-        data: TextPart(
-          text: data.text,
-          styles: data.styles,
+        child: TextPart(
+          text: child.text,
+          styles: child.styles,
         ),
         parent: parent,
       );
@@ -89,7 +188,7 @@ class TextRun extends RunBase<TextPart> {
                 ),
             ],
             children: <XmlNode>[
-              XmlText(data.text),
+              XmlText(child.text),
             ],
             isSelfClosing: false,
           )
@@ -100,7 +199,7 @@ class TextRun extends RunBase<TextPart> {
 
   @override
   List<XmlElement> buildXmlStyle({required DocumentContext context}) {
-    final List<Object> styles = <Object>[...data.styles];
+    final List<Object> styles = <Object>[...child.styles];
     if (styles.any(
       (Object e) => e is TextRunAttribution && e.scope != Scope.portion,
     )) {
@@ -128,13 +227,16 @@ class TextRun extends RunBase<TextPart> {
   }
 
   @override
+  int get dataLength => child.text.length;
+
+  @override
   String toPlainText() {
-    return data.text;
+    return child.text;
   }
 
   @override
   String toString() {
-    return 'TextRun(id: $id, data: $data)';
+    return 'TextRun(id: $id, data: $child)';
   }
 }
 
@@ -147,9 +249,10 @@ class TextRun extends RunBase<TextPart> {
 /// paragraphs for multi-line text.
 class TextPart {
   TextPart({
-    required this.text,
+    required String text,
     this.styles = const <Object>[],
-  })  : assert(
+  })  : _text = text,
+        assert(
           !text.contains('\n'),
           'text cannot '
           'contains \\n in it. Please, divide your '
@@ -163,8 +266,10 @@ class TextPart {
               element is Style || element is TextRunAttribution,
         ));
 
+  String _text;
+
   /// The text content.
-  final String text;
+  String get text => _text;
 
   /// All the related styles with this run
   ///
@@ -177,12 +282,4 @@ class TextPart {
   String toString() {
     return 'TextPart(data: $text, styles: $styles)';
   }
-}
-
-/// Simple text style properties.
-class TextStyle {
-  TextStyle({required this.bold, required this.italic});
-
-  final bool bold;
-  final bool italic;
 }

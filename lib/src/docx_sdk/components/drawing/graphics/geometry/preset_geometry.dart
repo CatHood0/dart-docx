@@ -9,9 +9,9 @@ class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
   PresetGeometry({
     required this.preset,
     Iterable<DocxTreeNode<dynamic>>? data,
-  }) : super(data: <DocxTreeNode<dynamic>>[...?data]) {
-    if (super.data.isEmpty) {
-      super.data.addAll(<DocxTreeNode<dynamic>>[
+  }) : super(child: <DocxTreeNode<dynamic>>[...?data]) {
+    if (super.child.isEmpty) {
+      super.child.addAll(<DocxTreeNode<dynamic>>[
         AdjustValueList(values: <AdjustValue>[]),
       ]);
     }
@@ -20,12 +20,12 @@ class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
   final PresetShapeType preset;
 
   @override
-  PresetGeometry get copy => PresetGeometry(data: data, preset: preset);
+  PresetGeometry get copy => PresetGeometry(data: child, preset: preset);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[];
-    for (final DocxTreeNode<dynamic> element in data) {
+    for (final DocxTreeNode<dynamic> element in child) {
       if (element is IgnorableMixin &&
           element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
@@ -56,7 +56,7 @@ class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
     if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
     if (!visitChildrenIfNeeded) return null;
     final List<DocxTreeNode<dynamic>> result = <DocxTreeNode<dynamic>>[];
-    for (final DocxTreeNode<dynamic> el in data) {
+    for (final DocxTreeNode<dynamic> el in child) {
       final List<DocxTreeNode<dynamic>>? temp = el.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
@@ -73,7 +73,7 @@ class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    for (final DocxTreeNode<dynamic> el in data) {
+    for (final DocxTreeNode<dynamic> el in child) {
       final DocxTreeNode<dynamic>? temp = el.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,

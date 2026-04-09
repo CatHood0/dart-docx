@@ -27,7 +27,7 @@ import '../../../core/extensions/cast_ext.dart';
 /// ```
 class LazyImage extends DocxTreeNode<ImageData<File>> {
   LazyImage({
-    required super.data,
+    required super.child,
     super.parent,
     super.id,
     this.elementId,
@@ -49,28 +49,28 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
   @override
   LazyImage get copy => LazyImage(
         id: id,
-        data: ImageData<File>(
-          buffer: File(data.buffer.path),
-          extension: data.extension,
-          styles: data.styles,
-          width: data.width,
-          height: data.height,
-          name: data.name,
-          alt: data.alt,
-          unit: data.unit,
+        child: ImageData<File>(
+          buffer: File(child.buffer.path),
+          extension: child.extension,
+          styles: child.styles,
+          width: child.width,
+          height: child.height,
+          name: child.name,
+          alt: child.alt,
+          unit: child.unit,
         ),
         transformOffsetY: transformOffsetY,
         transformOffsetX: transformOffsetX,
       );
 
-  String get getImageName => data.name ?? '';
+  String get getImageName => child.name ?? '';
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
-        'The image "${data.name}" couldn\'t be '
+        'The image "${child.name}" couldn\'t be '
         'founded into the DocxComponentContext. Media Store: ${context.mediaStore.media}',
       );
     }
@@ -89,37 +89,37 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
         context.drawingStore.getNextId(id);
 
     if (relationshipId == null) {
-      throw Exception('Image($id) with "$data", was not inserted in '
+      throw Exception('Image($id) with "$child", was not inserted in '
           'document.xml.rels, and cannot found relation id');
     }
 
     num? imgWidthEmu;
     num? imgHeightEmu;
-    if (data.width != null) {
-      imgWidthEmu = data.width!.unitToEmu(data.unit);
+    if (child.width != null) {
+      imgWidthEmu = child.width!.unitToEmu(child.unit);
     }
-    if (data.height != null) {
-      imgHeightEmu = data.height!.unitToEmu(data.unit);
+    if (child.height != null) {
+      imgHeightEmu = child.height!.unitToEmu(child.unit);
     }
 
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
     if (imgWidthEmu == null && imgHeightEmu == null) {
       final Size size =
-          ImageSizeGetter.getSizeResult(FileInput(data.buffer)).size;
+          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
       imgWidthEmu = size.width * emuPerInch / imageDpi;
       imgHeightEmu = size.height * emuPerInch / imageDpi;
     }
 
     final Graphic graphic = Graphic(
-      data: GraphicData(
+      child: GraphicData(
         uri: namespaces['pic']!,
-        data: Picture(
+        child: Picture(
           components: <DocxTreeNode<dynamic>>[
             BlipFill.pic(
               blip: Blip(embedRelId: relationshipId.toString()),
               stretch: Stretch(
-                data: <DocxTreeNode<dynamic>>[
+                child: <DocxTreeNode<dynamic>>[
                   FillRectangle(),
                 ],
               ),
@@ -138,7 +138,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
               nonVisualDrawingProperties: NonVisualDrawingProperties(
                 id: elementId!.toString(),
                 name: imageName,
-                description: data.alt ?? imageName,
+                description: child.alt ?? imageName,
               ),
               nonVisualPictureDrawingProperties:
                   NonVisualPictureDrawingProperties(),
@@ -157,7 +157,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
           width: imgWidthEmu,
           height: imgHeightEmu,
           components: <DocxTreeNode<dynamic>>[graphic],
-          distance: data.anchorConfig.distanceFromText,
+          distance: child.anchorConfig.distanceFromText,
         ).buildXml(context: context),
     ];
   }
@@ -169,7 +169,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
 
   @override
   String toString() {
-    return 'LazyImage(id: $id, data: $data)';
+    return 'LazyImage(id: $id, data: $child)';
   }
 
   @override

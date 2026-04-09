@@ -4,33 +4,33 @@ import '../../shared/effects.dart';
 
 /// Shadow effect applied to a shape (a:outerShdw or a:innerShdw).
 class ShadowEffect extends Effect<ShadowEffectData> {
-  ShadowEffect({required super.data});
+  ShadowEffect({required super.child});
 
   @override
-  ShadowEffect get copy => ShadowEffect(data: data);
+  ShadowEffect get copy => ShadowEffect(child: child);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlAttribute> attributes = <XmlAttribute>[
-      if (data.blur != 0)
+      if (child.blur != 0)
         XmlAttribute(
           XmlName.fromString('blurRad'),
-          data.blur.toString(),
+          child.blur.toString(),
         ),
-      if (data.distance != 0)
+      if (child.distance != 0)
         XmlAttribute(
           XmlName.fromString('dist'),
-          data.distance.toString(),
+          child.distance.toString(),
         ),
-      if (data.direction != 0)
+      if (child.direction != 0)
         XmlAttribute(
           XmlName.fromString('dir'),
-          data.direction.toString(),
+          child.direction.toString(),
         ),
     ];
 
     final XmlElement colorElement = XmlElement.tag(
-      data.isInner ? 'a:innerShdw' : 'a:outerShdw',
+      child.isInner ? 'a:innerShdw' : 'a:outerShdw',
       attributes: attributes,
       children: <XmlNode>[
         XmlElement.tag(
@@ -38,19 +38,19 @@ class ShadowEffect extends Effect<ShadowEffectData> {
           attributes: <XmlAttribute>[
             XmlAttribute(
               XmlName.fromString('val'),
-              data.color.rgbValue!
+              child.color.rgbValue!
                   .toRadixString(16)
                   .padLeft(6, '0')
                   .toUpperCase(),
             ),
           ],
           children: <XmlNode>[
-            if (data.alpha != 100000)
+            if (child.alpha != 100000)
               XmlElement.tag(
                 'a:alpha',
                 attributes: <XmlAttribute>[
                   XmlAttribute(
-                      XmlName.fromString('val'), data.alpha.toString()),
+                      XmlName.fromString('val'), child.alpha.toString()),
                 ],
                 isSelfClosing: true,
               ),

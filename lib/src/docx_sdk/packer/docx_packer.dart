@@ -73,6 +73,7 @@ class DocxPacker {
 
   DocxPacker logAllPaths() {
     _compiler.config = LoggablePhaseConfig(
+      enabled: true,
       loggablePhases: <String>{
         ...DocxPaths.paths,
       },

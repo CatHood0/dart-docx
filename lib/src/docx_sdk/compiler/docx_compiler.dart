@@ -170,7 +170,7 @@ class DocxCompiler {
       int index = 0;
       for (final Column column in columns) {
         if (index > 0) {
-          final DocxTreeNode<dynamic>? paragraph = column.data.firstOrNull;
+          final DocxTreeNode<dynamic>? paragraph = column.child.firstOrNull;
           if (paragraph == null || paragraph is! Paragraph) {
             CompilerLogger.root.i(
               'Inserting column '
@@ -179,7 +179,7 @@ class DocxCompiler {
             );
             column.addFirst(
               Paragraph(
-                data: <RunBase<dynamic>>[
+                children: <RunBase<dynamic>>[
                   Run(component: Break.columnBreak()),
                 ],
               ),

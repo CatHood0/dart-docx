@@ -6,7 +6,7 @@ class NonVisualPictureProperties extends DocxTreeNode<dynamic> {
   NonVisualPictureProperties({
     required this.nonVisualDrawingProperties,
     required this.nonVisualPictureDrawingProperties,
-  }) : super(data: null);
+  }) : super(child: null);
 
   final NonVisualDrawingProperties nonVisualDrawingProperties;
   final NonVisualPictureDrawingProperties nonVisualPictureDrawingProperties;

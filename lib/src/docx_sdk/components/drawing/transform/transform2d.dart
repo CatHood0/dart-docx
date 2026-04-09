@@ -6,10 +6,12 @@ class Transform2D extends DocxTreeNode<dynamic> {
   Transform2D({
     required this.offset,
     required this.extents,
-    this.rotation = 0,
+    int rotation = 0,
     this.flipHorizontal = false,
     this.flipVertical = false,
-  }) : super(data: null);
+  })  : rotation =
+            rotation > 360 ? rotation : (rotation * (degressTh / 360)).toInt(),
+        super(child: null);
 
   final Offset offset;
   //NOTE: maybe we should assume that the element
@@ -18,6 +20,10 @@ class Transform2D extends DocxTreeNode<dynamic> {
   final AnnotationExtents extents;
 
   /// Rotation angle in 60,000ths of a degree (21600000 = 360°).
+  ///
+  /// You can use directly points between 1 to 360
+  /// the constructor makes the transform operation
+  /// to avoid making too many weird code
   final int rotation;
 
   /// Mirror the shape horizontally.

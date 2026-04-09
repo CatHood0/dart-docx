@@ -13,7 +13,7 @@ class NonVisualShapeProperties extends DocxTreeNode<void> {
     required this.description,
     this.shapeLocks = true,
     super.id,
-  }) : super(data: null);
+  }) : super(child: null);
 
   /// Display name (appears in selection pane and alt text).
   final String name;

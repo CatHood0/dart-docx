@@ -18,7 +18,7 @@ class CustomGeometryComponent extends Geometry<void> {
     required this.handle,
     this.connectionPoints = const <ConnectionPoint>[],
     super.id,
-  }) : super(data: null);
+  }) : super(child: null);
 
   final List<ShapePath> paths;
   final Rect boundingBox;

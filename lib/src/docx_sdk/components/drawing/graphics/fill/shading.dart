@@ -9,7 +9,7 @@ class Shading extends Fill<void> {
     this.style = ShadingPattern.solid,
     this.color,
     this.fill,
-  }) : super(data: null);
+  }) : super(child: null);
 
   final ShadingPattern style;
 

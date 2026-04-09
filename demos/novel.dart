@@ -180,12 +180,12 @@ Future<void> main() async {
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             ...Run(
               component: Break.lineBreak(),
             ).repeat(10).cast(),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: 'WHISPERS IN THE FOG',
                 styles: <Object>[
                   BoldAttribute(),
@@ -200,11 +200,11 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             Run(component: Break.lineBreak()),
             Run(component: Break.lineBreak()),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: 'A Novel of Memory and Redemption',
               ),
             ),
@@ -215,11 +215,11 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             Run(component: Break.lineBreak()),
             Run(component: Break.lineBreak()),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: 'by',
                 styles: <Object>[
                   ItalicAttribute(),
@@ -233,10 +233,10 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             Run(component: Break.lineBreak()),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: 'Alexander Gray',
                 styles: <Object>[
                   BoldAttribute(),
@@ -252,9 +252,9 @@ Future<void> main() async {
 
         // Prólogo
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             TextRun(
-              data: TextPart(text: 'PROLOGUE'),
+              child: TextPart(text: 'PROLOGUE'),
             ),
           ],
           styles: <Style>[
@@ -263,7 +263,7 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: _textWithBreaks(prologue),
+          children: _textWithBreaks(prologue),
           styles: <Style>[
             Style.reference('BodyText'),
           ],
@@ -271,13 +271,13 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             TextRun(
-              data: TextPart(text: 'CHAPTER I'),
+              child: TextPart(text: 'CHAPTER I'),
             ),
             Run(component: Break.lineBreak()),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: 'The Harbor Walk',
                 styles: <Object>[
                   ItalicAttribute(),
@@ -291,16 +291,16 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: _textWithBreaks(chapter1Part1),
+          children: _textWithBreaks(chapter1Part1),
           styles: <Style>[
             Style.reference('BodyText'),
           ],
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: '"Sometimes the past doesn\'t stay buried. '
                     'Sometimes it walks beside you."',
               ),
@@ -312,14 +312,14 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: _textWithBreaks(chapter1Part2),
+          children: _textWithBreaks(chapter1Part2),
           styles: <Style>[
             Style.reference('BodyText'),
           ],
         ),
 
         Paragraph(
-          data: _textWithBreaks(chapter1Part3),
+          children: _textWithBreaks(chapter1Part3),
           styles: <Style>[
             Style.reference('BodyText'),
           ],
@@ -327,13 +327,13 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             TextRun(
-              data: TextPart(text: 'CHAPTER II'),
+              child: TextPart(text: 'CHAPTER II'),
             ),
             Run(component: Break.lineBreak()),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: 'Shadows in the Mist',
                 styles: <Object>[
                   ItalicAttribute(),
@@ -347,14 +347,14 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: _textWithBreaks(chapter2Part1),
+          children: _textWithBreaks(chapter2Part1),
           styles: <Style>[
             Style.reference('BodyText'),
           ],
         ),
 
         Paragraph(
-          data: _textWithBreaks(chapter2Part2),
+          children: _textWithBreaks(chapter2Part2),
           styles: <Style>[
             Style.reference('BodyText'),
           ],
@@ -362,13 +362,13 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             TextRun(
-              data: TextPart(text: 'CHAPTER III'),
+              child: TextPart(text: 'CHAPTER III'),
             ),
             Run(component: Break.lineBreak()),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: 'The Lantern and the Keeper',
                 styles: <Object>[
                   ItalicAttribute(),
@@ -382,16 +382,16 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: _textWithBreaks(chapter3Part1),
+          children: _textWithBreaks(chapter3Part1),
           styles: <Style>[
             Style.reference('BodyText'),
           ],
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: '"You\'re late," the man said, '
                     'his voice like gravel underfoot.',
                 styles: <Object>[
@@ -407,9 +407,9 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: '"But then, you always were."',
                 styles: <Object>[
                   ItalicAttribute(),
@@ -424,17 +424,17 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: _textWithBreaks(chapter3Part2),
+          children: _textWithBreaks(chapter3Part2),
           styles: <Style>[
             Style.reference('BodyText'),
           ],
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             Run(component: Break.lineBreak()),
             TextRun(
-              data: TextPart(text: 'EPILOGUE'),
+              child: TextPart(text: 'EPILOGUE'),
             ),
           ],
           styles: <Style>[
@@ -443,19 +443,19 @@ Future<void> main() async {
         ),
 
         Paragraph(
-          data: _textWithBreaks(epilogue),
+          children: _textWithBreaks(epilogue),
           styles: <Style>[
             Style.reference('Epilogue'),
           ],
         ),
 
         Paragraph(
-          data: <RunBase<dynamic>>[
+          children: <RunBase<dynamic>>[
             ...Run(
               component: Break.lineBreak(),
             ).repeat(4).cast(),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: '© 2023 Midnight Press',
                 styles: <Object>[
                   FontSizeAttribute(9.ptToHalfPoints().toInt()),
@@ -465,7 +465,7 @@ Future<void> main() async {
             ),
             Run(component: Break.lineBreak()),
             TextRun(
-              data: TextPart(
+              child: TextPart(
                 text: 'All rights reserved',
                 styles: <Object>[
                   FontSizeAttribute(8.ptToHalfPoints().toInt()),
@@ -502,7 +502,7 @@ List<RunBase<dynamic>> _textWithBreaks(String text) {
     if (parts[i].isNotEmpty) {
       runs.add(
         TextRun(
-          data: TextPart(text: parts[i]),
+          child: TextPart(text: parts[i]),
         ),
       );
     }

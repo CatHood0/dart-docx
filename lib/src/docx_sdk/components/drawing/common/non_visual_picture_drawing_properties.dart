@@ -3,7 +3,7 @@ import '../../../../../docx.dart';
 
 // Represents pic:cNvPicPr
 class NonVisualPictureDrawingProperties extends DocxTreeNode<dynamic> {
-  NonVisualPictureDrawingProperties() : super(data: null);
+  NonVisualPictureDrawingProperties() : super(child: null);
 
   @override
   NonVisualPictureDrawingProperties get copy =>

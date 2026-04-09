@@ -4,7 +4,7 @@ import '../../../../../docx.dart';
 // Represents a:graphicData
 class GraphicData extends DocxTreeNode<DocxTreeNode> {
   GraphicData({
-    required super.data,
+    required super.child,
     required this.uri,
     super.id,
   });
@@ -13,7 +13,7 @@ class GraphicData extends DocxTreeNode<DocxTreeNode> {
 
   @override
   GraphicData get copy => GraphicData(
-        data: data.copy,
+        child: child.copy,
         uri: uri,
         id: id,
       );
@@ -27,7 +27,7 @@ class GraphicData extends DocxTreeNode<DocxTreeNode> {
         attributes: [
           XmlAttribute(XmlName.fromString('uri'), uri),
         ],
-        children: data.buildXml(context: context),
+        children: child.buildXml(context: context),
       ),
     ];
   }
@@ -39,7 +39,7 @@ class GraphicData extends DocxTreeNode<DocxTreeNode> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return data.visitAllElement(shouldGetElement,
+    return child.visitAllElement(shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
@@ -50,7 +50,7 @@ class GraphicData extends DocxTreeNode<DocxTreeNode> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return data.visitElement(shouldGetElement,
+    return child.visitElement(shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 

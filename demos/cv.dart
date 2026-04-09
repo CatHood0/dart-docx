@@ -192,7 +192,7 @@ Future<void> main() async {
               ],
             ),
             Paragraph(
-              data: <RunBase<dynamic>>[
+              children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'Inserta tu texto aquí',
                   styles: <Object>[
@@ -257,7 +257,7 @@ Future<void> main() async {
               ],
             ),
             ...Paragraph(
-              data: <RunBase<dynamic>>[
+              children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'Inserta tu texto aquí '
                       'Inserta tu texto aquí '
@@ -333,7 +333,7 @@ List<DocxTreeNode> getRepeatedSection({
       ],
     ),
     ...Paragraph(
-      data: <RunBase<dynamic>>[
+      children: <RunBase<dynamic>>[
         if (subtitle1.isNotEmpty)
           TextRun.text(
             text: subtitle1,

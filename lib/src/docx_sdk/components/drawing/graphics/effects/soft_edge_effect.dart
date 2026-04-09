@@ -8,7 +8,7 @@ import '../../shared/effects.dart';
 ///
 /// Useful for creating gentle transitions or dreamy visuals.
 class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
-  SoftEdgeEffectComponent({required super.data});
+  SoftEdgeEffectComponent({required super.child});
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -18,7 +18,7 @@ class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
         attributes: <XmlAttribute>[
           XmlAttribute(
             XmlName.fromString('rad'),
-            data.radius.toString(),
+            child.radius.toString(),
           ),
         ],
         isSelfClosing: true,
@@ -27,7 +27,7 @@ class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
   }
 
   @override
-  SoftEdgeEffectComponent get copy => SoftEdgeEffectComponent(data: data);
+  SoftEdgeEffectComponent get copy => SoftEdgeEffectComponent(child: child);
 
   @override
   List<XmlNode> buildXmlStyle({required DocumentContext context}) {

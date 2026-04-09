@@ -56,7 +56,7 @@ class TableProperties extends DocxTreeNode<void> {
               bottom: TableBorder(style: BorderStyle.single),
               right: TableBorder(style: BorderStyle.single),
             ),
-        super(data: null);
+        super(child: null);
 
   /// Predefined table styles to apply.
   ///

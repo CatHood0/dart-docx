@@ -3,7 +3,7 @@ import '../../../../../docx.dart';
 
 // Represents a:fillRect
 class FillRectangle extends DocxTreeNode<dynamic> {
-  FillRectangle() : super(data: null);
+  FillRectangle() : super(child: null);
 
   @override
   FillRectangle get copy => FillRectangle();

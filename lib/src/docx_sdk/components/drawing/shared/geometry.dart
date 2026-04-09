@@ -2,7 +2,7 @@ import '../../../../../docx.dart';
 
 abstract class Geometry<T> extends DocxTreeNode<T> {
   Geometry({
-    required super.data,
+    required super.child,
     super.id,
     super.parent,
   });

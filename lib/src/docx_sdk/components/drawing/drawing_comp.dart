@@ -17,10 +17,10 @@ import '../../../../docx.dart';
 /// ```
 class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   DrawingML({
-    required super.data,
+    required super.child,
     super.id,
   }) {
-    data
+    child
       ..parent = this
       ..index = 0
       ..depth = depth + 1;
@@ -33,7 +33,7 @@ class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
         'w:drawing',
         isSelfClosing: false,
         children: [
-          ...data.buildXml(context: context),
+          ...child.buildXml(context: context),
         ],
       ),
     ];
@@ -46,7 +46,7 @@ class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
 
   @override
   DocxTreeNode<DocxTreeNode<dynamic>> get copy => DrawingML(
-        data: data.copy,
+        child: child.copy,
         id: id,
       );
 
@@ -59,7 +59,7 @@ class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
         ? <DocxTreeNode<dynamic>>[this]
         : !visitChildrenIfNeeded
             ? null
-            : data.visitAllElement(
+            : child.visitAllElement(
                 shouldGetElement,
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
@@ -74,7 +74,7 @@ class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
         ? this
         : !visitChildrenIfNeeded
             ? null
-            : data.visitElement(
+            : child.visitElement(
                 shouldGetElement,
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
@@ -82,6 +82,6 @@ class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
 
   @override
   bool shouldIgnore() {
-    return data is IgnorableMixin && (data as IgnorableMixin).shouldIgnore();
+    return child is IgnorableMixin && (child as IgnorableMixin).shouldIgnore();
   }
 }

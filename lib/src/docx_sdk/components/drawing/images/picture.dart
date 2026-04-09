@@ -6,9 +6,9 @@ import '../../../../core/extensions/cast_ext.dart';
 class Picture extends DocxTreeNode<Iterable<DocxTreeNode>> {
   Picture({
     required Iterable<DocxTreeNode> components,
-  }) : super(data: components) {
+  }) : super(child: components) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in data) {
+    for (final DocxTreeNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -18,12 +18,12 @@ class Picture extends DocxTreeNode<Iterable<DocxTreeNode>> {
   }
 
   @override
-  Picture get copy => Picture(components: data);
+  Picture get copy => Picture(components: child);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[];
-    for (final DocxTreeNode<dynamic> element in data) {
+    for (final DocxTreeNode<dynamic> element in child) {
       if (element is IgnorableMixin &&
           element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
@@ -44,7 +44,7 @@ class Picture extends DocxTreeNode<Iterable<DocxTreeNode>> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    for (final DocxTreeNode<dynamic> el in data) {
+    for (final DocxTreeNode<dynamic> el in child) {
       final List<DocxTreeNode<dynamic>>? result = el.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
@@ -61,7 +61,7 @@ class Picture extends DocxTreeNode<Iterable<DocxTreeNode>> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    for (final DocxTreeNode<dynamic> el in data) {
+    for (final DocxTreeNode<dynamic> el in child) {
       final DocxTreeNode<dynamic>? result = el.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,

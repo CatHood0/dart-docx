@@ -13,16 +13,16 @@ class ShapeProperties extends DocxTreeNode<void> {
     required this.transform2D,
     required this.geometryComponent,
     this.fill,
-    this.outline,
+    this.border,
     this.effects,
-  }) : super(data: null) {
+  }) : super(child: null) {
     final List<DocxTreeNode<dynamic>> components = <DocxTreeNode<dynamic>>[
       transform2D,
       geometryComponent,
     ];
 
     if (fill != null) components.add(fill!);
-    if (outline != null) components.add(outline!);
+    if (border != null) components.add(border!);
     if (effects != null) components.add(effects!);
 
     for (int i = 0; i < components.length; i++) {
@@ -43,7 +43,7 @@ class ShapeProperties extends DocxTreeNode<void> {
   final Fill<dynamic>? fill;
 
   /// Outline/border styling.
-  final DocxTreeNode<dynamic>? outline;
+  final DocxTreeNode<dynamic>? border;
 
   /// Visual effects (shadow, glow, reflection, 3D).
   final Effect<dynamic>? effects;
@@ -59,8 +59,8 @@ class ShapeProperties extends DocxTreeNode<void> {
       children.addAll(fill!.buildXml(context: context));
     }
 
-    if (outline != null) {
-      children.addAll(outline!.buildXml(context: context));
+    if (border != null) {
+      children.addAll(border!.buildXml(context: context));
     }
 
     if (effects != null) {
@@ -86,7 +86,7 @@ class ShapeProperties extends DocxTreeNode<void> {
         transform2D: transform2D,
         geometryComponent: geometryComponent,
         fill: fill,
-        outline: outline,
+        border: border,
         effects: effects,
       );
 
@@ -121,9 +121,9 @@ class ShapeProperties extends DocxTreeNode<void> {
       if (fillResult != null) results.addAll(fillResult);
     }
 
-    if (outline != null) {
+    if (border != null) {
       final List<DocxTreeNode<dynamic>>? outlineResult =
-          outline!.visitAllElement(
+          border!.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
       );
@@ -169,8 +169,8 @@ class ShapeProperties extends DocxTreeNode<void> {
       if (result != null) return result;
     }
 
-    if (outline != null) {
-      result = outline!.visitElement(
+    if (border != null) {
+      result = border!.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
       );

@@ -3,10 +3,10 @@ import '../../../../../docx.dart';
 
 // Represents a:blip
 class Blip extends DocxTreeNode<String> {
-  Blip({required String embedRelId}) : super(data: embedRelId);
+  Blip({required String embedRelId}) : super(child: embedRelId);
 
   @override
-  Blip get copy => Blip(embedRelId: data);
+  Blip get copy => Blip(embedRelId: child);
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -14,7 +14,7 @@ class Blip extends DocxTreeNode<String> {
       XmlElement.tag(
         'a:blip',
         attributes: <XmlAttribute>[
-          XmlAttribute(XmlName.fromString('r:embed'), data),
+          XmlAttribute(XmlName.fromString('r:embed'), child),
         ],
         isSelfClosing: true,
       ),

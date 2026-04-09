@@ -32,9 +32,9 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
     required this.height,
     required this.distance,
     super.id,
-  }) : super(data: components) {
+  }) : super(child: components) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in data) {
+    for (final DocxTreeNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -65,14 +65,14 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
         height: height,
         name: name,
         width: width,
-        components: data,
+        components: child,
         distance: distance,
       );
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[];
-    for (final DocxTreeNode<dynamic> element in data) {
+    for (final DocxTreeNode<dynamic> element in child) {
       if (element is IgnorableMixin &&
           element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
@@ -127,7 +127,7 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    for (final DocxTreeNode<dynamic> el in data) {
+    for (final DocxTreeNode<dynamic> el in child) {
       final List<DocxTreeNode<dynamic>>? result = el.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
@@ -144,7 +144,7 @@ class Inline extends DocxTreeNode<Iterable<DocxTreeNode>> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    for (final DocxTreeNode<dynamic> el in data) {
+    for (final DocxTreeNode<dynamic> el in child) {
       final DocxTreeNode<dynamic>? result = el.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,

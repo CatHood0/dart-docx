@@ -7,7 +7,7 @@ import '../../sdk.dart';
 abstract class RunBase<T> extends DocxTreeNode<T>
     with PrintableMixin, IgnorableMixin {
   RunBase({
-    required super.data,
+    required super.child,
     super.parent,
     super.id,
   });
@@ -17,6 +17,12 @@ abstract class RunBase<T> extends DocxTreeNode<T>
   String toString() {
     return super.toString();
   }
+
+  RunBase cut(int offset, int offsetEnd);
+  (RunBase, RunBase) cutTwo(int offset, int offsetEnd);
+  (RunBase, RunBase, RunBase) cutAll(int offset, int offsetEnd);
+
+  int get dataLength;
 
   bool get isEmptyData;
 
