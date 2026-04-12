@@ -92,72 +92,40 @@ Future<void> main() async {
   final DocxDocument document = DocxDocument(
     options: DocumentOptions.standard(
       title: 'My First DOCX Document',
-      creator: 'me',
+      author: 'me',
       subject: 'example',
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
         Paragraph(
           data: <RunBase>[
-            TextRun(
-              data: TextPart(
-                text: 'This is a paragraph with bold text. ',
-                styles: <Object>[
-                  // we can use styles and attributes together
-                  // if we want
-                  Style.reference('code'),
-                  BoldAttribute(),
-                ],
-              ),
+            TextRun.text(
+              text: 'This is a paragraph with bold text. ',
+              styles: <Object>[
+                // we can use styles and attributes together
+                // to allow referencing complex styles
+                Style.ref('code'),
+                BoldAttribute(),
+              ],
             ),
-            HyperlinkRun(
-              data: HyperlinkTextPart(
-                hyperlink: 'https://github.com/your-user/your-repo',
-                text: 'Visit my GitHub repository',
-                styles: <Style>[Style.reference('Hyperlink')],
-              ),
+            HyperlinkRun.pure(
+              link: 'https://flutter.dev',
+              text: 'Flutter',
+              bold: true,
+              color: Color(0xFF0563C1),
             ),
-            TextRun(
-              data: TextPart(text: ' and here the paragraph ends.'),
-            ),
+            TextRun.text(text: ' and here the paragraph ends.'),
           ],
-          styles: <Style>[],
-          // decides where break the page
+          // You can have the same effect if you wrap
+          // this component with a Align
+          alignment: Alignment.left,
           pageBreak: ParagraphPageBreak.none,
-        ),
-        Paragraph.text(
-          text: 'Here is a line break.',
-        ),
-        // loads and shows the image:
-        // * if it exists
-        // * if it can be used
-        Paragraph(
-          data: <RunBase<dynamic>>[
-            Run(
-              component: DrawingML(
-                data: LazyFloatingImage(
-                  data: ImageData(
-                    buffer: File('test_resources/image.jpg'),
-                    extension: 'jpg',
-                    anchorConfig: AnchorConfig.block().copyWith(
-                      horizontalAnchor: HorizontalAnchorPosition.paragraph,
-                      horizontalPosition: AnchorPosition.left,
-                      verticalAnchor: VerticalAnchorPosition.paragraph,
-                      verticalPosition: AnchorPosition.top,
-                    ),
-                    width: 0.5.inchesToEmu(),
-                    height: 0.55.inchesToEmu(),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ],
     ),
   );
 
-  final File file = File('generated_document.docx');
+  final File file = File('example.docx');
   final Uint8List? bytes = await DocxPacker.instance
       .dynamicFontSearch(true)
       .noTrimRuns()
@@ -241,15 +209,19 @@ Paragraphs support rich text formatting including bold, italic, underline, strik
 #### Example: Paragraph with mixed formatting
 ```dart
 final pr = Paragraph(
-  data: [
+  children: [
     TextRun.text(text: 'Normal text '),
     TextRun.text(text: 'bold text', styles: [BoldAttribute()]),
     TextRun.text(text: ' and '),
     TextRun.text(text: 'colored text', styles: [
       StyleBuilder.singularC()
-          .runColor(Color.rgb(0xFF0000))
+          .runColor(Color(0xFF0000))
           .build(),
     ]),
+    // or
+    TextRun.text(text: 'bold text', bold: true),
+    TextRun.text(text: ' and '),
+    TextRun.text(text: 'colored text', color: Color(0xFF0000)),
   ],
 )
 ```
@@ -260,13 +232,23 @@ Horizontal alignment (left, center, right, justified) and vertical spacing contr
 ```dart
 final pr  = Paragraph.text(
   text: 'Centered Content',
-  paragraphStyles: [Alignment.center],
+  alignment: Alignment.center,
   styles: [
     StyleBuilder.singularP()
         .spacing(before: 240, after: 120, line: 360)
         .build(),
   ],
-)
+);
+// or
+final pr2 = Paragraph.text(
+  text: 'Centered Content 2',
+  alignment: Alignment.center,
+  // internally it transform your point units
+  // to native twips units
+  spacingBefore: 12,      // 240 twips 
+  spacingAfter: 6,        // 120 twips 
+  lineSpacing: 18,        // 360 twips 
+);
 ```
 
 Paragraph indentation can be controlled for first line, left, right, and hanging indents. This enables complex document layouts including block quotes, nested content, and specialized formatting requirements.
@@ -280,7 +262,16 @@ final pr = Paragraph.text(
         .indent(firstLine: 720, left: 1440)
         .build(),
   ],
-)
+);
+// or
+final pr2 = Paragraph.text(
+  text: 'Indented paragraph content',
+  // internally it transform your point units
+  // to native twips units
+  indentLeft: 0.5,        // 720 twips 
+  indentRight: 0.25,      // 360 twips 
+  firstLineIndent: 0.5,   // 720 twips
+);
 ```
 
 The system provides control over line breaks, page breaks, and text flow. Paragraphs can be configured to keep lines together or keep with next paragraph, preventing awkward page breaks in document flow.
@@ -295,7 +286,13 @@ final pr = Paragraph.text(
         .keepNext(true)
         .build(),
   ],
-)
+);
+//or
+final pr2 = Paragraph.text(
+  text: 'Important paragraph that should not break',
+  keepLines: true,
+  keepNext: true,
+);
 ```
 
 ### List and Numberings
@@ -313,7 +310,7 @@ final pr = Paragraph.text(
     level: 0,
     refId: 1,
   ),
-)
+);
 ```
 
 See more about in [Numbering definition](./docs/numbering_internals.md)
@@ -329,36 +326,24 @@ These APIs map directly to `WordprocessingML` concepts, but are exposed through 
 
 This is a common usage for most of the editors maded in Flutter}:.
 
-````dart
-final paragraph = Paragraph(
-  data: [
-    Run(
-      // to follow Word standards, we need to wrap
-      // shapes or images with Drawing component
-      component: DrawingML( 
-        // there is also its own Lazy version
-        data: FloatingImage(
-          data: ImageData(
-            buffer: await File('assets/image.png').readAsBytes(),
-            extension: 'png',
-            // Configure anchoring relative to the paragraph
-            anchorConfig: AnchorConfig(
-              wrapType: WrapType.noWrap,
-              wrapSide: null,
-              verticalAnchor: VerticalAnchorPosition.paragraph,
-              horizontalAnchor: HorizontalAnchorPosition.paragraph,
-              horizontalPosition: AnchorPosition.left,
-              verticalPosition: AnchorPosition.top,
-            ),
-            width: 1.5.inchesToEmu(),
-            height: 1.5.inchesToEmu(),
-          ),
-        ),
-      ),
+```dart
+final Paragraph pr =  LazyFloatingImage(
+  data: ImageData.fileSized(
+    file: File('assets/image.png'),
+    size: 1.5,
+    unit: Unit.inch,
+    // Configure anchoring relative to the paragraph
+    anchorConfig: AnchorConfig(
+      wrapType: WrapType.noWrap,
+      wrapSide: null,
+      verticalAnchor: VerticalAnchorPosition.paragraph,
+      horizontalAnchor: HorizontalAnchorPosition.paragraph,
+      horizontalPosition: AnchorPosition.left,
+      verticalPosition: AnchorPosition.top,  
     ),
-  ],
-);
-````
+  ),
+).drawing().paragraph();
+```
 
 #### Other examples:
 
@@ -366,45 +351,34 @@ final paragraph = Paragraph(
 
 This is a common way to insert images that can have text wrap around them or be positioned independently of the immediate text flow, but still tied to a specific paragraph. The image is placed within a paragraph and its position is relative to that paragraph.
 
-````dart
+```dart
 // This image will be anchored to the paragraph it is contained within.
 // Text can wrap around it (if wrapType is not none).
 final paragraph = Paragraph(
   data: [
-    TextRun(
-      data: TextPart(text: 'Here is some text before the image. '),
-    ),
-    Run(
-      // to follow Word standards, we need to wrap
-      // shapes or images with Drawing component
-      component: DrawingML( 
-        data: FloatingImage(
-          data: ImageData(
-            buffer: await File('assets/image.png').readAsBytes(),
-            extension: 'png',
-            // Configure anchoring relative to the paragraph
-            anchorConfig: AnchorConfig(
-              wrapType: WrapType.square,
-              wrapSide: WrapSide.bothSides,
-              horizontalAnchor: HorizontalAnchorPosition.paragraph,
-              verticalAnchor: VerticalAnchorPosition.paragraph,
-              horizontalPosition: AnchorPosition.center,
-              verticalPosition: AnchorPosition.center,
-              // anchorOffsetX: 0.5.inchesToEmu(), 
-              // anchorOffsetY: 0.5.inchesToEmu(),
-            ),
-            width: 1.5.inchesToEmu(),
-            height: 1.5.inchesToEmu(),
-          ),
+    TextRun.text(text: 'Here is some text before the image. '),
+    LazyFloatingImage(
+      data: ImageData.fileSized(
+        file: File('assets/image.png'),
+        size: 1.5,
+        unit: Unit.inch,
+        anchorConfig: AnchorConfig(
+          wrapType: WrapType.square,
+          wrapSide: WrapSide.bothSides,
+          horizontalAnchor: HorizontalAnchorPosition.paragraph,
+          verticalAnchor: VerticalAnchorPosition.paragraph,
+          horizontalPosition: AnchorPosition.center,
+          verticalPosition: AnchorPosition.center,
         ),
       ),
-    ),
-    TextRun(
-      data: TextPart(text: ' And here is some text after the image, demonstrating wrapping. This is a longer sentence to show how text flows around the image.'),
+    ).drawing().run(),
+    TextRun(text: ' And here is some text after the image, demonstrating '
+       'wrapping. This is a longer sentence to show how '
+       'text flows around the image.',
     ),
   ],
 );
-````
+```
 
 ##### 2. Treating an Image as an Inline Character
 
@@ -412,29 +386,17 @@ When an image should behave exactly like a text character, flowing with the text
 
 ```dart
 final paragraph = Paragraph(
-  data: [
-    TextRun(
-      data: TextPart(text: 'This is an example of an '),
-    ),
-    Run(
-      // to follow Word standards, we need to wrap
-      // shapes or images with Drawing component
-      component: DrawingML(
-        data: LazyImage(
-          data: ImageData(
-            buffer: File(
-              'assets/inline_icon.png'),
-            extension: 'png',
-            width: 0.2.inchesToEmu(),
-            height: 0.2.inchesToEmu(),
-          ),
-          asInline: true,
-        ),
+  children: [
+    TextRun.text(text: 'This is an example of an '),
+    LazyImage(
+      asInline: true,
+      data: ImageData.fileSized(
+        file: File('assets/inline_icon.png'),
+        size: 0.2,
+        unit: Unit.inch,
       ),
-    ),
-    TextRun(
-      data: TextPart(text: ' inline image, flowing with the text.'),
-    ),
+    ).drawing().run(),
+    TextRun.text(text: ' inline image, flowing with the text.'),
   ],
 );
 ```
@@ -444,42 +406,33 @@ final paragraph = Paragraph(
 For more fine-grained control where the image's anchor point is a specific character, but the image still floats, you can use `FloatingImage` with `RelativeHorizontalAnchor.character`. This allows for exact offsets relative to that character.
 
 ```dart
+// This image will be anchored to the paragraph it is contained within.
+// Text can wrap around it (if wrapType is not none).
 final paragraph = Paragraph(
   data: [
-    TextRun(
-      data: TextPart(text: 'This text has an image '),
-    ),
-    Run(
-      // to follow Word standards, we need to wrap
-      // shapes or images with Drawing component
-      component: Drawing( 
-        data: FloatingImage(
-          data: ImageData(
-            buffer: await File('assets/logo.png').readAsBytes(),
-            extension: 'png',
-            anchorConfig: AnchorConfig(
-              wrapType: WrapType.square,
-              wrapSide: WrapSide.bothSides,
-              // Anchor relative to a character. 
-              // This requires careful positioning.
-              horizontalAnchor: HorizontalAnchorPosition.character,
-              // Anchor to the line of the character
-              verticalAnchor: VerticalAnchorPosition.line,
-              // Explicit offsets from the anchor point (character).
-              // Adjust these values to precisely place the image.
-              anchorOffsetX: 0.1.inchesToEmu(), 
-              // Move slightly above the line
-              anchorOffsetY: -0.2.inchesToEmu(),
-            ),
-            width: 0.75.inchesToEmu(),
-            height: 0.75.inchesToEmu(),
-          ),
+    TextRun.text(text: 'This text has an image '),
+    LazyFloatingImage(
+      data: ImageData.fileSized(
+        file: File('assets/image.png'),
+        size: 0.85,
+        unit: Unit.inch,
+        anchorConfig: AnchorConfig(
+          wrapType: WrapType.square,
+          wrapSide: WrapSide.bothSides,
+          // Anchor relative to a character. 
+          // This requires careful positioning.
+          horizontalAnchor: HorizontalAnchorPosition.character,
+          // Anchor to the line of the character
+          verticalAnchor: VerticalAnchorPosition.line,
+          // Explicit offsets from the anchor point (character).
+          // Adjust these values to precisely place the image.
+          anchorOffsetX: 0.1.inchesToEmu(), 
+          // Move slightly above the line
+          anchorOffsetY: -0.2.inchesToEmu(),
         ),
       ),
-    ),
-    TextRun(
-      data: TextPart(text: ' positioned precisely next to this point.'),
-    ),
+    ).drawing().run(),
+    TextRun(text: ' positioned precisely next to this point.'),
   ],
 );
 ```
@@ -491,25 +444,18 @@ The table system supports configurable multi-row, multi-column structures with p
 #### Creating a basic 2x2 table with centered alignment and custom widths
 ```dart
 final table = Table(
-  tableConfig: TableConfig(
-    width: 5000,
-    widthType: TableWidthType.dxa,
-    alignment: Alignment.center,
-  ),
-  gridCols: [
-    GridColumn(width: 2500),
-    GridColumn(width: 2500),
-  ],
-  rows: [
+  tableConfig: TableProperties.auto(alignment: Alignment.center),
+  columns: GridColumn.intrinsic().repeat(2),
+  rows: <TableRow>[
     TableRow(
       cells: [
-        TableCell(
-          cellConfig: TableCellConfig(width: 2500, widthType: TableWidthType.dxa),
-          children: [Paragraph.text(text: 'Header 1')],
+        TableCell.one(
+          cellConfig: TableCellConfig.auto(),
+          child: Paragraph.text(text: 'Header 1'),
         ),
-        TableCell(
-          cellConfig: TableCellConfig(width: 2500, widthType: TableWidthType.dxa),
-          children: [Paragraph.text(text: 'Header 2')],
+        TableCell.one(
+          cellConfig: TableCellConfig.auto(),
+          child: Paragraph.text(text: 'Header 2'),
         ),
       ],
     ),
@@ -521,26 +467,47 @@ Complex table layouts are supported through horizontal (colspan) and vertical (r
 
 #### Example: Creating merged cells with colspan and rowspan
 ```dart
-final cell = TableCell(
+final cell = TableCell.one(
   cellConfig: TableCellConfig(
-    gridSpan: 2,  // Spans 2 columns horizontally
-    rowSpan: 3,   // Spans 3 rows vertically
+    // Spans 2 columns horizontally
+    columnSpan: 2, 
+    // Spans 3 rows vertically
+    rowSpan: 3,
   ),
-  children: [Paragraph.text(text: 'Merged Area')],
-)
+  child: Paragraph.text(text: 'Merged Area'),
+);
 ```
 
 Tables and individual cells support comprehensive border styling with configurable styles (single, double, dashed, dotted, wavy), thickness (measured in eighths of a point), spacing, and color specifications. Borders can be applied to the entire table or customized per cell side.
+
+
+> [!IMPORTANT]
+> This section is outdated. I'm working on update it to use the new class names
 
 #### Example: Table with custom border styling
 ```dart
 final config = TableProperties(
   borders: TableBorders(
-    top: TableBorder(style: BorderStyle.double, size: 8, color: Color.rgb(0xFF0000)),
+    top: TableBorder(style: BorderStyle.double, size: 8, color: Color(0xFF0000)),
     bottom: TableBorder(style: BorderStyle.dashed, size: 4),
     insideHorizontal: TableBorder(style: BorderStyle.dotted),
   ),
 )
+
+// Or use
+final config2 = TableProperties(
+  borders: TableBorders.symmetric(
+    vertical: TableBorder(style: BorderStyle.double, size: 8, color: Color(0xFF0000)),
+    insideHorizontal: TableBorder(style: BorderStyle.dotted),
+  ),
+);
+
+// Or
+final config2 = TableProperties(
+  borders: TableBorders.all(
+    TableBorder(style: BorderStyle.double, size: 8, color: Color(0xFF0000)),
+  ),
+);
 ```
 
 Individual cells can have customized background colors and shading patterns. The system supports solid fills and various pattern types including diagonal stripes, horizontal stripes, and cross patterns with configurable colors.
@@ -548,10 +515,7 @@ Individual cells can have customized background colors and shading patterns. The
 #### Example: Cell with background shading
 ```dart
 final cellConfig = TableCellConfig(
-  shading: Shading(
-    fill: Color.rgb(0xFFCCCC),
-    style: ShadingPattern.diagStripe,
-  ),
+  shading: Shading.diagonalCross(fill: Color(0xFFCCCC)),
 )
 ```
 
@@ -561,6 +525,13 @@ Cell content can be vertically aligned to top, center, or bottom positions withi
 ```dart
 final cellConfig = TableCellConfig(
   verticalAlignment: VerticalAlignment.center,
+  // If the row has not the required height 
+  // you wont see the effect of VerticalAligment
+  //
+  // Sometimes you'll need to specify a width
+  //
+  // You can use TableHeightRule.atLeast to allow
+  // resizing if the cell requires it
   height: 1000,
 )
 ```
