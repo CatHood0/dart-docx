@@ -15,8 +15,8 @@ import '../../../../docx.dart';
 /// ```dart
 /// final drawing = DrawingML(data: myShapeComponent);
 /// ```
-class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
-  DrawingML({
+class Drawing extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
+  Drawing({
     required super.child,
     super.id,
   }) {
@@ -32,7 +32,7 @@ class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
       XmlElement.tag(
         'w:drawing',
         isSelfClosing: false,
-        children: [
+        children: <XmlNode>[
           ...child.buildXml(context: context),
         ],
       ),
@@ -45,7 +45,7 @@ class DrawingML extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   }
 
   @override
-  DocxTreeNode<DocxTreeNode<dynamic>> get copy => DrawingML(
+  DocxTreeNode<DocxTreeNode<dynamic>> get copy => Drawing(
         child: child.copy,
         id: id,
       );

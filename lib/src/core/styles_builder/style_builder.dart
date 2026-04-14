@@ -6,15 +6,79 @@ import '../extensions/num_extensions.dart';
 /// This class provides a fluent API to define various paragraph and character
 /// style properties such as font, size, color, alignment, spacing, and borders.
 ///
-// TODO: we need to filter or make a way to filter some rPr properties
-// for styles.xml, since is not allowed using things like bold, italic,
-// or toggle attributes. Idk exactly why, but we need to fix it
+/// ## Quick Examples
+///
+/// ### Create a Paragraph Style
+/// ```dart
+/// final style = StyleBuilder.paragraph('CustomHeading')
+///   .name('Custom Heading')
+///   .fontSize(24)
+///   .bold()
+///   .fontFamily('Georgia')
+///   .runColor(Color(0xFF000080))
+///   .build();
+/// ```
+///
+/// ### Create a Character Style
+/// ```dart
+/// final codeStyle = StyleBuilder.character('CodeText')
+///   .name('Code')
+///   .fontFamily('Courier New')
+///   .fontSize(10)
+///   .build();
+/// ```
+///
+/// ### Inline Style (singular - not saved to styles.xml)
+/// ```dart
+/// // For direct paragraph formatting
+/// final inlineStyle = StyleBuilder.singularP()
+///   .bold()
+///   .fontSize(16)
+///   .build();
+///
+/// // For direct character formatting
+/// final charStyle = StyleBuilder.singularC()
+///   .italic()
+///   .underline()
+///   .build();
+/// ```
+///
+/// ### Paragraph with Borders and Spacing
+/// ```dart
+/// final borderedStyle = StyleBuilder.paragraph('Quote')
+///   .name('Quote Style')
+///   .indent(left: 720, right: 720)
+///   .spacing(before: 240, after: 240)
+///   .borders(
+///     left: BorderStyle.single,
+///     leftSize: 12,
+///     leftColor: '808080',
+///   )
+///   .build();
+/// ```
+///
+/// ## Style Types
+///
+/// | Factory | Purpose | Example |
+/// |---------|---------|---------|
+/// | `paragraph()` | Document paragraph styles | Headings, Body Text |
+/// | `character()` | Inline character styles | Links, Code |
+/// | `list()` | List numbering styles | Bullet/Number lists |
+/// | `numbering()` | Numbering definitions | List configurations |
+///
+/// ## Singular Styles
+///
+/// Use `singular*` factories when you don't want to save the style
+/// to the document's styles.xml but still need style properties:
+/// - `singularP()` - Single-use paragraph style
+/// - `singularC()` - Single-use character style
+/// - `singularL()` - Single-use list style
+/// - `singularN()` - Single-use numbering style
 class StyleBuilder {
   /// Internal constructor for [StyleBuilder].
   ///
   /// [id] is the unique identifier for the style (w:styleId).
   /// [type] specifies if it's a 'paragraph' or 'character' style.
-  /// [_names] is the display name of the style in Word.
   StyleBuilder._(this.id, this.type);
 
   /// Creates a [StyleBuilder] for a paragraph style.
@@ -157,6 +221,23 @@ class StyleBuilder {
     return this;
   }
 
+  /// Adds custom [StyleConfigurator] objects to the style.
+  ///
+  /// Use this method to add low-level XML configurations that aren't
+  /// covered by the fluent API methods.
+  ///
+  /// Example:
+  /// ```dart
+  /// StyleBuilder.paragraph('Custom')
+  ///   .withConfigurators([
+  ///     StyleConfigurator.selfClosing(
+  ///       prefix: 'w',
+  ///       propertyName: 'divId',
+  ///       value: '123',
+  ///     ),
+  ///   ])
+  ///   .build();
+  /// ```
   StyleBuilder withConfigurators(Iterable<StyleConfigurator> configs) {
     _configurators.addAll(configs);
     return this;
@@ -200,6 +281,21 @@ class StyleBuilder {
     return this;
   }
 
+  /// Sets contextual spacing for the paragraph style.
+  ///
+  /// When true, spacing between paragraphs using this style will ignore
+  /// the spacing from the previous paragraph's style.
+  ///
+  /// Useful for styles like List Paragraph where you don't want double spacing.
+  ///
+  /// Example:
+  /// ```dart
+  /// // Without contextualSpacing: extra space between list items
+  /// // With contextualSpacing: consistent space between list items
+  /// StyleBuilder.paragraph('ListItem')
+  ///   .contextualSpacing(true)
+  ///   .build();
+  /// ```
   StyleBuilder contextualSpacing(bool shouldUse) {
     _contextualSpacing = shouldUse;
     return this;
@@ -353,8 +449,30 @@ class StyleBuilder {
     return this;
   }
 
+  /// Applies subscript formatting to the text.
+  ///
+  /// Subscript positions text below the baseline, useful for
+  /// chemical formulas (H₂O) or mathematical notations.
+  ///
+  /// Example:
+  /// ```dart
+  /// StyleBuilder.character('subscript')
+  ///   .subscript()
+  ///   .build();
+  /// ```
   StyleBuilder subscript() => __verticalAlign(Script.subscript);
 
+  /// Applies superscript formatting to the text.
+  ///
+  /// Superscript positions text above the baseline, useful for
+  /// exponents (x²) or ordinal numbers (1st, 2nd).
+  ///
+  /// Example:
+  /// ```dart
+  /// StyleBuilder.character('superscript')
+  ///   .superscript()
+  ///   .build();
+  /// ```
   StyleBuilder superscript() => __verticalAlign(Script.superscript);
 
   /// Sets the paragraph alignment.
@@ -460,11 +578,11 @@ class StyleBuilder {
   /// [color] is the hexadecimal color code for the background (e.g., 'FF0000').
   /// [pattern] is the shading pattern (e.g., [ShadingPattern.solid]).
   /// This setting is applicable only to paragraph styles.
-  StyleBuilder paragraphShading({String? color, ShadingPattern? pattern}) {
+  StyleBuilder shading({Color? color, ShadingPattern? pattern}) {
     if (type == Style.paragraphType) {
       return this;
     }
-    if (color != null) _shadingColor = color;
+    if (color != null) _shadingColor = color.toColorValue()!.toUpperCase();
     if (pattern != null) _shadingPattern = pattern;
     return this;
   }

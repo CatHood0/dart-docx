@@ -1,5 +1,55 @@
 import 'package:xml/xml.dart';
 
+import '../sdk.dart';
+
+enum MainAxisAlignment {
+  start('start'),
+  center('center'),
+  spaceBetween('spaceBetween'),
+  end('end');
+
+  const MainAxisAlignment(this.value);
+
+  //TODO: we need to manage RTL
+  Alignment align() {
+    return switch (this) {
+      start => Alignment.left,
+      center => Alignment.center,
+      end => Alignment.right,
+      _ => Alignment.left,
+    };
+  }
+
+  Alignment reversed() {
+    return switch (this) {
+      start => Alignment.right,
+      center => Alignment.center,
+      end => Alignment.left,
+      _ => Alignment.right,
+    };
+  }
+
+  final String value;
+}
+
+enum CrossAxisAlignment {
+  start('start'),
+  center('center'),
+  end('end');
+
+  const CrossAxisAlignment(this.value);
+
+  VerticalAlignment vertical() {
+    return switch (this) {
+      start => VerticalAlignment.top,
+      center => VerticalAlignment.center,
+      end => VerticalAlignment.bottom,
+    };
+  }
+
+  final String value;
+}
+
 enum BorderAlignment {
   /// Appears directly above the shape
   top('top'),
@@ -90,35 +140,68 @@ enum UniversalAlignment {
   bottom,
 }
 
+enum TextAlign {
+  /// left align text
+  left('left'),
+
+  /// center align text
+  center('center'),
+
+  /// Right align text
+  right('right'),
+
+  /// Justify align text
+  justify('both');
+
+  const TextAlign(this.value);
+
+  bool isCenterLeftOrRight() => this == left || this == right || this == center;
+
+  Alignment get toAlign => switch (this) {
+        left => Alignment.left,
+        right => Alignment.right,
+        center => Alignment.center,
+        justify => Alignment.both,
+      };
+
+  final String value;
+}
+
 /// Represents the horizontal alignment options
 enum Alignment {
   /// left align text
-  left,
+  left('left'),
 
   /// center align text
-  center,
+  center('center'),
 
   /// Right align text
-  right,
+  right('right'),
 
   /// Justify align text
-  both,
+  both('both'),
 
   /// Like both but also distributes the last line
   /// Useful for vertical text in East Asian languages
-  distribute,
+  distribute('distribute'),
 
   /// Arabic justification using medium kashida elongations
-  mediumKashida,
+  mediumKashida('mediumKashida'),
 
   /// Arabic justification using big kashida elongations
-  highKashida,
+  highKashida('highKashida'),
 
   /// Arabic justification using short kashida elongations
-  lowKashida,
+  lowKashida('lowKashida'),
 
   /// Distribution special for Thai script
-  thaiDistribute,
+  thaiDistribute('thaiDistribute');
+
+  const Alignment(this.value);
+
+  bool isCenterLeftOrRight() => this == left || this == right || this == center;
+
+  final String value;
 }
 
 /// Represents the common vertical alignment options
@@ -213,35 +296,6 @@ enum BorderStyle {
 
   /// The WordML string value for the border style.
   final String value;
-}
-
-/// Margin values for text box insets.
-class EdgeInsets {
-  const EdgeInsets.all(int value)
-      : left = value,
-        top = value,
-        right = value,
-        bottom = value;
-
-  const EdgeInsets.only({
-    this.left = 0,
-    this.top = 0,
-    this.right = 0,
-    this.bottom = 0,
-  });
-
-  const EdgeInsets.symmetric({
-    int horizontal = 0,
-    int vertical = 0,
-  })  : left = horizontal,
-        top = vertical,
-        right = horizontal,
-        bottom = vertical;
-
-  final int left;
-  final int top;
-  final int right;
-  final int bottom;
 }
 
 /// Pattern types for shape fill (a:pattFill).
@@ -488,10 +542,18 @@ abstract class PathCommand {
 
 /// Move the drawing cursor to a new position without drawing.
 class MoveToCommand extends PathCommand {
-  const MoveToCommand(this.x, this.y);
+  const MoveToCommand(this.x, this.y)
+      : assert(
+          x >= 0 && x <= maxGeometryPathSize,
+          'x offset must between 0 and $maxGeometryPathSize',
+        ),
+        assert(
+          y >= 0 && y <= maxGeometryPathSize,
+          'y offset must between 0 and $maxGeometryPathSize',
+        );
 
-  final int x; // 0-1000000 (0-100%)
-  final int y; // 0-1000000 (0-100%)
+  final int x;
+  final int y;
 
   @override
   List<XmlElement> toXml() {
@@ -734,10 +796,24 @@ class Rect {
     this.bottom,
   );
 
+  const Rect.all(int value)
+      : left = value,
+        top = value,
+        right = value,
+        bottom = value;
+
+  int get width => left + right;
+  int get height => top + bottom;
+
   final int left;
   final int top;
   final int right;
   final int bottom;
+
+  @override
+  String toString() {
+    return '$runtimeType(left: $left, top: $top, right: $right, bottom: $bottom)';
+  }
 }
 
 /// Extension methods for creating common path commands.

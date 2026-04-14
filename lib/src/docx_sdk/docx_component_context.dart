@@ -6,10 +6,7 @@ import 'utils/logger/logger_configs.dart';
 import 'xml_components/numbering/abstract_numbering_component.dart';
 import 'xml_components/numbering/concrete_numbering_component.dart';
 
-///TODO: we will need to pass more context info
-/// and make a context for every component
-/// to avoid sharing some parts and avoid
-/// mutation issues
+//TODO: context should behave more like BuildContext from Flutter
 class DocumentContext {
   DocumentContext({
     required this.options,
@@ -21,6 +18,7 @@ class DocumentContext {
     required this.defaultNormalStyle,
     required this.drawingStore,
     this.noTrim = true,
+    this.checkStyleRefExistence = false,
   });
 
   DocumentContext.base({DocumentOptions? options})
@@ -28,10 +26,11 @@ class DocumentContext {
         hyperlinkStore = HyperlinkStore(),
         fontStore = FontStore(),
         noTrim = true,
+        checkStyleRefExistence = false,
         drawingStore = DrawingElementCounterStore(),
         numberingStore = NumberingStore(),
         setNormalStyleToNotStyledParagraphs = true,
-        defaultNormalStyle = Style.reference('Normal'),
+        defaultNormalStyle = Style.ref('Normal'),
         options = options ?? DocumentOptions.standard(title: 'unnamed');
 
   /// A factory designed specificaly for work during testing phases
@@ -41,10 +40,11 @@ class DocumentContext {
         hyperlinkStore = HyperlinkStore(),
         fontStore = FontStore(),
         noTrim = true,
+        checkStyleRefExistence = false,
         drawingStore = DrawingElementCounterStore(),
         numberingStore = NumberingStore(),
         setNormalStyleToNotStyledParagraphs = true,
-        defaultNormalStyle = Style.reference('Normal'),
+        defaultNormalStyle = Style.ref('Normal'),
         options = options ?? DocumentOptions.standard(title: 'unnamed'),
         registerInstance = ((String ref, int num, {int? level}) {});
 
@@ -55,6 +55,7 @@ class DocumentContext {
   /// Determines if the paragraph will be created referencing the
   /// "Normal" style
   final Style defaultNormalStyle;
+  // {filename: rid}
   final MediaStore mediaStore;
   final DrawingElementCounterStore drawingStore;
   final DocumentOptions options;
@@ -66,6 +67,8 @@ class DocumentContext {
   /// since this confirm to the compiler to assign to every text
   /// object a "preserve" attribute
   final bool noTrim;
+
+  final bool checkStyleRefExistence;
 
   //
   late void Function(String ref, int numId, {int? level})? registerInstance;
@@ -81,8 +84,11 @@ class DocumentContext {
 
   DocumentStyles get docStyleSheet => options.docStyles;
 
+  //TODO: document context will need to be more independent 
+  // from its component build to allow more large lifetime
+  // during compilation
+  //
   // all the media are saved
-  // {filename: rid}
   DocxTreeNode? _currentContentPart;
   DocxTreeNode? get currentContentPart => _currentContentPart;
   set currentContentPart(DocxTreeNode? content) {
@@ -99,11 +105,19 @@ class DocumentContext {
     );
     while (current != null) {
       if (current is T) {
+        CompilerLogger.root.d(
+          'Found ancestor '
+          'of type ${T.toString()}',
+        );
         return current;
       }
       current = current.parent;
     }
     return null;
+  }
+
+  bool childOfAncestorOfExactType<T extends DocxTreeNode>() {
+    return getAncestorOfExactType<T>() != null;
   }
 }
 

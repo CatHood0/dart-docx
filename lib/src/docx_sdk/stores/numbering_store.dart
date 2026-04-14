@@ -62,12 +62,12 @@ class NumberingStore {
       context: _context,
       options: <NumberingOptions>[
         ..._customNumbering,
-        ..._defaultOptions,
+        ...defaultNumberings,
       ],
     );
   }
 
-  List<NumberingOptions> get _defaultOptions => <NumberingOptions>[
+  static List<NumberingOptions> get defaultNumberings => <NumberingOptions>[
         NumberingOptions(
           refKey: 'unordered',
           levels: <LevelOptions>[

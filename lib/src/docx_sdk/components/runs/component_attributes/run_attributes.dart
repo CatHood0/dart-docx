@@ -22,9 +22,9 @@ class BackgroundTextColorAttribute extends TextRunAttribution<String?>
   }
 }
 
-class ForegroundTextColorAttribute extends TextRunAttribution<String?>
+class ForegroundTextColorAttribute extends TextRunAttribution<Color?>
     implements ApplicableAttributeMixin {
-  ForegroundTextColorAttribute(String? value)
+  ForegroundTextColorAttribute(Color? value)
       : super(
           key: 'text-color',
           value: value,
@@ -32,11 +32,11 @@ class ForegroundTextColorAttribute extends TextRunAttribution<String?>
         );
   @override
   XmlElement? toXml() {
-    if (value == null || value!.isEmpty) return null;
+    if (value == null || !value!.isRGB) return null;
     return XmlElement.tag(
       'w:color',
       attributes: [
-        XmlAttribute(XmlName.fromString('w:val'), value ?? noColor),
+        XmlAttribute(XmlName.fromString('w:val'), value!.toHexStringWithAlpha()),
       ],
     );
   }

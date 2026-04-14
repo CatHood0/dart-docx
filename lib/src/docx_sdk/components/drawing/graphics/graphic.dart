@@ -19,6 +19,18 @@ class Graphic extends DocxTreeNode<GraphicData> {
           ),
         );
 
+  Graphic.shape({
+    required DocxTreeNode child,
+    super.parent,
+    super.id,
+  }) : super(
+          child: GraphicData(
+            child: child,
+            uri: namespaces['wps']!,
+          ),
+        );
+ 
+
   @override
   Graphic get copy => Graphic(
         child: child.copy,

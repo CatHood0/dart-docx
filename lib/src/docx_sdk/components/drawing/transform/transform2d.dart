@@ -13,6 +13,38 @@ class Transform2D extends DocxTreeNode<dynamic> {
             rotation > 360 ? rotation : (rotation * (degressTh / 360)).toInt(),
         super(child: null);
 
+  Transform2D.zero({
+    Offset? offset,
+    AnnotationExtents? extents,
+    int rotation = 0,
+    this.flipHorizontal = false,
+    this.flipVertical = false,
+  })  : offset = offset ?? Offset.zero(),
+        extents = extents ?? AnnotationExtents.zero(),
+        rotation =
+            rotation > 360 ? rotation : (rotation * (degressTh / 360)).toInt(),
+        super(child: null);
+
+  Transform2D.degre90({
+    Offset? offset,
+    AnnotationExtents? extents,
+    this.flipHorizontal = false,
+    this.flipVertical = false,
+  })  : offset = offset ?? Offset.zero(),
+        extents = extents ?? AnnotationExtents.zero(),
+        rotation = (90 * (degressTh / 360)).toInt(),
+        super(child: null);
+
+  Transform2D.degre180({
+    Offset? offset,
+    AnnotationExtents? extents,
+    this.flipHorizontal = false,
+    this.flipVertical = false,
+  })  : offset = offset ?? Offset.zero(),
+        extents = extents ?? AnnotationExtents.zero(),
+        rotation = (180 * (degressTh / 360)).toInt(),
+        super(child: null);
+
   final Offset offset;
   //NOTE: maybe we should assume that the element
   // has an ancestor width sizing properties?

@@ -1,7 +1,8 @@
 import 'package:xml/xml.dart';
 
 import '../../../../../../docx.dart';
-import '../../../../../core/extensions/style_to_from_node.dart';
+import '../../../../../core/extensions/cast_ext.dart';
+import '../../../../../core/extensions/string_ext.dart';
 
 /// Table row containing multiple cells.
 ///
@@ -12,13 +13,6 @@ import '../../../../../core/extensions/style_to_from_node.dart';
 /// Example usage:
 /// ```dart
 /// TableRow(
-///   rowConfig: TableStyleBuilder.singularTable()
-///       .rowProperties(
-///         height: 504,
-///         heightRule: TableHeightRule.atLeast,
-///         cantSplit: true,
-///       )
-///       .tableShading(color: Color.rgb(0xF0F0F0)),
 ///   cells: [
 ///     TableCell(
 ///       children: [Paragraph.text(text: 'Cell 1')],
@@ -34,10 +28,19 @@ import '../../../../../core/extensions/style_to_from_node.dart';
 class TableRow extends DocxTreeNode<List<TableCell>> {
   TableRow({
     required Iterable<TableCell> cells,
-    this.rowConfig,
+    this.canSplit,
+    this.hidden,
+    this.height,
+    TableHeightRule? heightRule,
+    this.alignment,
+    this.spacing = 0,
+    this.isHeader = false,
     super.id,
     super.parent,
-  }) : super(child: List.from(cells)) {
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(cells)) {
     int cellIndex = 0;
     for (final TableCell cell in child) {
       cell
@@ -48,28 +51,144 @@ class TableRow extends DocxTreeNode<List<TableCell>> {
     }
   }
 
-  /// Row configuration including height, splitting behavior,
-  /// and styling properties.
-  ///
-  /// This is built using `TableStyleBuilder` to create row-specific
-  /// properties that apply to the entire row.
-  final TableStyleBuilder? rowConfig;
+  TableRow.header({
+    required Iterable<TableCell> cells,
+    this.canSplit,
+    this.hidden,
+    this.height,
+    TableHeightRule? heightRule,
+    this.alignment,
+    this.spacing = 0,
+    super.id,
+    super.parent,
+  })  : isHeader = true,
+        heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(cells)) {
+    int cellIndex = 0;
+    for (final TableCell cell in child) {
+      cell
+        ..parent = this
+        ..index = cellIndex
+        ..depth = depth + 1;
+      cellIndex++;
+    }
+  }
+
+  TableRow.empty({
+    TableHeightRule? heightRule,
+    this.hidden,
+    this.height,
+    this.canSplit,
+    this.alignment,
+    this.spacing = 0,
+    this.isHeader = false,
+    super.id,
+    super.parent,
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(<dynamic>[]));
+
+  TableRow.one({
+    required TableCell cell,
+    this.canSplit,
+    this.hidden,
+    this.height,
+    this.alignment,
+    this.spacing = 0,
+    this.isHeader = false,
+    TableHeightRule? heightRule,
+    super.id,
+    super.parent,
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(<dynamic>[cell]));
+
+  TableRow.two({
+    required TableCell cell,
+    required TableCell cell2,
+    this.canSplit,
+    this.hidden,
+    this.height,
+    this.alignment,
+    this.spacing = 0,
+    this.isHeader = false,
+    TableHeightRule? heightRule,
+    super.id,
+    super.parent,
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(<dynamic>[cell, cell2]));
+
+  TableRow.three({
+    required TableCell cell,
+    required TableCell cell2,
+    required TableCell cell3,
+    this.canSplit,
+    this.hidden,
+    this.height,
+    this.alignment,
+    this.spacing = 0,
+    this.isHeader = false,
+    TableHeightRule? heightRule,
+    super.id,
+    super.parent,
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(<dynamic>[cell, cell2, cell3]));
+
+  final bool? canSplit;
+  final bool? hidden;
+  final int? height;
+  final TableHeightRule? heightRule;
+  final Alignment? alignment;
+
+  /// Forces Word to show always the header row
+  /// when it is splitted between different pages
+  final bool isHeader;
+
+  /// The spacing between all the cells
+  /// in dxa units
+  final int spacing;
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
+    context.currentContentPart = this;
     final List<XmlNode> rowChildren = <XmlNode>[
       // To maintain compatibility with certain editors,
       // we always include a w:trPr element, even if empty.
       // This avoids rendering issues with editors like LibreOffice.
       XmlElement.tag(
         'w:trPr',
-        children: _buildTrPr(context),
+        children: buildXmlStyle(context: context),
         isSelfClosing: false,
       )
     ];
 
     // Build all cells in the row
     for (final TableCell cell in child) {
+      if (cell.cellConfig.widthType.needsWidth && cell.cellConfig.width <= 0) {
+        throw Exception(
+          '${context.getAncestorOfExactType<Table>()?.runtimeType}:${context.getAncestorOfExactType<Table>()?.id} => '
+          '$runtimeType:$id => TableWidthType.pct or TableWidthType.dxa '
+          'requires a non zero and non negative [width]',
+        );
+      }
+
+      if (cell.cellConfig.widthType.isNilOrAuto && cell.cellConfig.width > 0) {
+        throw Exception(
+          '${context.getAncestorOfExactType<Table>()?.runtimeType}:${context.getAncestorOfExactType<Table>()?.id} => '
+          '$runtimeType:$id => TableWidthType.auto or '
+          'TableWidthType.nil only can be used when '
+          '[width] is zero or less',
+        );
+      }
+
       final List<XmlElement> cellXml = cell.buildXml(context: context);
       rowChildren.addAll(cellXml);
     }
@@ -83,30 +202,80 @@ class TableRow extends DocxTreeNode<List<TableCell>> {
     ];
   }
 
-  /// Builds the row properties (trPr) XML nodes.
-  ///
-  /// This includes row height, splitting behavior, and any other
-  /// row-level styling properties configured via `rowConfig`.
-  List<XmlNode> _buildTrPr(DocumentContext context) {
-    return <XmlNode>[
-      ...?rowConfig?.build().forTableRowStyle(
-            shouldShowStyleRef: false,
-            useConfigurators: true,
-          )
-    ];
-  }
-
   @override
   List<XmlNode> buildXmlStyle({required DocumentContext context}) {
-    return <XmlNode>[];
+    final Alignment? align =
+        context.getAncestorOfExactType<Align>()?.alignment ?? alignment;
+    assert(align == null || align.isCenterLeftOrRight(),
+        'TableRow alignment only supports: left, center and right. Found: "${align.name}"');
+    return <XmlElement>[
+      if (canSplit != null)
+        // it's so annoying how they select the names
+        // of some nodes...
+        XmlElement.tag(
+          'w:cantSplit',
+          attributes: XmlAttribute(
+            'w:val'.toName(),
+            (!canSplit!).toString(),
+          ).toList(),
+        ),
+      if (align != null)
+        XmlElement.tag(
+          'w:jc',
+          attributes: XmlAttribute(
+            'w:val'.toName(),
+            align.name,
+          ).toList(),
+        ),
+      XmlElement.tag(
+        'w:tblHeader',
+        attributes: XmlAttribute(
+          'w:val'.toName(),
+          (!isHeader).toString(),
+        ).toList(),
+      ),
+      if (hidden != null)
+        XmlElement.tag(
+          'w:hidden',
+          attributes: XmlAttribute(
+            'w:val'.toName(),
+            (!hidden!).toString(),
+          ).toList(),
+        ),
+      if (spacing > 0)
+        XmlElement.tag(
+          'w:tblCellSpacing',
+          attributes: <XmlAttribute>[
+            XmlAttribute(
+              'w:w'.toName(),
+              (spacing).toString(),
+            ),
+            XmlAttribute(
+              'w:type'.toName(),
+              'dxa',
+            ),
+          ],
+        ),
+      if (height != null && heightRule != null)
+        XmlElement.tag(
+          'w:trHeight',
+          attributes: <XmlAttribute>[
+            XmlAttribute('w:val'.toName(), (height!).toString()),
+            XmlAttribute('w:hRule'.toName(), (heightRule!).toString()),
+          ],
+        ),
+    ];
   }
 
   @override
   TableRow get copy => TableRow(
         id: id,
-        cells: child,
-        rowConfig: rowConfig,
         parent: parent,
+        cells: child,
+        hidden: hidden,
+        canSplit: canSplit,
+        height: height,
+        heightRule: heightRule,
       );
 
   @override

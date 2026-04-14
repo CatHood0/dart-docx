@@ -1,8 +1,22 @@
 import 'package:xml/xml.dart';
 
 import '../../../../../../docx.dart';
+import '../../../../../core/extensions/num_extensions.dart';
 import '../../../../../core/extensions/string_ext.dart';
 import '../../../../../core/extensions/style_to_from_node.dart';
+import '../../../../utils/logger/logger_configs.dart';
+
+export '../../../../../core/borders.dart'
+    show DocxBorder, DocxBorders, DocxCellBorders;
+
+/// Backwards compatibility alias for [TableBorder].
+typedef TableBorder = DocxBorder;
+
+/// Backwards compatibility alias for [TableBorders].
+typedef TableBorders = DocxBorders;
+
+/// Backwards compatibility alias for [TableCellBorders].
+typedef TableCellBorders = DocxCellBorders;
 
 /// Complete table configuration for DOCX documents.
 ///
@@ -38,24 +52,109 @@ class TableProperties extends DocxTreeNode<void> {
     this.widthType = TableWidthType.auto,
     this.alignment = Alignment.left,
     TableBorders? borders,
-    TableCellMargins? cellMargins,
+    EdgeInsets? padding,
     this.layout = false,
     super.id,
-  })  : styles = List<Style>.from(styles),
-        cellMargins = cellMargins ??
-            const TableCellMargins(
-              top: 55,
-              left: 55,
-              bottom: 55,
-              right: 55,
-            ),
-        borders = borders ??
-            TableBorders(
-              left: TableBorder(style: BorderStyle.single),
-              top: TableBorder(style: BorderStyle.single),
-              bottom: TableBorder(style: BorderStyle.single),
-              right: TableBorder(style: BorderStyle.single),
-            ),
+    super.parent,
+  })  : assert(width >= 0, 'width cannot be less than zero'),
+        assert(
+            width != 0 ||
+                !widthType.isExpand ||
+                width == 0 && widthType.isExpand,
+            'widthType of type expand requires that width property be zero or less'),
+        assert(
+            width <= 0 && widthType.isNilOrAuto ||
+                width > 0 && widthType.needsWidth,
+            'TableWidthType.auto can only be used when width is zero or less'),
+        styles = List<Style>.from(styles),
+        cellMargins = padding ?? const EdgeInsets.all(20),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        super(child: null);
+
+  TableProperties.fromContext({
+    required DocumentContext context,
+    Iterable<Style> styles = const <Style>[],
+    this.alignment = Alignment.left,
+    TableBorders? borders,
+    EdgeInsets? padding,
+    super.id,
+    super.parent,
+  })  : width = context.options.availablePageWidth,
+        layout = false,
+        widthType = TableWidthType.dxa,
+        styles = List<Style>.from(styles),
+        cellMargins = padding ?? const EdgeInsets.all(20),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        super(child: null);
+
+  TableProperties.expand({
+    Iterable<Style> styles = const <Style>[],
+    this.alignment = Alignment.left,
+    TableBorders? borders,
+    EdgeInsets? padding,
+    this.layout = false,
+    super.id,
+    super.parent,
+  })  : width = 0,
+        widthType = TableWidthType.expand,
+        styles = List<Style>.from(styles),
+        cellMargins = padding ?? const EdgeInsets.all(55),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        super(child: null);
+
+  TableProperties.auto({
+    Iterable<Style> styles = const <Style>[],
+    this.alignment = Alignment.left,
+    TableBorders? borders,
+    EdgeInsets? padding,
+    this.layout = false,
+    super.id,
+    super.parent,
+  })  : width = 0,
+        widthType = TableWidthType.auto,
+        styles = List<Style>.from(styles),
+        cellMargins = padding ?? const EdgeInsets.all(55),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        super(child: null);
+
+  TableProperties.dxa({
+    Iterable<Style> styles = const <Style>[],
+    this.width = 0,
+    this.alignment = Alignment.left,
+    TableBorders? borders,
+    EdgeInsets? padding,
+    this.layout = false,
+    super.id,
+    super.parent,
+  })  : widthType = TableWidthType.dxa,
+        styles = List<Style>.from(styles),
+        assert(width != 0,
+            'widthType of type expand requires that width property be zero or less'),
+        cellMargins = padding ?? const EdgeInsets.all(55),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        super(child: null);
+
+  TableProperties.pct({
+    Iterable<Style> styles = const <Style>[],
+    this.width = 0,
+    this.alignment = Alignment.left,
+    TableBorders? borders,
+    EdgeInsets? padding,
+    this.layout = false,
+    super.id,
+    super.parent,
+  })  : widthType = TableWidthType.pct,
+        assert(width != 0,
+            'widthType of type expand requires that width property be zero or less'),
+        styles = List<Style>.from(styles),
+        cellMargins = padding ?? const EdgeInsets.all(55),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   /// Predefined table styles to apply.
@@ -71,7 +170,7 @@ class TableProperties extends DocxTreeNode<void> {
   /// - `TableWidthType.pct`: Percentage of page width
   /// - `TableWidthType.auto`: Automatic sizing
   /// - `TableWidthType.nil`: Unspecified
-  final num? width;
+  final int width;
 
   /// Unit type for the table width.
   ///
@@ -94,7 +193,7 @@ class TableProperties extends DocxTreeNode<void> {
   ///
   /// Defines the spacing between cell content and cell borders.
   /// Default values provide standard cell padding.
-  final TableCellMargins? cellMargins;
+  final EdgeInsets? cellMargins;
 
   /// Determines how the table manages its column sizing.
   ///
@@ -108,37 +207,58 @@ class TableProperties extends DocxTreeNode<void> {
 
   @override
   List<XmlNode> buildXml({required DocumentContext context}) {
+    context.currentContentPart = this;
+
+    int padding =
+        context.getAncestorOfExactType<Padding>()?.padding.all().toInt() ?? 0;
+
+    if (context.childOfAncestorOfExactType<Padding>()) {
+      CompilerLogger.root.d(
+          'Founded Padding($padding) parent for $id in ${parent.runtimeType}');
+    }
     final List<XmlNode> nodes = <XmlNode>[
-      if (width != null)
-        XmlElement.tag(
-          'w:tblW',
-          attributes: <XmlAttribute>[
+      XmlElement.tag(
+        'w:tblW',
+        attributes: <XmlAttribute>[
+          if (width > 0 && !widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              width.toString(),
-            ),
+              (width - padding).nonNegative.toString(),
+            )
+          else if (widthType.isExpand)
             XmlAttribute(
-              'w:type'.toName(),
-              widthType.name,
+              'w:w'.toName(),
+              (context.options.availablePageWidth.floor() - padding)
+                  .nonNegative
+                  .toString(),
             ),
-          ],
-          isSelfClosing: true,
-        ),
-      if (alignment != null)
-        XmlElement.tag(
-          'w:jc',
-          attributes: <XmlAttribute>[
-            XmlAttribute(
-              'w:val'.toName(),
-              alignment!.name,
-            ),
-          ],
-          isSelfClosing: true,
-        ),
+          XmlAttribute(
+            'w:type'.toName(),
+            widthType.isExpand ? TableWidthType.dxa.name : widthType.name,
+          ),
+        ],
+        isSelfClosing: true,
+      ),
     ];
 
+    if (alignment != null || context.childOfAncestorOfExactType<Align>()) {
+      final Alignment align =
+          context.getAncestorOfExactType<Align>()?.alignment ?? alignment!;
+      nodes.add(XmlElement.tag(
+        'w:jc',
+        attributes: <XmlAttribute>[
+          XmlAttribute(
+            'w:val'.toName(),
+            align.name,
+          ),
+        ],
+        isSelfClosing: true,
+      ));
+    }
     // Apply table styles
     for (final Style style in styles) {
+      //TODO: context.checkStylesRefExistence
+      // must be here too
       if (style.isInvalid) {
         continue;
       }
@@ -165,7 +285,8 @@ class TableProperties extends DocxTreeNode<void> {
     // Table borders
     if (borders != null) {
       final List<XmlNode> borderNodes = <XmlNode>[];
-
+      //TODO: some warnings in the OOXML says that we need to ensure
+      // that left is passed only when first row element, and the same for right the cur element is the right end one
       if (borders!.top != null) {
         borderNodes.add(_buildBorder('top', borders!.top!));
       }
@@ -224,14 +345,26 @@ class TableProperties extends DocxTreeNode<void> {
   /// Creates the XML structure for a single border side with configurable
   /// style, thickness, spacing, and color.
   XmlElement _buildBorder(String position, TableBorder border) {
+    if (border.color != null && !border.color!.isRGB) {
+      CompilerLogger.root
+          .e('Found TableBorder instance in TableProperties configuration '
+              'with non RGB Color definition \'${border.color}\'. We recommend '
+              'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
+              'This instance will be ignored.\n\n'
+              'Object: $id, '
+              'Parent: ${getAncestorOfExactType<Table>()?.runtimeType}\n'
+              'Parent-Id: ${getAncestorOfExactType<Table>()?.id}\n');
+    }
     return XmlElement.tag(
       'w:$position',
       attributes: <XmlAttribute>[
         XmlAttribute('w:val'.toName(), border.style.value),
         XmlAttribute('w:sz'.toName(), border.size.toString()),
         XmlAttribute('w:space'.toName(), border.space.toString()),
-        if (border.color != null)
-          XmlAttribute('w:color'.toName(), border.color!.toColorValue()!),
+        if (border.color != null && border.color!.isRGB)
+          XmlAttribute('w:color'.toName(), border.color!.toColorValue()!)
+        else
+          XmlAttribute('w:color'.toName(), 'auto'),
       ],
       isSelfClosing: true,
     );
@@ -255,12 +388,13 @@ class TableProperties extends DocxTreeNode<void> {
   @override
   DocxTreeNode<void> get copy => TableProperties(
         id: id,
+        parent: parent,
         styles: styles,
         width: width,
         widthType: widthType,
         alignment: alignment,
         borders: borders,
-        cellMargins: cellMargins,
+        padding: cellMargins,
         layout: layout,
       );
 
@@ -274,136 +408,9 @@ class TableProperties extends DocxTreeNode<void> {
 
   @override
   DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+    bool Function(DocxTreeNode<dynamic>) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
   }
-}
-
-/// Border configuration for tables.
-///
-/// Allows individual control over all border sides of a table including
-/// external borders and internal grid lines. Each side can have its own
-/// style, thickness, and color.
-///
-/// Example usage:
-/// ```dart
-/// TableBorders(
-///   top: TableBorder(style: BorderStyle.double, size: 8),
-///   bottom: TableBorder(style: BorderStyle.single, size: 4),
-///   insideHorizontal: TableBorder(style: BorderStyle.dotted),
-///   insideVertical: TableBorder(style: BorderStyle.dashed),
-/// );
-/// ```
-class TableBorders {
-  const TableBorders({
-    this.top,
-    this.right,
-    this.bottom,
-    this.left,
-    this.insideHorizontal,
-    this.insideVertical,
-  });
-
-  TableBorders.all({
-    TableBorder? all,
-    this.insideHorizontal,
-    this.insideVertical,
-  })  : top = all,
-        right = all,
-        bottom = all,
-        left = all;
-
-  final TableBorder? top;
-  final TableBorder? right;
-  final TableBorder? bottom;
-  final TableBorder? left;
-  final TableBorder? insideHorizontal;
-  final TableBorder? insideVertical;
-}
-
-/// Border configuration for individual table cells.
-///
-/// Provides control over the borders of specific cells within a table.
-/// This allows for custom border styling on a per-cell basis, independent
-/// of the overall table border configuration.
-///
-/// Example usage:
-/// ```dart
-/// TableCellBorders(
-///   top: TableBorder(style: BorderStyle.single, color: Color.rgb(0xFF0000)),
-///   bottom: TableBorder(style: BorderStyle.double, size: 8),
-/// );
-/// ```
-class TableCellBorders {
-  const TableCellBorders({
-    this.top,
-    this.right,
-    this.bottom,
-    this.left,
-  });
-
-  TableCellBorders.all({
-    TableBorder? all,
-  })  : top = all,
-        right = all,
-        bottom = all,
-        left = all;
-
-  final TableBorder? top;
-  final TableBorder? right;
-  final TableBorder? bottom;
-  final TableBorder? left;
-}
-
-/// Definition of an individual border with style, thickness, and color.
-///
-/// Represents a single border line with configurable appearance.
-/// The `size` property is measured in eighths of a point (so 4 = 0.5pt,
-/// 8 = 1pt, 16 = 2pt, etc.).
-///
-/// Example usage:
-/// ```dart
-/// TableBorder(
-///   style: BorderStyle.double,
-///   size: 12,  // 1.5 points
-///   space: 2,  // 2 points spacing
-///   color: Color.rgb(0x336699),
-/// );
-/// ```
-class TableBorder {
-  TableBorder({
-    this.style = BorderStyle.single,
-    this.size = 4,
-    this.space = 0,
-    Color? color,
-  })  : color = color ?? Color.rgb(0x000000),
-        assert(
-          color == null || color.rgbValue != null,
-          'color property must be ' 'used calling Color.rgb constructor',
-        );
-
-  /// Border line style (single, double, dashed, dotted, etc.)
-  final BorderStyle style;
-
-  /// Border thickness in eighths of a point.
-  ///
-  /// Common values:
-  /// - `4` = 0.5 points (default)
-  /// - `8` = 1 point
-  /// - `12` = 1.5 points
-  /// - `16` = 2 points
-  /// - `24` = 3 points
-  final int size;
-
-  /// Line spacing between the border and the content in point units.
-  ///
-  /// This creates space between the border line and the cell content.
-  final int space;
-
-  /// Border color in hex RGB format (e.g., 'FF0000' for red).
-  ///
-  /// Use `Color.rgb()` constructor to create color values.
-  final Color? color;
 }

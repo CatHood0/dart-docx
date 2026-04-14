@@ -13,6 +13,12 @@ class ColumnWidth {
   })  : width = width.ptToTwips(),
         spaceAfter = spaceAfter?.ptToTwips();
 
+  ColumnWidth.pixels({
+    required double width,
+    int? spaceAfter,
+  })  : width = width.pixelsToTwips(),
+        spaceAfter = spaceAfter?.pixelsToTwips();
+
   ColumnWidth.inches({
     required double width,
     double? spaceAfter,

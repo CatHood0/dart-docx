@@ -48,6 +48,15 @@ class DocxPacker {
     return this;
   }
 
+  /// Enables checking every Style.ref used in the Document content.
+  ///
+  /// This can make the compilation more slow, since every time we found
+  /// a Style.ref, we need to request for existence to DocumentStyles
+  DocxPacker checkStylReferences() {
+    _compiler.checkStyleRefExistence = true;
+    return this;
+  }
+
   /// Determines the "Normal" style to be applied using
   /// `applyNormalStyleIfNeeded` as the falg
   DocxPacker defaultNormalStyle(Style style) {

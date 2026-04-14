@@ -1,8 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
-import '../../shared/geometry.dart';
-import 'guide_list.dart';
-import 'handle_list.dart';
 
 /// Custom geometry defined by vector paths (a:custGeom).
 ///
@@ -18,7 +15,18 @@ class CustomGeometryComponent extends Geometry<void> {
     required this.handle,
     this.connectionPoints = const <ConnectionPoint>[],
     super.id,
-  }) : super(child: null);
+    super.parent,
+  })  : assert(
+          paths.every((ShapePath e) => e.width <= boundingBox.width),
+          'All the paths provided must be have and less or same '
+          'equals width from the specified in boundingBox: $boundingBox',
+        ),
+        assert(
+          paths.every((ShapePath e) => e.height <= boundingBox.height),
+          'All the paths provided must be have and less or same '
+          'equals height from the specified in boundingBox: $boundingBox',
+        ),
+        super(child: null);
 
   final List<ShapePath> paths;
   final Rect boundingBox;
@@ -29,12 +37,14 @@ class CustomGeometryComponent extends Geometry<void> {
 
   @override
   CustomGeometryComponent get copy => CustomGeometryComponent(
+        id: id,
         paths: paths,
         boundingBox: boundingBox,
         adjustValue: adjustValue,
         guide: guide,
         connectionPoints: connectionPoints,
         handle: handle,
+        parent: parent,
       );
 
   @override
@@ -149,20 +159,18 @@ class CustomGeometryComponent extends Geometry<void> {
 class ShapePath {
   const ShapePath({
     required this.commands,
-    this.width = 1000000,
-    this.height = 1000000,
+    this.width = maxGeometryPathSize,
+    this.height = maxGeometryPathSize,
     this.fill = PathFill.normal,
     this.stroke = false,
-  });
-
-  ShapePath.points({
-    required this.commands,
-    double width = 1,
-    double height = 1,
-    this.fill = PathFill.normal,
-    this.stroke = false,
-  })  : width = width.ptToEmu(),
-        height = height.ptToEmu();
+  })  : assert(
+          width >= 0 && width <= maxGeometryPathSize,
+          'width cannot be less than zero and major than $maxGeometryPathSize',
+        ),
+        assert(
+          height >= 0 && height <= maxGeometryPathSize,
+          'height cannot be less than zero and major than $maxGeometryPathSize',
+        );
 
   final List<PathCommand> commands;
   final int width;

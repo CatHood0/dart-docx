@@ -86,6 +86,12 @@ class XmlContentTypeComponent
           ],
         );
 
+  @override
+  String get name => 'ContentType';
+
+  @override
+  String get path => DocxPaths.contentTypesPath;
+
   static final Map<String, String> mimetypes =
       Map<String, String>.unmodifiable({
     'png': 'image/png',

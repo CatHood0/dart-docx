@@ -22,3 +22,6 @@ dependencies:
 dev_dependencies:
   test: ^1.20.0
   lints: ^6.0.0
+
+assets:
+  - ./assets/curriculum_libreoffice.png

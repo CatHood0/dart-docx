@@ -114,6 +114,12 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
   final int Function() concreteNumUniqueNumericId =
       concreteNumUniqueNumericIdGen;
 
+  @override
+  String get name => 'Numbering';
+
+  @override
+  String get path => DocxPaths.numberingXmlFilePath;
+
   /// Applies document context to the numbering component.
   ///
   /// Registers the numbering component with the document context, making
@@ -157,7 +163,8 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     final int? firstLevelStartNumber = referenceConfig?.firstOrNull?.start;
 
     CompilerLogger.root.d('Registering: $ref-$numRefId of level $level');
-    CompilerLogger.root.d('Overrides: first level number => $firstLevelStartNumber');
+    CompilerLogger.root
+        .d('Overrides: first level number => $firstLevelStartNumber');
 
     final ConcreteNumberingOptions concreteOptions = ConcreteNumberingOptions(
       // to avoid some issues, we generates automatically an numId

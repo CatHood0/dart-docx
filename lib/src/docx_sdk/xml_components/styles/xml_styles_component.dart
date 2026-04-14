@@ -19,6 +19,13 @@ class XmlStylesComponent extends XmlComponentBase<void> {
           ),
         );
 
+
+  @override
+  String get name => 'Styles';
+
+  @override
+  String get path => DocxPaths.stylesXmlFilePath;
+
   @override
   XmlElement buildXml(DocumentContext context) {
     CompilerLogger.root.i('Analyzing styles to build LatentStyles');

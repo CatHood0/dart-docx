@@ -14,13 +14,40 @@ import '../../sdk.dart';
 /// Currently supports external URLs only; internal document links
 /// (bookmarks, cross-references) are planned for future implementation.
 ///
+/// ## Direct Styling Properties
+///
+/// Instead of using the verbose `styles` parameter with attributes, you can use
+/// direct styling properties for common formatting:
+///
+/// ```dart
+/// // Using direct properties (recommended)
+/// final link = HyperlinkRun.pure(
+///   link: 'https://example.com',
+///   text: 'Click here',
+///   bold: true,
+///   color: Color(0xFF0000FF),
+/// );
+///
+/// // Equivalent using styles parameter
+/// final link = HyperlinkRun.pure(
+///   link: 'https://example.com',
+///   text: 'Click here',
+///   styles: [BoldAttribute(), ForegroundTextColorAttribute(Color(0xFF0000FF))],
+/// );
+/// ```
+///
 /// Example usage:
 /// ```dart
 /// final link = HyperlinkRun.pure(
 ///   link: 'https://example.com',
+///   text: 'Visit our website',
 ///   styles: [Style.reference('Hyperlink')],
 /// );
 /// ```
+///
+/// See also:
+/// - [TextRun] for general text run styling
+/// - [TextPart] for text content container
 //NOTE: probably we will need to implement internal
 // link relations. See http://officeopenxml.com/WPhyperlink.php
 class HyperlinkRun extends RunBase<HyperlinkTextPart> {
@@ -32,19 +59,98 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     length = child.text.length;
   }
 
+  /// Creates a hyperlink with the specified URL and optional display text.
+  ///
+  /// The [link] parameter is the URL that will be opened when clicked.
+  /// The [text] parameter is the display text shown to the user (defaults to link).
+  ///
+  /// ## Direct Styling Properties
+  ///
+  /// [bold], [italic], [underline], [strikethrough] - Text formatting
+  /// [fontSize], [fontFamily], [color] - Font properties
+  /// [subscript], [superscript] - Script positioning
+  /// [highlight] - Background highlight color
+  ///
+  /// Example:
+  /// ```dart
+  /// HyperlinkRun.pure(
+  ///   link: 'https://flutter.dev',
+  ///   text: 'Flutter',
+  ///   bold: true,
+  ///   color: Color(0xFF0563C1),
+  /// );
+  /// ```
   HyperlinkRun.pure({
     required String link,
+    String? text,
     List<Object> styles = const <Object>[],
     super.parent,
     super.id,
+    bool bold = false,
+    bool italic = false,
+    bool underline = false,
+    bool strikethrough = false,
+    num? fontSize,
+    String? fontFamily,
+    Color? color,
+    Color? backgroundColor,
+    bool? subscript,
+    bool? superscript,
   }) : super(
           child: HyperlinkTextPart(
-            text: link,
+            text: text ?? link,
             hyperlink: link,
-            styles: List<Object>.from(styles),
+            styles: _buildStyles(
+              baseStyles: styles,
+              bold: bold,
+              italic: italic,
+              underline: underline,
+              strikethrough: strikethrough,
+              fontSize: fontSize,
+              fontFamily: fontFamily,
+              color: color,
+              subscript: subscript,
+              superscript: superscript,
+            ),
           ),
         ) {
     length = child.text.length;
+  }
+
+  /// Builds the list of styles from direct properties.
+  static List<Object> _buildStyles({
+    required List<Object> baseStyles,
+    bool bold = false,
+    bool italic = false,
+    bool underline = false,
+    bool strikethrough = false,
+    num? fontSize,
+    String? fontFamily,
+    Color? color,
+    Color? backgroundColor,
+    bool? subscript,
+    bool? superscript,
+  }) {
+    final List<Object> allStyles = List<Object>.from(baseStyles);
+
+    // Text formatting
+    if (bold) allStyles.add(BoldAttribute());
+    if (italic) allStyles.add(ItalicAttribute());
+    if (underline) allStyles.add(UnderlineAttribute());
+    if (strikethrough) allStyles.add(StrikeAttribute());
+
+    // Font properties
+    if (fontSize != null) allStyles.add(FontSizeAttribute(fontSize.toInt()));
+    if (fontFamily != null) allStyles.add(FontFamilyAttribute(fontFamily));
+    if (color != null) allStyles.add(ForegroundTextColorAttribute(color));
+
+    // Scripts
+    if (subscript == true) allStyles.add(SubscriptAttribute());
+    if (superscript == true) allStyles.add(SuperscriptAttribute());
+
+    if (backgroundColor != null) allStyles.add(BackgroundTextColorAttribute(backgroundColor.toColorValue()!.toUpperCase()));
+
+    return allStyles;
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
+import 'package:docx/src/core/extensions/wrap_nodes_ext.dart';
 
 Future<void> main() async {
   final File outFile = File('test_resources/heart_shape_with_border.docx');
@@ -13,48 +14,31 @@ Future<void> main() async {
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
-        Paragraph(
-          children: <RunBase<dynamic>>[
-            Run(
-              wrapInRunMark: true,
-              component: DrawingML(
-                child: Anchor(
-                  width: size,
-                  height: size,
-                  name: 'heart shape',
-                  config: AnchorConfig.square().copyWith(
-                    horizontalAnchor: HorizontalAnchorPosition.page,
-                    verticalAnchor: VerticalAnchorPosition.page,
-                    horizontalPosition: AnchorPosition.center,
-                    verticalPosition: AnchorPosition.center,
-                  ),
-                  child: Graphic.pic(
-                    child: WordprocessingShape(
-                      name: 'heart shape',
-                      description: 'A centered heart shape',
-                      shapeLocks: true,
-                      shapeProperties: ShapeProperties(
-                        transform2D: Transform2D(
-                          offset: Offset.zero(),
-                          extents: AnnotationExtents.zero(),
-                        ),
-                        geometryComponent:
-                            PresetGeometry(preset: PresetShapeType.heart),
-                        fill: SolidFill(
-                          color: Color.rgb(0xFF0000),
-                        ),
-                        border: ShapeBorder(
-                          width: 2.ptToEmu(),
-                          color: Color.rgb(0x660000),
-                        ),
-                      ),
-                    ),
-                  ),
+        Anchor(
+          width: size,
+          height: size,
+          name: 'heart shape',
+          config: AnchorConfig.square().toPageAnchorPosition(
+            horizontalPosition: AnchorPosition.center,
+            verticalPosition: AnchorPosition.center,
+          ),
+          child: Graphic.pic(
+            child: WPShape(
+              name: 'heart shape',
+              description: 'A centered heart shape',
+              shapeLocks: true,
+              shapeProperties: ShapeProperties.preset(
+                preset: PresetShapeType.heart,
+                fill: SolidFill(color: Color(0xFF0000)),
+                border: ShapeBorder(
+                  width: 2.ptToEmu(),
+                  color: Color(0x660000),
                 ),
+                transform: Transform2D.zero(),
               ),
             ),
-          ],
-        ),
+          ),
+        ).drawing().run().paragraph(),
       ],
     ),
   );

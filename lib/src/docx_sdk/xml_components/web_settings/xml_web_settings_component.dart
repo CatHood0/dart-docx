@@ -44,6 +44,12 @@ class XmlWebSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
         );
 
   @override
+  String get name => 'WebSettings';
+
+  @override
+  String get path => DocxPaths.webSettingsXmlFilePath;
+
+  @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
       xmlKey,

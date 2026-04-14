@@ -83,7 +83,7 @@ class Style extends IterableConfigurators {
   /// final reference = Style.reference('Heading1');
   /// final fullStyle = styleSheet.getStyleById(reference.styleId);
   /// ```
-  Style.reference(this.styleId)
+  Style.ref(this.styleId)
       : type = '',
         revisionIdDefault = null,
         id = nanoid(10),
@@ -172,7 +172,7 @@ class Style extends IterableConfigurators {
   /// Indicates if this style is marked as default in its category.
   final Object? defaultValue;
 
-  /// Returns true if this is a reference-only style (created with [Style.reference]).
+  /// Returns true if this is a reference-only style (created with [Style.ref]).
   bool get isReference => _onlyReference;
 
   /// Returns true if this represents an invalid or non-existent style.

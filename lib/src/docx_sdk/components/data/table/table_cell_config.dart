@@ -27,28 +27,86 @@ import '../../../../../docx.dart';
 /// );
 /// ```
 class TableCellConfig {
-  TableCellConfig({
-    this.width,
-    this.widthType = TableWidthType.auto,
-    this.gridSpan,
+  const TableCellConfig({
+    required this.width,
+    required this.widthType,
+    this.columnSpan,
     this.rowSpan,
     this.verticalAlignment,
     TableCellBorders? borders,
     this.shading,
-  }) : borders = borders ??
-            TableCellBorders(
-              left: TableBorder(style: BorderStyle.single),
-              top: TableBorder(style: BorderStyle.single),
-              bottom: TableBorder(style: BorderStyle.single),
-              right: TableBorder(style: BorderStyle.single),
-            );
+  })  : assert(width >= 0, 'width cannot be less than zero'),
+        assert(width != 0 || widthType != TableWidthType.expand || width == 0 && widthType == TableWidthType.expand,
+            'widthType of type expand requires that width property be zero or less'),
+        assert(width == 0 && widthType == TableWidthType.auto || width != 0 && widthType != TableWidthType.auto,
+            'TableWidthType.auto can only be used when width is zero or less'),
+        borders = borders ?? singleBorders;
+
+  const TableCellConfig.dxa({
+    required this.width,
+    this.columnSpan,
+    this.rowSpan,
+    this.verticalAlignment,
+    TableCellBorders? borders,
+    this.shading,
+  })  : widthType = TableWidthType.dxa,
+        assert(width > 0, 'width cannot be less than one when TableWidthType is not auto'),
+        borders = borders ?? singleBorders;
+
+  const TableCellConfig.pct({
+    required this.width,
+    this.columnSpan,
+    this.rowSpan,
+    this.verticalAlignment,
+    TableCellBorders? borders,
+    this.shading,
+  })  : assert(width > 0, 'width cannot be less than one when TableWidthType is not auto'),
+        widthType = TableWidthType.pct,
+        borders = borders ?? singleBorders;
+
+  /// Let to the Word table to fill the row as well as the content require
+  const TableCellConfig.auto({
+    this.rowSpan,
+    this.columnSpan,
+    this.verticalAlignment,
+    TableCellBorders? borders,
+    this.shading,
+  })  : width = 0,
+        widthType = TableWidthType.auto,
+        borders = borders ?? singleBorders;
+
+  const TableCellConfig.nil({
+    this.rowSpan,
+    this.columnSpan,
+    this.verticalAlignment,
+    TableCellBorders? borders,
+    this.shading,
+  })  : width = 0,
+        widthType = TableWidthType.nil,
+        borders = borders ?? singleBorders;
+
+  static const TableCellBorders singleBorders = TableCellBorders.all(
+    TableBorder(style: BorderStyle.single),
+  );
+
+  static final TableCellBorders noneBorders = TableCellBorders.all(
+    TableBorder(style: BorderStyle.none),
+  );
+
+  static final TableCellBorders dotBorders = TableCellBorders.all(
+    TableBorder(style: BorderStyle.dotted),
+  );
+
+  static final TableCellBorders waveBorders = TableCellBorders.all(
+    TableBorder(style: BorderStyle.wave),
+  );
 
   /// Cell width specification.
   ///
   /// When combined with `widthType`, determines the cell's horizontal
   /// dimension. Can be specified in various units (twips, percentage, etc.).
   /// Use `null` for automatic width calculation based on content.
-  final num? width;
+  final int width;
 
   /// Unit type for the cell width measurement.
   ///
@@ -65,7 +123,7 @@ class TableCellConfig {
   /// - `>1`: Cell spans the specified number of columns
   ///
   /// Example: `gridSpan: 3` creates a cell that spans 3 columns.
-  final int? gridSpan;
+  final int? columnSpan;
 
   /// Number of rows the cell spans vertically (rowspan).
   ///
@@ -121,59 +179,4 @@ class TableCellConfig {
   /// ),
   /// ```
   final Shading? shading;
-}
-
-/// Internal cell margins (padding) within a table.
-///
-/// The `TableCellMargins` class defines the spacing between cell content
-/// and cell borders on all four sides. These margins provide internal
-/// padding within table cells, similar to CSS padding properties.
-///
-/// Values are typically specified in twips (1/1440 inch), but can use
-/// other units when combined with appropriate XML attributes.
-///
-/// Example usage:
-/// ```dart
-/// TableCellMargins(
-///   top: 100,    // 100 twips padding on top
-///   right: 80,   // 80 twips padding on right
-///   bottom: 100, // 100 twips padding on bottom
-///   left: 120,   // 120 twips padding on left
-/// ),
-/// ```
-///
-/// Note: Default cell margins are typically provided by the table's
-/// `TableConfig.cellMargins` property. Individual cell margin overrides
-/// are less common but available when needed.
-class TableCellMargins {
-  const TableCellMargins({
-    this.top,
-    this.right,
-    this.bottom,
-    this.left,
-  });
-
-  /// Top margin (padding) inside the cell.
-  ///
-  /// Spacing between the cell's top border and its content.
-  /// Use `null` to inherit from table-level margins.
-  final num? top;
-
-  /// Right margin (padding) inside the cell.
-  ///
-  /// Spacing between the cell's right border and its content.
-  /// Use `null` to inherit from table-level margins.
-  final num? right;
-
-  /// Bottom margin (padding) inside the cell.
-  ///
-  /// Spacing between the cell's bottom border and its content.
-  /// Use `null` to inherit from table-level margins.
-  final num? bottom;
-
-  /// Left margin (padding) inside the cell.
-  ///
-  /// Spacing between the cell's left border and its content.
-  /// Use `null` to inherit from table-level margins.
-  final num? left;
 }

@@ -30,19 +30,20 @@ import '../../../core/normalizer/auto_size_normalizer.dart';
 /// ```
 class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
   FloatingImage({
-    required super.child,
+    required ImageData<Uint8List> data,
     super.parent,
     super.id,
     this.transformOffsetX = 0,
     this.transformOffsetY = 0,
-  }) : assert(
-          child.anchorConfig.wrapType != WrapType.asCharacter,
+  })  : assert(
+          data.anchorConfig.wrapType != WrapType.asCharacter,
           'the wrapping strategy '
           'cannot be "asCharacter" in blocks, since '
           '<wp:anchor> component is '
           'required to build correctly an '
           'indenpendent image',
-        ) {
+        ),
+        super(child: data) {
     super.length = 1;
   }
 
@@ -95,7 +96,7 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
           // we assign to them the same id
           // to avoid sync issues with stores
           id: id,
-          child: child,
+          data: child,
           asInline: false,
         ),
         config: child.anchorConfig,
@@ -117,7 +118,7 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
         id: id,
         transformOffsetX: transformOffsetX,
         transformOffsetY: transformOffsetY,
-        child: ImageData<Uint8List>(
+        data: ImageData<Uint8List>(
           buffer: Uint8List.fromList(child.buffer),
           extension: child.extension,
           anchorConfig: child.anchorConfig,

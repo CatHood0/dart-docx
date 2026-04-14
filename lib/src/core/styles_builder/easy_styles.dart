@@ -29,7 +29,7 @@ class EasyStyles {
 
   static Style get hyperlink => StyleBuilder.character('Hyperlink')
       .name('Hyperlink')
-      .runColor(Color.rgb(0x0563C1))
+      .runColor(Color(0x0563C1))
       .underline()
       .build();
 
@@ -186,7 +186,7 @@ class EasyStyles {
         ConditionalTableStyle(
           'firstRow',
           TableStyleBuilder.table('LightShadingFirstRow')
-              .tableShading(color: Color.rgb(0xD3D3D3))
+              .tableShading(color: Color(0xD3D3D3))
               .bold(),
         ),
       )
@@ -195,7 +195,7 @@ class EasyStyles {
         ConditionalTableStyle(
           'band1Horz',
           TableStyleBuilder.table('LightShadingBand1H')
-              .tableShading(color: Color.rgb(0xF2F2F2)),
+              .tableShading(color: Color(0xF2F2F2)),
         ),
       )
       // Conditional style for first column (optional)
@@ -237,8 +237,8 @@ class EasyStyles {
         ConditionalTableStyle(
             'firstRow',
             TableStyleBuilder.table('MediumShading1FirstRow')
-                .tableShading(color: Color.rgb(0x4F81BD))
-                .runColor(Color.rgb(0xFFFFFF))
+                .tableShading(color: Color(0x4F81BD))
+                .runColor(Color(0xFFFFFF))
                 .bold()),
       )
       // Banded rows with light blue shade
@@ -246,7 +246,7 @@ class EasyStyles {
         ConditionalTableStyle(
           'band1Horz',
           TableStyleBuilder.table('MediumShading1Band1H')
-              .tableShading(color: Color.rgb(0xDCE6F1)),
+              .tableShading(color: Color(0xDCE6F1)),
         ),
       )
       // Last row with a bottom border emphasis
@@ -291,8 +291,8 @@ class EasyStyles {
         ConditionalTableStyle(
             'firstRow',
             TableStyleBuilder.table('MediumShading2FirstRow')
-                .tableShading(color: Color.rgb(0xC0504D))
-                .runColor(Color.rgb(0xFFFFFF))
+                .tableShading(color: Color(0xC0504D))
+                .runColor(Color(0xFFFFFF))
                 .bold()),
       )
       // Banded rows with light red shade
@@ -300,7 +300,7 @@ class EasyStyles {
         ConditionalTableStyle(
           'band1Horz',
           TableStyleBuilder.table('MediumShading2Band1H')
-              .tableShading(color: Color.rgb(0xF2DCDB)),
+              .tableShading(color: Color(0xF2DCDB)),
         ),
       )
       // First column with bold text
@@ -419,7 +419,7 @@ class EasyStyles {
         ConditionalTableStyle(
             'band1Horz',
             TableStyleBuilder.table('PlainTable1Band1H')
-                .tableShading(color: Color.rgb(0xF2F2F2))),
+                .tableShading(color: Color(0xF2F2F2))),
       )
       .qFormat(true)
       .build();
@@ -454,8 +454,8 @@ class EasyStyles {
         ConditionalTableStyle(
             'firstRow',
             TableStyleBuilder.table('GridTable4FirstRow')
-                .tableShading(color: Color.rgb(0x366092))
-                .runColor(Color.rgb(0xFFFFFF))
+                .tableShading(color: Color(0x366092))
+                .runColor(Color(0xFFFFFF))
                 .bold()),
       )
       // Banded rows with light blue shading
@@ -463,7 +463,7 @@ class EasyStyles {
         ConditionalTableStyle(
           'band1Horz',
           TableStyleBuilder.table('GridTable4Band1H')
-              .tableShading(color: Color.rgb(0xD9E2F3)),
+              .tableShading(color: Color(0xD9E2F3)),
         ),
       )
       .qFormat(true)
@@ -492,30 +492,27 @@ class EasyStyles {
           heightRule: TableHeightRule.atLeast)
       .cellVerticalAlignment(Alignment.center)
       .rowBandSize('1')
-      // First row with black background and white bold text
       .addConditionalStyle(
         ConditionalTableStyle(
             'firstRow',
             TableStyleBuilder.table('GridTable5DarkFirstRow')
-                .tableShading(color: Color.rgb(0x000000))
-                .runColor(Color.rgb(0xFFFFFF))
+                .tableShading(color: Color(0x000000))
+                .runColor(Color(0xFFFFFF))
                 .bold()),
       )
-      // Even rows with dark gray background
       .addConditionalStyle(
         ConditionalTableStyle(
             'band1Horz',
             TableStyleBuilder.table('GridTable5DarkBand1H')
-                .tableShading(color: Color.rgb(0x404040))
-                .runColor(Color.rgb(0xFFFFFF))),
+                .tableShading(color: Color(0x404040))
+                .runColor(Color(0xFFFFFF))),
       )
-      // Odd rows with lighter gray background
       .addConditionalStyle(
         ConditionalTableStyle(
             'band2Horz',
             TableStyleBuilder.table('GridTable5DarkBand2H')
-                .tableShading(color: Color.rgb(0x808080))
-                .runColor(Color.rgb(0xFFFFFF))),
+                .tableShading(color: Color(0x808080))
+                .runColor(Color(0xFFFFFF))),
       )
       .qFormat(true)
       .build();

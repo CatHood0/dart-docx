@@ -64,7 +64,7 @@ Future<void> main() async {
               .fontSize(9.ptToHalfPoints())
               .fontFamily('FreeSans')
               .bold()
-              .runColor(Color.rgb(0x2079c7))
+              .runColor(Color(0x2079c7))
               .spacing(
                 before: 0.35.inchesToTwips(),
                 after: 0.15.inchesToTwips(),
@@ -76,12 +76,12 @@ Future<void> main() async {
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
-        Column(
+        PageColumn(
           children: <DocxTreeNode<dynamic>>[
             Paragraph.text(
               text: 'Tu nombre',
               styles: <Style>[
-                Style.reference('title'),
+                Style.ref('title'),
               ],
             ),
             Paragraph.text(
@@ -135,7 +135,7 @@ Future<void> main() async {
             ),
           ],
         ),
-        Column(
+        PageColumn(
           children: <DocxTreeNode<dynamic>>[
             Paragraph.text(
               text: 'Tu calle 123',
@@ -182,7 +182,7 @@ Future<void> main() async {
             Paragraph.text(
               text: 'HABILIDADES',
               styles: <Style>[
-                Style.reference('section'),
+                Style.ref('section'),
                 StyleBuilder.singularP()
                     .spacing(
                       before: 0.4.inchesToTwips(),
@@ -240,7 +240,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                Style.reference('body'),
+                Style.ref('body'),
                 StyleBuilder.singularP()
                     .spacing(
                       after: 5.ptToTwips(),
@@ -253,7 +253,7 @@ Future<void> main() async {
             Paragraph.text(
               text: 'RECONOCIMIENTOS',
               styles: <Style>[
-                Style.reference('section'),
+                Style.ref('section'),
               ],
             ),
             ...Paragraph(
@@ -273,7 +273,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                Style.reference('body'),
+                Style.ref('body'),
                 StyleBuilder.singularP()
                     .spacing(
                       after: 1.ptToTwips(),
@@ -302,7 +302,7 @@ Future<void> main() async {
       .dynamicFontSearch(true)
       .noTrimRuns()
       .setNormalIfNeeded(true)
-      .defaultNormalStyle(Style.reference('body'))
+      .defaultNormalStyle(Style.ref('body'))
       .execute(
         doc,
         applyCustomTheme: false,
@@ -329,7 +329,7 @@ List<DocxTreeNode> getRepeatedSection({
     Paragraph.text(
       text: title,
       styles: <Style>[
-        Style.reference('section'),
+        Style.ref('section'),
       ],
     ),
     ...Paragraph(
@@ -376,9 +376,8 @@ List<DocxTreeNode> getRepeatedSection({
             styles: <Object>[
               StyleBuilder.singularC()
                   .fontSize(8.ptToHalfPoints())
-                  .runColor(Color.rgb(
-                    0x666666,
-                    0.5.toAlphaUnit(),
+                  .runColor(Color(
+                    0x55666666,
                   ))
                   .build(),
             ],
@@ -394,16 +393,15 @@ List<DocxTreeNode> getRepeatedSection({
             contentStyle ??
                 StyleBuilder.singularC()
                     .fontSize(9.ptToHalfPoints())
-                    .runColor(Color.rgb(
-                      0x666666,
-                      0.5.toAlphaUnit(),
+                    .runColor(Color(
+                      0x55666666,
                     ))
                     .build(),
           ],
         ),
       ],
       styles: <Style>[
-        Style.reference('body'),
+        Style.ref('body'),
         StyleBuilder.singularP()
             .spacing(
               line: 1.3.inchesToLineSpacing(),

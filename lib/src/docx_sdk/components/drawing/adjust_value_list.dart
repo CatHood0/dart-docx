@@ -17,9 +17,8 @@ class AdjustValue {
 class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
   AdjustValueList({
     Iterable<AdjustValue> values = const <AdjustValue>[],
-  }) : super(
-          child: values
-        );
+  })  : assert(values.length < 9, 'values cannot be major than 8 elements'),
+        super(child: values);
 
   @override
   AdjustValueList get copy => AdjustValueList();
@@ -36,13 +35,14 @@ class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
           //
           // them are not useful for images, but for
           // shapes works
-          ...child.skippableMap((el) {
+          ...child.skippableMapIndexed((int index, AdjustValue el) {
             if (el.value == null) return null;
+
             return XmlElement.tag(
               'a:gd',
-              attributes: [
-                XmlAttribute('name'.toName(), el.name),
-                XmlAttribute('fmla'.toName(), el.value.toString()),
+              attributes: <XmlAttribute>[
+                XmlAttribute('name'.toName(), 'adj${index + 1}'),
+                XmlAttribute('fmla'.toName(), 'val ${el.value}'),
               ],
             );
           })
@@ -56,7 +56,7 @@ class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return shouldGetElement(this) ? [this] : null;
+    return shouldGetElement(this) ? <AdjustValueList>[this] : null;
   }
 
   @override
@@ -69,6 +69,6 @@ class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
 
   @override
   List<XmlNode> buildXmlStyle({required DocumentContext context}) {
-    return [];
+    return <XmlNode>[];
   }
 }

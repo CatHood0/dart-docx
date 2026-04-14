@@ -24,7 +24,7 @@ class ShadowEffectData {
     double angle = 45.0,
     double opacity = 0.25,
     this.isInner = false,
-  })  : color = color ?? Color.rgb(0x000000),
+  })  : color = color ?? Colors.black,
         blur = blurRadius.ptToEmu(),
         distance = _calculateDistance(offsetX, offsetY),
         direction = _calculateDirection(offsetX, offsetY, angle),
@@ -49,7 +49,7 @@ class ShadowEffectData {
     double angle = 135.0,
     double opacity = 0.15,
   }) {
-    color ??= Color.rgb(0x000000);
+    color ??= Colors.black;
     return ShadowEffectData(
       color: color,
       blurRadius: blurRadius,
@@ -75,7 +75,7 @@ class ShadowEffectData {
     final double offsetY = distance * sin(radians);
 
     return ShadowEffectData(
-      color: color ?? Color.rgb(0x000000),
+      color: color ?? Colors.black,
       blurRadius: blurRadius,
       offsetX: offsetX,
       offsetY:
@@ -88,7 +88,7 @@ class ShadowEffectData {
   /// Creates a subtle shadow for depth.
   factory ShadowEffectData.subtle() {
     return ShadowEffectData(
-      color: Color.rgb(0x000000),
+      color: Colors.black,
       blurRadius: 1.5,
       offsetX: 1,
       offsetY: 1,
@@ -119,7 +119,7 @@ class ShadowEffectData {
     double blurRadius = 8.0,
     double opacity = 0.15,
   }) {
-    color ??= Color.rgb(0x000000);
+    color ??= Colors.black;
     return ShadowEffectData(
       color: color,
       blurRadius: blurRadius,
@@ -138,7 +138,7 @@ class ShadowEffectData {
     double opacity = 0.4,
   }) {
     return ShadowEffectData(
-      color: color ?? Color.rgb(0x000000),
+      color: color ?? Colors.black,
       blurRadius: blurRadius,
       offsetX: 0,
       offsetY: distance,
@@ -162,7 +162,7 @@ class ShadowEffectData {
     for (int i = 0; i < layers; i++) {
       shadows.add(
         ShadowEffectData(
-          color: baseColor ?? Color.rgb(0x000000),
+          color: baseColor ?? Colors.black,
           blurRadius: baseBlur + (blurIncrement * i),
           offsetX: baseDistance + (distanceIncrement * i),
           offsetY: baseDistance + (distanceIncrement * i),
@@ -244,7 +244,7 @@ class ShadowEffectData {
       final int newRgb = ((r.toInt() & 0xFF) << 16) |
           ((g.toInt() & 0xFF) << 8) |
           (b.toInt() & 0xFF);
-      darkerColor = Color.rgb(newRgb);
+      darkerColor = Color(newRgb);
     } else {
       darkerColor = color;
     }
@@ -296,7 +296,7 @@ class ShadowEffectData {
 
   /// Material Design elevation shadows (based on Material Design guidelines)
   static ShadowEffectData materialElevation1 = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 1,
     offsetX: 0,
     offsetY: 1,
@@ -305,7 +305,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData materialElevation2 = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 1.5,
     offsetX: 0,
     offsetY: 2,
@@ -314,7 +314,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData materialElevation3 = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 2,
     offsetX: 0,
     offsetY: 3,
@@ -323,7 +323,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData materialElevation4 = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 3,
     offsetX: 0,
     offsetY: 4,
@@ -332,7 +332,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData materialElevation6 = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 4,
     offsetX: 0,
     offsetY: 6,
@@ -342,7 +342,7 @@ class ShadowEffectData {
 
   /// iOS-style shadows
   static ShadowEffectData iosLight = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 3,
     offsetX: 0,
     offsetY: 1,
@@ -351,7 +351,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData iosMedium = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 6,
     offsetX: 0,
     offsetY: 3,
@@ -360,7 +360,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData iosHeavy = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 10,
     offsetX: 0,
     offsetY: 5,
@@ -370,7 +370,7 @@ class ShadowEffectData {
 
   /// Colored shadows for accent effects
   static ShadowEffectData blueAccent = ShadowEffectData(
-    color: Color.rgb(0x2196F3),
+    color: Color(0x2196F3),
     blurRadius: 8,
     offsetX: 2,
     offsetY: 2,
@@ -379,7 +379,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData redAccent = ShadowEffectData(
-    color: Color.rgb(0xF44336),
+    color: Color(0xF44336),
     blurRadius: 6,
     offsetX: 2,
     offsetY: 2,
@@ -388,7 +388,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData greenAccent = ShadowEffectData(
-    color: Color.rgb(0x4CAF50),
+    color: Color(0x4CAF50),
     blurRadius: 6,
     offsetX: 2,
     offsetY: 2,
@@ -397,14 +397,14 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData purpleGlow = ShadowEffectData.glow(
-    color: Color.rgb(0x9C27B0),
+    color: Color(0x9C27B0),
     blurRadius: 12,
     opacity: 0.2,
   );
 
   /// Text shadows for readable text on backgrounds
   static ShadowEffectData textShadowLight = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 0.5,
     offsetX: 0.5,
     offsetY: 0.5,
@@ -413,7 +413,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData textShadowHeavy = ShadowEffectData(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 1,
     offsetX: 1,
     offsetY: 1,
@@ -422,7 +422,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData textShadowWhite = ShadowEffectData(
-    color: Color.rgb(0xFFFFFF),
+    color: Color(0xFFFFFF),
     blurRadius: 1,
     offsetX: 1,
     offsetY: 1,
@@ -432,7 +432,7 @@ class ShadowEffectData {
 
   /// Inner shadows for inset/pressed effects
   static ShadowEffectData innerPressed = ShadowEffectData.inner(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 2,
     offsetX: 1,
     offsetY: 1,
@@ -441,7 +441,7 @@ class ShadowEffectData {
   );
 
   static ShadowEffectData innerSunken = ShadowEffectData.inner(
-    color: Color.rgb(0x000000),
+    color: Colors.black,
     blurRadius: 4,
     offsetX: 2,
     offsetY: 2,
@@ -459,7 +459,7 @@ class ShadowEffectData {
     final double opacity = 0.3 - (clampedLevel * 0.01);
 
     return ShadowEffectData(
-      color: Color.rgb(0x000000),
+      color: Colors.black,
       blurRadius: blur.clamp(0.5, 6.0).toDouble(),
       offsetX: 0,
       offsetY: offsetY.clamp(0.25, 6.0).toDouble(),

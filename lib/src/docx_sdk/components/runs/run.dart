@@ -18,6 +18,34 @@ class Run extends RunBase<DocxTreeNode> {
       ..depth = depth + 1;
   }
 
+  Run.breaker({
+    required Break breaker,
+    this.wrapInRunMark = true,
+    super.id,
+    super.parent,
+  }) : super(child: breaker) {
+    length += breaker.length;
+    breaker
+      ..parent = this
+      ..index = index
+      ..depth = depth + 1;
+  }
+
+  factory Run.lineBreak({bool wrapInRunMark = true}) {
+    return Run.breaker(
+        breaker: Break.lineBreak(), wrapInRunMark: wrapInRunMark);
+  }
+
+  factory Run.pageBreak({bool wrapInRunMark = true}) {
+    return Run.breaker(
+        breaker: Break.pageBreak(), wrapInRunMark: wrapInRunMark);
+  }
+
+  factory Run.columnBreak({bool wrapInRunMark = true}) {
+    return Run.breaker(
+        breaker: Break.columnBreak(), wrapInRunMark: wrapInRunMark);
+  }
+
   bool wrapInRunMark;
 
   @override
@@ -157,7 +185,9 @@ class Run extends RunBase<DocxTreeNode> {
   //TODO: improve these methods
   @override
   String toPlainText() {
-    return child is PrintableMixin ? (child as PrintableMixin).toPlainText() : '';
+    return child is PrintableMixin
+        ? (child as PrintableMixin).toPlainText()
+        : '';
   }
 
   @override

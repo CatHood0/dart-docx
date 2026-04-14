@@ -10,14 +10,14 @@ import '../shared/geometry.dart';
 /// and 2D transform (position, size, rotation).
 class ShapeProperties extends DocxTreeNode<void> {
   ShapeProperties({
-    required this.transform2D,
+    required this.transform,
     required this.geometryComponent,
     this.fill,
     this.border,
     this.effects,
   }) : super(child: null) {
     final List<DocxTreeNode<dynamic>> components = <DocxTreeNode<dynamic>>[
-      transform2D,
+      transform,
       geometryComponent,
     ];
 
@@ -33,8 +33,40 @@ class ShapeProperties extends DocxTreeNode<void> {
     }
   }
 
+  factory ShapeProperties.preset({
+    required Transform2D transform,
+    required PresetShapeType preset,
+    Fill<dynamic>? fill,
+    ShapeBorder? border,
+    Effect<dynamic>? effect,
+  }) {
+    return ShapeProperties(
+      transform: transform,
+      geometryComponent: PresetGeometry(preset: preset),
+      fill: fill,
+      border: border,
+      effects: effect,
+    );
+  }
+
+  factory ShapeProperties.custom({
+    required Transform2D transform,
+    required CustomGeometryComponent geometry,
+    Fill<dynamic>? fill,
+    ShapeBorder? border,
+    Effect<dynamic>? effect,
+  }) {
+    return ShapeProperties(
+      transform: transform,
+      geometryComponent: geometry,
+      fill: fill,
+      border: border,
+      effects: effect,
+    );
+  }
+
   /// 2D transformation (position, size, rotation).
-  final Transform2D transform2D;
+  final Transform2D transform;
 
   /// List of geometry components (usually one, but can be multiple for groups).
   final Geometry<dynamic> geometryComponent;
@@ -51,7 +83,7 @@ class ShapeProperties extends DocxTreeNode<void> {
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[
-      ...transform2D.buildXml(context: context),
+      ...transform.buildXml(context: context),
       ...geometryComponent.buildXml(context: context),
     ];
 
@@ -83,7 +115,7 @@ class ShapeProperties extends DocxTreeNode<void> {
 
   @override
   ShapeProperties get copy => ShapeProperties(
-        transform2D: transform2D,
+        transform: transform,
         geometryComponent: geometryComponent,
         fill: fill,
         border: border,
@@ -100,7 +132,7 @@ class ShapeProperties extends DocxTreeNode<void> {
     final List<DocxTreeNode<dynamic>> results = <DocxTreeNode<dynamic>>[];
 
     final List<DocxTreeNode<dynamic>>? transformResult =
-        transform2D.visitAllElement(
+        transform.visitAllElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );
@@ -149,7 +181,7 @@ class ShapeProperties extends DocxTreeNode<void> {
   }) {
     if (shouldGetElement(this)) return this;
 
-    DocxTreeNode<dynamic>? result = transform2D.visitElement(
+    DocxTreeNode<dynamic>? result = transform.visitElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );

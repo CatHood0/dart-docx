@@ -10,7 +10,7 @@ abstract class ComponentContainer<T> extends DocxTreeNode<T> {
   });
 
   @protected
-  XmlElement runParent({
+  XmlElement paragraph({
     required List<XmlAttribute> attributes,
     required List<XmlNode> children,
     bool isSelfClosing = false,

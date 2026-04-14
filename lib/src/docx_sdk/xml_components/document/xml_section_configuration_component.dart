@@ -21,14 +21,21 @@ class XmlDocumentSectionSettingsComponent
           value: <XmlComponentBase>[
             // Page Size (w:pgSz) component
             XmlPageSizeComponent(
-                size: options.pageSize,),
+              size: options.pageSize,
+            ),
             // Page Margins (w:pgMar) component
             XmlPageMarginsComponent(margins: options.margins),
             if (themeId != null)
-              XmlEmptyElementComponent(
+              XmlEmptyElementComponent<String>(
                 xmlKey: 'w:theme',
                 attrName: 'r:id',
                 value: themeId,
+              ),
+            if (options.sectionType.isNotEmpty)
+              XmlEmptyElementComponent<String>(
+                xmlKey: 'w:type',
+                attrName: 'w:val',
+                value: options.sectionType,
               ),
             // Add column settings if present in DocumentOptions
             if (options.columns != null &&
@@ -70,12 +77,9 @@ class XmlPageMarginsComponent extends XmlComponentBase<DocumentMargins> {
               'w:bottom': margins.bottom.toInt().toString(),
               'w:left': margins.left.toInt().toString(),
               'w:right': margins.right.toInt().toString(),
-              if (margins.header != null)
-                'w:header': margins.header!.toInt().toString(),
-              if (margins.footer != null)
-                'w:footer': margins.footer!.toInt().toString(),
-              if (margins.gutter != null)
-                'w:gutter': margins.gutter!.toInt().toString(),
+              'w:header': margins.header.toInt().toString(),
+              'w:footer': margins.footer.toInt().toString(),
+              'w:gutter': margins.gutter.toInt().toString(),
             },
           ),
         );
@@ -92,8 +96,7 @@ class XmlPageMarginsComponent extends XmlComponentBase<DocumentMargins> {
 
 /// Represents the `<w:pgSz>` element in WordML, defining the page size
 /// and orientation for a section.
-class XmlPageSizeComponent
-    extends XmlComponentBase<PageSize> {
+class XmlPageSizeComponent extends XmlComponentBase<PageSize> {
   XmlPageSizeComponent({
     required PageSize size,
   }) : super(

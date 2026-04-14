@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
 import '../../../../../core/extensions/cast_ext.dart';
 import '../../../../../core/extensions/string_ext.dart';
+import '../../../../utils/logger/logger_configs.dart';
 
 /// Table cell that can contain multiple content elements.
 ///
@@ -40,18 +41,61 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   TableCell({
     required List<DocxTreeNode> children,
     required this.cellConfig,
+    bool reversed = false,
     super.id,
     super.parent,
-  }) : super(child: children) {
+  })  : _length = children.length,
+        _fixed = true,
+        _start = 0,
+        super(child: children) {
     int childIndex = 0;
-    for (final DocxTreeNode child in child) {
-      child
+    for (final DocxTreeNode el in reversed ? child.reversed : child) {
+      el
         ..parent = this
         ..index = childIndex
         ..depth = depth + 1;
       childIndex++;
     }
   }
+
+  TableCell.one({
+    required DocxTreeNode child,
+    required this.cellConfig,
+    bool reversed = false,
+    super.id,
+    super.parent,
+  })  : _length = 1,
+        _fixed = true,
+        _start = 0,
+        super(child: <DocxTreeNode<dynamic>>[child]) {
+    child
+      ..parent = this
+      ..index = 0
+      ..depth = depth + 1;
+  }
+
+  TableCell.empty({
+    this.cellConfig = const TableCellConfig.auto(),
+    bool reversed = false,
+    super.id,
+    super.parent,
+  })  : _length = 0,
+        _fixed = true,
+        _start = 0,
+        super(child: <DocxTreeNode<dynamic>>[]);
+
+  TableCell.builder({
+    required DocxTreeNode Function(DocumentContext, int) itemBuilder,
+    required int itemCount,
+    required this.cellConfig,
+    bool reversed = false,
+    super.id,
+    super.parent,
+  })  : _length = itemCount,
+        _fixed = false,
+        _start = 0,
+        _itemBuilder = itemBuilder,
+        super(child: const <DocxTreeNode<dynamic>>[]);
 
   /// Configuration for the table cell, including:
   /// - Width and sizing behavior
@@ -61,9 +105,26 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   /// - Background shading
   final TableCellConfig cellConfig;
 
+  DocxTreeNode Function(DocumentContext, int)? _itemBuilder;
+  int _length;
+  int _start;
+  bool _fixed;
+
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> cellChildren = <XmlNode>[];
+    List<DocxTreeNode<dynamic>>? children = _fixed ? child : null;
+
+    if (children == null) {
+      children = <DocxTreeNode<dynamic>>[];
+      for (int i = _start;
+          _start > 0 ? i > 0 : i < _length;
+          _start > 0 ? i-- : i++) {
+        final DocxTreeNode<dynamic> el = _itemBuilder!(context, i);
+        context.currentContentPart = this;
+        children.add(el);
+      }
+    }
 
     // Cell properties (tcPr)
     final List<XmlNode> tcPrNodes = _buildTcPr(context);
@@ -78,9 +139,40 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
     }
 
     // Cell content (can be multiple elements)
-    for (final DocxTreeNode child in child) {
+    for (final DocxTreeNode child in children) {
       final List<XmlNode> childXml = child.buildXml(context: context);
       cellChildren.addAll(childXml);
+    }
+
+    // Detect if this component is a row into another one
+    //
+    // Internally, Row is automatically parsed to a Table
+    // so, we cannot call it expecting something
+    //
+    // If you create a trace of the ancestor, you will get this:
+    //
+    //  LayoutConstraints
+    //  |_ Table
+    //   |_ TableRow
+    //    | TableCell <- (we are here)
+    //
+    // As you see, we don't get a Row instance here
+    if ((child.lastOrNull is Table || child.lastOrNull is Row) &&
+        context.getAncestorOfExactType<Table>() != null) {
+      CompilerLogger.root.w(
+        'Detected ending ${child.last.runtimeType} '
+        'child in $runtimeType:$depth:$id. '
+        'Inserting empty paragraph to avoid rendering issues with multiple editors',
+      );
+      // why we call last element and check if it's a row?
+      //
+      // Well, by some reason, LibreOffice does not render it properly if there is no space
+      // between the table and the end of the cell
+      //
+      // What is this problem? Literally, all the tables break the current flows, and are "moved"
+      // internally to behave as independent external tables, that makes look it likes we moved
+      // all outsided without nesting the tree
+      cellChildren.addAll(Paragraph.empty().buildXml(context: context));
     }
 
     return <XmlElement>[
@@ -93,37 +185,44 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   List<XmlNode> _buildTcPr(DocumentContext context) {
-    final List<XmlNode> nodes = <XmlNode>[];
-
-    // Cell width
-    if (cellConfig.width != null) {
-      nodes.add(
-        XmlElement.tag(
-          'w:tcW',
-          attributes: <XmlAttribute>[
+    final List<XmlNode> nodes = <XmlNode>[
+      XmlElement.tag(
+        'w:tcW',
+        attributes: <XmlAttribute>[
+          if (cellConfig.width > 0 && !cellConfig.widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              cellConfig.width!.toString(),
-            ),
+              cellConfig.width.toString(),
+            )
+          else if (cellConfig.widthType.isExpand)
             XmlAttribute(
-              'w:type'.toName(),
-              cellConfig.widthType.name,
+              'w:w'.toName(),
+              (context.options.pageSize.width -
+                      (context.options.margins.left +
+                          context.options.margins.right))
+                  .floor()
+                  .toString(),
             ),
-          ],
-          isSelfClosing: true,
-        ),
-      );
-    }
+          XmlAttribute(
+            'w:type'.toName(),
+            cellConfig.widthType.isExpand
+                ? TableWidthType.dxa.name
+                : cellConfig.widthType.name,
+          ),
+        ],
+        isSelfClosing: true,
+      )
+    ];
 
     // Cell merging (colspan)
-    if (cellConfig.gridSpan != null && cellConfig.gridSpan! > 1) {
+    if (cellConfig.columnSpan != null && cellConfig.columnSpan! > 1) {
       nodes.add(
         XmlElement.tag(
           'w:gridSpan',
           attributes: <XmlAttribute>[
             XmlAttribute(
               'w:val'.toName(),
-              cellConfig.gridSpan!.toString(),
+              cellConfig.columnSpan!.toString(),
             ),
           ],
           isSelfClosing: true,
@@ -220,13 +319,29 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   XmlElement _buildBorder(String position, TableBorder border) {
+    if (border.color != null && !border.color!.isRGB) {
+      CompilerLogger.root.e(
+        'Found TableBorder instance '
+        'with a non RGB Color definition \'${border.color}\'. We recommend '
+        'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
+        'This instance will be ignored.\n\n'
+        'Object: $id, '
+        'Depth: $depth, '
+        'Index: $index\n'
+        'Parent: ${getAncestorOfExactType<Table>()?.runtimeType}\n'
+        'Parent-Id: ${getAncestorOfExactType<Table>()?.id}\n'
+        'Row: ${getAncestorOfExactType<Table>()?.runtimeType}\n'
+        'Row-index: ${getAncestorOfExactType<TableRow>()?.index}\n'
+        'Row-id: ${getAncestorOfExactType<TableRow>()?.id}',
+      );
+    }
     return XmlElement.tag(
       'w:$position',
       attributes: <XmlAttribute>[
         XmlAttribute('w:val'.toName(), border.style.value),
         XmlAttribute('w:sz'.toName(), border.size.toString()),
         XmlAttribute('w:space'.toName(), border.space.toString()),
-        if (border.color != null)
+        if (border.color != null && border.color!.isRGB)
           XmlAttribute('w:color'.toName(), border.color!.toColorValue()!),
       ],
       isSelfClosing: true,

@@ -191,7 +191,7 @@ class FontStore {
   /// Builds rels for `fontTable.xml.rels` part.
   /// This contains relationships for embedded fonts.
   XmlComponentBase buildFontTableRelsXmlDocument(DocumentContext context) =>
-      XmlDocumentRelsComponent(relations: _relationshipsByRId.values.toList());
+      XmlDocumentRelsComponent.fontRels(relations: _relationshipsByRId.values.toList());
 
   /// Adds all embedded font binary files to the provided [Archive].
   ///

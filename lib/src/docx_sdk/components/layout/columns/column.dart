@@ -5,24 +5,15 @@ import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 import '../../../utils/logger/logger_configs.dart';
 
-/// A container that groups multiple elements to be rendered in a column layout
-/// for multi-column documents.
-///
-/// This component is designed to facilitate the creation of multi-column layouts
-/// in DOCX documents, conceptually inspired by column behavior in Flutter,
-/// but adapted to the particularities of the document format.
-///
-/// Recommended only when `SectionOptions` has defined its `ColumnOptions`,
-/// because when it is not defined, `Column` behaviors works more as a
-/// page breaking instead column breaking
-///
-/// If the founded number of columns is more than the configured number
-/// in `DocumentLayout`, then column break will behavior like a page breaking
-/// instead.
+/// A container that groups multiple elements to be rendered in a row layout
+/// using tables internally
 @experimental
 class Column extends DocxTreeNode<List<DocxTreeNode>> {
   Column({
     required Iterable<DocxTreeNode> children,
+    this.align,
+    this.fixedWidth = false,
+    this.width = 0,
     super.id,
     super.parent,
   }) : super(child: List.from(children)) {
@@ -35,6 +26,10 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
       index++;
     }
   }
+
+  final int width;
+  final Alignment? align;
+  final bool fixedWidth;
 
   @protected
   bool ignoreBreak = false;
@@ -53,39 +48,52 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
-    if (context.options.columns == null ||
-        context.options.columns!.numColumns == null) {
-      CompilerLogger.root.w(
-        'Its not recommended the use of "$runtimeType:$id" in none '
-        'multi-column documents (ColumnOptions is not defined or numColumns is null). '
-        'This will not throw an exception, since '
-        'Microsoft Word specifications allow the column breaking '
-        'even when it was not configured, but we incentive to '
-        'you to not use this with the current configurations ',
-      );
-    }
     context.currentContentPart = this;
+
+    final Iterable<DocxTreeNode<dynamic>> columns = child.where(
+        (DocxTreeNode<dynamic> e) =>
+            e is! IgnorableMixin ||
+            !e.cast<IgnorableMixin>().shouldIgnore() ||
+            !e.isEmptyNode());
+
     final List<XmlElement> elements = <XmlElement>[];
-    for (final DocxTreeNode<dynamic> e in child) {
-      final List<XmlElement> element = e
-          .buildXml(
-            context: context,
-          )
-          .cast();
-      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() ||
-          element.isEmpty) {
-        continue;
-      }
-      elements.addAll(element);
+    for (final DocxTreeNode<dynamic> c in columns) {
+      elements.addAll(c.buildXml(context: context).cast());
     }
+
+    // Detect if this component is a row into another one
+    //
+    // Internally, Row is automatically parsed to a Table
+    // so, we cannot call it expecting something
+    //
+    // If you create a trace of the ancestor, you will get this:
+    //
+    //  LayoutConstraints
+    //  |_ Table
+    //   |_ TableRow
+    //    | TableCell <- (we are here)
+    //
+    // As you see, we don't get a Row instance here
+    if ((child.lastOrNull is Table || child.lastOrNull is Row) &&
+        getAncestorOfExactType<Table>() != null) {
+      CompilerLogger.root.w(
+        'Detected ending ${child.last.runtimeType} '
+        'child in $runtimeType:$depth:$id. '
+        'Inserting empty paragraph to avoid rendering issues with multiple editors',
+      );
+      // why we call last element and check if it's a row?
+      //
+      // Well, by some reason, LibreOffice does not render it properly if there is no space
+      // between the table and the end of the cell
+      //
+      // What is this problem? Literally, all the tables break the current flows, and are "moved"
+      // internally to behave as independent external tables, that makes look it likes we moved
+      // all outsided without nesting the tree
+      elements.addAll(Paragraph.empty().buildXml(context: context));
+    }
+
     return <XmlElement>[
       ...elements,
-      // if (!ignoreBreak)
-      //   ...Paragraph(
-      //     data: <RunBase<dynamic>>[
-      //       Run(component: Break.pageBreak()),
-      //     ],
-      //   ).buildXml(context: context),
     ];
   }
 
@@ -97,6 +105,9 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
   @override
   Column get copy => Column(
         id: id,
+        align: align,
+        fixedWidth: fixedWidth,
+        width: width,
         children: child,
       );
 
@@ -106,13 +117,12 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     bool visitChildrenIfNeeded = false,
   }) {
     for (final DocxTreeNode<dynamic> element in child) {
-      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
         final DocxTreeNode? foundedEl = element.visitElement(
           shouldGetElement,
-          visitChildrenIfNeeded: true,
+          visitChildrenIfNeeded: visitChildrenIfNeeded,
         );
         if (foundedEl != null) {
           return foundedEl;
@@ -127,10 +137,8 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     bool Function(DocxTreeNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode>[];
     final List<DocxTreeNode> elements = <DocxTreeNode>[];
     for (final DocxTreeNode element in child) {
-      if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {

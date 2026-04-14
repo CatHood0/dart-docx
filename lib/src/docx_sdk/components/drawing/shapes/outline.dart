@@ -2,33 +2,6 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
 
-enum LineStyle {
-  solid,
-  dash,
-  dot,
-  dashDot,
-  dashDotDot,
-  longDash,
-  systemDash,
-  systemDot
-}
-
-enum LineCap { flat, round, square }
-
-enum LineJoin { round, bevel, miter }
-
-class DashPattern {
-  const DashPattern(this.pattern);
-  // e.g., "20000 10000" for 2mm dash, 1mm space
-
-  const DashPattern.easy({
-    required int dash,
-    required int space,
-  }) : pattern = '$dash $space';
-
-  final String pattern;
-}
-
 /// ShapeOutline/border styling for shapes (a:ln).
 ///
 /// Defines the line properties around the shape perimeter, including
@@ -41,7 +14,65 @@ class ShapeBorder extends DocxTreeNode<void> {
     this.cap = LineCap.flat,
     this.join = LineJoin.round,
     this.dashPattern,
+    super.id,
+    super.parent,
   }) : super(child: null);
+
+  /// Constructor designed to transform your width in pixel units
+  /// to EMU
+  ShapeBorder.pixels({
+    required this.color,
+    int width = 10,
+    this.style = LineStyle.solid,
+    this.cap = LineCap.flat,
+    this.join = LineJoin.round,
+    this.dashPattern,
+    super.id,
+    super.parent,
+  })  : width = width.pixelsToEmu(dpi: 96).toInt(),
+        super(child: null);
+
+  /// Constructor designed to transform your width in point units
+  /// to EMU
+  ShapeBorder.pt({
+    required this.color,
+    int width = 20,
+    this.style = LineStyle.solid,
+    this.cap = LineCap.flat,
+    this.join = LineJoin.round,
+    this.dashPattern,
+    super.id,
+    super.parent,
+  })  : width = width.ptToEmu().toInt(),
+        super(child: null);
+
+  /// Constructor designed to transform your width in centimeters units
+  /// to EMU
+  ShapeBorder.cm({
+    required this.color,
+    int width = 10,
+    this.style = LineStyle.solid,
+    this.cap = LineCap.flat,
+    this.join = LineJoin.round,
+    this.dashPattern,
+    super.id,
+    super.parent,
+  })  : width = width.centimetersToEmu().toInt(),
+        super(child: null);
+
+  /// Constructor designed to transform your width in centimeters units
+  /// to EMU
+  ShapeBorder.mm({
+    required this.color,
+    int width = 1000,
+    this.style = LineStyle.solid,
+    this.cap = LineCap.flat,
+    this.join = LineJoin.round,
+    this.dashPattern,
+    super.id,
+    super.parent,
+  })  : width = width.millimetersToEmu().toInt(),
+        super(child: null);
 
   final Color color;
 
@@ -54,6 +85,8 @@ class ShapeBorder extends DocxTreeNode<void> {
 
   @override
   ShapeBorder get copy => ShapeBorder(
+        id: id,
+        parent: parent,
         color: color.copy,
         width: width,
         style: style,
@@ -179,4 +212,32 @@ class ShapeBorder extends DocxTreeNode<void> {
   }) {
     return shouldGetElement(this) ? this : null;
   }
+}
+
+
+enum LineStyle {
+  solid,
+  dash,
+  dot,
+  dashDot,
+  dashDotDot,
+  longDash,
+  systemDash,
+  systemDot
+}
+
+enum LineCap { flat, round, square }
+
+enum LineJoin { round, bevel, miter }
+
+class DashPattern {
+  const DashPattern(this.pattern);
+  // e.g., "20000 10000" for 2mm dash, 1mm space
+
+  const DashPattern.easy({
+    required int dash,
+    required int space,
+  }) : pattern = '$dash $space';
+
+  final String pattern;
 }

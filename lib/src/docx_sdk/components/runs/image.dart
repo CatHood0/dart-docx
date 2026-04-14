@@ -24,21 +24,29 @@ import '../../../core/normalizer/auto_size_normalizer.dart';
 ///   data: ImageData(
 ///     buffer: imageBytes,
 ///     extension: 'png',
-///     width: 2.inchesToEmu(),
-///     height: 1.5.inchesToEmu(),
+///     width: 2,
+///     height: 1.5,
+///     unit: Unit.inches,
 ///   ),
 /// );
 /// ```
+/// ## Note:
+///
+/// Please, take careful he name of the images,
+/// since if it's not provided, the compiler
+/// will generate a generic one.
+///
+/// In future releases incremental editing probably will be enabled and to avoid loss images provide one
 class Image extends DocxTreeNode<ImageData<Uint8List>> {
   Image({
-    required super.child,
+    required ImageData<Uint8List> data,
     super.parent,
     super.id,
     this.elementId,
     this.asInline = false,
     this.transformOffsetX = 0,
     this.transformOffsetY = 0,
-  });
+  }) : super(child: data);
 
   /// Whether the image should be rendered inline with text.
   bool asInline;
@@ -55,7 +63,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
   Image get copy {
     return Image(
       id: id,
-      child: ImageData<Uint8List>(
+      data: ImageData<Uint8List>(
         buffer: child.buffer,
         extension: child.extension,
         styles: child.styles,
@@ -89,7 +97,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
 
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
-    if (width == null || height == null) {
+    if (width == null && height == null) {
       final Object bytes = data.buffer;
       final Size size = ImageSizeGetter.getSizeResult(
         bytes is File
@@ -108,6 +116,14 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
 
       width ??= resultSize.width?.inchesToEmu();
       height ??= resultSize.height?.inchesToEmu();
+    } else {
+      // Avoid having a null reference
+      // on both of them
+      height ??= width;
+      width ??= height;
+
+      width = width!.unitToEmu(data.unit);
+      height = height!.unitToEmu(data.unit);
     }
     return ImageSize(
       width: width!,
@@ -141,8 +157,11 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     // the index of this image. Literally the
     // relationship id but formatted to a digit
     if (relationshipId == null) {
-      throw Exception('Image($id) with "$child", was not inserted in '
-          'document.xml.rels, and cannot found relation id');
+      throw Exception(
+        'Image(id: $id | level: $depth | parent: ${parent?.runtimeType}) was not founded in the MediaStore registry or in '
+        'the ${DocxPaths.documentXmlRelsFilePath}. Please, ensure this current element is being founded by the '
+        'MediaStore registry during start of the compilation',
+      );
     }
 
     final ImageSize imageSize = getSizeForImage(
@@ -170,7 +189,8 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
                   x: transformOffsetX,
                   y: transformOffsetY,
                 ),
-                extents: AnnotationExtents(cx: imageSize.width, cy: imageSize.height),
+                extents: AnnotationExtents(
+                    cx: imageSize.width, cy: imageSize.height),
               ),
               presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
             ),

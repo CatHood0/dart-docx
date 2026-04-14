@@ -229,6 +229,151 @@ class AnchorConfig {
     );
   }
 
+  AnchorConfig toPageAnchorPosition({
+    WrapType? wrapType,
+    WrapSide? wrapSide,
+    bool? anchorLock,
+    bool? behindDoc,
+    bool? layoutInCell,
+    bool? allowOverlap,
+    int? zOrder,
+    int? simplePosX,
+    int? simplePosY,
+    int? anchorOffsetX,
+    int? anchorOffsetY,
+    TextDistance? distanceFromText,
+    AnchorPosition? horizontalPosition,
+    AnchorPosition? verticalPosition,
+  }) {
+    return AnchorConfig(
+      wrapType: wrapType ?? this.wrapType,
+      wrapSide: wrapSide ?? this.wrapSide,
+      anchorLock: anchorLock ?? this.anchorLock,
+      behindDoc: behindDoc ?? this.behindDoc,
+      layoutInCell: layoutInCell ?? this.layoutInCell,
+      allowOverlap: allowOverlap ?? this.allowOverlap,
+      zOrder: zOrder ?? this.zOrder,
+      simplePosX: simplePosX ?? this.simplePosX,
+      simplePosY: simplePosY ?? this.simplePosY,
+      anchorOffsetX: anchorOffsetX ?? this.anchorOffsetX,
+      anchorOffsetY: anchorOffsetY ?? this.anchorOffsetY,
+      distanceFromText: distanceFromText ?? this.distanceFromText,
+      horizontalAnchor: HorizontalAnchorPosition.page,
+      verticalAnchor: VerticalAnchorPosition.page,
+      horizontalPosition: horizontalPosition ?? this.horizontalPosition,
+      verticalPosition: verticalPosition ?? this.verticalPosition,
+    );
+  }
+
+  AnchorConfig toParagraphAnchorPosition({
+    WrapType? wrapType,
+    WrapSide? wrapSide,
+    bool? anchorLock,
+    bool? behindDoc,
+    bool? layoutInCell,
+    bool? allowOverlap,
+    int? zOrder,
+    int? simplePosX,
+    int? simplePosY,
+    int? anchorOffsetX,
+    int? anchorOffsetY,
+    TextDistance? distanceFromText,
+    AnchorPosition? horizontalPosition,
+    AnchorPosition? verticalPosition,
+  }) {
+    return AnchorConfig(
+      wrapType: wrapType ?? this.wrapType,
+      wrapSide: wrapSide ?? this.wrapSide,
+      anchorLock: anchorLock ?? this.anchorLock,
+      behindDoc: behindDoc ?? this.behindDoc,
+      layoutInCell: layoutInCell ?? this.layoutInCell,
+      allowOverlap: allowOverlap ?? this.allowOverlap,
+      zOrder: zOrder ?? this.zOrder,
+      simplePosX: simplePosX ?? this.simplePosX,
+      simplePosY: simplePosY ?? this.simplePosY,
+      anchorOffsetX: anchorOffsetX ?? this.anchorOffsetX,
+      anchorOffsetY: anchorOffsetY ?? this.anchorOffsetY,
+      distanceFromText: distanceFromText ?? this.distanceFromText,
+      horizontalAnchor: HorizontalAnchorPosition.paragraph,
+      verticalAnchor: VerticalAnchorPosition.paragraph,
+      horizontalPosition: horizontalPosition ?? this.horizontalPosition,
+      verticalPosition: verticalPosition ?? this.verticalPosition,
+    );
+  }
+
+  AnchorConfig toCharAnchorPosition({
+    WrapType? wrapType,
+    WrapSide? wrapSide,
+    bool? anchorLock,
+    bool? behindDoc,
+    bool? layoutInCell,
+    bool? allowOverlap,
+    int? zOrder,
+    int? simplePosX,
+    int? simplePosY,
+    int? anchorOffsetX,
+    int? anchorOffsetY,
+    TextDistance? distanceFromText,
+    AnchorPosition? horizontalPosition,
+    AnchorPosition? verticalPosition,
+  }) {
+    return AnchorConfig(
+      wrapType: wrapType ?? this.wrapType,
+      wrapSide: wrapSide ?? this.wrapSide,
+      anchorLock: anchorLock ?? this.anchorLock,
+      behindDoc: behindDoc ?? this.behindDoc,
+      layoutInCell: layoutInCell ?? this.layoutInCell,
+      allowOverlap: allowOverlap ?? this.allowOverlap,
+      zOrder: zOrder ?? this.zOrder,
+      simplePosX: simplePosX ?? this.simplePosX,
+      simplePosY: simplePosY ?? this.simplePosY,
+      anchorOffsetX: anchorOffsetX ?? this.anchorOffsetX,
+      anchorOffsetY: anchorOffsetY ?? this.anchorOffsetY,
+      distanceFromText: distanceFromText ?? this.distanceFromText,
+      horizontalAnchor: HorizontalAnchorPosition.character,
+      verticalAnchor: VerticalAnchorPosition.line,
+      horizontalPosition: horizontalPosition ?? this.horizontalPosition,
+      verticalPosition: verticalPosition ?? this.verticalPosition,
+    );
+  }
+
+  AnchorConfig toColumnAnchorPosition({
+    WrapType? wrapType,
+    WrapSide? wrapSide,
+    bool? anchorLock,
+    bool? behindDoc,
+    bool? layoutInCell,
+    bool? allowOverlap,
+    int? zOrder,
+    int? simplePosX,
+    int? simplePosY,
+    int? anchorOffsetX,
+    int? anchorOffsetY,
+    TextDistance? distanceFromText,
+    AnchorPosition? horizontalPosition,
+    AnchorPosition? verticalPosition,
+  }) {
+    return AnchorConfig(
+      wrapType: wrapType ?? this.wrapType,
+      wrapSide: wrapSide ?? this.wrapSide,
+      anchorLock: anchorLock ?? this.anchorLock,
+      behindDoc: behindDoc ?? this.behindDoc,
+      layoutInCell: layoutInCell ?? this.layoutInCell,
+      allowOverlap: allowOverlap ?? this.allowOverlap,
+      zOrder: zOrder ?? this.zOrder,
+      simplePosX: simplePosX ?? this.simplePosX,
+      simplePosY: simplePosY ?? this.simplePosY,
+      anchorOffsetX: anchorOffsetX ?? this.anchorOffsetX,
+      anchorOffsetY: anchorOffsetY ?? this.anchorOffsetY,
+      distanceFromText: distanceFromText ?? this.distanceFromText,
+      horizontalAnchor: HorizontalAnchorPosition.column,
+      verticalAnchor: VerticalAnchorPosition.page,
+      horizontalPosition: horizontalPosition ?? this.horizontalPosition,
+      verticalPosition: verticalPosition ?? this.verticalPosition,
+    );
+  }
+
+
   @override
   String toString() {
     return 'DocxAnchorConfig('

@@ -61,12 +61,18 @@ class DocxCompiler {
   bool applyNormalStyleIfNeeded = true;
 
   /// The default "Normal" style to apply when [applyNormalStyleIfNeeded] is true.
-  Style defaultNormalStyle = Style.reference('Normal');
+  Style defaultNormalStyle = Style.ref('Normal');
 
   /// Preserves whitespace in text runs by adding `xml:space="preserve"` attributes.
   ///
   /// When true, all text runs preserve their original whitespace formatting.
   bool noTrim = true;
+
+  /// Enables checking every Style.ref used in the Document content.
+  ///
+  /// This can make the compilation more slow, since every time we found
+  /// a Style.ref, we need to request for existence to DocumentStyles
+  bool checkStyleRefExistence = false;
 
   Stream<DocxEvent> get eventStream => _eventController.stream;
   void _emit(DocxEvent event) => _eventController.add(event);
@@ -100,6 +106,7 @@ class DocxCompiler {
       defaultNormalStyle: defaultNormalStyle,
       setNormalStyleToNotStyledParagraphs: applyNormalStyleIfNeeded,
       noTrim: noTrim,
+      checkStyleRefExistence: checkStyleRefExistence,
     );
   }
 
@@ -159,16 +166,16 @@ class DocxCompiler {
       CompilerLogger.root.d('Normal style check passed.');
     }
 
-    final List<Column>? columns = document.root.visitAllElement(
+    final List<PageColumn>? columns = document.root.visitAllElement(
       visitChildrenIfNeeded: false,
       (DocxTreeNode<dynamic> el) {
-        return el is Column;
+        return el is PageColumn;
       },
     )?.cast();
 
     if (columns != null) {
       int index = 0;
-      for (final Column column in columns) {
+      for (final PageColumn column in columns) {
         if (index > 0) {
           final DocxTreeNode<dynamic>? paragraph = column.child.firstOrNull;
           if (paragraph == null || paragraph is! Paragraph) {
@@ -197,13 +204,13 @@ class DocxCompiler {
       }
     }
 
-    final bool hasNumberingUsage = document.root.visitAllElement(
+    final bool hasNumberingUsage = document.root.visitElement(
           visitChildrenIfNeeded: true,
           (DocxTreeNode<dynamic> el) {
             return el is Paragraph && el.cast<Paragraph>().numbering != null;
           },
-        )?.isNotEmpty ??
-        false;
+        ) !=
+        null;
 
     numberingStore.initializeAndApplyContext(documentContext);
 
@@ -263,96 +270,60 @@ class DocxCompiler {
     String? theme;
     CompilerLogger.root.d('Building XML components.');
 
-    final List<(String, XmlComponentBase)> components =
-        <(String, XmlComponentBase<dynamic>)>[
-      (
-        DocxPaths.contentTypesPath,
-        XmlContentTypeComponent(
-          applyCustomTheme: applyCustomTheme,
-          overrides: mediaStore.overrides,
-          extensions: <String>[
-            ...mediaStore.extensions,
-            ...fontStore.extensions,
-          ],
-        )
+    final List<XmlComponentBase> components = <XmlComponentBase<dynamic>>[
+      XmlContentTypeComponent(
+        applyCustomTheme: applyCustomTheme,
+        overrides: mediaStore.overrides,
+        extensions: <String>[
+          ...mediaStore.extensions,
+          ...fontStore.extensions,
+        ],
       ),
-      (DocxPaths.relsFilePath, XmlRelsComponent()),
-      (DocxPaths.coreFilePath, XmlCoreComponent(options: document.options)),
-      (
-        DocxPaths.appFilePath,
-        XmlAppComponent(
-            metadata: documentContext.options.editorSettings.metadata)
-      ),
+      XmlRelsComponent(),
+      XmlCoreComponent(options: document.options),
+      XmlAppComponent(
+          metadata: documentContext.options.editorSettings.metadata),
+
       // since we need register first the theme
       // we pass document.xml.rels
       // first to take then the generated theme id
-      (
-        DocxPaths.documentXmlRelsFilePath,
-        XmlDocumentRelsComponent(
-          relations: <RelationShip>[
-            ...defaultDocRelations,
-            ...imageRelationships,
-            ...hyperlinkRelationships,
-          ],
-        ),
+      XmlDocumentRelsComponent(
+        relations: <RelationShip>[
+          ...defaultDocRelations,
+          ...imageRelationships,
+          ...hyperlinkRelationships,
+        ],
       ),
       // document must be always at the top
       // of the build since numbering, for example
       // needs to know the concrete numbering
       // instances in the doc content before
       // build file
-      (
-        DocxPaths.documentFilePath,
-        XmlDocumentComponent(
-          body: XmlBodyComponent(
-            document: document,
-            themeId: theme,
-          ),
-        )
+      XmlDocumentComponent(
+        body: XmlBodyComponent(
+          document: document,
+          themeId: theme,
+        ),
       ),
       if (hasNumberingUsage)
-        (
-          DocxPaths.numberingXmlFilePath,
-          numberingStore.buildNumberingXmlDocumentComponent(),
-        ),
-      (DocxPaths.stylesXmlFilePath, XmlStylesComponent()),
-      (
-        DocxPaths.fontTableXmlFilePath,
-        fontStore.buildFontTableXmlComponent(
-          documentContext,
-        ),
-      ),
+        numberingStore.buildNumberingXmlDocumentComponent(),
+      XmlStylesComponent(),
+      fontStore.buildFontTableXmlComponent(documentContext),
       if (dynamicFontSearch && fontStore.fontRelations.isNotEmpty)
-        (
-          DocxPaths.fontTableXmlRelsFilePath,
-          fontStore.buildFontTableRelsXmlDocument(
-            documentContext,
-          ),
-        ),
-      (
-        DocxPaths.settingsXmlFilePath,
-        XmlSettingsComponent(
-          options: document.options.settings,
-        )
-      ),
-      if (applyCustomTheme)
-        (
-          DocxPaths.theme1XmlFilePath,
-          XmlThemeComponent(options: document.options.theme),
-        ),
-      (
-        DocxPaths.webSettingsXmlFilePath,
-        XmlWebSettingsComponent(
-          options: document.options.webSettings,
-        )
-      )
+        fontStore.buildFontTableRelsXmlDocument(documentContext),
+      XmlSettingsComponent(options: document.options.settings),
+      if (applyCustomTheme) XmlThemeComponent(options: document.options.theme),
+      XmlWebSettingsComponent(options: document.options.webSettings)
     ];
 
     for (int i = 0; i < components.length; i++) {
-      final XmlComponentBase<dynamic> comp = components[i].$2;
-      final String path = components[i].$1;
-      CompilerLogger.root.d('Building XML component: $path');
-      if (comp is XmlDocumentRelsComponent && applyCustomTheme) {
+      final XmlComponentBase<dynamic> comp = components[i];
+      final String path = components[i].path;
+      CompilerLogger.root
+          .d('Building named ${comp.name} component to - "$path"');
+      if (comp is XmlDocumentRelsComponent &&
+          comp.path == DocxPaths.documentXmlRelsFilePath &&
+          applyCustomTheme) {
         theme = comp.theme;
       }
       _addXmlToArchive(

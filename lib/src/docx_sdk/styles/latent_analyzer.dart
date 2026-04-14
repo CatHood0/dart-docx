@@ -4,6 +4,8 @@ import '../utils/language_codes.dart';
 import 'latent_styles.dart';
 import 'styles.dart';
 
+//TODO: look at this and understand again what is this
+// I really forgot it
 class LatentAnalyzer {
   const LatentAnalyzer._();
 

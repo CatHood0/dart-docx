@@ -30,7 +30,7 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
       buffer.add(
         Paragraph(
           children: [
-            TextRun(child: TextPart(text: text)),
+            TextRun(textPart: TextPart(text: text)),
           ],
         ),
       );

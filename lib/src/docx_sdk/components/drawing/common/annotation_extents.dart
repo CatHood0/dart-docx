@@ -10,6 +10,11 @@ class AnnotationExtents extends DocxTreeNode<dynamic> {
         cy = 0,
         super(child: null);
 
+  AnnotationExtents.same(num value)
+      : cx = value,
+        cy = value,
+        super(child: null);
+
   final num cx;
   final num cy;
 

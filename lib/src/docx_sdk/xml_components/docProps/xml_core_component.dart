@@ -3,8 +3,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 
 // <xs:element name="coreProperties" type="CT_CoreProperties"/>
-
-/* cSpell:disable */
 // <xs:complexType name="CT_CoreProperties">
 //   <xs:all>
 //     <xs:element name="category" minOccurs="0" maxOccurs="1" type="xs:string"/>
@@ -46,7 +44,7 @@ class XmlCoreComponent extends XmlComponentBase<List<XmlComponentBase>> {
             ),
             XmlTextElementComponent<String>(
               xmlKey: 'dc:creator',
-              value: options.creator,
+              value: options.author,
             ),
             XmlTextElementComponent<String>(
               xmlKey: 'dc:description',
@@ -93,6 +91,12 @@ class XmlCoreComponent extends XmlComponentBase<List<XmlComponentBase>> {
             ),
           ],
         );
+
+  @override
+  String get name => 'Core';
+
+  @override
+  String get path => DocxPaths.coreFilePath;
 
   @override
   XmlElement buildXml(DocumentContext context) {

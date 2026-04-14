@@ -26,6 +26,18 @@ extension SkippableIterationsExt<T> on Iterable<T> {
     }
     return values;
   }
+
+  Iterable<K> skippableMapIndexed<K>(K? Function(int, T) builder) {
+    final List<K> values = [];
+    int index = 0;
+    for (final T value in this) {
+      final K? el = builder(index, value);
+      index++;
+      if (el == null) continue;
+      values.add(el);
+    }
+    return values;
+  }
 }
 
 extension SkippableMapExt<K, V> on Map<K, V> {

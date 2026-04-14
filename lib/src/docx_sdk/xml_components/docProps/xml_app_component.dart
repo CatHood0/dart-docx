@@ -13,6 +13,12 @@ class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
         );
 
   @override
+  String get name => 'App';
+
+  @override
+  String get path => DocxPaths.appFilePath;
+
+  @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
       xmlKey,

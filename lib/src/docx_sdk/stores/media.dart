@@ -7,6 +7,7 @@ import '../../../docx.dart';
 import '../../core/extensions/cast_ext.dart';
 import '../../core/extensions/string_ext.dart';
 import '../mixins/ignorable_mixin.dart';
+import '../utils/logger/logger_configs.dart';
 import '../xml_components/xml_content_type_component.dart';
 
 //TODO: add listeners to events
@@ -58,23 +59,46 @@ class MediaStore {
   ]) {
     //TODO: use parent methods of DocumentRoot
     for (final DocxTreeNode parent in data.root.child) {
-      final DocxTreeNode? image = parent.visitElement(
-        visitChildrenIfNeeded: true,
-        (DocxTreeNode<dynamic> el) {
-          return el.child is ImageData &&
-              supportedFileExtensions.contains(el.child.extension);
-        },
+      CompilerLogger.root.d(
+        'Discovering images in '
+        'parent ${parent.runtimeType}:${parent.id}',
       );
-      if (image != null) {
-        final DocxTreeNode<ImageData<Object>> imageComponent = image
-            .visitElement(
-                visitChildrenIfNeeded: true,
-                (DocxTreeNode<dynamic> el) => el.child is ImageData)!
-            .cast<DocxTreeNode<ImageData>>();
-        mediaComponents[imageComponent.id] = imageComponent;
-        extensions.add(imageComponent.child.extension);
+      // since we can have multiple images in one element,
+      // we need to get all of them
+      final List<DocxTreeNode<dynamic>> images = parent.visitAllElement(
+            visitChildrenIfNeeded: true,
+            (DocxTreeNode<dynamic> el) {
+              return el.child is ImageData &&
+                  supportedFileExtensions.contains(
+                    el.child.extension,
+                  );
+            },
+          ) ??
+          <DocxTreeNode<dynamic>>[];
+      if (images.isNotEmpty) {
+        // sorry, i know that at this point, this is a classic O(n^2)
+        // but its so boring making another solution at this moment of my
+        // life
+        images.forEach((image) {
+          final DocxTreeNode<ImageData<Object>> imageComponent = image
+              .visitElement(
+                  visitChildrenIfNeeded: true,
+                  (
+                    DocxTreeNode<dynamic> el,
+                  ) =>
+                      el.child is ImageData<Object>)!
+              .cast<DocxTreeNode<ImageData<Object>>>();
+          CompilerLogger.root.d(
+            'Registering ${imageComponent.id} of path ${imageComponent.child.buffer.castOrNull<File>() ?? 'Unknown'}',
+          );
+          mediaComponents[imageComponent.id] = imageComponent;
+          extensions.add(imageComponent.child.extension);
+        });
       }
     }
+
+    CompilerLogger.root
+        .i('End discover with ${mediaComponents.length} elements');
   }
 
   /// Registers discovered media components, loads lazy images (if applicable),
@@ -102,21 +126,35 @@ class MediaStore {
           mediaComponents.values.elementAt(index);
       onProgress?.call(index + 1, mediaComponents.values.length);
 
+      CompilerLogger.root.d(
+        'Building image relation for $index ${imgComponent.id}',
+      );
+
       // Skip when required
       if (imgComponent is IgnorableMixin &&
           (imgComponent as IgnorableMixin).shouldIgnore()) {
+        CompilerLogger.root.d(
+          'Ignored ${imgComponent.id}',
+        );
         continue;
       }
 
       // Increment RId for each new image relationship
       final int currentRId = docRelsStore.getNextId(imgComponent.id);
       // Assign unique rId to the component
+      CompilerLogger.root.d(
+        'Generated Relation ID for ${imgComponent.id}: $currentRId',
+      );
 
       final String generatedMediaName = generateMediaName(
         // Increment internal ID for filename generation
         _lastMediaNameId++,
         trim: true,
         isImage: true,
+      );
+
+      CompilerLogger.root.d(
+        'Generated Media Name for ${imgComponent.id}: $generatedMediaName',
       );
 
       imgComponent.rId = 'rId$currentRId';
@@ -129,19 +167,27 @@ class MediaStore {
         extension: imageData.extension,
         // This ID is often used for `rid` in content XML
         id: currentRId,
-        bytes: imageData is ImageData<Uint8List>
+        bytes: imageData.buffer is Uint8List
             ? imageData.buffer
-            : await (imageData as ImageData<File>).buffer.readAsBytes(),
+            : await (imageData.buffer as File).readAsBytes(),
         relationshipId: imgComponent.rId!,
       );
 
       // Store MediaData by its generated name
       media[generatedMediaName] = mediaData;
 
+      CompilerLogger.root.d(
+        'Stored ${imgComponent.id} => $generatedMediaName',
+      );
+
       onProgress?.call(index + 1, mediaComponents.values.length);
 
       final String fullPath =
           '$mediaPath${mediaData.fileName}.${mediaData.extension}';
+
+      CompilerLogger.root.d(
+        'Full path of ${imgComponent.id} => $fullPath',
+      );
 
       // these things are passed to the content type since it's used
       // to let to the editor to know how use images

@@ -14,7 +14,7 @@ Future<void> main() async {
       sections: <DocxTreeNode<dynamic>>[
         Paragraph.text(
           text: 'First ordered element',
-          styles: <Style>[Style.reference('ListParagraph')],
+          styles: <Style>[Style.ref('ListParagraph')],
           numbering: Numbering(
             reference: 'ordered',
             level: 0,
@@ -23,7 +23,7 @@ Future<void> main() async {
         ),
         Paragraph.text(
           text: 'Second ordered element',
-          styles: <Style>[Style.reference('ListParagraph')],
+          styles: <Style>[Style.ref('ListParagraph')],
           numbering: Numbering(
             reference: 'ordered',
             level: 0,
@@ -32,7 +32,7 @@ Future<void> main() async {
         ),
         Paragraph.text(
           text: 'First nested element',
-          styles: <Style>[Style.reference('ListParagraph')],
+          styles: <Style>[Style.ref('ListParagraph')],
           numbering: Numbering(
             reference: 'ordered',
             level: 1,
@@ -41,7 +41,7 @@ Future<void> main() async {
         ),
         Paragraph.text(
           text: 'Second nested element',
-          styles: <Style>[Style.reference('ListParagraph')],
+          styles: <Style>[Style.ref('ListParagraph')],
           numbering: Numbering(
             reference: 'ordered',
             level: 2,
@@ -50,7 +50,7 @@ Future<void> main() async {
         ),
         Paragraph.text(
           text: 'New ordered list item',
-          styles: <Style>[Style.reference('ListParagraph')],
+          styles: <Style>[Style.ref('ListParagraph')],
           numbering: Numbering(
             reference: 'ordered',
             level: 0,
@@ -59,7 +59,7 @@ Future<void> main() async {
         ),
         Paragraph.text(
           text: 'Bulleted list element',
-          styles: <Style>[Style.reference('ListParagraph')],
+          styles: <Style>[Style.ref('ListParagraph')],
           numbering: Numbering(
             reference: 'unordered',
             level: 0,
@@ -68,7 +68,7 @@ Future<void> main() async {
         ),
         Paragraph.text(
           text: 'Nested bulleted list element',
-          styles: <Style>[Style.reference('ListParagraph')],
+          styles: <Style>[Style.ref('ListParagraph')],
           numbering: Numbering(
             reference: 'unordered',
             level: 1,

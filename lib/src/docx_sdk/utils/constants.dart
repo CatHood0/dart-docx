@@ -13,6 +13,8 @@ const int commonBorderSpace = 6;
 
 const int maxLineWidth = 20116800;
 
+const int maxGeometryPathSize = 1000000;
+
 /// 1 point = 6350 EMU
 const int lineWidthEmuPerPoint = 6350;
 const int lineSpacingPerInch = 240;
@@ -37,6 +39,17 @@ const int dxaPerInch = 1440;
 /// example: 1 cm = 28.3465 pt = 28.3465 * 20 dxa = 566.93 dxa
 const double dxaPerCm = 567;
 const double dxaPerMm = dxaPerCm / 10;
+const int ptPerInch = 72;
+const double ptPerCm = 28.3465;
+const double ptPerMm = 2.83465;
+// 1 pixel (96 DPI) = 0.75 points
+const double ptPerPixel = 0.75;
+
+const int pixelsPerInch = 96;
+const double pixelsPerCm = 37.7953;
+const double pixelsPerMm = 3.77953;
+// 1 point = 1.33333 pixels (96 DPI)
+const double pixelsPerPt = 1.33333;
 // (72 points/inch / 2.54 cm/inch) * 20 dxa/point
 const int dxaPerPt = 20;
 // users can change the dpi as they want

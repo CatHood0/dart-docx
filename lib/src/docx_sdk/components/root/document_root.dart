@@ -4,9 +4,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../utils/logger/logger_configs.dart';
-import '../../xml_components/numbering/abstract_numbering_component.dart';
-import '../../xml_components/numbering/concrete_numbering_component.dart';
-import '../base/lazy_node.dart';
 
 class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
   DocumentRoot({
@@ -27,7 +24,7 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
         ..index = index
         ..depth = depth + 1;
       // the last column need to ignore the break
-      if (content is Column && index + 1 >= sections.length) {
+      if (content is PageColumn && index + 1 >= sections.length) {
         // ignore: invalid_use_of_protected_member
         content.ignoreBreak = true;
       }
@@ -147,14 +144,14 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
   }) =>
       addParagraph(
         Paragraph.run(
-          DrawingML(
+          Drawing(
             child: Anchor(
               width: width,
               height: height,
               name: name,
               config: config,
               child: Graphic.pic(
-                child: WordprocessingShape(
+                child: WPShape(
                   id: shapeId,
                   name: name,
                   description: description,
@@ -165,7 +162,7 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
                     fill: fill,
                     border: border,
                     effects: effect,
-                    transform2D: transform ??
+                    transform: transform ??
                         Transform2D(
                           offset: Offset.zero(),
                           extents: AnnotationExtents.zero(),
@@ -202,6 +199,31 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
       }
       context.currentContentPart = this;
       content.addAll(section.buildXml(context: context));
+    }
+
+    // Detect if this component is a row into another one
+    //
+    // Internally, Row is automatically parsed to a Table
+    // so, we cannot call it expecting something
+    //
+    // If you create a trace of the ancestor, you will get this:
+    //
+    //  LayoutConstraints
+    //  |_ Table
+    //   |_ TableRow
+    //    | TableCell <- (we are here)
+    //
+    // As you see, we don't get a Row instance here
+    if ((child.lastOrNull is Table || child.lastOrNull is Row)) {
+      // why we call last element and check if it's a row?
+      //
+      // Well, by some reason, LibreOffice does not render it properly if there is no space
+      // between the table and the end of the cell
+      //
+      // What is this problem? Literally, all the tables break the current flows, and are "moved"
+      // internally to behave as independent external tables, that makes look it likes we moved
+      // all outsided without nesting the tree
+      content.addAll(Paragraph.empty().buildXml(context: context));
     }
 
     return content;

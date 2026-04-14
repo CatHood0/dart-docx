@@ -15,6 +15,7 @@ class XmlDefaultDocStylesComponent
         super(xmlKey: 'w:docDefaults');
   final List<XmlComponentBase> components;
 
+
   @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(

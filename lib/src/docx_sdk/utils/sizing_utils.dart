@@ -52,7 +52,35 @@ extension SizingConversions on num {
   /// Default DPI is 96.
   double dxaToPixels({num dpi = 96}) => this / dxaPerInch * dpi;
 
-  // MARK: - EMU Conversions
+  double pixelsToInches() => this / pixelsPerInch;
+
+  double pixelsToCm() => this / pixelsPerCm;
+
+  double pixelsToMm() => this / pixelsPerMm;
+
+  int pixelsToPt() => (this * ptPerPixel).round();
+
+  double inchesToPixels() => (this * pixelsPerInch).toDouble();
+
+  double cmToPixels() => this * pixelsPerCm;
+
+  double mmToPixels() => this * pixelsPerMm;
+
+  double pointsToPixels() => this / ptPerPixel;
+
+  int inchesToPoints() => (this * ptPerInch).round();
+
+  double cmToPoints() => this * ptPerCm;
+
+  double mmToPoints() => this * ptPerMm;
+
+  double pointsToInches() => this / ptPerInch;
+
+  double pointsToCm() => this / ptPerCm;
+
+  double pointsToMm() => this / ptPerMm;
+
+  int pointsToTwipsFromPoints() => (this * twipsPerPt).round();
 
   /// Converts EMU to inches.
   double emuToInches() => this / emuPerInch;
@@ -99,13 +127,12 @@ extension SizingConversions on num {
     if (unit == Unit.mm) return millimetersToEmu();
     if (unit == Unit.pt) return ptToEmu();
     if (unit == Unit.pixels96) return pixelsToEmu(dpi: 96);
-    throw ArgumentError('Debes proporcionar al menos un valor a convertir');
+    if (unit == Unit.twip) return ptToTwips();
+    throw ArgumentError('No supported unit of type: ${unit.name}');
   }
 
   /// Converts DXA to EMU via points.
-  num dxaToEmu() => dxaToPt().ptToEmu();
-
-  // MARK: - Twips Conversions
+  num dxaToEmu() => this * (emuPerPt / dxaPerPt);
 
   /// Converts inches to twips.
   int inchesToTwips() => (this * twipsPerInch).round();

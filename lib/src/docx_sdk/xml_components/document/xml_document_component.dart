@@ -48,6 +48,12 @@ class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
         );
 
   @override
+  String get name => 'Document';
+
+  @override
+  String get path => DocxPaths.documentFilePath;
+
+  @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
       xmlKey,

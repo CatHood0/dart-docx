@@ -29,7 +29,7 @@ Future<void> main() async {
         Paragraph.text(
           text: 'Hello World',
           styles: <Style>[
-            Style.reference('Heading1'),
+            Style.ref('Heading1'),
           ],
         ),
       ],
@@ -40,7 +40,7 @@ Future<void> main() async {
       .dynamicFontSearch(false)
       .noTrimRuns()
       .setNormalIfNeeded(true)
-      .defaultNormalStyle(Style.reference('body'))
+      .defaultNormalStyle(Style.ref('body'))
       .execute(
         doc,
         applyCustomTheme: true,
@@ -49,6 +49,6 @@ Future<void> main() async {
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);
   } else {
-    stderr.writeln('Failed to generate CV .docx');
+    stderr.writeln('Failed to generate minimal_document.docx');
   }
 }

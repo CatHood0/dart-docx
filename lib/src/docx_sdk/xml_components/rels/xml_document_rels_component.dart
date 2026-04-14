@@ -5,13 +5,26 @@ import '../../../../docx.dart';
 class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
   XmlDocumentRelsComponent({
     required List<RelationShip> relations,
-  }) : super(
+  })  : _path = DocxPaths.documentXmlRelsFilePath,
+        super(
           attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
             'xmlns': namespaces['relationship']!,
           }),
           xmlKey: 'Relationships',
           value: relations,
         );
+
+  XmlDocumentRelsComponent.fontRels({
+    required List<RelationShip> relations,
+  })  : _path = DocxPaths.fontTableXmlRelsFilePath,
+        super(
+          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
+            'xmlns': namespaces['relationship']!,
+          }),
+          xmlKey: 'Relationships',
+          value: relations,
+        );
+  final String _path;
 
   static List<RelationShip> defaultDocumentFileRelations([
     bool applyCustomTheme = false,
@@ -67,6 +80,12 @@ class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
     }
     return rel.rId;
   }
+
+  @override
+  String get name => 'DocumentRels';
+
+  @override
+  String get path => _path;
 
   @override
   XmlElement buildXml(DocumentContext context) {

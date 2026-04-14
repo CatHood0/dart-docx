@@ -32,23 +32,49 @@ import '../../../../../core/extensions/string_ext.dart';
 ///       rowConfig: TableRowConfig(height: 500),
 ///     ),
 ///   ],
-///   tableConfig: TableConfig(
-///     style: Style.reference('TableGrid'),
+///   tableConfig: TableProperties(
+///     // you can use this "auto" property
+///     // to force to the table to use the
+///     // full width of the page
+///     widthType: TableWidthType.auto,
+///     style: <Style>[Style.reference('TableGrid')],
 ///     alignment: Alignment.center,
 ///   ),
-///   gridCols: [GridColumn(width: 2000), GridColumn(width: 3000)],
+///   columns: <GridColumn>[GridColumn(width: 2000), GridColumn(width: 3000)],
 /// );
 /// ```
 class Table extends DocxTreeNode<List<TableRow>> {
   Table({
     required List<TableRow> rows,
-    required this.gridCols,
-    this.tableConfig,
+    required this.columns,
+    this.tableProperties,
     super.id,
     super.parent,
-  })  : assert(gridCols.length == rows.length, 'grid'),
+  })  : assert(columns.length == rows.length, 'grid'),
         super(child: rows) {
+    // check the configurations to avoid assertions being ignored
+    // when we're not in debug mode
+    if (tableProperties != null &&
+        tableProperties!.widthType.needsWidth &&
+        tableProperties!.width <= 0) {
+      throw Exception(
+        '$runtimeType:$id => TableWidthType.pct or TableWidthType.dxa '
+        'requires a non zero and non negative [width]. ',
+      );
+    }
+
+    if (tableProperties != null &&
+        tableProperties!.widthType.isNilOrAuto &&
+        tableProperties!.width > 0) {
+      throw Exception(
+        '$runtimeType:$id => TableWidthType.auto or '
+        'TableWidthType.nil only can be used when '
+        '[width] is zero or less',
+      );
+    }
+
     int rowIndex = 0;
+    tableProperties?.parent = this;
     for (final TableRow row in child) {
       row
         ..parent = this
@@ -58,16 +84,28 @@ class Table extends DocxTreeNode<List<TableRow>> {
     }
   }
 
+  factory Table.empty({
+    TableProperties? tableConfig,
+    String? id,
+  }) {
+    return Table(
+      id: id,
+      rows: <TableRow>[],
+      columns: <GridColumn>[],
+      tableProperties: tableConfig,
+    );
+  }
+
   /// Configuration for the entire table, including styles,
   /// borders, alignment, and layout properties.
-  final TableProperties? tableConfig;
+  final TableProperties? tableProperties;
 
   /// Definition of column widths for the table.
   ///
   /// Each `GridColumn` specifies the width of its corresponding column.
   /// The number of `GridColumn` objects must match the number of cells
   /// in each row. Use width `-1` for automatic column sizing.
-  final List<GridColumn> gridCols;
+  final List<GridColumn> columns;
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -76,9 +114,9 @@ class Table extends DocxTreeNode<List<TableRow>> {
     final List<XmlNode> tableChildren = <XmlNode>[];
 
     // Build table properties (tblPr) if configuration exists
-    final List<XmlNode> tblPrNodes = tableConfig == null
+    final List<XmlNode> tblPrNodes = tableProperties == null
         ? <XmlNode>[]
-        : tableConfig!.buildXml(context: context);
+        : tableProperties!.buildXml(context: context);
     if (tblPrNodes.isNotEmpty) {
       tableChildren.add(
         XmlElement.tag(
@@ -89,9 +127,11 @@ class Table extends DocxTreeNode<List<TableRow>> {
       );
     }
 
+    context.currentContentPart = this;
+
     // Build column grid definitions (tblGrid)
     final List<XmlNode> gridCols = <XmlNode>[];
-    for (final GridColumn option in this.gridCols) {
+    for (final GridColumn option in columns) {
       gridCols.add(
         XmlElement.tag(
           'w:gridCol',
@@ -116,6 +156,13 @@ class Table extends DocxTreeNode<List<TableRow>> {
 
     // Build all table rows
     for (final TableRow row in child) {
+      context.currentContentPart = this;
+      if (row.child.length != columns.length) {
+        throw Exception(
+          '$runtimeType:$id => Cannot process row of cells ${row.child.length}, '
+          'when needed only ${columns.length} columns. Objects: Columns($columns) |  Rows(${row.child})',
+        );
+      }
       final List<XmlElement> rowXml = row.buildXml(context: context);
       tableChildren.addAll(rowXml);
     }
@@ -133,10 +180,27 @@ class Table extends DocxTreeNode<List<TableRow>> {
   Table get copy => Table(
         id: id,
         rows: child,
-        tableConfig: tableConfig,
-        gridCols: gridCols,
+        tableProperties: tableProperties,
+        columns: columns,
         parent: parent,
       );
+
+  Table copyWith({
+    List<TableRow>? rows,
+    List<GridColumn>? columns,
+    String? id,
+    TableProperties? tableProperties,
+    DocxTreeNode? parent,
+  }) {
+    return Table(
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+      rows: rows ?? child,
+      columns: columns ?? this.columns,
+      tableProperties: tableProperties ?? this.tableProperties,
+
+    );
+  }
 
   @override
   DocxTreeNode? visitElement(
@@ -212,9 +276,9 @@ class Table extends DocxTreeNode<List<TableRow>> {
 /// GridColumn(width: -1),
 /// ```
 class GridColumn {
-  GridColumn({
-    this.width = -1,
-  });
+  GridColumn({required this.width});
+
+  GridColumn.intrintric() : width = -1;
 
   /// Creates a `GridColumn` with width specified in points.
   ///
@@ -222,6 +286,11 @@ class GridColumn {
   GridColumn.points({
     required double width,
   }) : width = width.ptToTwips();
+
+  /// Creates a `GridColumn` with width specified in pixels (dpi = 96).
+  GridColumn.pixels({
+    required double width,
+  }) : width = width.pixelsToPt();
 
   /// Creates a `GridColumn` with width specified in inches.
   GridColumn.inches({
@@ -246,4 +315,13 @@ class GridColumn {
   /// - `2500`: Approximately 1.74 inches
   /// - `5000`: Approximately 3.47 inches
   final int width;
+
+  GridColumn copy() => GridColumn(width: width);
+
+  List<GridColumn> repeat(int times) {
+    return List<GridColumn>.generate(
+      times,
+      (int _) => copy(),
+    );
+  }
 }

@@ -34,6 +34,12 @@ class XmlRelsComponent extends XmlComponentBase<List<RelationShip>> {
         );
 
   @override
+  String get name => 'Rels';
+
+  @override
+  String get path => DocxPaths.relsFilePath;
+
+  @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
       xmlKey,

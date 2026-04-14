@@ -13,53 +13,27 @@ Future<void> main() async {
     ),
     root: DocumentRoot(
       sections: <DocxTreeNode<dynamic>>[
-        Paragraph(
-          children: <RunBase<dynamic>>[
-            Run(
-              wrapInRunMark: true,
-              component: DrawingML(
-                child: Anchor(
-                  width: size,
-                  height: size,
-                  name: 'heart shape',
-                  config: AnchorConfig.square().copyWith(
-                    horizontalAnchor: HorizontalAnchorPosition.paragraph,
-                    verticalAnchor: VerticalAnchorPosition.paragraph,
-                    horizontalPosition: AnchorPosition.left,
-                    verticalPosition: AnchorPosition.left,
-
-                  ),
-                  child: Graphic.pic(
-                    child: WordprocessingShape(
-                      name: 'heart shape',
-                      description: 'A centered heart shape',
-                      shapeLocks: true,
-                      shapeProperties: ShapeProperties(
-                        transform2D: Transform2D(
-                          offset:
-                              Offset(x: 40.pixelsToEmu(), y: 50.pixelsToEmu()),
-                          rotation: 90,
-                          extents: AnnotationExtents(
-                            cx: size,
-                            cy: size,
-                          ),
-                        ),
-                        geometryComponent:
-                            PresetGeometry(preset: PresetShapeType.chevron),
-                        fill: SolidFill(
-                          color: Color.rgb(0xFF0000),
-                        ),
-                        border: ShapeBorder(
-                          color: Color.rgb(0xFF0000),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+        Anchor(
+          width: size,
+          height: size,
+          name: 'heart shape',
+          config: AnchorConfig.square().toPageAnchorPosition(
+            horizontalPosition: AnchorPosition.center,
+            verticalPosition: AnchorPosition.center,
+          ),
+          child: Graphic.pic(
+            child: WPShape(
+              name: 'heart shape',
+              description: 'A heart shape',
+              shapeLocks: true,
+              shapeProperties: ShapeProperties.preset(
+                preset: PresetShapeType.heart,
+                fill: SolidFill(color: Color(0xFF0000)),
+                transform: Transform2D.zero(),
               ),
             ),
-          ],
-        ),
+          ),
+        ).drawing().run().paragraph(),
       ],
     ),
   );

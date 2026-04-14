@@ -78,6 +78,23 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
     }
   }
 
+  Section.inheritFromContext({
+    required Iterable<DocxTreeNode> children,
+    required DocumentContext context,
+    super.id,
+    super.parent,
+  })  : layout = context.options.layoutOptions,
+        super(child: List.from(children)) {
+    int index = 0;
+    for (final DocxTreeNode<dynamic> content in child) {
+      content
+        ..parent = this
+        ..index = index
+        ..depth = depth + 1;
+      index++;
+    }
+  }
+
   /// The layout configuration to apply to this section.
   ///
   /// This `DocumentLayout` object contains all the page settings that will be

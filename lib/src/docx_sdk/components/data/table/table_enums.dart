@@ -45,6 +45,10 @@ enum TableWidthType {
   /// This is useful for tables where column widths should adjust
   /// dynamically to fit the text or other elements.
   ///
+  /// Take in account that `auto` will ignore the [width]
+  /// if you specified it
+  ///
+  ///
   /// Example: `widthType: TableWidthType.auto`
   auto('auto'),
 
@@ -54,10 +58,27 @@ enum TableWidthType {
   /// or inherited from higher-level settings. This is typically used
   /// when you want to rely on default sizing behavior.
   ///
+  /// Take in account that `nil` will ignore the [width]
+  /// if you specified it
+  ///
   /// Example: `widthType: TableWidthType.nil`
-  nil('nil');
+  nil('nil'),
+
+  /// Custom type of value that will tells to the compiler and the node
+  /// to compute the width based on the available space in the page
+  ///
+  /// Example: `widthType: TableWidthType.expand`
+  expand('expand');
 
   const TableWidthType(this.name);
+
+  bool get isExpand => this == TableWidthType.expand;
+
+  bool get isNilOrAuto =>
+      this == TableWidthType.nil || this == TableWidthType.auto;
+
+  bool get needsWidth => this == TableWidthType.pct || this == TableWidthType.dxa;
+
   final String name;
 }
 
@@ -85,6 +106,11 @@ enum TableHeightRule {
   /// the cells. This is the most flexible option and works well for
   /// tables with variable content lengths.
   ///
+  /// This can break the content flow when you don't set an
+  /// exact height. The [VerticalAlignment] won't work if the
+  /// [TableRow] has not the required height to show that alignnment
+  ///
+  ///
   /// Example: `heightRule: TableHeightRule.auto`
   auto('auto'),
 
@@ -93,6 +119,9 @@ enum TableHeightRule {
   /// The row will be at least the specified height, but can expand
   /// taller if needed to accommodate content. This provides a minimum
   /// height guarantee while still allowing content-driven expansion.
+  ///
+  /// The [VerticalAlignment] won't work if the [TableRow] has not the
+  /// required height to show that alignnment.
   ///
   /// Example: `height: 504, heightRule: TableHeightRule.atLeast`
   atLeast('atLeast'),

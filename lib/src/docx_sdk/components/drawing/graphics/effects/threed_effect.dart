@@ -47,7 +47,8 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
             if (child.contourColor != null)
               XmlAttribute(
                 'clr'.toName(),
-                (child.contourColor!.rgbValue ?? child.contourColor!.themeColor)!
+                (child.contourColor!.rgbValue ??
+                        child.contourColor!.themeColor)!
                     .toString()
                     .replaceFirst('0x', ''),
               ),
@@ -249,10 +250,10 @@ class ThreeDEffect {
   }) {
     return ThreeDEffect(
       extrusionHeight: extrusionHeight,
-      extrusionColor: extrusionColor ?? Color.rgb(0x888888),
+      extrusionColor: extrusionColor ?? Color(0x888888),
       material: PresetMaterial.metal,
       contourWidth: 2,
-      contourColor: Color.rgb(0x444444),
+      contourColor: Color(0x444444),
       topBevel: const Bevel(
         width: 63500, // 5 points
         height: 31750,
@@ -302,13 +303,13 @@ class ThreeDEffect {
     return ThreeDEffect(
       extrusionHeight: extrusionHeight,
       extrusionColor: baseColor != null
-          ? Color.rgb(_darkenColor(baseColor.rgbValue!, 30))
-          : Color.rgb(0x666666),
+          ? Color(_darkenColor(baseColor.rgbValue!, 30))
+          : Color(0x666666),
       material: PresetMaterial.plastic,
       contourWidth: 0.5,
       contourColor: baseColor != null
-          ? Color.rgb(_darkenColor(baseColor.rgbValue!, 50))
-          : Color.rgb(0x333333),
+          ? Color(_darkenColor(baseColor.rgbValue!, 50))
+          : Color(0x333333),
       topBevel: const Bevel(
         width: 19050, // 1.5 points
         height: 19050,
@@ -326,10 +327,10 @@ class ThreeDEffect {
   }) {
     return ThreeDEffect(
       extrusionHeight: extrusionHeight,
-      extrusionColor: extrusionColor ?? Color.rgb(0x555555),
+      extrusionColor: extrusionColor ?? Color(0x555555),
       material: PresetMaterial.metal,
       contourWidth: 3,
-      contourColor: Color.rgb(0x222222),
+      contourColor: Color(0x222222),
       topBevel: const Bevel(
         width: 76200, // 6 points
         height: 38100,

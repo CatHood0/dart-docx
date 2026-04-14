@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
@@ -22,19 +23,30 @@ import '../../../core/extensions/cast_ext.dart';
 ///   data: ImageData(
 ///     buffer: File('path/to/image.png'),
 ///     extension: 'png',
+///     width: 2,
+///     height: 1.5,
+///     unit: Unit.inches,
 ///   ),
 /// );
 /// ```
+///
+/// ## Note:
+///
+/// Please, take careful he name of the images,
+/// since if it's not provided, the compiler
+/// will generate a generic one.
+///
+/// In future releases incremental editing probably will be enabled and to avoid loss images provide one
 class LazyImage extends DocxTreeNode<ImageData<File>> {
   LazyImage({
-    required super.child,
+    required ImageData<File> data,
     super.parent,
     super.id,
     this.elementId,
     this.asInline = false,
     this.transformOffsetX = 0,
     this.transformOffsetY = 0,
-  });
+  }) : super(child: data);
 
   /// Whether the image should be rendered inline with text.
   bool asInline;
@@ -49,7 +61,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
   @override
   LazyImage get copy => LazyImage(
         id: id,
-        child: ImageData<File>(
+        data: ImageData<File>(
           buffer: File(child.buffer.path),
           extension: child.extension,
           styles: child.styles,
@@ -63,7 +75,8 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
         transformOffsetX: transformOffsetX,
       );
 
-  String get getImageName => child.name ?? '';
+  String get getImageName =>
+      child.name ?? 'image:${Random.secure().nextInt(900) * 10}';
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -89,12 +102,16 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
         context.drawingStore.getNextId(id);
 
     if (relationshipId == null) {
-      throw Exception('Image($id) with "$child", was not inserted in '
-          'document.xml.rels, and cannot found relation id');
+      throw Exception(
+        'Image(id: $id | level: $depth | parent: ${parent?.runtimeType}) was not founded in the MediaStore registry or in '
+        'the ${DocxPaths.documentXmlRelsFilePath}. Please, ensure this current element is being founded by the '
+        'MediaStore registry during start of the compilation',
+      );
     }
 
     num? imgWidthEmu;
     num? imgHeightEmu;
+
     if (child.width != null) {
       imgWidthEmu = child.width!.unitToEmu(child.unit);
     }
@@ -111,40 +128,37 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
       imgHeightEmu = size.height * emuPerInch / imageDpi;
     }
 
-    final Graphic graphic = Graphic(
-      child: GraphicData(
-        uri: namespaces['pic']!,
-        child: Picture(
-          components: <DocxTreeNode<dynamic>>[
-            BlipFill.pic(
-              blip: Blip(embedRelId: relationshipId.toString()),
-              stretch: Stretch(
-                child: <DocxTreeNode<dynamic>>[
-                  FillRectangle(),
-                ],
-              ),
+    final Graphic graphic = Graphic.pic(
+      child: Picture(
+        components: <DocxTreeNode<dynamic>>[
+          BlipFill.pic(
+            blip: Blip(embedRelId: relationshipId.toString()),
+            stretch: Stretch(
+              child: <DocxTreeNode<dynamic>>[
+                FillRectangle(),
+              ],
             ),
-            PictureShapeProperties(
-              transform2D: Transform2D(
-                offset: Offset(
-                  x: transformOffsetX,
-                  y: transformOffsetY,
-                ),
-                extents: AnnotationExtents(cx: imgWidthEmu!, cy: imgHeightEmu!),
+          ),
+          PictureShapeProperties(
+            transform2D: Transform2D(
+              offset: Offset(
+                x: transformOffsetX,
+                y: transformOffsetY,
               ),
-              presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
+              extents: AnnotationExtents(cx: imgWidthEmu!, cy: imgHeightEmu!),
             ),
-            NonVisualPictureProperties(
-              nonVisualDrawingProperties: NonVisualDrawingProperties(
-                id: elementId!.toString(),
-                name: imageName,
-                description: child.alt ?? imageName,
-              ),
-              nonVisualPictureDrawingProperties:
-                  NonVisualPictureDrawingProperties(),
+            presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
+          ),
+          NonVisualPictureProperties(
+            nonVisualDrawingProperties: NonVisualDrawingProperties(
+              id: elementId!.toString(),
+              name: imageName,
+              description: child.alt ?? imageName,
             ),
-          ],
-        ),
+            nonVisualPictureDrawingProperties:
+                NonVisualPictureDrawingProperties(),
+          ),
+        ],
       ),
     );
 

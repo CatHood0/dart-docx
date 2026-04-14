@@ -1,7 +1,8 @@
 import 'package:meta/meta.dart'
-    show experimental, mustCallSuper, visibleForOverriding, protected;
+    show experimental, visibleForOverriding, protected;
 import 'package:xml/xml.dart' show XmlNode;
 
+import '../../../../docx.dart';
 import '../../sdk.dart'
     show
         AnchorConfig,
@@ -167,7 +168,22 @@ abstract class DocxTreeNode<T> {
             this,
           ) ??
           copy,
+      growable: true,
     );
+  }
+
+  T? getAncestorOfExactType<T extends DocxTreeNode>() {
+    DocxTreeNode? current = this;
+    if (current.parent != null && current.parent is T) {
+      return current.parent as T;
+    }
+    while (current != null) {
+      if (current is T) {
+        return current;
+      }
+      current = current.parent;
+    }
+    return null;
   }
 
   DocxTreeNode? visitElement(

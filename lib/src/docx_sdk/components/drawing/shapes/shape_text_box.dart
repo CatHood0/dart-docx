@@ -161,6 +161,19 @@ class ShapeTextBoxData {
           'allow square and none wrapping types',
         );
 
+  ShapeTextBoxData.empty({
+    this.margin = const EdgeInsets.all(0),
+    this.wrapping = WrapType.square,
+    this.verticalAlignment = VerticalAlignment.top,
+    this.horizontalAlignment = Alignment.left,
+  })  : content = <DocxTreeNode<dynamic>>[],
+        assert(
+          wrapping == WrapType.square || wrapping == WrapType.none,
+          '"${wrapping.name}" is '
+          'not allowed. ShapeTextBox only '
+          'support: WrapType.none and WrapType.square wrapping types',
+        );
+
   final Iterable<DocxTreeNode<dynamic>> content;
   final EdgeInsets margin;
   final WrapType wrapping;

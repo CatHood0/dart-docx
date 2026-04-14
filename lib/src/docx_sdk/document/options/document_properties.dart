@@ -19,12 +19,21 @@ import '../../xml_components/settings/entities/settings.dart';
 /// );
 /// ```
 class DocumentLayout {
+  static final Set<String> _supportedSectionTypes = {
+    'nextPage',
+    'continuous',
+    'evenPage',
+    'oddPage'
+  };
   DocumentLayout({
     this.columns,
+    this.sectionType = 'continuous',
     PageSize? size,
     DocumentMargins? margins,
     Orientation orientation = Orientation.portrait,
-  }) : pageSize = size ?? PageSize.a4 {
+  })  : assert(_supportedSectionTypes.contains(sectionType),
+            'Not supported sectionType founded: "$sectionType"'),
+        pageSize = size ?? PageSize.a4 {
     final bool isPortraitOrientation = orientation == defaultOrientation;
     this.margins = margins ??
         (isPortraitOrientation
@@ -45,6 +54,11 @@ class DocumentLayout {
 
   /// Calculated available width for content after accounting for margins.
   late final num availableDocumentSpace;
+
+  /// Type of the flow of this section
+  ///
+  /// Supported: nextPage, continuous, evenPage, oddPage
+  final String sectionType;
 }
 
 /// Page orientation options.
@@ -79,7 +93,7 @@ class DocumentOptions {
   ///
   /// Parameters:
   /// - [lastModifiedBy]: Name of the person who last modified the document.
-  /// - [creator]: Original author/creator of the document.
+  /// - [author]: Original author/creator of the document.
   /// - [subject]: Document subject/topic.
   /// - [title]: Document title.
   /// - [modifiedAt]: Last modification timestamp.
@@ -99,7 +113,7 @@ class DocumentOptions {
   /// - [theme]: Document theme configuration.
   DocumentOptions({
     required this.lastModifiedBy,
-    required this.creator,
+    required this.author,
     required this.subject,
     required this.title,
     required this.modifiedAt,
@@ -141,7 +155,7 @@ class DocumentOptions {
   /// - [wordVersion]: The version of Word that we aiming to use for this doc. It's not default since we
   ///   can't know what version is requried
   /// - [section]: Document layout configuration (page size, margins, etc.).
-  /// - [creator]: Document author (defaults to 'Unnamed').
+  /// - [author]: Document author (defaults to 'Unnamed').
   /// - [subject]: Document subject (defaults to empty).
   /// - [description]: Document description (defaults to empty).
   /// - [revisions]: Revision count (defaults to 0).
@@ -161,7 +175,7 @@ class DocumentOptions {
   factory DocumentOptions.standard({
     DocumentLayout? section,
     String? title,
-    String creator = 'Unnamed',
+    String author = 'Unnamed',
     String company = '',
     String subject = '',
     String description = '',
@@ -181,12 +195,13 @@ class DocumentOptions {
     DocumentMargins? margins,
     Orientation defaultOrientation = Orientation.portrait,
     EditorMetadata? metadata,
+    String sectionType = 'continuous',
     DateTime? modifiedAt,
     DateTime? createdAt,
   }) {
     return DocumentOptions(
-      lastModifiedBy: creator,
-      creator: creator,
+      lastModifiedBy: author,
+      author: author,
       subject: subject,
       fonts: fonts ?? const <FontProperties>[],
       theme: theme,
@@ -200,6 +215,7 @@ class DocumentOptions {
             columns: ColumnOptions(equalWidth: true),
             margins: margins,
             orientation: defaultOrientation,
+            sectionType: sectionType, 
             size: pageSize ?? PageSize.a4,
           ),
       title: title ?? 'Unnamed',
@@ -217,6 +233,12 @@ class DocumentOptions {
       supportedFileExtensions: kDefaultAcceptedFileExtensions,
     );
   }
+
+  int get availablePageWidth =>
+      pageSize.width - (margins.left + margins.right).toInt();
+
+  int get availablePageHeight =>
+      pageSize.height - (margins.top + margins.bottom).toInt();
 
   /// Current page size from layout options.
   PageSize get pageSize => layoutOptions.pageSize;
@@ -240,7 +262,7 @@ class DocumentOptions {
   final String description;
 
   /// Original author/creator of the document.
-  final String creator;
+  final String author;
 
   /// Document subject or topic.
   final String subject;
@@ -306,7 +328,7 @@ class DocumentOptions {
 
   DocumentOptions copyWith({
     String? lastModifiedBy,
-    String? creator,
+    String? author,
     String? subject,
     String? title,
     DateTime? modifiedAt,
@@ -329,7 +351,7 @@ class DocumentOptions {
   }) {
     return DocumentOptions(
       lastModifiedBy: lastModifiedBy ?? this.lastModifiedBy,
-      creator: creator ?? this.creator,
+      author: author ?? this.author,
       subject: subject ?? this.subject,
       title: title ?? this.title,
       modifiedAt: modifiedAt ?? this.modifiedAt,
@@ -341,8 +363,10 @@ class DocumentOptions {
       company: company ?? this.company,
       revisions: revisions ?? this.revisions,
       fonts: fonts ?? this.fonts,
-      preserveWhitespacesWhenRequired: preserveWhitespacesWhenRequired ?? this.preserveWhitespacesWhenRequired,
-      supportedFileExtensions: supportedFileExtensions ?? this.supportedFileExtensions,
+      preserveWhitespacesWhenRequired: preserveWhitespacesWhenRequired ??
+          this.preserveWhitespacesWhenRequired,
+      supportedFileExtensions:
+          supportedFileExtensions ?? this.supportedFileExtensions,
       keywords: keywords ?? this.keywords.split(','),
       styles: styles ?? docStyles,
       settings: settings ?? this.settings,

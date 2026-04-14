@@ -27,6 +27,12 @@ class XmlFontTableComponent extends XmlComponentBase<List<XmlFontComponent>> {
         );
 
   @override
+  String get name => 'FontTable';
+
+  @override
+  String get path => DocxPaths.fontTableXmlRelsFilePath;
+
+  @override
   XmlElement buildXml(DocumentContext context) {
     return XmlElement.tag(
       xmlKey,

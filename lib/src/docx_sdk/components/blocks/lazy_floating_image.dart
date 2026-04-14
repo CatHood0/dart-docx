@@ -10,16 +10,17 @@ import '../../../core/normalizer/auto_size_normalizer.dart';
 class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
     with IgnorableMixin {
   LazyFloatingImage({
-    required super.child,
+    required ImageData<File> data,
     super.parent,
     super.id,
     this.transformOffsetX = 0,
     this.transformOffsetY = 0,
-  }) : assert(
-          child.anchorConfig.wrapType != WrapType.asCharacter,
+  })  : assert(
+          data.anchorConfig.wrapType != WrapType.asCharacter,
           'the wrapping strategy '
           'cannot be inline in blocks',
-        ) {
+        ),
+        super(child: data) {
     super.length = 1;
   }
 
@@ -31,7 +32,7 @@ class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
         id: id,
         transformOffsetX: transformOffsetX,
         transformOffsetY: transformOffsetY,
-        child: ImageData(
+        data: ImageData(
           buffer: File(child.buffer.path),
           anchorConfig: child.anchorConfig,
           extension: child.extension,
@@ -102,7 +103,7 @@ class LazyFloatingImage extends DocxTreeNode<ImageData<File>>
           // we assign to them the same id
           // to avoid sync issues with stores
           id: id,
-          child: this.child,
+          data: this.child,
           transformOffsetX: transformOffsetX,
           transformOffsetY: transformOffsetY,
           asInline: false,

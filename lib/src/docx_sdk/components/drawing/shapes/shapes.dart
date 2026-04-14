@@ -3,8 +3,8 @@ import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 
 /// Wordprocessing Shape (wps:wsp).
-class WordprocessingShape extends DocxTreeNode<DocxTreeNode> {
-  WordprocessingShape({
+class WPShape extends DocxTreeNode<DocxTreeNode> {
+  WPShape({
     required this.shapeProperties,
     this.name = 'unnamed-shape',
     this.description = '',
@@ -15,7 +15,10 @@ class WordprocessingShape extends DocxTreeNode<DocxTreeNode> {
   }) : super(child: shapeProperties) {
     final List<DocxTreeNode<dynamic>> components = <DocxTreeNode<dynamic>>[
       shapeProperties,
-      if (textBox != null) textBox!,
+      if (textBox != null)
+        textBox!
+      else
+        ShapeTextBox(child: ShapeTextBoxData.empty()),
     ];
 
     for (int i = 0; i < components.length; i++) {
@@ -44,10 +47,11 @@ class WordprocessingShape extends DocxTreeNode<DocxTreeNode> {
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     context.currentContentPart = this;
-    final int shapeId =
-        context.getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
-            context.getAncestorOfExactType<Inline>()?.elementId?.castOrNull() ??
-            context.drawingStore.getNextId(id);
+    final Anchor? anchor = context.getAncestorOfExactType<Anchor>();
+    final Inline? inline = context.getAncestorOfExactType<Inline>();
+    final int shapeId = anchor?.elementId?.castOrNull() ??
+        inline?.elementId?.castOrNull() ??
+        context.drawingStore.getNextId(id);
 
     final NonVisualShapeProperties nonVisualProperties =
         NonVisualShapeProperties(
@@ -55,6 +59,26 @@ class WordprocessingShape extends DocxTreeNode<DocxTreeNode> {
       name: name,
       description: description,
       shapeLocks: shapeLocks,
+    );
+
+    final num? width = anchor?.width ?? inline?.width.toInt();
+    final num? height = anchor?.height ?? inline?.height.toInt();
+    assert(
+      width != null && height != null,
+      'Founded non defined size '
+      'properties for $runtimeType:$id. Size(w: $width, h: $height)',
+    );
+
+    assert(
+      width == shapeProperties.transform.extents.cx,
+      'the ${anchor?.runtimeType ?? inline?.runtimeType ?? 'N/A'} width must be equals than the '
+      'ShapeProperties -> Transform2D -> AnnotationExtents -> cx',
+    );
+
+    assert(
+      height == shapeProperties.transform.extents.cy,
+      'the ${anchor?.runtimeType ?? inline?.runtimeType ?? 'N/A'} height must be equals than the '
+      'ShapeProperties -> Transform2D -> AnnotationExtents -> cy specified',
     );
 
     final List<XmlNode> children = <XmlNode>[
@@ -75,7 +99,7 @@ class WordprocessingShape extends DocxTreeNode<DocxTreeNode> {
   }
 
   @override
-  WordprocessingShape get copy => WordprocessingShape(
+  WPShape get copy => WPShape(
         id: id,
         name: name,
         textBox: textBox,

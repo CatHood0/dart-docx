@@ -15,10 +15,16 @@ abstract class XmlComponentBase<T> {
   final T value;
   final XmlComponentAttributes attributes;
 
+  String get path => '';
+
+  /// The [name] of this component
   ///
+  /// Useful when the compiler need to get 
+  /// the component specified
+  String get name => '';
+
   XmlElement buildXml(DocumentContext context);
 
-  ///
   XmlDocument buildDocument(DocumentContext context) {
     return XmlDocument(
       <XmlNode>[
@@ -38,15 +44,6 @@ abstract class XmlComponentBase<T> {
   List<List<int>> visitElements(bool Function(XmlComponentBase) component) {
     throw Exception('Not implemented visitElements');
   }
-
-  // since we will allow making some changes in tree
-  // we will need adjust somethings in the current implementation
-  void insert() =>
-      throw Exception('Not insert implemented yet for $runtimeType');
-  void replace() =>
-      throw Exception('Not replace implemented yet for $runtimeType');
-  void delete() =>
-      throw Exception('Not delete implemented yet for $runtimeType');
 }
 
 class XmlTextElementComponent<T> extends XmlComponentBase<T> {

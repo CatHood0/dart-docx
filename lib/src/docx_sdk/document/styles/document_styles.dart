@@ -25,6 +25,8 @@ import '../../styles/latent_styles.dart';
 /// // Find a style by ID
 /// final headingStyle = stylesheet.getStyleById('Heading1');
 /// ```
+//TODO: we need to think about changing these elements to be 
+// a HashMap instead of a list
 class DocumentStyles {
   DocumentStyles({
     required this.styles,
