@@ -43,7 +43,7 @@ Each example is available as runnable code under the `demos/` directory.
 | ![](./assets/newspaper_libreoffice.png) | ![](./assets/newspaper_word.png)|
  
 
-→ [rows_alignment.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/newspapers.dart)
+→ [newspapers.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/newspapers.dart)
 
 ### Rows 
 
