@@ -21,12 +21,12 @@ class FontStore {
   bool get hasFonts => _fontsByName.isNotEmpty;
 
   /// Stores all [FontProperties] that will be included in `fontTable.xml`.
-  final Map<String, FontProperties> _fontsByName = {};
+  final Map<String, FontProperties> _fontsByName = <String, FontProperties>{};
 
   /// Stores all [FontProperties] count changes from last time using name as key.
   ///
   /// Used by compiler to know if we will need to recompile the `fontTable.xml`
-  final Map<String, int> _fontsChanges = {};
+  final Map<String, int> _fontsChanges = <String, int>{};
 
   /// Stores the binary data of embedded fonts, keyed by their `fontKey` (GUID).
   final Map<String, FontBinaryData> _embeddedBinariesByKey =
@@ -91,21 +91,21 @@ class FontStore {
   void _discoverFontsFromDocumentContent(
     DocxDocument document,
   ) {
-    final Set<String> discoveredFontNames = {};
+    final Set<String> discoveredFontNames = <String>{};
 
     //TODO: use parent methods of DocumentRoot
-    for (final DocxTreeNode parent in document.root.child) {
-      final List<DocxTreeNode> elementsWithFonts = parent.visitAllElement(
+    for (final DocxNode parent in document.root.child) {
+      final List<DocxNode> elementsWithFonts = parent.visitAllElement(
             (
-              DocxTreeNode el,
+              DocxNode el,
             ) =>
                 el is TextRun || el is Paragraph,
             visitChildrenIfNeeded: true,
           ) ??
-          <DocxTreeNode>[];
+          <DocxNode>[];
 
-      for (final DocxTreeNode content in elementsWithFonts) {
-        final List<Style> styles = [];
+      for (final DocxNode content in elementsWithFonts) {
+        final List<Style> styles = <Style>[];
         if (content is TextRun) {
           styles.addAll(content.child.styles.whereType<Style>());
         } else if (content is Paragraph) {
@@ -201,6 +201,7 @@ class FontStore {
     for (final FontProperties font in _fontsByName.values) {
       if (font.fontBinaryData != null) {
         final FontBinaryData binary = font.fontBinaryData!;
+        //TODO: what is this doing? I cannot remember...
         final String obfuscatedFileName =
             _obfuscatedFileName(font.name, binary.extension);
 

@@ -36,6 +36,7 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
               'fadeDir'.toName(),
               child.fadeDirection.toString(),
             ),
+          //TODO: tenemos que revisar estos valores harcodeados
           if (child.startOpacity != 100000)
             XmlAttribute(
               'stA'.toName(),
@@ -69,6 +70,17 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
   @override
   ReflectionEffectComponent get copy => ReflectionEffectComponent(child: child);
 
+  @override
+  ReflectionEffectComponent copyWith({
+    ReflectionEffect? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return ReflectionEffectComponent(
+      child: child ?? this.child,
+    )..parent = parent ?? this.parent;
+  }
+
   String _toWordValidAlignName(BorderAlignment alignment) {
     return switch (alignment) {
       BorderAlignment.top => 't',
@@ -88,17 +100,17 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     return null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;

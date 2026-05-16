@@ -2,12 +2,16 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents pic:cNvPicPr
-class NonVisualPictureDrawingProperties extends DocxTreeNode<dynamic> {
+class NonVisualPictureDrawingProperties extends DocxNode<dynamic> {
   NonVisualPictureDrawingProperties() : super(child: null);
 
   @override
-  NonVisualPictureDrawingProperties get copy =>
-      NonVisualPictureDrawingProperties();
+  NonVisualPictureDrawingProperties get copy => NonVisualPictureDrawingProperties();
+
+  @override
+  NonVisualPictureDrawingProperties copyWith({String? id, DocxNode<dynamic>? parent}) {
+    return NonVisualPictureDrawingProperties();
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -21,7 +25,7 @@ class NonVisualPictureDrawingProperties extends DocxTreeNode<dynamic> {
 
   @override
   List<NonVisualPictureDrawingProperties>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? [this] : null;
@@ -29,7 +33,7 @@ class NonVisualPictureDrawingProperties extends DocxTreeNode<dynamic> {
 
   @override
   NonVisualPictureDrawingProperties? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
@@ -40,4 +44,3 @@ class NonVisualPictureDrawingProperties extends DocxTreeNode<dynamic> {
     return [];
   }
 }
-

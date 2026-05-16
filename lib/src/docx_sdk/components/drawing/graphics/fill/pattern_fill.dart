@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
-import '../../shared/fill.dart';
 
 /// Pattern fill for shapes (a:pattFill).
 ///
@@ -11,6 +10,17 @@ class PatternFillComponent extends Fill<PatternFill> {
 
   @override
   PatternFillComponent get copy => PatternFillComponent(child: child.copy);
+
+  @override
+  PatternFillComponent copyWith({
+    PatternFill? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return PatternFillComponent(
+      child: child ?? this.child.copy,
+    )..parent = parent ?? this.parent;
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -107,8 +117,8 @@ class PatternFillComponent extends Fill<PatternFill> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return <PatternFillComponent>[this];
@@ -116,8 +126,8 @@ class PatternFillComponent extends Fill<PatternFill> {
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;

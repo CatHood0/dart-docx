@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents pic:nvPicPr
-class NonVisualPictureProperties extends DocxTreeNode<dynamic> {
+class NonVisualPictureProperties extends DocxNode<dynamic> {
   NonVisualPictureProperties({
     required this.nonVisualDrawingProperties,
     required this.nonVisualPictureDrawingProperties,
@@ -14,9 +14,21 @@ class NonVisualPictureProperties extends DocxTreeNode<dynamic> {
   @override
   NonVisualPictureProperties get copy => NonVisualPictureProperties(
         nonVisualDrawingProperties: nonVisualDrawingProperties.copy,
-        nonVisualPictureDrawingProperties:
-            nonVisualPictureDrawingProperties.copy,
+        nonVisualPictureDrawingProperties: nonVisualPictureDrawingProperties.copy,
       );
+
+  @override
+  NonVisualPictureProperties copyWith({
+    String? id,
+    DocxNode<dynamic>? parent,
+    NonVisualDrawingProperties? nonVisualDrawingProperties,
+    NonVisualPictureDrawingProperties? nonVisualPictureDrawingProperties,
+  }) {
+    return NonVisualPictureProperties(
+      nonVisualDrawingProperties: nonVisualDrawingProperties ?? this.nonVisualDrawingProperties,
+      nonVisualPictureDrawingProperties: nonVisualPictureDrawingProperties ?? this.nonVisualPictureDrawingProperties,
+    );
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -33,29 +45,25 @@ class NonVisualPictureProperties extends DocxTreeNode<dynamic> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return nonVisualDrawingProperties.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        nonVisualPictureDrawingProperties.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return nonVisualDrawingProperties.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        nonVisualPictureDrawingProperties.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return nonVisualDrawingProperties.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        nonVisualPictureDrawingProperties.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return nonVisualDrawingProperties.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        nonVisualPictureDrawingProperties.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override

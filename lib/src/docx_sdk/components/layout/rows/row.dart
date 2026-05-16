@@ -9,9 +9,9 @@ import '../../../../core/extensions/skippable_iterations_ext.dart';
 /// A container that groups multiple elements to be rendered in a row layout
 /// using tables internally
 @experimental
-class Row extends DocxTreeNode<List<DocxTreeNode>> {
+class Row extends DocxNode<List<DocxNode>> {
   Row({
-    required Iterable<DocxTreeNode> children,
+    required Iterable<DocxNode> children,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
     this.width = 0,
@@ -21,7 +21,7 @@ class Row extends DocxTreeNode<List<DocxTreeNode>> {
     super.parent,
   }) : super(child: List.from(children)) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in child) {
+    for (final DocxNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -51,12 +51,10 @@ class Row extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   /// Converts this [Row] in a [Table] equivalent version
-  DocxTreeNode toTable(DocumentContext context) {
-    int maxWidth =
-        context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
+  DocxNode toTable(DocumentContext context) {
+    int maxWidth = context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
-    final EdgeInsets padding =
-        context.getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
+    final EdgeInsets padding = context.getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
 
     if (maxWidth == 0) {
       maxWidth = context.options.availablePageWidth;
@@ -64,7 +62,7 @@ class Row extends DocxTreeNode<List<DocxTreeNode>> {
 
     maxWidth = maxWidth.nonNegative.toInt();
 
-    final List<DocxTreeNode<dynamic>> temp = List<DocxTreeNode>.from(child);
+    final List<DocxNode<dynamic>> temp = List<DocxNode>.from(child);
 
     // Detect if this component is a row into another one
     //
@@ -93,9 +91,9 @@ class Row extends DocxTreeNode<List<DocxTreeNode>> {
 
     final Iterable<TableCell> cells = temp.skippableMapIndexed((
       int i,
-      DocxTreeNode<dynamic> e,
+      DocxNode<dynamic> e,
     ) {
-      DocxTreeNode<dynamic> tempNode = e;
+      DocxNode<dynamic> tempNode = e;
       // So, coming from the context where you know that Word doesn't
       // have anything like "space between", we need to do some...
       // "jobs" to allow and similar behavior
@@ -153,13 +151,12 @@ class Row extends DocxTreeNode<List<DocxTreeNode>> {
         padding: padding,
       ),
       columns: maxWidth > 0
-          ? GridColumn(width: (maxWidth / cells.length).toInt())
-              .repeat(cells.length)
+          ? GridColumn(width: (maxWidth / cells.length).toInt()).repeat(cells.length)
           : GridColumn.intrintric().repeat(cells.length),
       rows: TableRow(
         canSplit: true,
-        isHeader: false,
         hidden: false,
+        isHeader: false,
         height: minHeight > 0 ? minHeight : null,
         heightRule: TableHeightRule.atLeast,
         spacing: spacing,
@@ -186,16 +183,39 @@ class Row extends DocxTreeNode<List<DocxTreeNode>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  Row copyWith({
+    Iterable<DocxNode>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    MainAxisAlignment? mainAxisAlignment,
+    CrossAxisAlignment? crossAxisAlignment,
+    int? width,
+    int? minHeight,
+    int? spacing,
+  }) {
+    return Row(
+      children: child ?? this.child,
+      mainAxisAlignment: mainAxisAlignment ?? this.mainAxisAlignment,
+      crossAxisAlignment: crossAxisAlignment ?? this.crossAxisAlignment,
+      width: width ?? this.width,
+      minHeight: minHeight ?? this.minHeight,
+      spacing: spacing ?? this.spacing,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxTreeNode<dynamic> element in child) {
+    for (final DocxNode<dynamic> element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -208,18 +228,18 @@ class Row extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode>[];
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final DocxTreeNode element in child) {
+    if (child.isEmpty) return <DocxNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
+    for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

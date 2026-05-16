@@ -278,6 +278,19 @@ class TextRun extends RunBase<TextPart> {
       );
 
   @override
+  TextRun copyWith({
+    TextPart? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return TextRun(
+      id: id ?? this.id,
+      textPart: child ?? this.child,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
   bool shouldIgnore() {
     return false;
   }

@@ -5,13 +5,13 @@ import '../../../../../core/extensions/cast_ext.dart';
 import '../../shared/geometry.dart';
 
 // Represents a:prstGeom
-class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
+class PresetGeometry extends Geometry<List<DocxNode<dynamic>>> {
   PresetGeometry({
     required this.preset,
-    Iterable<DocxTreeNode<dynamic>>? data,
-  }) : super(child: <DocxTreeNode<dynamic>>[...?data]) {
+    Iterable<DocxNode<dynamic>>? data,
+  }) : super(child: <DocxNode<dynamic>>[...?data]) {
     if (super.child.isEmpty) {
-      super.child.addAll(<DocxTreeNode<dynamic>>[
+      super.child.addAll(<DocxNode<dynamic>>[
         AdjustValueList(values: <AdjustValue>[]),
       ]);
     }
@@ -23,11 +23,23 @@ class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
   PresetGeometry get copy => PresetGeometry(data: child, preset: preset);
 
   @override
+  PresetGeometry copyWith({
+    Iterable<DocxNode<dynamic>>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    PresetShapeType? preset,
+  }) {
+    return PresetGeometry(
+      preset: preset ?? this.preset,
+      data: child ?? this.child,
+    )..parent = parent ?? this.parent;
+  }
+
+  @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[];
-    for (final DocxTreeNode<dynamic> element in child) {
-      if (element is IgnorableMixin &&
-          element.cast<IgnorableMixin>().shouldIgnore()) {
+    for (final DocxNode<dynamic> element in child) {
+      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
       context.currentContentPart = element;
@@ -49,15 +61,15 @@ class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     if (!visitChildrenIfNeeded) return null;
-    final List<DocxTreeNode<dynamic>> result = <DocxTreeNode<dynamic>>[];
-    for (final DocxTreeNode<dynamic> el in child) {
-      final List<DocxTreeNode<dynamic>>? temp = el.visitAllElement(
+    final List<DocxNode<dynamic>> result = <DocxNode<dynamic>>[];
+    for (final DocxNode<dynamic> el in child) {
+      final List<DocxNode<dynamic>>? temp = el.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
       );
@@ -67,14 +79,14 @@ class PresetGeometry extends Geometry<List<DocxTreeNode<dynamic>>> {
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    for (final DocxTreeNode<dynamic> el in child) {
-      final DocxTreeNode<dynamic>? temp = el.visitElement(
+    for (final DocxNode<dynamic> el in child) {
+      final DocxNode<dynamic>? temp = el.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
       );

@@ -113,28 +113,44 @@ class StyleBuilder {
     return StyleBuilder._(id, Style.characterType);
   }
 
-  /// Creates a [StyleBuilder] for a paragraph style
-  /// that is not in DocumentStylesSheet
-  factory StyleBuilder.singularP() {
+  /// Creates a [StyleBuilder] for a **Paragraph** style
+  /// that it's only used for certain cases and will not be reused by
+  /// other elements in the document
+  factory StyleBuilder.up() {
     return StyleBuilder._(nanoid(5), Style.paragraphType);
   }
 
-  /// Creates a [StyleBuilder] for a character style
-  /// that is not in DocumentStylesSheet
-  factory StyleBuilder.singularC() {
+  /// Creates a [StyleBuilder] for a **Character** style
+  /// that it's only used for certain cases and will not be reused by
+  /// other elements in the document
+  factory StyleBuilder.uc() {
     return StyleBuilder._(nanoid(5), Style.characterType);
   }
 
-  /// Creates a [StyleBuilder] for a list style
-  /// that is not in DocumentStylesSheet
-  factory StyleBuilder.singularL() {
+  /// Creates a [StyleBuilder] for a **List** style
+  /// that it's only used for certain cases and will not be reused by
+  /// other elements in the document
+  factory StyleBuilder.ul() {
     return StyleBuilder._(nanoid(5), Style.listType);
   }
 
-  /// Creates a [StyleBuilder] for a numbering style
-  /// that is not in DocumentStylesSheet
-  factory StyleBuilder.singularN() {
+  /// Creates a [StyleBuilder] for a **Numbering** style
+  /// that it's only used for certain cases and will not be reused by
+  /// other elements in the document
+  factory StyleBuilder.un() {
     return StyleBuilder._(nanoid(5), Style.numberingType);
+  }
+
+  factory StyleBuilder.arial([String? id]) {
+    return StyleBuilder._(id ?? nanoid(5), Style.paragraphType)
+        .fontFamily('Arial')
+        .qFormat(false)
+        .keepNext(true);
+  }
+
+  factory StyleBuilder.priority(
+      [String? id, int priority = 20, String type = Style.paragraphType]) {
+    return StyleBuilder._(id ?? nanoid(5), type).uiPriority(priority);
   }
 
   /// The internal identifier of the style, used in `w:styleId`.
@@ -1106,5 +1122,183 @@ class StyleBuilder {
       defaultValue: _defaultValue,
       configurators: configurators,
     );
+  }
+
+  static Style get normal => StyleBuilder.paragraph('Normal')
+      .name('Normal')
+      .fontSize(12.ptToHalfPoints())
+      .alignment(Alignment.left)
+      .spacing(before: 0, after: 160)
+      .lang(DocxLanguage(language: LanguageCodes.englishUS))
+      .qFormat(true)
+      .build();
+
+  static Style get listParagraph => StyleBuilder.paragraph('ListParagraph')
+      .name('List Paragraph')
+      .basedOn('Normal')
+      .keepNext(true)
+      .keepLines(true)
+      .activateWindowControl()
+      .contextualSpacing(true)
+      .qFormat(true)
+      .build();
+
+  static Style get defaultParagraphFont =>
+      StyleBuilder.character('DefaultParagraphFont')
+          .name('Default Paragraph Font')
+          .defaultValue(true)
+          .build();
+
+  static Style get hyperlink => StyleBuilder.character('Hyperlink')
+      .name('Hyperlink')
+      .runColor(Color(0x0563C1))
+      .underline()
+      .build();
+
+  static Style get heading1 => StyleBuilder.paragraph('Heading1')
+      .name('Heading 1')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(24.ptToHalfPoints())
+      .bold()
+      .spacing(before: 480)
+      .keepNext(true)
+      .keepLines(true)
+      .outlineLevel(0)
+      .uiPriority(9)
+      .qFormat(true)
+      .build();
+
+  static Style get heading2 => StyleBuilder.paragraph('Heading2')
+      .name('Heading 2')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(18.ptToHalfPoints())
+      .bold()
+      .spacing(before: 360, after: 80)
+      .keepNext(true)
+      .keepLines(true)
+      .outlineLevel(1)
+      .uiPriority(9)
+      .unhideWhenUsed(true)
+      .qFormat(true)
+      .build();
+
+  static Style get heading3 => StyleBuilder.paragraph('Heading3')
+      .name('Heading 3')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(14.ptToHalfPoints())
+      .bold()
+      .spacing(before: 280, after: 80)
+      .keepNext(true)
+      .keepLines(true)
+      .outlineLevel(2)
+      .uiPriority(9)
+      .semiHidden(true)
+      .unhideWhenUsed(true)
+      .qFormat(true)
+      .build();
+
+  static Style get heading4 => StyleBuilder.paragraph('Heading4')
+      .name('Heading 4')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(12.ptToHalfPoints())
+      .bold()
+      .spacing(before: 240, after: 40)
+      .keepNext(true)
+      .keepLines(true)
+      .outlineLevel(3)
+      .uiPriority(9)
+      .semiHidden(true)
+      .unhideWhenUsed(true)
+      .qFormat(true)
+      .build();
+
+  static Style get heading5 => StyleBuilder.paragraph('Heading5')
+      .name('Heading 5')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(12.ptToHalfPoints())
+      .bold()
+      .spacing(before: 220, after: 40)
+      .keepNext(true)
+      .keepLines(true)
+      .outlineLevel(4)
+      .uiPriority(9)
+      .semiHidden(true)
+      .unhideWhenUsed(true)
+      .qFormat(true)
+      .build();
+
+  static Style get heading6 => StyleBuilder.paragraph('Heading6')
+      .name('Heading 6')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(10.ptToHalfPoints())
+      .bold()
+      .spacing(before: 200, after: 40)
+      .keepNext(true)
+      .keepLines(true)
+      .outlineLevel(5)
+      .uiPriority(9)
+      .semiHidden(true)
+      .unhideWhenUsed(true)
+      .qFormat(true)
+      .build();
+
+  static List<Style> get standardDocumentStyles => <Style>[
+        normal,
+        listParagraph,
+        defaultParagraphFont,
+        ...TableStyleBuilder.standardTableStyles,
+        hyperlink,
+        heading1,
+        heading2,
+        heading3,
+        heading4,
+        heading5,
+        heading6,
+      ];
+
+  static List<Style> styles({
+    bool shouldNormal = true,
+    bool shouldListParagraph = true,
+    bool shouldDefaultParagraphFont = true,
+    bool shouldHyperlink = true,
+    bool shouldHeading1 = true,
+    bool shouldHeading2 = true,
+    bool shouldHeading3 = true,
+    bool shouldHeading4 = true,
+    bool shouldHeading5 = true,
+    bool shouldHeading6 = true,
+    bool shouldTables = true,
+  }) =>
+      <Style>[
+        if (shouldNormal) normal,
+        if (shouldListParagraph) listParagraph,
+        if (shouldDefaultParagraphFont) defaultParagraphFont,
+        if (shouldTables) ...TableStyleBuilder.standardTableStyles,
+        if (shouldHyperlink) hyperlink,
+        if (shouldHeading1) heading1,
+        if (shouldHeading2) heading2,
+        if (shouldHeading3) heading3,
+        if (shouldHeading4) heading4,
+        if (shouldHeading5) heading5,
+        if (shouldHeading6) heading6,
+      ];
+
+  //TODO: implement this or remove it
+  // as far as i know, this directly
+  // it's not needed
+  static List<dynamic> latentStyles() {
+    return [];
   }
 }

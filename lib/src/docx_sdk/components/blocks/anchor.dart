@@ -27,9 +27,9 @@ import '../../../core/extensions/string_ext.dart';
 ///   config: AnchorConfig.block(),
 /// );
 /// ```
-class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
+class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
   Anchor({
-    required DocxTreeNode child,
+    required DocxNode child,
     required this.width,
     required this.height,
     required this.name,
@@ -176,12 +176,12 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
       );
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this)
-        ? <DocxTreeNode<dynamic>>[this]
+        ? <DocxNode<dynamic>>[this]
         : !visitChildrenIfNeeded
             ? null
             : child.visitAllElement(
@@ -191,8 +191,8 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this)
@@ -208,6 +208,29 @@ class Anchor extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   @override
   bool shouldIgnore() {
     return child is IgnorableMixin && (child as IgnorableMixin).shouldIgnore();
+  }
+
+  @override
+  Anchor copyWith({
+    DocxNode? child,
+    int? elementId,
+    String? name,
+    num? width,
+    num? height,
+    AnchorConfig? config,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return Anchor(
+      child: child ?? this.child,
+      id: id ?? this.id,
+      name: name ?? this.name,
+      elementId: elementId ?? this.elementId,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      config: config ?? this.config,
+      parent: parent ?? this.parent,
+    );
   }
 }
 

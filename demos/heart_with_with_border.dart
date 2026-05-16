@@ -13,7 +13,7 @@ Future<void> main() async {
       styles: DocumentStyles.base(),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Anchor(
           width: size,
           height: size,

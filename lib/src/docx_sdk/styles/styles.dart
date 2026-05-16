@@ -30,6 +30,7 @@ import '../sdk.dart';
 ///   ],
 /// );
 /// ```
+//TODO: we need to create a merger to combine to or more styles
 class Style extends IterableConfigurators {
   /// Creates a fully-defined style with all required properties.
   ///

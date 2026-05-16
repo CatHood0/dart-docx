@@ -2,27 +2,30 @@ import 'package:meta/meta.dart'
     show experimental, visibleForOverriding, protected;
 import 'package:xml/xml.dart' show XmlNode;
 
-import '../../../../docx.dart';
-import '../../sdk.dart'
+import '../../../../docx.dart'
     show
         AnchorConfig,
+        CompilerLogger,
         DocumentContext,
-        ImageData,
-        Paragraph,
-        nanoid,
-        Geometry,
-        Transform2D,
-        Fill,
-        ShapeBorder,
+        DocumentRoot,
         Effect,
-        ShapeTextBox,
+        Fill,
+        Geometry,
+        ImageData,
+        LazyNode,
         Numbering,
-        Style;
+        Paragraph,
+        ShapeBorder,
+        ShapeTextBox,
+        Style,
+        Transform2D,
+        nanoid;
 import 'empty_node.dart';
-import 'lazy_node.dart';
 
-abstract class DocxTreeNode<T> {
-  DocxTreeNode({
+//TODO: implement child diff for nodes to allow making cache versions of parts of the tree
+// to avoid compiling all the tree every time when it's not required
+abstract class DocxNode<T> {
+  DocxNode({
     required this.child,
     this.parent,
     String? id,
@@ -102,7 +105,7 @@ abstract class DocxTreeNode<T> {
   /// The way them are added depends on the class
   /// implementation
   @visibleForOverriding
-  void addAll(List<DocxTreeNode> components) {}
+  void addAll(List<DocxNode> components) {}
 
   /// Update element
   ///
@@ -114,7 +117,7 @@ abstract class DocxTreeNode<T> {
   /// expected one
   @visibleForOverriding
   void updateElement(
-    DocxTreeNode component, {
+    DocxNode component, {
     int? index,
     bool strict = true,
   }) {}
@@ -128,25 +131,36 @@ abstract class DocxTreeNode<T> {
   ///
   /// Tipically is modified only when this content
   /// has a relation with .rels file
+  //TODO: this should be deprecated and removed
+  // since we have an store exactly for this
   String? rId;
 
   /// The internal random id of this component
   final String id;
-  DocxTreeNode<dynamic>? parent;
-  DocxTreeNode<T> get copy;
+  DocxNode<dynamic>? parent;
+  DocxNode<T> get copy;
+
+  DocxNode<T> copyWith({String? id, DocxNode<T>? parent});
+
+  /// Performs all the required stuff that need to be ready
+  /// before the `build` pahase
+  @visibleForOverriding
+  @experimental
+  void perfom() {}
+
   List<XmlNode> buildXml({required DocumentContext context});
   List<XmlNode> buildXmlStyle({required DocumentContext context}) =>
       <XmlNode>[];
 
   /// Creates a lazy version of the same node, that waits for the Compilation
-  /// time to build the [DocxTreeNode] type specified
+  /// time to build the [DocxNode] type specified
   ///
   /// Useful for when you need the context and the stores to build graphics or images
   /// manually for your unique logic at that situation and you dont want to
   /// create an specific class for that case.
-  static LazyNode<C> lazyBuild<C extends DocxTreeNode<dynamic>>(
+  static LazyNode<C> lazyBuild<C extends DocxNode<dynamic>>(
     C Function(DocumentContext, String) callback, {
-    DocxTreeNode<dynamic>? parent,
+    DocxNode<dynamic>? parent,
     String? id,
   }) {
     return LazyNode<C>(
@@ -156,11 +170,11 @@ abstract class DocxTreeNode<T> {
     );
   }
 
-  List<DocxTreeNode<T>> repeat(
+  List<DocxNode<T>> repeat(
     int times, {
-    DocxTreeNode<T>? Function(int index, DocxTreeNode<T> element)? overrideCopy,
+    DocxNode<T>? Function(int index, DocxNode<T> element)? overrideCopy,
   }) {
-    return List<DocxTreeNode<T>>.generate(
+    return List<DocxNode<T>>.generate(
       times,
       (int index) =>
           overrideCopy?.call(
@@ -172,38 +186,73 @@ abstract class DocxTreeNode<T> {
     );
   }
 
-  T? getAncestorOfExactType<T extends DocxTreeNode>() {
-    DocxTreeNode? current = this;
-    if (current.parent != null && current.parent is T) {
-      return current.parent as T;
+  R? getAncestorOfExactType<R extends DocxNode<dynamic>>() {
+    DocxNode? current = parent;
+    CompilerLogger.root.debug('$runtimeType:$id will try to ');
+    CompilerLogger.root.debug(
+      '${' ' * depth} | search ancestor '
+      'of type $R',
+    );
+    if (current is R) {
+      CompilerLogger.root.debug(
+        '${' ' * depth} |_ $R found at ${current.depth}',
+      );
+      return current;
     }
+
+    if (current is DocumentRoot) {
+      CompilerLogger.root.debug(
+        '${' ' * depth} |_ $R not found by root limitation',
+      );
+      return null;
+    }
+
+    int countTries = 0;
+    String lastId = current!.id;
+    int loopTraverse = 0;
     while (current != null) {
-      if (current is T) {
+      if (current is R) {
+        CompilerLogger.root.debug(
+          '${' ' * depth} |_ $R found at ${current.depth}',
+        );
         return current;
       }
+
+      if (loopTraverse > 0 && lastId == current.id) {
+        CompilerLogger.root.debug(
+          '${' ' * depth} | Hit element id again. Count: $countTries -> ${countTries + 1}',
+        );
+        countTries++;
+      } else {
+        lastId = current.id;
+      }
+
+      // Since at some points we could
+      // have an infinite loop
+      // we made these conditions to allow
+      // hitting always in nodes that are being
+      // repeated every time
+      if (countTries > 3) {
+        CompilerLogger.root.debug(
+          '${' ' * depth} |_ Hit element ${current.runtimeType} '
+          'with id $id too many times. '
+          'Breaking loop...',
+        );
+        return null;
+      }
+      loopTraverse++;
       current = current.parent;
     }
+    CompilerLogger.root.debug('${' ' * depth} |_ $R was not found');
     return null;
   }
 
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   });
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   });
-}
-
-class Transform {
-  Transform({
-    required this.rotation,
-    required this.flipHorizontal,
-    required this.flipVertical,
-  });
-
-  final int rotation;
-  final bool flipHorizontal;
-  final bool flipVertical;
 }

@@ -178,7 +178,7 @@ Future<void> main() async {
       ),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Paragraph(
           children: <RunBase<dynamic>>[
             ...Run.lineBreak().repeat(10).cast(),
@@ -187,7 +187,7 @@ Future<void> main() async {
                 text: 'WHISPERS IN THE FOG',
                 styles: <Object>[
                   BoldAttribute(),
-                  StyleBuilder.singularC().smallCaps().build(),
+                  StyleBuilder.uc().smallCaps().build(),
                 ],
               ),
             ),
@@ -389,7 +389,7 @@ Future<void> main() async {
           ],
           styles: <Style>[
             Style.ref('BodyText'),
-            StyleBuilder.singularP().indent(left: 360).build(),
+            StyleBuilder.up().indent(left: 360).build(),
           ],
         ),
 
@@ -406,7 +406,7 @@ Future<void> main() async {
           ],
           styles: <Style>[
             Style.ref('BodyText'),
-            StyleBuilder.singularP().indent(left: 360).build(),
+            StyleBuilder.up().indent(left: 360).build(),
           ],
         ),
 

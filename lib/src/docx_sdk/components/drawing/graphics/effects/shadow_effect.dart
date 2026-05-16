@@ -10,6 +10,17 @@ class ShadowEffect extends Effect<ShadowEffectData> {
   ShadowEffect get copy => ShadowEffect(child: child);
 
   @override
+  ShadowEffect copyWith({
+    ShadowEffectData? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return ShadowEffect(
+      child: child ?? this.child,
+    )..parent = parent ?? this.parent;
+  }
+
+  @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlAttribute> attributes = <XmlAttribute>[
       if (child.blur != 0)
@@ -38,10 +49,7 @@ class ShadowEffect extends Effect<ShadowEffectData> {
           attributes: <XmlAttribute>[
             XmlAttribute(
               XmlName.fromString('val'),
-              child.color.rgbValue!
-                  .toRadixString(16)
-                  .padLeft(6, '0')
-                  .toUpperCase(),
+              child.color.rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase(),
             ),
           ],
           children: <XmlNode>[
@@ -49,8 +57,7 @@ class ShadowEffect extends Effect<ShadowEffectData> {
               XmlElement.tag(
                 'a:alpha',
                 attributes: <XmlAttribute>[
-                  XmlAttribute(
-                      XmlName.fromString('val'), child.alpha.toString()),
+                  XmlAttribute(XmlName.fromString('val'), child.alpha.toString()),
                 ],
                 isSelfClosing: true,
               ),
@@ -68,8 +75,8 @@ class ShadowEffect extends Effect<ShadowEffectData> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return <ShadowEffect>[this];
@@ -78,8 +85,8 @@ class ShadowEffect extends Effect<ShadowEffectData> {
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;

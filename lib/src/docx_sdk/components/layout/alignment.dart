@@ -3,7 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 
-class Align extends DocxTreeNode<DocxTreeNode> {
+class Align extends DocxNode<DocxNode> {
   Align({
     required super.child,
     required this.alignment,
@@ -33,14 +33,29 @@ class Align extends DocxTreeNode<DocxTreeNode> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  Align copyWith({
+    DocxNode? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    Alignment? alignment,
+  }) {
+    return Align(
+      alignment: alignment ?? this.alignment,
+      child: child ?? this.child,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     if (shouldGetElement(child)) {
       return child;
     } else if (visitChildrenIfNeeded) {
-      final DocxTreeNode? foundedEl = child.visitElement(
+      final DocxNode? foundedEl = child.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: true,
       );
@@ -52,19 +67,18 @@ class Align extends DocxTreeNode<DocxTreeNode> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmptyNode() ||
-        child.castOrNull<IgnorableMixin>()?.shouldIgnore() == true) {
-      return <DocxTreeNode>[];
+    if (child.isEmptyNode() || child.castOrNull<IgnorableMixin>()?.shouldIgnore() == true) {
+      return <DocxNode>[];
     }
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
     if (shouldGetElement(child)) {
       elements.add(child);
     } else if (visitChildrenIfNeeded) {
-      final List<DocxTreeNode<dynamic>>? foundedEl = child.visitAllElement(
+      final List<DocxNode<dynamic>>? foundedEl = child.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: true,
       );

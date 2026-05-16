@@ -25,7 +25,7 @@ Future<void> main() async {
       ),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Paragraph.text(
           text: 'Hello World',
           styles: <Style>[

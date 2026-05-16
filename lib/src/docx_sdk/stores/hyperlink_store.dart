@@ -29,23 +29,15 @@ class HyperlinkStore {
     _hyperlinks.clear();
 
     //TODO: use parent methods of DocumentRoot
-    for (final DocxTreeNode parent in data.root.child) {
-      final List<RunBase<HyperlinkTextPart>> foundHyperlinks =
-          List<RunBase<HyperlinkTextPart>>.from(
+    for (final DocxNode parent in data.root.child) {
+      final List<HyperlinkRun> foundHyperlinks = List<HyperlinkRun>.from(
         parent.visitAllElement(
-              (
-                DocxTreeNode el,
-              ) =>
-                  el is HyperlinkRun,
+              (DocxNode el) => el is HyperlinkRun,
               visitChildrenIfNeeded: true,
             ) ??
-            <RunBase<HyperlinkTextPart>>[],
+            <HyperlinkRun>[],
       );
-      for (final RunBase<HyperlinkTextPart> hyperlink in foundHyperlinks) {
-        if (hyperlink is HyperlinkRun) {
-          _hyperlinks.add(hyperlink);
-        }
-      }
+      _hyperlinks.addAll(foundHyperlinks);
     }
   }
 
@@ -65,9 +57,19 @@ class HyperlinkStore {
   ) {
     final List<RelationShip> hyperlinkRelationships = <RelationShip>[];
 
+    //TODO: this is difficult since it depends fully on the
+    // that the instance passed it's directly shared
     for (final HyperlinkRun hyperlink in _hyperlinks) {
       final int id = docRelsStore.getNextId(hyperlink.id);
+      final owner = hyperlink.parent!;
       hyperlink.rId ??= 'rId$id';
+      //TODO: this is a workaround to making more strict the update
+      // and avoid using direct instances
+      // ignore: invalid_use_of_visible_for_overriding_member
+      owner.updateElement(
+        hyperlink,
+        index: hyperlink.index,
+      );
       hyperlinkRelationships.add(
         RelationShip(
           rId: hyperlink.rId!,

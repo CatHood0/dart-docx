@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 import '../../sdk.dart';
 
-abstract class ComponentContainer<T> extends DocxTreeNode<T> {
+abstract class ComponentContainer<T> extends DocxNode<T> {
   ComponentContainer({
     required super.child,
     super.parent,

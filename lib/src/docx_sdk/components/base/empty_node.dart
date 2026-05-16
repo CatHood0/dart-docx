@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../sdk.dart';
 
-class EmptyNode extends DocxTreeNode<void> with IgnorableMixin {
+class EmptyNode extends DocxNode<void> with IgnorableMixin {
   EmptyNode() : super(child: null);
 
   @override
@@ -11,19 +11,19 @@ class EmptyNode extends DocxTreeNode<void> with IgnorableMixin {
   }
 
   @override
-  DocxTreeNode<dynamic> get copy => throw UnimplementedError();
+  DocxNode<dynamic> get copy => throw UnimplementedError();
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return null;
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return null;
@@ -31,4 +31,9 @@ class EmptyNode extends DocxTreeNode<void> with IgnorableMixin {
 
   @override
   bool shouldIgnore() => true;
+
+  @override
+  EmptyNode copyWith({String? id, DocxNode<void>? parent}) {
+    return EmptyNode();
+  }
 }

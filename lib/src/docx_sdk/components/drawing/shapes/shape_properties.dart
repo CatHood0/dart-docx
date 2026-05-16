@@ -8,7 +8,7 @@ import '../shared/geometry.dart';
 ///
 /// Contains all visual aspects: geometry, fill, outline, effects,
 /// and 2D transform (position, size, rotation).
-class ShapeProperties extends DocxTreeNode<void> {
+class ShapeProperties extends DocxNode<void> {
   ShapeProperties({
     required this.transform,
     required this.geometryComponent,
@@ -16,7 +16,7 @@ class ShapeProperties extends DocxTreeNode<void> {
     this.border,
     this.effects,
   }) : super(child: null) {
-    final List<DocxTreeNode<dynamic>> components = <DocxTreeNode<dynamic>>[
+    final List<DocxNode<dynamic>> components = <DocxNode<dynamic>>[
       transform,
       geometryComponent,
     ];
@@ -75,7 +75,7 @@ class ShapeProperties extends DocxTreeNode<void> {
   final Fill<dynamic>? fill;
 
   /// Outline/border styling.
-  final DocxTreeNode<dynamic>? border;
+  final DocxNode<dynamic>? border;
 
   /// Visual effects (shadow, glow, reflection, 3D).
   final Effect<dynamic>? effects;
@@ -123,30 +123,47 @@ class ShapeProperties extends DocxTreeNode<void> {
       );
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  ShapeProperties copyWith({
+    String? id,
+    DocxNode<void>? parent,
+    Transform2D? transform,
+    Geometry<dynamic>? geometryComponent,
+    Fill<dynamic>? fill,
+    DocxNode<dynamic>? border,
+    Effect<dynamic>? effects,
+  }) {
+    return ShapeProperties(
+      transform: transform ?? this.transform,
+      geometryComponent: geometryComponent ?? this.geometryComponent,
+      fill: fill ?? this.fill,
+      border: border ?? this.border,
+      effects: effects ?? this.effects,
+    )..parent = parent ?? this.parent;
+  }
+
+  @override
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
 
-    final List<DocxTreeNode<dynamic>> results = <DocxTreeNode<dynamic>>[];
+    final List<DocxNode<dynamic>> results = <DocxNode<dynamic>>[];
 
-    final List<DocxTreeNode<dynamic>>? transformResult =
-        transform.visitAllElement(
+    final List<DocxNode<dynamic>>? transformResult = transform.visitAllElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );
     if (transformResult != null) results.addAll(transformResult);
 
-    final List<DocxTreeNode<dynamic>>? geometryResult =
-        geometryComponent.visitAllElement(
+    final List<DocxNode<dynamic>>? geometryResult = geometryComponent.visitAllElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );
     if (geometryResult != null) results.addAll(geometryResult);
 
     if (fill != null) {
-      final List<DocxTreeNode<dynamic>>? fillResult = fill!.visitAllElement(
+      final List<DocxNode<dynamic>>? fillResult = fill!.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
       );
@@ -154,8 +171,7 @@ class ShapeProperties extends DocxTreeNode<void> {
     }
 
     if (border != null) {
-      final List<DocxTreeNode<dynamic>>? outlineResult =
-          border!.visitAllElement(
+      final List<DocxNode<dynamic>>? outlineResult = border!.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
       );
@@ -163,8 +179,7 @@ class ShapeProperties extends DocxTreeNode<void> {
     }
 
     if (effects != null) {
-      final List<DocxTreeNode<dynamic>>? effectsResult =
-          effects!.visitAllElement(
+      final List<DocxNode<dynamic>>? effectsResult = effects!.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
       );
@@ -175,13 +190,13 @@ class ShapeProperties extends DocxTreeNode<void> {
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
 
-    DocxTreeNode<dynamic>? result = transform.visitElement(
+    DocxNode<dynamic>? result = transform.visitElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );

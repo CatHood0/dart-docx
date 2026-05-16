@@ -3,7 +3,7 @@ import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 
 /// Wordprocessing Shape (wps:wsp).
-class WPShape extends DocxTreeNode<DocxTreeNode> {
+class WPShape extends DocxNode<DocxNode> {
   WPShape({
     required this.shapeProperties,
     this.name = 'unnamed-shape',
@@ -13,12 +13,9 @@ class WPShape extends DocxTreeNode<DocxTreeNode> {
     super.id,
     super.parent,
   }) : super(child: shapeProperties) {
-    final List<DocxTreeNode<dynamic>> components = <DocxTreeNode<dynamic>>[
+    final List<DocxNode<dynamic>> components = <DocxNode<dynamic>>[
       shapeProperties,
-      if (textBox != null)
-        textBox!
-      else
-        ShapeTextBox(child: ShapeTextBoxData.empty()),
+      if (textBox != null) textBox! else ShapeTextBox(child: ShapeTextBoxData.empty()),
     ];
 
     for (int i = 0; i < components.length; i++) {
@@ -49,12 +46,9 @@ class WPShape extends DocxTreeNode<DocxTreeNode> {
     context.currentContentPart = this;
     final Anchor? anchor = context.getAncestorOfExactType<Anchor>();
     final Inline? inline = context.getAncestorOfExactType<Inline>();
-    final int shapeId = anchor?.elementId?.castOrNull() ??
-        inline?.elementId?.castOrNull() ??
-        context.drawingStore.getNextId(id);
+    final int shapeId = anchor?.elementId?.castOrNull() ?? inline?.elementId?.castOrNull() ?? context.drawingStore.getNextId(id);
 
-    final NonVisualShapeProperties nonVisualProperties =
-        NonVisualShapeProperties(
+    final NonVisualShapeProperties nonVisualProperties = NonVisualShapeProperties(
       id: shapeId.toString(),
       name: name,
       description: description,
@@ -109,24 +103,44 @@ class WPShape extends DocxTreeNode<DocxTreeNode> {
       );
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  WPShape copyWith({
+    DocxNode? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    ShapeProperties? shapeProperties,
+    String? name,
+    String? description,
+    bool? shapeLocks,
+    ShapeTextBox? textBox,
+  }) {
+    return WPShape(
+      shapeProperties: shapeProperties ?? this.shapeProperties,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      shapeLocks: shapeLocks ?? this.shapeLocks,
+      textBox: textBox ?? this.textBox,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
 
-    final List<DocxTreeNode<dynamic>> results = <DocxTreeNode<dynamic>>[];
+    final List<DocxNode<dynamic>> results = <DocxNode<dynamic>>[];
 
-    final List<DocxTreeNode<dynamic>>? shapeResult =
-        shapeProperties.visitAllElement(
+    final List<DocxNode<dynamic>>? shapeResult = shapeProperties.visitAllElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );
     if (shapeResult != null) results.addAll(shapeResult);
 
     if (textBox != null) {
-      final List<DocxTreeNode<dynamic>>? textBoxResult =
-          textBox!.visitAllElement(
+      final List<DocxNode<dynamic>>? textBoxResult = textBox!.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: visitChildrenIfNeeded,
       );
@@ -137,13 +151,13 @@ class WPShape extends DocxTreeNode<DocxTreeNode> {
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
 
-    DocxTreeNode<dynamic>? result = shapeProperties.visitElement(
+    DocxNode<dynamic>? result = shapeProperties.visitElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );

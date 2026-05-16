@@ -2,7 +2,6 @@ library;
 
 export 'src/core/extensions/wrap_nodes_ext.dart';
 export 'src/core/namespaces.dart';
-export 'src/core/styles_builder/easy_styles.dart';
 export 'src/core/styles_builder/style_builder.dart';
 export 'src/core/styles_builder/table_style_builder.dart';
 export 'src/docx_sdk/sdk.dart';

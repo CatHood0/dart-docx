@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import '../../../docx.dart';
 import '../events/docx_event.dart';
+import '../utils/logger/logger_configs.dart';
 
 class XmlOverrideFile {
   XmlOverrideFile({required this.data, required this.path});
@@ -96,6 +97,25 @@ class DocxPacker {
         ..._compiler.config.loggablePhases,
         path,
       },
+      enabled: true,
+    );
+    return this;
+  }
+  
+  DocxPacker log(void Function(String) callback)  {
+    _compiler.config = LoggablePhaseConfig(
+      loggablePhases: <String>{..._compiler.config.loggablePhases},
+      level: _compiler.config.level,
+      enabled: true,
+      log: callback,
+    );
+    return this;
+  }
+
+  DocxPacker logLevel(LogLevel level) {
+    _compiler.config = LoggablePhaseConfig(
+      loggablePhases: <String>{..._compiler.config.loggablePhases},
+      level: level,
       enabled: true,
     );
     return this;

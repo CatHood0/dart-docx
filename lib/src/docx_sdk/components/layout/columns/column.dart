@@ -8,9 +8,9 @@ import '../../../utils/logger/logger_configs.dart';
 /// A container that groups multiple elements to be rendered in a row layout
 /// using tables internally
 @experimental
-class Column extends DocxTreeNode<List<DocxTreeNode>> {
+class Column extends DocxNode<List<DocxNode>> {
   Column({
-    required Iterable<DocxTreeNode> children,
+    required Iterable<DocxNode> children,
     this.align,
     this.fixedWidth = false,
     this.width = 0,
@@ -18,7 +18,7 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     super.parent,
   }) : super(child: List.from(children)) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in child) {
+    for (final DocxNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -34,15 +34,15 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
   @protected
   bool ignoreBreak = false;
 
-  void add(DocxTreeNode node) {
+  void add(DocxNode node) {
     child.add(node);
   }
 
-  void addFirst(DocxTreeNode node) {
+  void addFirst(DocxNode node) {
     child.insert(0, node);
   }
 
-  void addAt(int index, DocxTreeNode node) {
+  void addAt(int index, DocxNode node) {
     child.insert(index, node);
   }
 
@@ -50,14 +50,11 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
   List<XmlElement> buildXml({required DocumentContext context}) {
     context.currentContentPart = this;
 
-    final Iterable<DocxTreeNode<dynamic>> columns = child.where(
-        (DocxTreeNode<dynamic> e) =>
-            e is! IgnorableMixin ||
-            !e.cast<IgnorableMixin>().shouldIgnore() ||
-            !e.isEmptyNode());
+    final Iterable<DocxNode<dynamic>> columns =
+        child.where((DocxNode<dynamic> e) => e is! IgnorableMixin || !e.cast<IgnorableMixin>().shouldIgnore() || !e.isEmptyNode());
 
     final List<XmlElement> elements = <XmlElement>[];
-    for (final DocxTreeNode<dynamic> c in columns) {
+    for (final DocxNode<dynamic> c in columns) {
       elements.addAll(c.buildXml(context: context).cast());
     }
 
@@ -74,9 +71,8 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
     //    | TableCell <- (we are here)
     //
     // As you see, we don't get a Row instance here
-    if ((child.lastOrNull is Table || child.lastOrNull is Row) &&
-        getAncestorOfExactType<Table>() != null) {
-      CompilerLogger.root.w(
+    if ((child.lastOrNull is Table || child.lastOrNull is Row) && getAncestorOfExactType<Table>() != null) {
+      CompilerLogger.root.warning(
         'Detected ending ${child.last.runtimeType} '
         'child in $runtimeType:$depth:$id. '
         'Inserting empty paragraph to avoid rendering issues with multiple editors',
@@ -112,15 +108,34 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  Column copyWith({
+    Iterable<DocxNode>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    int? width,
+    Alignment? align,
+    bool? fixedWidth,
+  }) {
+    return Column(
+      children: child ?? this.child,
+      width: width ?? this.width,
+      align: align ?? this.align,
+      fixedWidth: fixedWidth ?? this.fixedWidth,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxTreeNode<dynamic> element in child) {
+    for (final DocxNode<dynamic> element in child) {
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: visitChildrenIfNeeded,
         );
@@ -133,16 +148,16 @@ class Column extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final DocxTreeNode element in child) {
+    final List<DocxNode> elements = <DocxNode>[];
+    for (final DocxNode element in child) {
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

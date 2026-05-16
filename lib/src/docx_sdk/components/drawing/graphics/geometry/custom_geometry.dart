@@ -48,6 +48,29 @@ class CustomGeometryComponent extends Geometry<void> {
       );
 
   @override
+  CustomGeometryComponent copyWith({
+    String? id,
+    DocxNode<void>? parent,
+    List<ShapePath>? paths,
+    Rect? boundingBox,
+    AdjustValueList? adjustValue,
+    GeometryGuideList? guide,
+    List<ConnectionPoint>? connectionPoints,
+    HandlesList? handle,
+  }) {
+    return CustomGeometryComponent(
+      paths: paths ?? this.paths,
+      boundingBox: boundingBox ?? this.boundingBox,
+      adjustValue: adjustValue ?? this.adjustValue,
+      guide: guide ?? this.guide,
+      connectionPoints: connectionPoints ?? this.connectionPoints,
+      handle: handle ?? this.handle,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> children = <XmlNode>[
       ...adjustValue.buildXml(context: context),
@@ -71,8 +94,7 @@ class CustomGeometryComponent extends Geometry<void> {
             XmlAttribute(XmlName.fromString('l'), boundingBox.left.toString()),
             XmlAttribute(XmlName.fromString('t'), boundingBox.top.toString()),
             XmlAttribute(XmlName.fromString('r'), boundingBox.right.toString()),
-            XmlAttribute(
-                XmlName.fromString('b'), boundingBox.bottom.toString()),
+            XmlAttribute(XmlName.fromString('b'), boundingBox.bottom.toString()),
           ],
           isSelfClosing: true,
         ),
@@ -137,8 +159,8 @@ class CustomGeometryComponent extends Geometry<void> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return <CustomGeometryComponent>[this];
@@ -146,8 +168,8 @@ class CustomGeometryComponent extends Geometry<void> {
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;

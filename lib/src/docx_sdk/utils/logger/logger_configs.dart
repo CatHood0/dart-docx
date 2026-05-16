@@ -1,5 +1,5 @@
 import 'package:logging/logging.dart';
-import 'package:meta/meta.dart';
+import './log_levels.dart';
 
 class CompilerLogger {
   CompilerLogger._({
@@ -11,14 +11,13 @@ class CompilerLogger {
 
   static CompilerLogger root = CompilerLogger._(name: 'root');
 
-  void e(String message, [Object? err, StackTrace? stack]) =>
+  void error(String message, [Object? err, StackTrace? stack]) =>
       _logger.severe(message);
-  void w(String message) => _logger.warning(message);
-  void i(String message) => _logger.info(message);
-  void d(String message) => _logger.fine(message);
+  void warning(String message) => _logger.warning(message);
+  void info(String message) => _logger.info(message);
+  void debug(String message) => _logger.fine(message);
 }
 
-@internal
 enum LogLevel {
   off,
   error,
@@ -34,6 +33,7 @@ typedef LogHandler = void Function(String message);
 ///
 /// Set the log level and config the handler depending on your need.
 class LoggerConfiguration {
+  factory LoggerConfiguration() => instance;
   LoggerConfiguration._() {
     Logger.root.onRecord.listen((
       LogRecord record,
@@ -48,8 +48,6 @@ class LoggerConfiguration {
       }
     });
   }
-
-  factory LoggerConfiguration() => instance;
 
   static final LoggerConfiguration instance = LoggerConfiguration._();
 
@@ -94,60 +92,8 @@ class LoggerConfiguration {
     Logger.root.level = level.toLevel();
   }
 
-  @internal
   set level(LogLevel level) {
     _level = level;
     Logger.root.level = level.toLevel();
-  }
-}
-
-extension on LogLevel {
-  Level toLevel() {
-    switch (this) {
-      case LogLevel.off:
-        return Level.OFF;
-      case LogLevel.error:
-        return Level.SEVERE;
-      case LogLevel.warn:
-        return Level.WARNING;
-      case LogLevel.info:
-        return Level.INFO;
-      case LogLevel.debug:
-        return Level.FINE;
-      case LogLevel.all:
-        return Level.ALL;
-    }
-  }
-
-  String get name {
-    switch (this) {
-      case LogLevel.off:
-        return 'OFF';
-      case LogLevel.error:
-        return 'ERROR';
-      case LogLevel.warn:
-        return 'WARN';
-      case LogLevel.info:
-        return 'INFO';
-      case LogLevel.debug:
-        return 'DEBUG';
-      case LogLevel.all:
-        return 'ALL';
-    }
-  }
-}
-
-extension on Level {
-  LogLevel toLogLevel() {
-    if (this == Level.SEVERE) {
-      return LogLevel.error;
-    } else if (this == Level.WARNING) {
-      return LogLevel.warn;
-    } else if (this == Level.INFO) {
-      return LogLevel.info;
-    } else if (this == Level.FINE) {
-      return LogLevel.debug;
-    }
-    return LogLevel.off;
   }
 }

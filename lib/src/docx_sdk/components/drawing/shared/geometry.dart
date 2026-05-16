@@ -1,6 +1,6 @@
 import '../../../../../docx.dart';
 
-abstract class Geometry<T> extends DocxTreeNode<T> {
+abstract class Geometry<T> extends DocxNode<T> {
   Geometry({
     required super.child,
     super.id,

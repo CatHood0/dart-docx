@@ -4,9 +4,9 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../base/empty_node.dart';
 
-class Run extends RunBase<DocxTreeNode> {
+class Run extends RunBase<DocxNode> {
   Run({
-    required DocxTreeNode component,
+    required DocxNode component,
     this.wrapInRunMark = true,
     super.id,
     super.parent,
@@ -32,18 +32,15 @@ class Run extends RunBase<DocxTreeNode> {
   }
 
   factory Run.lineBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(
-        breaker: Break.lineBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(breaker: Break.lineBreak(), wrapInRunMark: wrapInRunMark);
   }
 
   factory Run.pageBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(
-        breaker: Break.pageBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(breaker: Break.pageBreak(), wrapInRunMark: wrapInRunMark);
   }
 
   factory Run.columnBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(
-        breaker: Break.columnBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(breaker: Break.columnBreak(), wrapInRunMark: wrapInRunMark);
   }
 
   bool wrapInRunMark;
@@ -145,15 +142,28 @@ class Run extends RunBase<DocxTreeNode> {
   Run get copy => Run(component: child.copy);
 
   @override
+  Run copyWith({
+    DocxNode? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return Run(
+      component: child ?? this.child,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
   bool get isEmptyData => false;
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this)
-        ? <DocxTreeNode<dynamic>>[this]
+        ? <DocxNode<dynamic>>[this]
         : !visitChildrenIfNeeded
             ? null
             : child.visitAllElement(
@@ -163,8 +173,8 @@ class Run extends RunBase<DocxTreeNode> {
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this)
@@ -185,9 +195,7 @@ class Run extends RunBase<DocxTreeNode> {
   //TODO: improve these methods
   @override
   String toPlainText() {
-    return child is PrintableMixin
-        ? (child as PrintableMixin).toPlainText()
-        : '';
+    return child is PrintableMixin ? (child as PrintableMixin).toPlainText() : '';
   }
 
   @override

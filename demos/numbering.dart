@@ -1,6 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
+import 'package:docx/src/docx_sdk/utils/logger/logger_configs.dart';
+
+const String orderedKey = 'ordered';
+const String unorderedKey = 'unordered';
 
 Future<void> main() async {
   final File outFile = File('test_resources/numbering.docx');
@@ -8,72 +12,71 @@ Future<void> main() async {
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(
       title: 'Numbering document',
-      styles: DocumentStyles.base(),
+      styles: DocumentStyles.base().withNewStyles([
+        StyleBuilder.paragraph('title')
+            .name('Title')
+            .fontSize(16.ptToHalfPoints())
+            .bold()
+            .spacing(
+              before: 12.ptToTwips(),
+              after: 6.ptToTwips(),
+            )
+            .qFormat(true)
+            .uiPriority(8)
+            .build(),
+      ]),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Paragraph.text(
-          text: 'First ordered element',
-          styles: <Style>[Style.ref('ListParagraph')],
-          numbering: Numbering(
-            reference: 'ordered',
-            level: 0,
-            refId: 1,
-          ),
+          text: 'First list',
+          styles: [
+            Style.ref('title'),
+          ],
+        ),
+        // Level 1
+        NumberingList(
+          refKey: orderedKey,
+          children: [
+            Text('First ordered element'),
+            Text('Second ordered element'),
+            // Level 2
+            NumberingList.inherit(
+              children: [
+                Text('First nested element'),
+                // Level 3
+                NumberingList.inheritOne(
+                  child: Text('Second nested element'),
+                ),
+              ],
+            ),
+          ],
         ),
         Paragraph.text(
-          text: 'Second ordered element',
-          styles: <Style>[Style.ref('ListParagraph')],
-          numbering: Numbering(
-            reference: 'ordered',
-            level: 0,
-            refId: 1,
-          ),
+          text: 'Second list (restart the count)',
+          styles: [
+            Style.ref('title'),
+          ],
         ),
-        Paragraph.text(
-          text: 'First nested element',
-          styles: <Style>[Style.ref('ListParagraph')],
-          numbering: Numbering(
-            reference: 'ordered',
-            level: 1,
-            refId: 1,
-          ),
+        Text(
+          'Since every new instance of '
+          'NumberingList. makes a new refId, '
+          'then it\'s restarted automatically',
         ),
-        Paragraph.text(
-          text: 'Second nested element',
-          styles: <Style>[Style.ref('ListParagraph')],
-          numbering: Numbering(
-            reference: 'ordered',
-            level: 2,
-            refId: 1,
-          ),
+        NumberingList(
+          refKey: orderedKey,
+          children: [
+            // We also allow using runs here
+            TextRun.text(text: 'New ordered list item'),
+            // HyperlinkRun.pure(text: 'PUB DEV WEBSITE', link: 'https://www.pub.dev'),
+          ],
         ),
-        Paragraph.text(
-          text: 'New ordered list item',
-          styles: <Style>[Style.ref('ListParagraph')],
-          numbering: Numbering(
-            reference: 'ordered',
-            level: 0,
-            refId: 2,
-          ),
-        ),
-        Paragraph.text(
-          text: 'Bulleted list element',
-          styles: <Style>[Style.ref('ListParagraph')],
-          numbering: Numbering(
-            reference: 'unordered',
-            level: 0,
-            refId: 1,
-          ),
-        ),
-        Paragraph.text(
-          text: 'Nested bulleted list element',
-          styles: <Style>[Style.ref('ListParagraph')],
-          numbering: Numbering(
-            reference: 'unordered',
-            level: 1,
-            refId: 1,
-          ),
+        NumberingList(
+          refKey: unorderedKey,
+          children: [
+            Text('Bulleted list element'),
+            Text('Nested bulleted list element'),
+          ],
         ),
       ],
     ),
@@ -82,6 +85,8 @@ Future<void> main() async {
   final Uint8List? bytes = await DocxPacker()
       .dynamicFontSearch(true)
       .noTrimRuns()
+      // .logPath(DocxPaths.numberingXmlFilePath)
+      .logLevel(LogLevel.info)
       .execute(doc, applyCustomTheme: false);
 
   if (bytes != null) {

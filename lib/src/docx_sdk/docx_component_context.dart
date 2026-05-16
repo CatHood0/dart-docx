@@ -19,6 +19,7 @@ class DocumentContext {
     required this.drawingStore,
     this.noTrim = true,
     this.checkStyleRefExistence = false,
+    Map<String, int>? lastNumberingIds,
   });
 
   DocumentContext.base({DocumentOptions? options})
@@ -84,39 +85,70 @@ class DocumentContext {
 
   DocumentStyles get docStyleSheet => options.docStyles;
 
-  //TODO: document context will need to be more independent 
+  //TODO: document context will need to be more independent
   // from its component build to allow more large lifetime
   // during compilation
   //
   // all the media are saved
-  DocxTreeNode? _currentContentPart;
-  DocxTreeNode? get currentContentPart => _currentContentPart;
-  set currentContentPart(DocxTreeNode? content) {
+  DocxNode? _currentContentPart;
+  DocxNode? get currentContentPart => _currentContentPart;
+  set currentContentPart(DocxNode? content) {
     if (_currentContentPart == content) return;
     _currentContentPart = content;
   }
 
-  T? getAncestorOfExactType<T extends DocxTreeNode>() {
-    DocxTreeNode? current = _currentContentPart;
-    CompilerLogger.root.d(
-      'Searching ancestor '
-      'of type ${T.toString()} from '
-      'node ${current?.runtimeType}:${current?.id}',
+  R? getAncestorOfExactType<R extends DocxNode<dynamic>>() {
+    DocxNode? current = _currentContentPart;
+    CompilerLogger.root.debug('${current?.runtimeType}:${current?.id} will try to');
+    CompilerLogger.root.debug(
+      '${' ' * (current?.depth ?? 0)} | search ancestor '
+      'of type $R',
     );
+    if (current is R || current is DocumentRoot) {
+      return current is DocumentRoot ? null : current as R?;
+    }
+    int countTries = 0;
+    String lastId = current!.id;
+    int loopTraverse = 0;
     while (current != null) {
-      if (current is T) {
-        CompilerLogger.root.d(
-          'Found ancestor '
-          'of type ${T.toString()}',
+      if (current is R) {
+        CompilerLogger.root.debug(
+          '${' ' * _currentContentPart!.depth} |_ $R found at ${current.depth}',
         );
         return current;
       }
+
+      if (loopTraverse > 0 && lastId == current.id) {
+        CompilerLogger.root.debug(
+          '${' ' * _currentContentPart!.depth}Hit element id again. Count: $countTries -> ${countTries + 1}',
+        );
+        countTries++;
+      } else {
+        lastId = current.id;
+      }
+
+      // Since at some points we could
+      // have an infinite loop
+      // we made these conditions to allow
+      // hitting always in nodes that are being
+      // repeated every time
+      if (countTries > 3) {
+        CompilerLogger.root.debug(
+          '${' ' * _currentContentPart!.depth}Hit element ${_currentContentPart!.runtimeType} '
+          'with id ${current.id} too many times. '
+          'Breaking loop...',
+        );
+        return null;
+      }
+      loopTraverse++;
       current = current.parent;
     }
+    CompilerLogger.root
+        .debug('${' ' * _currentContentPart!.depth} |_ $R was not found');
     return null;
   }
 
-  bool childOfAncestorOfExactType<T extends DocxTreeNode>() {
+  bool childOfAncestorOfExactType<T extends DocxNode>() {
     return getAncestorOfExactType<T>() != null;
   }
 }

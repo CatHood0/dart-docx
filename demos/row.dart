@@ -25,7 +25,7 @@ Future<void> main() async {
       ),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Paragraph.text(
           text: '1. MainAxisAlignment.spaceBetween',
           styles: <Style>[
@@ -49,7 +49,7 @@ Future<void> main() async {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             LazyImage(
               asInline: true,
               data: ImageData.fileSized(
@@ -59,7 +59,7 @@ Future<void> main() async {
               ),
             ).drawing().run().paragraph(),
             Column(
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                   text: 'Document Title',
                   styles: <Style>[
@@ -105,7 +105,7 @@ Future<void> main() async {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             LazyImage(
               asInline: true,
               data: ImageData.fileSized(
@@ -115,7 +115,7 @@ Future<void> main() async {
               ),
             ).drawing().run().paragraph(),
             Column(
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                   text: 'Product Name',
                   styles: <Style>[
@@ -161,7 +161,7 @@ Future<void> main() async {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             LazyImage(
               asInline: true,
               data: ImageData.fileSized(
@@ -212,9 +212,9 @@ Future<void> main() async {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             Column(
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                   text: 'Authorized Signature',
                   styles: <Style>[
@@ -267,9 +267,9 @@ Future<void> main() async {
           width: 200.ptToDxa(),
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             Column(
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                   text: 'Column 1 (1/3)',
                   styles: <Style>[
@@ -290,7 +290,7 @@ Future<void> main() async {
               ],
             ),
             Column(
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                   text: 'Column 2 (1/3)',
                   styles: <Style>[
@@ -311,7 +311,7 @@ Future<void> main() async {
               ],
             ),
             Column(
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                   text: 'Column 3 (1/3)',
                   styles: <Style>[
@@ -355,13 +355,13 @@ Future<void> main() async {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             Column(
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <DocxTreeNode<dynamic>>[
+                  children: <DocxNode<dynamic>>[
                     LazyImage(
                       asInline: true,
                       data: ImageData.fileSized(
@@ -392,11 +392,11 @@ Future<void> main() async {
               ],
             ),
             Column(
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <DocxTreeNode<dynamic>>[
+                  children: <DocxNode<dynamic>>[
                     LazyImage(
                       asInline: true,
                       data: ImageData.fileSized(
@@ -451,7 +451,7 @@ Future<void> main() async {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             LazyImage(
               asInline: true,
               data: ImageData.fileSized(
@@ -474,7 +474,7 @@ Future<void> main() async {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             LazyImage(
               asInline: true,
               data: ImageData.fileSized(
@@ -497,7 +497,7 @@ Future<void> main() async {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             LazyImage(
               asInline: true,
               data: ImageData.fileSized(

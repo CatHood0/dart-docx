@@ -3,7 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 
-class Padding extends DocxTreeNode<DocxTreeNode<dynamic>> {
+class Padding extends DocxNode<DocxNode<dynamic>> {
   Padding({
     required this.padding,
     required super.child,
@@ -23,18 +23,12 @@ class Padding extends DocxTreeNode<DocxTreeNode<dynamic>> {
     context.currentContentPart = this;
     if (child is! Row &&
         child is! Table &&
-        child.visitElement(
-                visitChildrenIfNeeded: true,
-                (DocxTreeNode<dynamic> e) => e is Row || e is Table) ==
-            null) {
-      int maxWidth =
-          context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ??
-              context.options.availablePageWidth;
+        child.visitElement(visitChildrenIfNeeded: true, (DocxNode<dynamic> e) => e is Row || e is Table) == null) {
+      int maxWidth = context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? context.options.availablePageWidth;
 
       return LayoutConstraints(
-        maxWidth:
-            maxWidth > 0 ? maxWidth - padding.all().twipsToPt().ptToDxa() : 0,
-        children: <DocxTreeNode<dynamic>>[
+        maxWidth: maxWidth > 0 ? maxWidth - padding.all().twipsToPt().ptToDxa() : 0,
+        children: <DocxNode<dynamic>>[
           Table(
             id: id,
             parent: this,
@@ -44,12 +38,9 @@ class Padding extends DocxTreeNode<DocxTreeNode<dynamic>> {
               layout: true,
               padding: padding,
             ),
-            columns: maxWidth > 0
-                ? GridColumn(width: maxWidth.toInt()).toList()
-                : GridColumn.intrintric().toList(),
+            columns: maxWidth > 0 ? GridColumn(width: maxWidth.toInt()).toList() : GridColumn.intrintric().toList(),
             rows: TableRow.one(
-              cell: child.tableCell(
-                  cellConfig: TableCellConfig.dxa(width: maxWidth)),
+              cell: child.tableCell(cellConfig: TableCellConfig.dxa(width: maxWidth)),
             ).toList(),
           )
         ],
@@ -67,14 +58,29 @@ class Padding extends DocxTreeNode<DocxTreeNode<dynamic>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  Padding copyWith({
+    DocxNode<dynamic>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    EdgeInsets? padding,
+  }) {
+    return Padding(
+      padding: padding ?? this.padding,
+      child: child ?? this.child,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     if (shouldGetElement(child)) {
       return child;
     } else if (visitChildrenIfNeeded) {
-      final DocxTreeNode? foundedEl = child.visitElement(
+      final DocxNode? foundedEl = child.visitElement(
         shouldGetElement,
         visitChildrenIfNeeded: true,
       );
@@ -86,19 +92,18 @@ class Padding extends DocxTreeNode<DocxTreeNode<dynamic>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmptyNode() ||
-        child.castOrNull<IgnorableMixin>()?.shouldIgnore() == true) {
-      return <DocxTreeNode>[];
+    if (child.isEmptyNode() || child.castOrNull<IgnorableMixin>()?.shouldIgnore() == true) {
+      return <DocxNode>[];
     }
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
     if (shouldGetElement(child)) {
       elements.add(child);
     } else if (visitChildrenIfNeeded) {
-      final List<DocxTreeNode<dynamic>>? foundedEl = child.visitAllElement(
+      final List<DocxNode<dynamic>>? foundedEl = child.visitAllElement(
         shouldGetElement,
         visitChildrenIfNeeded: true,
       );

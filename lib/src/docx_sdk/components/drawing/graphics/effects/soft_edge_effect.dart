@@ -30,22 +30,33 @@ class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
   SoftEdgeEffectComponent get copy => SoftEdgeEffectComponent(child: child);
 
   @override
+  SoftEdgeEffectComponent copyWith({
+    SoftEdgeEffect? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return SoftEdgeEffectComponent(
+      child: child ?? this.child,
+    )..parent = parent ?? this.parent;
+  }
+
+  @override
   List<XmlNode> buildXmlStyle({required DocumentContext context}) {
     return <XmlNode>[];
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     return null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
@@ -57,11 +68,9 @@ class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
 class SoftEdgeEffect {
   const SoftEdgeEffect({required this.radius});
 
-  SoftEdgeEffect.inches({required double radius})
-      : radius = radius.inchesToEmu();
+  SoftEdgeEffect.inches({required double radius}) : radius = radius.inchesToEmu();
 
-  SoftEdgeEffect.points({required double radius})
-      : radius = radius.ptToEmu();
+  SoftEdgeEffect.points({required double radius}) : radius = radius.ptToEmu();
 
   final int radius;
 }

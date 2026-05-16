@@ -37,7 +37,7 @@ import '../../../core/normalizer/auto_size_normalizer.dart';
 /// will generate a generic one.
 ///
 /// In future releases incremental editing probably will be enabled and to avoid loss images provide one
-class Image extends DocxTreeNode<ImageData<Uint8List>> {
+class Image extends DocxNode<ImageData<Uint8List>> {
   Image({
     required ImageData<Uint8List> data,
     super.parent,
@@ -79,6 +79,27 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     );
   }
 
+  @override
+  Image copyWith({
+    ImageData<Uint8List>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    int? elementId,
+    bool? asInline,
+    int? transformOffsetX,
+    int? transformOffsetY,
+  }) {
+    return Image(
+      data: child ?? this.child,
+      elementId: elementId ?? this.elementId,
+      asInline: asInline ?? this.asInline,
+      transformOffsetX: transformOffsetX ?? this.transformOffsetX,
+      transformOffsetY: transformOffsetY ?? this.transformOffsetY,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
   String get getImageName => child.name ?? '';
 
   static ImageSize getSizeForImage(
@@ -106,8 +127,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
                 bytes.cast<Uint8List>(),
               ),
       ).size;
-      final NormalizedSizeResult resultSize =
-          AutoSizeNormalizer.resizeImageBySettings(
+      final NormalizedSizeResult resultSize = AutoSizeNormalizer.resizeImageBySettings(
         size,
         pageSize?.toInches(),
         margins?.toInches(),
@@ -142,8 +162,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
     }
 
     final String? relationshipId =
-        context.mediaStore.getRelationshipIdForRef(id) ??
-            context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
+        context.mediaStore.getRelationshipIdForRef(id) ?? context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
 
     elementId ??= context.drawingStore.getIdFromRef(ref: id) ??
         // usually, the element id is computed from
@@ -174,11 +193,11 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
       child: GraphicData(
         uri: namespaces['pic']!,
         child: Picture(
-          components: <DocxTreeNode<dynamic>>[
+          components: <DocxNode<dynamic>>[
             BlipFill.pic(
               blip: Blip(embedRelId: relationshipId.toString()),
               stretch: Stretch(
-                child: <DocxTreeNode<dynamic>>[
+                child: <DocxNode<dynamic>>[
                   FillRectangle(),
                 ],
               ),
@@ -189,8 +208,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
                   x: transformOffsetX,
                   y: transformOffsetY,
                 ),
-                extents: AnnotationExtents(
-                    cx: imageSize.width, cy: imageSize.height),
+                extents: AnnotationExtents(cx: imageSize.width, cy: imageSize.height),
               ),
               presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
             ),
@@ -200,8 +218,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
                 name: imageName,
                 description: child.alt ?? imageName,
               ),
-              nonVisualPictureDrawingProperties:
-                  NonVisualPictureDrawingProperties(),
+              nonVisualPictureDrawingProperties: NonVisualPictureDrawingProperties(),
             ),
           ],
         ),
@@ -216,7 +233,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
           name: imageName,
           width: imageSize.width,
           height: imageSize.height,
-          components: <DocxTreeNode<dynamic>>[graphic],
+          components: <DocxNode<dynamic>>[graphic],
           distance: child.anchorConfig.distanceFromText,
         ).buildXml(context: context),
     ];
@@ -234,7 +251,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
 
   @override
   Image? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     return shouldGetElement(this) ? this : null;
@@ -242,7 +259,7 @@ class Image extends DocxTreeNode<ImageData<Uint8List>> {
 
   @override
   List<Image>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <Image>[this] : null;

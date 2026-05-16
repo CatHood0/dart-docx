@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents wp:extent
-class Extent extends DocxTreeNode<dynamic> {
+class Extent extends DocxNode<dynamic> {
   Extent({required this.cx, required this.cy}) : super(child: null);
 
   final num cx;
@@ -10,6 +10,16 @@ class Extent extends DocxTreeNode<dynamic> {
 
   @override
   Extent get copy => Extent(cx: cx, cy: cy);
+
+  @override
+  Extent copyWith({
+    String? id,
+    DocxNode<dynamic>? parent,
+    num? cx,
+    num? cy,
+  }) {
+    return Extent(cx: cx ?? this.cx, cy: cy ?? this.cy);
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -27,7 +37,7 @@ class Extent extends DocxTreeNode<dynamic> {
 
   @override
   List<Extent>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? [this] : null;
@@ -35,7 +45,7 @@ class Extent extends DocxTreeNode<dynamic> {
 
   @override
   Extent? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

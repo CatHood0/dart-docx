@@ -7,7 +7,7 @@ import '../../../../core/extensions/string_ext.dart';
 ///
 /// Contains identification metadata and shape-specific non-visual settings
 /// like locking constraints.
-class NonVisualShapeProperties extends DocxTreeNode<void> {
+class NonVisualShapeProperties extends DocxNode<void> {
   NonVisualShapeProperties({
     required this.name,
     required this.description,
@@ -29,7 +29,24 @@ class NonVisualShapeProperties extends DocxTreeNode<void> {
         id: id,
         name: name,
         description: description,
+        shapeLocks: shapeLocks,
       );
+
+  @override
+  NonVisualShapeProperties copyWith({
+    String? id,
+    DocxNode<void>? parent,
+    String? name,
+    String? description,
+    bool? shapeLocks,
+  }) {
+    return NonVisualShapeProperties(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      shapeLocks: shapeLocks ?? this.shapeLocks,
+    );
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -74,16 +91,16 @@ class NonVisualShapeProperties extends DocxTreeNode<void> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <NonVisualShapeProperties>[this] : null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

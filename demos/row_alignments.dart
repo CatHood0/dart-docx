@@ -117,7 +117,7 @@ Future<void> main() async {
       ),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Paragraph.text(
           text: 'Row Alignment Showcase',
           styles: <Style>[Style.ref('Title')],
@@ -194,7 +194,7 @@ Future<void> main() async {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             minHeight: 100.ptToDxa(),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               LazyImage(
                 asInline: true,
                 data: ImageData.fileSized(
@@ -206,7 +206,7 @@ Future<void> main() async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 minHeight: 50.ptToDxa(),
-                children: <DocxTreeNode<dynamic>>[
+                children: <DocxNode<dynamic>>[
                   Paragraph.text(
                       text: 'Home  ', styles: <Style>[Style.ref('Nav')]),
                   Paragraph.text(
@@ -231,7 +231,7 @@ Future<void> main() async {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             minHeight: 50.ptToDxa(),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               _buildCard('Card 1', 'Description for card 1'),
               _buildCard('Card 2', 'Description for card 2'),
               _buildCard('Card 3', 'Description for card 3'),
@@ -252,7 +252,7 @@ Future<void> main() async {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
               minHeight: 30.ptToDxa(),
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                     text: 'Name:', styles: <Style>[Style.ref('Label')]),
                 Paragraph.text(
@@ -264,7 +264,7 @@ Future<void> main() async {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
               minHeight: 30.ptToDxa(),
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                     text: 'Email:', styles: <Style>[Style.ref('Label')]),
                 Paragraph.text(
@@ -286,9 +286,9 @@ Future<void> main() async {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             minHeight: 10.ptToDxa(),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Column(
-                children: <DocxTreeNode<dynamic>>[
+                children: <DocxNode<dynamic>>[
                   Paragraph.text(
                       text: '_________________________',
                       styles: <Style>[Style.ref('SigLine')]),
@@ -338,7 +338,7 @@ Paragraph _buildMediumBox(String label) {
   return Paragraph.text(text: '$label\n', styles: <Style>[Style.ref('Box')]);
 }
 
-DocxTreeNode _buildAlignmentDemo({
+DocxNode _buildAlignmentDemo({
   required String title,
   required String description,
   required MainAxisAlignment alignment,
@@ -347,7 +347,7 @@ DocxTreeNode _buildAlignmentDemo({
     padding: EdgeInsets.all(10.ptToTwips()),
     child: Row(
       mainAxisAlignment: alignment,
-      children: <DocxTreeNode<dynamic>>[
+      children: <DocxNode<dynamic>>[
         _buildBox('Item 1'),
         _buildBox('Item 2'),
         _buildBox('Item 3'),
@@ -356,7 +356,7 @@ DocxTreeNode _buildAlignmentDemo({
   );
 }
 
-DocxTreeNode _buildCrossAlignmentDemo({
+DocxNode _buildCrossAlignmentDemo({
   required String title,
   required String description,
   required CrossAxisAlignment crossAlignment,
@@ -367,7 +367,7 @@ DocxTreeNode _buildCrossAlignmentDemo({
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: crossAlignment,
       minHeight: 40.ptToDxa(),
-      children: <DocxTreeNode<dynamic>>[
+      children: <DocxNode<dynamic>>[
         _buildTallBox('Tall'),
         _buildShortBox('Short'),
         _buildMediumBox('Medium'),
@@ -378,7 +378,7 @@ DocxTreeNode _buildCrossAlignmentDemo({
 
 Column _buildCard(String title, String description) {
   return Column(
-    children: <DocxTreeNode<dynamic>>[
+    children: <DocxNode<dynamic>>[
       Paragraph.text(text: title, styles: <Style>[Style.ref('CardTitle')]),
       Paragraph.text(text: description, styles: <Style>[Style.ref('CardBody')]),
     ],

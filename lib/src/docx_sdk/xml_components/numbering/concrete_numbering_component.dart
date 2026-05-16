@@ -55,6 +55,12 @@ class XmlConcreteNumberingComponent
             ...options.overrides.map((
               ConcreteLevelOverride ele,
             ) {
+              CompilerLogger.root.debug(
+                'Building concrete numbering '
+                'instance for ${options.abstractRefId} '
+                'with indent: ${ele.indentLevel}, '
+                'and start: ${ele.startAt}',
+              );
               return ConcreteLevelOverrideComponent(
                 indentLevel: ele.indentLevel,
                 startAt: ele.startAt,

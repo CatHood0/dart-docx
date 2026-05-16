@@ -1,8 +1,6 @@
-
 import '../../../docx.dart';
-import 'listenable_store.dart';
 
-class DocumentRelsCounterStore extends ListenableStore {
+class DocumentRelsCounterStore {
   late MediaStore mediaStore;
   int _lastId = 1;
 
@@ -32,4 +30,5 @@ class DocumentRelsCounterStore extends ListenableStore {
     count.clear();
     elements.clear();
   }
+
 }

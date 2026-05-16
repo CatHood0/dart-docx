@@ -4,9 +4,9 @@
 
 
 > [!NOTE]
-> * HTML, Markdown, plain text, and Quill Delta, are being planned to enabling structured transformations between common content formats and Word documents while preserving document semantics.
-> * Incremental editing is planned but in a lorge term. 
-> * Shape effects (e.g., shadows, gradients) are experimental at this points.
+> * HTML, Markdown, plain text, and Quill Delta, are being planned. At this point, is useless since we're still working on the bidirectional parsing.
+> * Incremental editing is partially implemented. But does not work at all points. Stuff like graphics, images and tables are still a difficult part. 
+> * Shape effects (e.g., shadows, gradients) are experimental at this points. They're like "magic" stuff that I don't at all what they do.
 
 ## Examples
 
@@ -63,13 +63,13 @@ Each example is available as runnable code under the `demos/` directory.
 ## Key Features
 
 *   **Programmatic DOCX Generation:** Create `.docx` files from scratch using an object-based Dart API.
-*   **Rich Content Support:** Insert paragraphs, formatted text (bold, italic, etc.), images, hyperlinks, page breaks, text frames, and tables.
+*   **Rich Content Support:** Insert paragraphs, formatted text (bold, italic, etc.), images, numberings, rows, columns, hyperlinks, page breaks, text frames, and tables.
 *   **Customizable Styles:** Define and apply custom paragraph and character styles to your content.
 *   **Document Properties Management:** Configure metadata such as title, author, subject, and more with no efforts.
 *   **Media Handling:** Images can be provided as raw bytes or files; relationships and media packaging are handled automatically.
 *   **Stream-Based Generation Events:** Generate documents asynchronously and monitor progress via a `Stream` of events.
 
-## Installation
+## Installation (NOT AVAILABLE YET)
 
 Add `docx` to your `pubspec.yaml` file:
 
@@ -99,7 +99,7 @@ Future<void> main() async {
       subject: 'example',
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Paragraph(
           data: <RunBase>[
             TextRun.text(
@@ -217,14 +217,14 @@ final pr = Paragraph(
     TextRun.text(text: 'bold text', styles: [BoldAttribute()]),
     TextRun.text(text: ' and '),
     TextRun.text(text: 'colored text', styles: [
-      StyleBuilder.singularC()
-          .runColor(Color(0xFF0000))
+      StyleBuilder.uc()
+          .runColor(Colors.red)
           .build(),
     ]),
     // or
     TextRun.text(text: 'bold text', bold: true),
     TextRun.text(text: ' and '),
-    TextRun.text(text: 'colored text', color: Color(0xFF0000)),
+    TextRun.text(text: 'colored text', color: Colors.red),
   ],
 )
 ```
@@ -237,7 +237,7 @@ final pr  = Paragraph.text(
   text: 'Centered Content',
   alignment: Alignment.center,
   styles: [
-    StyleBuilder.singularP()
+    StyleBuilder.up()
         .spacing(before: 240, after: 120, line: 360)
         .build(),
   ],
@@ -261,7 +261,7 @@ Paragraph indentation can be controlled for first line, left, right, and hanging
 final pr = Paragraph.text(
   text: 'Indented paragraph content',
   styles: [
-    StyleBuilder.singularP()
+    StyleBuilder.up()
         .indent(firstLine: 720, left: 1440)
         .build(),
   ],
@@ -284,7 +284,7 @@ The system provides control over line breaks, page breaks, and text flow. Paragr
 final pr = Paragraph.text(
   text: 'Important paragraph that should not break',
   styles: [
-    StyleBuilder.singularP()
+    StyleBuilder.up()
         .keepLines(true)
         .keepNext(true)
         .build(),
@@ -316,7 +316,38 @@ final pr = Paragraph.text(
 );
 ```
 
-See more about in [Numbering definition](./docs/numbering_internals.md)
+Or, if you want to leave us all the boring stuff, you can just use `NumberingList`:
+
+_`NumberingList` natively manages references, id, and indentation levels. It only support these types: `Paragraph`, `Text`, `TextRun`, `HyperlinkRun` and others `NumberingList` nested. It manages automatically the indentation level using the context and `<node>.getAncestorOfExactType` to get always the exact level where a `ǸumberingList` is. Every time that you define a new `NumberingList` instance, the count is restarted to "1" (depends on the `NumberingOptions` specified, but you probably already get what I'm trying to say)_
+
+```dart
+final list = NumberingList(
+  refKey: '<your-list-key>',
+  children: [
+    Text('First ordered element'),
+    Text('Second ordered element'),
+    Paragraph.text(text: '3rd ordered element'),
+    // inherit constructor allow to the component to know
+    // that needs to search into the context to get
+    // the most parent NumberingList that contains a defined
+    // key to be used
+    //
+    // Level 2
+    NumberingList.inherit(
+      children: [
+        Text('First nested element'),
+        // Level 3
+        NumberingList.inheritOne(
+          child: Text('Second nested element'),
+        ),
+      ],
+    ),
+  ],
+),
+
+```
+
+See more about in [Numbering definition](./docs/numbering_internals.md) and an example of this in [Numbering Demo](./demos/numbering.dart)
 
 
 ### Images anchoring
@@ -487,7 +518,7 @@ Tables and individual cells support comprehensive border styling with configurab
 ```dart
 final config = TableProperties(
   borders: TableBorders(
-    top: TableBorder(style: BorderStyle.double, size: 8, color: Color(0xFF0000)),
+    top: TableBorder(style: BorderStyle.double, size: 8, color: Colors.red),
     bottom: TableBorder(style: BorderStyle.dashed, size: 4),
     insideHorizontal: TableBorder(style: BorderStyle.dotted),
   ),
@@ -496,7 +527,7 @@ final config = TableProperties(
 // Or use
 final config2 = TableProperties(
   borders: TableBorders.symmetric(
-    vertical: TableBorder(style: BorderStyle.double, size: 8, color: Color(0xFF0000)),
+    vertical: TableBorder(style: BorderStyle.double, size: 8, color: Colors.red),
     insideHorizontal: TableBorder(style: BorderStyle.dotted),
   ),
 );
@@ -504,7 +535,7 @@ final config2 = TableProperties(
 // Or
 final config3 = TableProperties(
   borders: TableBorders.all(
-    TableBorder(style: BorderStyle.double, size: 8, color: Color(0xFF0000)),
+    TableBorder(style: BorderStyle.double, size: 8, color: Colors.red),
   ),
 );
 ```
@@ -535,16 +566,44 @@ final cellConfig = TableCellConfig(
 )
 ```
 
-Table rows support configurable height with three height rules: automatic (based on content), at-least (minimum height with expansion), and exact (fixed height regardless of content). Rows can be prevented from splitting across page boundaries and can be designated as repeating headers for multi-page tables.
+`TableRow` supports configurable height with 3 different height rules: 
+    - automatic: based on content.
+    - at-least: take the height specified, and expands itself just when required. 
+    - exact: fixed height regardless of content. 
+
 
 #### Example: Row with fixed height and page break protection
+
+Rows can be prevented from splitting across page boundaries and can be designated as repeating headers for multi-page tables.
+
 ```dart
 final row = TableRow(
-  rowConfig: TableStyleBuilder.singularTable().rowProperties(
-    height: 1008,
-    heightRule: TableHeightRule.exact,
-    cantSplit: true,
-  ),
+  heightRule: TableHeightRule.exact,
+  height: 1008,
+  canSplit: false,
+  cells: [/* cell definitions */],
+)
+```
+
+#### Example: Header Row 
+
+Commonly used to separate header cells from the content of the table
+
+```dart
+final row = TableRow.header(
+  cells: [/* cell definitions */],
+)
+```
+
+#### Example: Aligned Row 
+
+`TableRow` only supported: `left`, `center` and `right` alignments, other ones will throw an `Exception`.
+
+_**Note:** if you have an `Align` wrapping your `Table` at some point, `TableRow` will get that alignment and applies it to its content_
+
+```dart
+final row = TableRow(
+  alignment: Alignment.left, 
   cells: [/* cell definitions */],
 )
 ```
@@ -569,7 +628,7 @@ Controls how children are distributed horizontally within the row:
 final r = Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
   crossAxisAlignment: CrossAxisAlignment.center,
-  children: <DocxTreeNode<dynamic>>[
+  children: <DocxNode<dynamic>>[
     LazyImage(
       asInline: true,
       data: ImageData.fileSized(
@@ -580,7 +639,7 @@ final r = Row(
     ).drawing().run().paragraph(),
     Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      children: <DocxTreeNode<dynamic>>[
+      children: <DocxNode<dynamic>>[
         Paragraph.text(text: 'Home  '),
         Paragraph.text(text: 'About  '),
         Paragraph.text(text: 'Contact'),
@@ -595,7 +654,7 @@ final r = Row(
 ```dart
 final row = Row(
   mainAxisAlignment: MainAxisAlignment.center,
-  children: <DocxTreeNode<dynamic>>[
+  children: <DocxNode<dynamic>>[
     LazyImage(...).drawing().run().paragraph(),
     Paragraph.text(text: 'Centered Content'),
     LazyImage(...).drawing().run().paragraph(),
@@ -617,7 +676,7 @@ Controls vertical positioning when children have different heights:
 final row = Row(
   mainAxisAlignment: MainAxisAlignment.start,
   crossAxisAlignment: CrossAxisAlignment.center,
-  children: <DocxTreeNode<dynamic>>[
+  children: <DocxNode<dynamic>>[
     LazyImage(...).drawing().run().paragraph(),
     Paragraph.text(
       text: 'This text is vertically centered with the image.',
@@ -635,7 +694,7 @@ final row = Row(
   width: 200.ptToDxa(),
   mainAxisAlignment: MainAxisAlignment.start,
   crossAxisAlignment: CrossAxisAlignment.start,
-  children: <DocxTreeNode<dynamic>>[
+  children: <DocxNode<dynamic>>[
     Column(children: [Paragraph.text(text: 'Column 1')]),
     Column(children: [Paragraph.text(text: 'Column 2')]),
     Column(children: [Paragraph.text(text: 'Column 3')]),
@@ -650,13 +709,13 @@ Rows can be nested to create complex layouts like grids or cards with multiple s
 ```dart
 final row = Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: <DocxTreeNode<dynamic>>[
+  children: <DocxNode<dynamic>>[
     Column(
-      children: <DocxTreeNode<dynamic>>[
+      children: <DocxNode<dynamic>>[
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             LazyImage(...).drawing().run().paragraph(),
             Paragraph.text(text: 'Feature 1'),
           ],
@@ -665,11 +724,11 @@ final row = Row(
       ],
     ),
     Column(
-      children: <DocxTreeNode<dynamic>>[
+      children: <DocxNode<dynamic>>[
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             LazyImage(...).drawing().run().paragraph(),
             Paragraph.text(text: 'Feature 2'),
           ],
@@ -691,7 +750,7 @@ The `Column` component is a container that groups multiple elements vertically. 
 
 ```dart
 final column = Column(
-  children: <DocxTreeNode<dynamic>>[
+  children: <DocxNode<dynamic>>[
     Paragraph.text(text: 'First paragraph'),
     Paragraph.text(text: 'Second paragraph'),
     Paragraph.text(text: 'Third paragraph'),
@@ -793,7 +852,7 @@ The `Text` component works seamlessly with `Row` for simple horizontal layouts:
 final row = Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
   minHeight: 5.ptToDxa(),
-  children: <DocxTreeNode<dynamic>>[
+  children: <DocxNode<dynamic>>[
     Text('Left'),
     Text('Center'),
     Text('Right'),
@@ -808,6 +867,9 @@ final row = Row(
 _Under active development_
 
 ## Style Customization
+
+> [!IMPORTANT]
+> This section is outdated. I'm working to update this part with the recent API changes.
 
 `docx` provides a flexible system for defining custom Word styles that are reflected in `word/styles.xml`. This is achieved through the `Style` and `StyleConfigurator` classes.
 
@@ -835,7 +897,7 @@ final Style customRedCenteredParagraph = StyleBuilder.paragraph('CustomRedCenter
     .name('Red Centered Paragraph')
     .basedOn('Normal') // Based on common "Normal" style 
     .next('Normal') // Next paragraph must have applied normal paragraph 
-    .color(Color(0xFF0000) 
+    .color(Colors.grey) 
     .fontSize(12.ptToHalfPoints()) // Font size of 12pt
     .bold() 
     .alignment(Alignment.center)
@@ -1034,7 +1096,7 @@ final DocxDocument document = DocxDocument(
      author: 'yeah-me',
      settings: customDocSettings,
    ),
-   root: DocumentRoot(sections: <DocxTreeNode<dynamic>>[]),
+   root: DocumentRoot(sections: <DocxNode<dynamic>>[]),
 );
  
 ```

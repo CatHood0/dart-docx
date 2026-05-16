@@ -29,8 +29,8 @@ class MediaStore {
   final Map<String, MediaData> media = <String, MediaData>{};
 
   /// Stores discovered media components ([FloatingImage], [LazyFloatingImage]), keyed by their internal ID.
-  final Map<String, DocxTreeNode<ImageData<dynamic>>> mediaComponents =
-      <String, DocxTreeNode<ImageData<dynamic>>>{};
+  final Map<String, DocxNode<ImageData<dynamic>>> mediaComponents =
+      <String, DocxNode<ImageData<dynamic>>>{};
 
   final List<XmlOverrideElementTypeComponent> overrides =
       <XmlOverrideElementTypeComponent>[];
@@ -58,37 +58,37 @@ class MediaStore {
     Set<String> supportedFileExtensions = const <String>{},
   ]) {
     //TODO: use parent methods of DocumentRoot
-    for (final DocxTreeNode parent in data.root.child) {
-      CompilerLogger.root.d(
+    for (final DocxNode parent in data.root.child) {
+      CompilerLogger.root.debug(
         'Discovering images in '
         'parent ${parent.runtimeType}:${parent.id}',
       );
       // since we can have multiple images in one element,
       // we need to get all of them
-      final List<DocxTreeNode<dynamic>> images = parent.visitAllElement(
+      final List<DocxNode<dynamic>> images = parent.visitAllElement(
             visitChildrenIfNeeded: true,
-            (DocxTreeNode<dynamic> el) {
+            (DocxNode<dynamic> el) {
               return el.child is ImageData &&
                   supportedFileExtensions.contains(
                     el.child.extension,
                   );
             },
           ) ??
-          <DocxTreeNode<dynamic>>[];
+          <DocxNode<dynamic>>[];
       if (images.isNotEmpty) {
         // sorry, i know that at this point, this is a classic O(n^2)
         // but its so boring making another solution at this moment of my
         // life
         images.forEach((image) {
-          final DocxTreeNode<ImageData<Object>> imageComponent = image
+          final DocxNode<ImageData<Object>> imageComponent = image
               .visitElement(
                   visitChildrenIfNeeded: true,
                   (
-                    DocxTreeNode<dynamic> el,
+                    DocxNode<dynamic> el,
                   ) =>
                       el.child is ImageData<Object>)!
-              .cast<DocxTreeNode<ImageData<Object>>>();
-          CompilerLogger.root.d(
+              .cast<DocxNode<ImageData<Object>>>();
+          CompilerLogger.root.debug(
             'Registering ${imageComponent.id} of path ${imageComponent.child.buffer.castOrNull<File>() ?? 'Unknown'}',
           );
           mediaComponents[imageComponent.id] = imageComponent;
@@ -98,7 +98,7 @@ class MediaStore {
     }
 
     CompilerLogger.root
-        .i('End discover with ${mediaComponents.length} elements');
+        .info('End discover with ${mediaComponents.length} elements');
   }
 
   /// Registers discovered media components, loads lazy images (if applicable),
@@ -122,18 +122,18 @@ class MediaStore {
     final List<RelationShip> imageRelationships = <RelationShip>[];
 
     for (int index = 0; index < mediaComponents.values.length; index++) {
-      final DocxTreeNode<ImageData<dynamic>> imgComponent =
+      final DocxNode<ImageData<dynamic>> imgComponent =
           mediaComponents.values.elementAt(index);
       onProgress?.call(index + 1, mediaComponents.values.length);
 
-      CompilerLogger.root.d(
+      CompilerLogger.root.debug(
         'Building image relation for $index ${imgComponent.id}',
       );
 
       // Skip when required
       if (imgComponent is IgnorableMixin &&
           (imgComponent as IgnorableMixin).shouldIgnore()) {
-        CompilerLogger.root.d(
+        CompilerLogger.root.debug(
           'Ignored ${imgComponent.id}',
         );
         continue;
@@ -142,7 +142,7 @@ class MediaStore {
       // Increment RId for each new image relationship
       final int currentRId = docRelsStore.getNextId(imgComponent.id);
       // Assign unique rId to the component
-      CompilerLogger.root.d(
+      CompilerLogger.root.debug(
         'Generated Relation ID for ${imgComponent.id}: $currentRId',
       );
 
@@ -153,7 +153,7 @@ class MediaStore {
         isImage: true,
       );
 
-      CompilerLogger.root.d(
+      CompilerLogger.root.debug(
         'Generated Media Name for ${imgComponent.id}: $generatedMediaName',
       );
 
@@ -176,7 +176,7 @@ class MediaStore {
       // Store MediaData by its generated name
       media[generatedMediaName] = mediaData;
 
-      CompilerLogger.root.d(
+      CompilerLogger.root.debug(
         'Stored ${imgComponent.id} => $generatedMediaName',
       );
 
@@ -185,7 +185,7 @@ class MediaStore {
       final String fullPath =
           '$mediaPath${mediaData.fileName}.${mediaData.extension}';
 
-      CompilerLogger.root.d(
+      CompilerLogger.root.debug(
         'Full path of ${imgComponent.id} => $fullPath',
       );
 
@@ -253,7 +253,7 @@ class MediaStore {
   /// [imageRefId]: the same, but in string way. Something as: `rId$assignedId`
   int? getAssignedIdForRef(String imageRefId) {
     if (mediaComponents[imageRefId] != null) {
-      final DocxTreeNode<ImageData<dynamic>>? component =
+      final DocxNode<ImageData<dynamic>>? component =
           mediaComponents[imageRefId];
       if (component == null) return null;
       assert(component.rId != null,
@@ -285,7 +285,7 @@ class MediaStore {
   /// Gets the raw `rId` that was inserted in document.xml.rels
   String? getRelationshipIdForRef(String imageRefId) {
     if (mediaComponents[imageRefId] != null) {
-      final DocxTreeNode<ImageData<dynamic>>? component =
+      final DocxNode<ImageData<dynamic>>? component =
           mediaComponents[imageRefId];
       if (component == null) return null;
       assert(component.rId != null,

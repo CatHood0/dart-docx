@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
-import '../shared/fill.dart';
 
 // Represents pic:blipFill
 class BlipFill extends Fill<void> {
@@ -38,6 +37,22 @@ class BlipFill extends Fill<void> {
       );
 
   @override
+  BlipFill copyWith({
+    String? id,
+    DocxNode<void>? parent,
+    String? name,
+    Blip? blip,
+    Stretch? stretch,
+  }) {
+    return BlipFill(
+      name: name ?? this.name,
+      blip: blip ?? this.blip.copy,
+      stretch: stretch ?? this.stretch.copy,
+      id: id ?? this.id,
+    )..parent = parent ?? this.parent;
+  }
+
+  @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     return <XmlElement>[
       XmlElement.tag(
@@ -52,29 +67,25 @@ class BlipFill extends Fill<void> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     if (!visitChildrenIfNeeded) return null;
-    return blip.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        stretch.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return blip.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        stretch.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return blip.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        stretch.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return blip.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        stretch.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override

@@ -19,6 +19,9 @@ import '../xml_components/themes/xml_theme_component.dart';
 import '../xml_components/web_settings/xml_web_settings_component.dart';
 import '../xml_components/xml_content_type_component.dart';
 
+// TODO: should we do something like a "runApp" but for this?
+//  We need to take in account stuff like BuildContext and how works the Widgets 
+// lifecycle
 /// Core compiler that transforms [DocxDocument] objects into .docx files.
 ///
 /// This class orchestrates the entire document compilation process, including:
@@ -129,9 +132,9 @@ class DocxCompiler {
   }) async {
     config.init();
 
-    CompilerLogger.root.i('Starting Docx compilation process.');
+    CompilerLogger.root.info('Starting Docx compilation process.');
     if (document.root.isEmpty) {
-      CompilerLogger.root.e('Document content is empty. Aborting compilation.');
+      CompilerLogger.root.error('Document content is empty. Aborting compilation.');
       _emit(DocxEvent.end(error: 'Document content is empty'));
       return null;
     }
@@ -142,6 +145,7 @@ class DocxCompiler {
     _emit(DocxEvent.start());
     await archive.clear();
 
+    NumberingList.clearReferences();
     docRelsStore.reset();
     mediaStore.reset();
     hyperlinkStore.reset();
@@ -155,7 +159,7 @@ class DocxCompiler {
 
     final DocumentContext documentContext = buildContext(options);
 
-    CompilerLogger.root.d('Document context built successfully.');
+    CompilerLogger.root.debug('Document context built successfully.');
 
     if (applyNormalStyleIfNeeded) {
       assert(
@@ -163,12 +167,12 @@ class DocxCompiler {
         'The style "${defaultNormalStyle.styleId}" not '
         'exist in your DocumentStylesSheet',
       );
-      CompilerLogger.root.d('Normal style check passed.');
+      CompilerLogger.root.debug('Normal style check passed.');
     }
 
     final List<PageColumn>? columns = document.root.visitAllElement(
       visitChildrenIfNeeded: false,
-      (DocxTreeNode<dynamic> el) {
+      (DocxNode<dynamic> el) {
         return el is PageColumn;
       },
     )?.cast();
@@ -177,9 +181,9 @@ class DocxCompiler {
       int index = 0;
       for (final PageColumn column in columns) {
         if (index > 0) {
-          final DocxTreeNode<dynamic>? paragraph = column.child.firstOrNull;
+          final DocxNode<dynamic>? paragraph = column.child.firstOrNull;
           if (paragraph == null || paragraph is! Paragraph) {
-            CompilerLogger.root.i(
+            CompilerLogger.root.info(
               'Inserting column '
               'break in element at $index by no '
               'existent paragraph',
@@ -193,7 +197,7 @@ class DocxCompiler {
             );
             break;
           }
-          CompilerLogger.root.i(
+          CompilerLogger.root.info(
             'Inserting column '
             'break in first '
             'element of the column at $index',
@@ -206,15 +210,16 @@ class DocxCompiler {
 
     final bool hasNumberingUsage = document.root.visitElement(
           visitChildrenIfNeeded: true,
-          (DocxTreeNode<dynamic> el) {
-            return el is Paragraph && el.cast<Paragraph>().numbering != null;
+          (DocxNode<dynamic> el) {
+            return el is Paragraph && el.cast<Paragraph>().numbering != null ||
+                el is NumberingList;
           },
         ) !=
         null;
 
     numberingStore.initializeAndApplyContext(documentContext);
 
-    CompilerLogger.root.d('Numbering store initialized.');
+    CompilerLogger.root.debug('Numbering store initialized.');
     final List<RelationShip> defaultDocRelations =
         XmlDocumentRelsComponent.defaultDocumentFileRelations(
       applyCustomTheme,
@@ -223,52 +228,52 @@ class DocxCompiler {
     );
 
     _emit(DocxEvent.searching(subject: 'Searching media (images)'));
-    CompilerLogger.root.d('Initiating media search.');
+    CompilerLogger.root.debug('Initiating media search.');
     mediaStore.discoverMedia(document, supportedFileExtensions);
-    CompilerLogger.root.d(
+    CompilerLogger.root.debug(
         'Media search completed. Found ${mediaStore.mediaComponents.length} images.');
 
     _emit(DocxEvent.searching(subject: 'Searching hyperlinks'));
-    CompilerLogger.root.d('Initiating hyperlink search.');
+    CompilerLogger.root.debug('Initiating hyperlink search.');
     hyperlinkStore.discoverHyperlinks(document);
-    CompilerLogger.root.d(
+    CompilerLogger.root.debug(
         'Hyperlink search completed. Found ${hyperlinkStore.hyperlinks.length} hyperlinks.');
 
     // Discover fonts (either dynamically or from DocumentOptions)
     _emit(DocxEvent.searching(subject: 'Discovering fonts'));
-    CompilerLogger.root.d('Initiating font discovery.');
+    CompilerLogger.root.debug('Initiating font discovery.');
     fontStore.discoverFonts(
       document,
       dynamicSearchEnabled: dynamicFontSearch,
     );
-    CompilerLogger.root.d(
+    CompilerLogger.root.debug(
         'Font discovery completed. Found ${fontStore.hasFonts ? fontStore.fonts.length : 0} fonts.');
 
     _emit(DocxEvent.unknownProgress(subject: 'Registering images'));
     // this part register all the media allow context
     // and different part of the nodes
     // to access to image references
-    CompilerLogger.root.d('Registering images and building relationships.');
+    CompilerLogger.root.debug('Registering images and building relationships.');
     final List<RelationShip> imageRelationships =
         await mediaStore.registerAndBuildImageRelationships(
       namespaces['images']!,
     );
     CompilerLogger.root
-        .d('Image relationships built. Count: ${imageRelationships.length}.');
+        .debug('Image relationships built. Count: ${imageRelationships.length}.');
 
     // Update lastRId after adding images
     _emit(DocxEvent.unknownProgress(subject: 'Registering links'));
-    CompilerLogger.root.d('Registering hyperlinks and building relationships.');
+    CompilerLogger.root.debug('Registering hyperlinks and building relationships.');
     final List<RelationShip> hyperlinkRelationships =
         hyperlinkStore.buildHyperlinkRelationships(
       namespaces['hyperlinks']!,
     );
 
-    CompilerLogger.root.d(
+    CompilerLogger.root.debug(
         'Hyperlink relationships built. Count: ${hyperlinkRelationships.length}.');
 
     String? theme;
-    CompilerLogger.root.d('Building XML components.');
+    CompilerLogger.root.debug('Building XML components.');
 
     final List<XmlComponentBase> components = <XmlComponentBase<dynamic>>[
       XmlContentTypeComponent(
@@ -301,7 +306,7 @@ class DocxCompiler {
       // build file
       XmlDocumentComponent(
         body: XmlBodyComponent(
-          document: document,
+          body: document.root,
           themeId: theme,
         ),
       ),
@@ -320,7 +325,7 @@ class DocxCompiler {
       final XmlComponentBase<dynamic> comp = components[i];
       final String path = components[i].path;
       CompilerLogger.root
-          .d('Building named ${comp.name} component to - "$path"');
+          .debug('Building named ${comp.name} component to - "$path"');
       if (comp is XmlDocumentRelsComponent &&
           comp.path == DocxPaths.documentXmlRelsFilePath &&
           applyCustomTheme) {
@@ -335,10 +340,10 @@ class DocxCompiler {
         path,
       );
     }
-    CompilerLogger.root.d('All XML components built and added to archive.');
+    CompilerLogger.root.debug('All XML components built and added to archive.');
 
     if (mediaStore.media.isNotEmpty) {
-      CompilerLogger.root.d(
+      CompilerLogger.root.debug(
           'Saving media files to archive. Total: ${mediaStore.media.length}');
       await for (final (int, int) el in mediaStore.saveMedia(archive)) {
         _emit(DocxEvent.progress(
@@ -346,16 +351,16 @@ class DocxCompiler {
           current: el.$1,
           total: el.$2,
         ));
-        CompilerLogger.root.d('Media saving progress: ${el.$1}/${el.$2}');
+        CompilerLogger.root.debug('Media saving progress: ${el.$1}/${el.$2}');
       }
-      CompilerLogger.root.d('Media files saved.');
+      CompilerLogger.root.debug('Media files saved.');
     }
 
     if (fontStore.hasFonts) {
       _emit(DocxEvent.unknownProgress(
         subject: 'Adding embedded font files',
       ));
-      CompilerLogger.root.d('Adding embedded font files to archive.');
+      CompilerLogger.root.debug('Adding embedded font files to archive.');
       await for (void _ in fontStore.addEmbeddedFontFilesToArchive(
         archive,
       )) {
@@ -365,17 +370,17 @@ class DocxCompiler {
         //   total: el.$2,
         // ));
       }
-      CompilerLogger.root.d('Embedded font files added.');
+      CompilerLogger.root.debug('Embedded font files added.');
     }
 
     try {
-      CompilerLogger.root.i('Docx compilation completed successfully.');
+      CompilerLogger.root.info('Docx compilation completed successfully.');
       _emit(DocxEvent.end(result: archive));
       _eventController.close();
       _eventController = StreamController<DocxEvent>.broadcast();
       return archive;
     } catch (e, s) {
-      CompilerLogger.root.e(
+      CompilerLogger.root.error(
         'Docx compilation failed: $e',
         e,
         s,
@@ -394,7 +399,7 @@ class DocxCompiler {
   ) {
     final xml.XmlDocument document = generateXmlDocument();
     if (config.shouldLogPhase(phaseName)) {
-      CompilerLogger.root.i(
+      CompilerLogger.root.info(
           'XML Content for $phaseName:\n${document.toXmlString(pretty: true)}');
     }
     archive.add(

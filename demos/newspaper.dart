@@ -37,14 +37,14 @@ Future<void> main() async {
       styles: DocumentStyles.base(),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Paragraph(
           children: <RunBase<dynamic>>[
             TextRun.text(
               text: 'THE DAILY NEWS',
               styles: <Object>[
                 BoldAttribute(),
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontSize(28.ptToHalfPoints())
                     .fontFamily('Georgia')
                     .build(),
@@ -53,7 +53,7 @@ Future<void> main() async {
           ],
           alignment: Alignment.center,
           styles: <Style>[
-            StyleBuilder.singularP().spacing(after: 10.ptToTwips()).build(),
+            StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
           ],
         ),
 
@@ -63,7 +63,7 @@ Future<void> main() async {
               text: 'Monday, January 15, 2024  |  Volume CXXIII, No. 42',
               styles: <Object>[
                 ItalicAttribute(),
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontSize(10.ptToHalfPoints())
                     .fontFamily('Georgia')
                     .build(),
@@ -72,7 +72,7 @@ Future<void> main() async {
           ],
           alignment: Alignment.center,
           styles: <Style>[
-            StyleBuilder.singularP().spacing(after: 4.ptToTwips()).build(),
+            StyleBuilder.up().spacing(after: 4.ptToTwips()).build(),
           ],
         ),
 
@@ -81,7 +81,7 @@ Future<void> main() async {
         Paragraph.text(
           text: '_______________________________________________',
           styles: <Style>[
-            StyleBuilder.singularP()
+            StyleBuilder.up()
                 .alignment(Alignment.center)
                 .spacing(after: 5.ptToTwips())
                 .build(),
@@ -97,7 +97,7 @@ Future<void> main() async {
               text: 'MAJOR BREAKTHROUGH IN RENEWABLE ENERGY RESEARCH',
               styles: <Object>[
                 BoldAttribute(),
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontSize(22.ptToHalfPoints())
                     .fontFamily('Georgia')
                     .build(),
@@ -106,7 +106,7 @@ Future<void> main() async {
           ],
           alignment: Alignment.center,
           styles: <Style>[
-            StyleBuilder.singularP()
+            StyleBuilder.up()
                 .spacing(before: 5.ptToTwips(), after: 7.ptToTwips())
                 .build(),
           ],
@@ -119,7 +119,7 @@ Future<void> main() async {
               text: 'Scientists announce revolutionary solar cell technology',
               styles: <Object>[
                 ItalicAttribute(),
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontSize(12.ptToHalfPoints())
                     .fontFamily('Georgia')
                     .build(),
@@ -128,7 +128,7 @@ Future<void> main() async {
           ],
           alignment: Alignment.center,
           styles: <Style>[
-            StyleBuilder.singularP().spacing(after: 10.ptToTwips()).build(),
+            StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
           ],
         ),
 
@@ -136,7 +136,7 @@ Future<void> main() async {
         Paragraph.text(
           text: 'By Jane Smith, Science Editor',
           styles: <Style>[
-            StyleBuilder.singularP()
+            StyleBuilder.up()
                 .fontSize(9.ptToHalfPoints())
                 .fontFamily('Georgia')
                 .alignment(Alignment.center)
@@ -146,14 +146,14 @@ Future<void> main() async {
         ),
 
         Column(
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             // Article 1: Main Story
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _article1Paragraph1,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -161,7 +161,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(after: 5.ptToTwips())
                     .indent(firstLine: 0.5.inchesToTwips())
                     .build(),
@@ -172,7 +172,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: _article1Paragraph2,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -180,7 +180,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 5.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
               ],
             ),
             Paragraph(
@@ -188,7 +188,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: _article1Paragraph3,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -196,7 +196,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 5.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
               ],
             ),
 
@@ -207,7 +207,7 @@ Future<void> main() async {
                   text: 'LOCAL NEWS',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(12.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -215,7 +215,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(before: 1.ptToTwips(), after: 5.ptToTwips())
                     .build(),
               ],
@@ -228,7 +228,7 @@ Future<void> main() async {
                   text: 'City Council Approves New Park Project',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(11.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -236,7 +236,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 5.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
               ],
             ),
             Paragraph(
@@ -244,7 +244,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: _localNewsText1,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -252,7 +252,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 5.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
               ],
             ),
 
@@ -263,7 +263,7 @@ Future<void> main() async {
                   text: 'School District Announces Summer Programs',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(11.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -271,7 +271,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 5.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
               ],
             ),
             Paragraph(
@@ -279,7 +279,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: _localNewsText2,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -287,7 +287,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 5.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
               ],
             ),
 
@@ -298,7 +298,7 @@ Future<void> main() async {
                   text: 'SPORTS',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(12.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -306,7 +306,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(before: 3.ptToTwips(), after: 5.ptToTwips())
                     .build(),
               ],
@@ -317,7 +317,7 @@ Future<void> main() async {
                   text: 'Tigers Win Championship Game',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(11.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -325,7 +325,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(before: 10.ptToTwips(), after: 5.ptToTwips())
                     .build(),
               ],
@@ -335,7 +335,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: _sportsText1,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -343,14 +343,14 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 10.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
               ],
             ),
           ],
         ),
 
         Column(
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             // Weather Box
             _buildWeatherBox(),
 
@@ -360,7 +360,7 @@ Future<void> main() async {
                   text: 'OPINION',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(12.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -368,7 +368,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(before: 10.ptToTwips(), after: 5.ptToTwips())
                     .build(),
               ],
@@ -380,7 +380,7 @@ Future<void> main() async {
                   styles: <Object>[
                     BoldAttribute(),
                     ItalicAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(11.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -388,7 +388,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(before: 20.ptToTwips(), after: 10.ptToTwips())
                     .build(),
               ],
@@ -398,7 +398,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: _opinionText1,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -406,7 +406,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 10.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
               ],
             ),
 
@@ -417,7 +417,7 @@ Future<void> main() async {
                   text: 'BUSINESS',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(12.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -425,7 +425,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(before: 20.ptToTwips(), after: 5.ptToTwips())
                     .build(),
               ],
@@ -436,7 +436,7 @@ Future<void> main() async {
                   text: 'Stock Market Reaches New Highs',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(11.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -444,7 +444,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(before: 10.ptToTwips(), after: 10.ptToTwips())
                     .build(),
               ],
@@ -454,7 +454,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: _businessText1,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -462,7 +462,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 10.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
               ],
             ),
 
@@ -473,7 +473,7 @@ Future<void> main() async {
                   text: 'CLASSIFIEDS',
                   styles: <Object>[
                     BoldAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(12.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -481,7 +481,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(before: 20.ptToTwips(), after: 10.ptToTwips())
                     .build(),
               ],
@@ -491,7 +491,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: _classifiedsText,
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(10.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -499,7 +499,7 @@ Future<void> main() async {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP().spacing(after: 5.ptToTwips()).build(),
+                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
               ],
             ),
 
@@ -629,7 +629,7 @@ Table _buildQuoteBox() {
                   text: '"The best way to predict the future is to create it."',
                   styles: <Object>[
                     ItalicAttribute(),
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(11.ptToHalfPoints())
                         .fontFamily('Georgia')
                         .build(),
@@ -637,7 +637,7 @@ Table _buildQuoteBox() {
                 ),
               ],
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .alignment(Alignment.left)
                     .spacing(before: 12.ptToTwips(), after: 5.ptToTwips())
                     .build(),

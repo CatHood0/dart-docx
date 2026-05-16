@@ -28,7 +28,7 @@ import '../../../core/normalizer/auto_size_normalizer.dart';
 ///   ),
 /// );
 /// ```
-class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
+class FloatingImage extends DocxNode<ImageData<Uint8List>> {
   FloatingImage({
     required ImageData<Uint8List> data,
     super.parent,
@@ -51,6 +51,23 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
   final int transformOffsetY;
 
   String get getImageName => child.name ?? '';
+
+  @override
+  FloatingImage copyWith({
+    ImageData<Uint8List>? data,
+    int? transformOffsetX,
+    int? transformOffsetY,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return FloatingImage(
+      data: data ?? child,
+      transformOffsetX: transformOffsetX ?? this.transformOffsetX,
+      transformOffsetY: transformOffsetY ?? this.transformOffsetY,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -138,7 +155,7 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
 
   @override
   FloatingImage? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     return shouldGetElement(this) ? this : null;
@@ -146,7 +163,7 @@ class FloatingImage extends DocxTreeNode<ImageData<Uint8List>> {
 
   @override
   List<FloatingImage>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <FloatingImage>[this] : null;

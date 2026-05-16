@@ -16,6 +16,15 @@ class SolidFill extends Fill<Color> {
   SolidFill get copy => SolidFill(color: child.copy);
 
   @override
+  SolidFill copyWith({
+    String? id,
+    DocxNode<Color>? parent,
+    Color? color,
+  }) {
+    return SolidFill(color: color ?? child.copy);
+  }
+
+  @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     return <XmlElement>[
       XmlElement.tag(
@@ -31,11 +40,11 @@ class SolidFill extends Fill<Color> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     if (!visitChildrenIfNeeded) return null;
     return child.visitAllElement(
       shouldGetElement,
@@ -44,8 +53,8 @@ class SolidFill extends Fill<Color> {
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;

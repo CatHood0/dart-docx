@@ -25,7 +25,7 @@ import '../../../../../core/extensions/string_ext.dart';
 ///   ],
 /// ),
 /// ```
-class TableRow extends DocxTreeNode<List<TableCell>> {
+class TableRow extends DocxNode<List<TableCell>> {
   TableRow({
     required Iterable<TableCell> cells,
     this.canSplit,
@@ -205,9 +205,11 @@ class TableRow extends DocxTreeNode<List<TableCell>> {
   @override
   List<XmlNode> buildXmlStyle({required DocumentContext context}) {
     final Alignment? align =
-        context.getAncestorOfExactType<Align>()?.alignment ?? alignment;
-    assert(align == null || align.isCenterLeftOrRight(),
-        'TableRow alignment only supports: left, center and right. Found: "${align.name}"');
+        alignment ?? context.getAncestorOfExactType<Align>()?.alignment;
+    assert(
+      align == null || align.isCenterLeftOrRight(),
+      'TableRow alignment only supports: left, center and right. Found: "${align.name}"',
+    );
     return <XmlElement>[
       if (canSplit != null)
         // it's so annoying how they select the names
@@ -279,15 +281,42 @@ class TableRow extends DocxTreeNode<List<TableCell>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  TableRow copyWith({
+    Iterable<TableCell>? cells,
+    String? id,
+    DocxNode<dynamic>? parent,
+    bool? canSplit,
+    bool? hidden,
+    int? height,
+    TableHeightRule? heightRule,
+    Alignment? alignment,
+    bool? isHeader,
+    int? spacing,
+  }) {
+    return TableRow(
+      cells: cells ?? this.child,
+      canSplit: canSplit ?? this.canSplit,
+      hidden: hidden ?? this.hidden,
+      height: height ?? this.height,
+      heightRule: heightRule ?? this.heightRule,
+      alignment: alignment ?? this.alignment,
+      isHeader: isHeader ?? this.isHeader,
+      spacing: spacing ?? this.spacing,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     for (final TableCell element in child) {
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -300,17 +329,17 @@ class TableRow extends DocxTreeNode<List<TableCell>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode>[];
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
+    if (child.isEmpty) return <DocxNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
     for (final TableCell element in child) {
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

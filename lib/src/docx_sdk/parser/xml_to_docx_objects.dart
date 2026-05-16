@@ -41,7 +41,7 @@ class XmlToDocxObjects {
       paragraphDefaultStyles.addAll(
         _buildConfigurators(paragraphStyles).map(
           (StyleConfigurator n) {
-            return StyleBuilder.singularP()
+            return StyleBuilder.up()
                 .withConfigurators(<StyleConfigurator>[n]).build();
           },
         ),
@@ -51,7 +51,7 @@ class XmlToDocxObjects {
       runDefaultStyles.addAll(
         _buildConfigurators(runStyles).map(
           (StyleConfigurator n) {
-            return StyleBuilder.singularC()
+            return StyleBuilder.uc()
                 .withConfigurators(<StyleConfigurator>[
               n,
             ]).build();

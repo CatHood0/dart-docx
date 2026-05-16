@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents a:ext
-class AnnotationExtents extends DocxTreeNode<dynamic> {
+class AnnotationExtents extends DocxNode<dynamic> {
   AnnotationExtents({required this.cx, required this.cy}) : super(child: null);
 
   AnnotationExtents.zero()
@@ -22,6 +22,11 @@ class AnnotationExtents extends DocxTreeNode<dynamic> {
   AnnotationExtents get copy => AnnotationExtents(cx: cx, cy: cy);
 
   @override
+  AnnotationExtents copyWith({String? id, DocxNode<dynamic>? parent, num? cx, num? cy}) {
+    return AnnotationExtents(cx: cx ?? this.cx, cy: cy ?? this.cy);
+  }
+
+  @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     return <XmlElement>[
       XmlElement.tag(
@@ -36,16 +41,16 @@ class AnnotationExtents extends DocxTreeNode<dynamic> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? [this] : null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
@@ -56,4 +61,3 @@ class AnnotationExtents extends DocxTreeNode<dynamic> {
     return [];
   }
 }
-

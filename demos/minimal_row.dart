@@ -27,7 +27,7 @@ Future<void> main() async {
       sections: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         minHeight: 5.ptToDxa(),
-        children: <DocxTreeNode<dynamic>>[
+        children: <DocxNode<dynamic>>[
           Text('👈 LEFT'),
           Text('🎯 CENTER'),
           Text('RIGHT 👉'),

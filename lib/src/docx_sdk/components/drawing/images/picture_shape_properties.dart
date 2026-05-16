@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents pic:spPr
-class PictureShapeProperties extends DocxTreeNode<dynamic> {
+class PictureShapeProperties extends DocxNode<dynamic> {
   PictureShapeProperties({
     required this.transform2D,
     required this.presetGeometry,
@@ -16,6 +16,19 @@ class PictureShapeProperties extends DocxTreeNode<dynamic> {
         transform2D: transform2D.copy,
         presetGeometry: presetGeometry.copy,
       );
+
+  @override
+  PictureShapeProperties copyWith({
+    String? id,
+    DocxNode<dynamic>? parent,
+    Transform2D? transform2D,
+    PresetGeometry? presetGeometry,
+  }) {
+    return PictureShapeProperties(
+      transform2D: transform2D ?? this.transform2D.copy,
+      presetGeometry: presetGeometry ?? this.presetGeometry.copy,
+    )..parent = parent ?? this.parent;
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -33,29 +46,25 @@ class PictureShapeProperties extends DocxTreeNode<dynamic> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return transform2D.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        presetGeometry.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return transform2D.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        presetGeometry.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return transform2D.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        presetGeometry.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return transform2D.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        presetGeometry.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override

@@ -15,13 +15,24 @@ class GeometryGuide {
 }
 
 // Represents a:avLst
-class GeometryGuideList extends DocxTreeNode<Iterable<GeometryGuide>> {
+class GeometryGuideList extends DocxNode<Iterable<GeometryGuide>> {
   GeometryGuideList({
     Iterable<GeometryGuide> values = const <GeometryGuide>[],
   }) : super(child: values);
 
   @override
   GeometryGuideList get copy => GeometryGuideList(values: child);
+
+  @override
+  GeometryGuideList copyWith({
+    Iterable<GeometryGuide>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return GeometryGuideList(
+      values: child ?? this.child,
+    )..parent = parent ?? this.parent;
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -45,16 +56,16 @@ class GeometryGuideList extends DocxTreeNode<Iterable<GeometryGuide>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return shouldGetElement(this) ? <DocxTreeNode<dynamic>>[this] : null;
+    return shouldGetElement(this) ? <DocxNode<dynamic>>[this] : null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

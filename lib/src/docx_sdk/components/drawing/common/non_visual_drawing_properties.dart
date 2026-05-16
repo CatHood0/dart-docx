@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents pic:cNvPr
-class NonVisualDrawingProperties extends DocxTreeNode<dynamic> {
+class NonVisualDrawingProperties extends DocxNode<dynamic> {
   NonVisualDrawingProperties({
     required String id,
     required this.name,
@@ -18,6 +18,20 @@ class NonVisualDrawingProperties extends DocxTreeNode<dynamic> {
         name: name,
         description: description,
       );
+
+  @override
+  NonVisualDrawingProperties copyWith({
+    String? id,
+    DocxNode<dynamic>? parent,
+    String? name,
+    String? description,
+  }) {
+    return NonVisualDrawingProperties(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+    );
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -48,14 +62,14 @@ class NonVisualDrawingProperties extends DocxTreeNode<dynamic> {
 
   @override
   List<NonVisualDrawingProperties>? visitAllElement(
-      bool Function(DocxTreeNode element) shouldGetElement,
+      bool Function(DocxNode element) shouldGetElement,
       {bool visitChildrenIfNeeded = true}) {
     return shouldGetElement(this) ? [this] : null;
   }
 
   @override
   NonVisualDrawingProperties? visitElement(
-      bool Function(DocxTreeNode element) shouldGetElement,
+      bool Function(DocxNode element) shouldGetElement,
       {bool visitChildrenIfNeeded = true}) {
     return shouldGetElement(this) ? this : null;
   }

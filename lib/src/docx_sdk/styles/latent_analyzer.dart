@@ -32,7 +32,7 @@ class LatentAnalyzer {
           unhide == null &&
           uiPriority == null) {
         style.addAll(
-          StyleBuilder.singularC()
+          StyleBuilder.uc()
               .semiHidden(latent.defSemiHidden)
               .unhideWhenUsed(latent.defUnhideWhenUsed)
               .uiPriority(latent.defUIPriority)
@@ -49,7 +49,7 @@ class LatentAnalyzer {
         metadata['w:qFormat'] = true;
       } else if (qFormat == null && latent.defQFormat) {
         style.addAll(
-          StyleBuilder.singularC()
+          StyleBuilder.uc()
               .qFormat(
                 true,
               )
@@ -62,12 +62,7 @@ class LatentAnalyzer {
         metadata['w:semiHidden'] = true;
       } else if (semiHidden == null && latent.defSemiHidden) {
         style.addAll(
-          StyleBuilder.singularC()
-              .semiHidden(
-                true,
-              )
-              .build()
-              .configurators,
+          StyleBuilder.uc().semiHidden(true).build().configurators,
         );
       }
 
@@ -75,12 +70,7 @@ class LatentAnalyzer {
         metadata['w:unhideWhenUsed'] = true;
       } else if (unhide == null && latent.defUnhideWhenUsed) {
         style.addAll(
-          StyleBuilder.singularC()
-              .unhideWhenUsed(
-                true,
-              )
-              .build()
-              .configurators,
+          StyleBuilder.uc().unhideWhenUsed(true).build().configurators,
         );
       }
 
@@ -89,12 +79,11 @@ class LatentAnalyzer {
         metadata['w:uiPriority'] = uiPriority.value!.cast<String>();
       } else if (uiPriority == null) {
         style.addAll(
-          StyleBuilder.singularC()
-              .uiPriority(
-                latent.defUIPriority,
-              )
-              .build()
-              .configurators,
+          StyleBuilder.priority(
+            null,
+            latent.defUIPriority,
+            Style.characterType,
+          ).build().configurators,
         );
       }
 

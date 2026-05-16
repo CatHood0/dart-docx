@@ -4,16 +4,16 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 @experimental
-class LayoutConstraints extends DocxTreeNode<List<DocxTreeNode>> {
+class LayoutConstraints extends DocxNode<List<DocxNode>> {
   LayoutConstraints({
-    required Iterable<DocxTreeNode> children,
+    required Iterable<DocxNode> children,
     this.minWidth,
     this.maxWidth,
     super.id,
     super.parent,
   }) : super(child: List.from(children)) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in child) {
+    for (final DocxNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -32,7 +32,7 @@ class LayoutConstraints extends DocxTreeNode<List<DocxTreeNode>> {
   List<XmlElement> buildXml({required DocumentContext context}) {
     return child
         .expand<XmlElement>(
-          (DocxTreeNode<dynamic> node) => node
+          (DocxNode<dynamic> node) => node
               .buildXml(
                 context: context,
               )
@@ -56,16 +56,33 @@ class LayoutConstraints extends DocxTreeNode<List<DocxTreeNode>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  LayoutConstraints copyWith({
+    Iterable<DocxNode>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    int? minWidth,
+    int? maxWidth,
+  }) {
+    return LayoutConstraints(
+      children: child ?? this.child,
+      minWidth: minWidth ?? this.minWidth,
+      maxWidth: maxWidth ?? this.maxWidth,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxTreeNode<dynamic> element in child) {
+    for (final DocxNode<dynamic> element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -78,18 +95,18 @@ class LayoutConstraints extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode>[];
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final DocxTreeNode element in child) {
+    if (child.isEmpty) return <DocxNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
+    for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

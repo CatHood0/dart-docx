@@ -43,7 +43,7 @@ import '../../../../../core/extensions/string_ext.dart';
 ///   columns: <GridColumn>[GridColumn(width: 2000), GridColumn(width: 3000)],
 /// );
 /// ```
-class Table extends DocxTreeNode<List<TableRow>> {
+class Table extends DocxNode<List<TableRow>> {
   Table({
     required List<TableRow> rows,
     required this.columns,
@@ -54,18 +54,14 @@ class Table extends DocxTreeNode<List<TableRow>> {
         super(child: rows) {
     // check the configurations to avoid assertions being ignored
     // when we're not in debug mode
-    if (tableProperties != null &&
-        tableProperties!.widthType.needsWidth &&
-        tableProperties!.width <= 0) {
+    if (tableProperties != null && tableProperties!.widthType.needsWidth && tableProperties!.width <= 0) {
       throw Exception(
         '$runtimeType:$id => TableWidthType.pct or TableWidthType.dxa '
         'requires a non zero and non negative [width]. ',
       );
     }
 
-    if (tableProperties != null &&
-        tableProperties!.widthType.isNilOrAuto &&
-        tableProperties!.width > 0) {
+    if (tableProperties != null && tableProperties!.widthType.isNilOrAuto && tableProperties!.width > 0) {
       throw Exception(
         '$runtimeType:$id => TableWidthType.auto or '
         'TableWidthType.nil only can be used when '
@@ -114,9 +110,7 @@ class Table extends DocxTreeNode<List<TableRow>> {
     final List<XmlNode> tableChildren = <XmlNode>[];
 
     // Build table properties (tblPr) if configuration exists
-    final List<XmlNode> tblPrNodes = tableProperties == null
-        ? <XmlNode>[]
-        : tableProperties!.buildXml(context: context);
+    final List<XmlNode> tblPrNodes = tableProperties == null ? <XmlNode>[] : tableProperties!.buildXml(context: context);
     if (tblPrNodes.isNotEmpty) {
       tableChildren.add(
         XmlElement.tag(
@@ -185,26 +179,26 @@ class Table extends DocxTreeNode<List<TableRow>> {
         parent: parent,
       );
 
+  @override
   Table copyWith({
     List<TableRow>? rows,
     List<GridColumn>? columns,
     String? id,
+    DocxNode<dynamic>? parent,
     TableProperties? tableProperties,
-    DocxTreeNode? parent,
   }) {
     return Table(
-      id: id ?? this.id,
-      parent: parent ?? this.parent,
       rows: rows ?? child,
       columns: columns ?? this.columns,
       tableProperties: tableProperties ?? this.tableProperties,
-
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
     );
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     for (final TableRow element in child) {
@@ -212,7 +206,7 @@ class Table extends DocxTreeNode<List<TableRow>> {
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -225,18 +219,18 @@ class Table extends DocxTreeNode<List<TableRow>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode>[];
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
+    if (child.isEmpty) return <DocxNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
     for (final TableRow element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

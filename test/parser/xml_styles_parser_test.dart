@@ -27,7 +27,7 @@ void main() {
 
       expect(
         stylesSheet.styles.length,
-        EasyStyles.standardDocumentStyles.length,
+        StyleBuilder.standardDocumentStyles.length,
       );
 
       // Test 'Normal' style

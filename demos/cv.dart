@@ -75,9 +75,9 @@ Future<void> main() async {
       ),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         PageColumn(
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             Paragraph.text(
               text: 'Tu nombre',
               styles: <Style>[
@@ -89,7 +89,7 @@ Future<void> main() async {
                   'aquí Inserta tu texto '
                   'aquí Inserta tu texto aquí',
               styles: <Style>[
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .fontFamily(
                       'OpenSans',
                     )
@@ -136,11 +136,11 @@ Future<void> main() async {
           ],
         ),
         PageColumn(
-          children: <DocxTreeNode<dynamic>>[
+          children: <DocxNode<dynamic>>[
             Paragraph.text(
               text: 'Tu calle 123',
               runStyles: <Style>[
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontFamily(
                       'OpenSans',
                     )
@@ -150,7 +150,7 @@ Future<void> main() async {
             Paragraph.text(
               text: 'Tu ciudad, Provincia x1234xxx',
               runStyles: <Style>[
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontFamily(
                       'OpenSans',
                     )
@@ -160,7 +160,7 @@ Future<void> main() async {
             Paragraph.text(
               text: '(54) 00 0 0000',
               runStyles: <Style>[
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontFamily(
                       'OpenSans',
                     )
@@ -171,7 +171,7 @@ Future<void> main() async {
             Paragraph.text(
               text: 'no_reply@example.com',
               runStyles: <Style>[
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontFamily(
                       'OpenSans',
                     )
@@ -183,7 +183,7 @@ Future<void> main() async {
               text: 'HABILIDADES',
               styles: <Style>[
                 Style.ref('section'),
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(
                       before: 0.4.inchesToTwips(),
                       after: 0.15.inchesToTwips(),
@@ -196,7 +196,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: 'Inserta tu texto aquí',
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(
                           9.ptToHalfPoints(),
                         )
@@ -207,7 +207,7 @@ Future<void> main() async {
                 TextRun.text(
                   text: 'Inserta tu texto aquí',
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(
                           9.ptToHalfPoints(),
                         )
@@ -219,7 +219,7 @@ Future<void> main() async {
                   text: 'Inserta tu texto aquí '
                       'Inserta tu texto aquí ',
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(
                           9.ptToHalfPoints(),
                         )
@@ -231,7 +231,7 @@ Future<void> main() async {
                   text: 'Inserta tu texto aquí '
                       'Inserta tu texto aquí ',
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(
                           9.ptToHalfPoints(),
                         )
@@ -241,7 +241,7 @@ Future<void> main() async {
               ],
               styles: <Style>[
                 Style.ref('body'),
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(
                       after: 5.ptToTwips(),
                       line: 1.5.inchesToLineSpacing(),
@@ -264,7 +264,7 @@ Future<void> main() async {
                       'Inserta tu texto aquí '
                       'Inserta tu texto aquí ',
                   styles: <Object>[
-                    StyleBuilder.singularC()
+                    StyleBuilder.uc()
                         .fontSize(
                           9.ptToHalfPoints(),
                         )
@@ -274,7 +274,7 @@ Future<void> main() async {
               ],
               styles: <Style>[
                 Style.ref('body'),
-                StyleBuilder.singularP()
+                StyleBuilder.up()
                     .spacing(
                       after: 1.ptToTwips(),
                       line: 1.5.inchesToLineSpacing(),
@@ -289,7 +289,7 @@ Future<void> main() async {
               content: 'Inserta tu texto aquí '
                   'Inserta tu texto aquí ',
               contentStyle:
-                  StyleBuilder.singularC().fontSize(9.ptToHalfPoints()).build(),
+                  StyleBuilder.uc().fontSize(9.ptToHalfPoints()).build(),
               repeat: 1,
             ),
           ],
@@ -315,7 +315,7 @@ Future<void> main() async {
   }
 }
 
-List<DocxTreeNode> getRepeatedSection({
+List<DocxNode> getRepeatedSection({
   required String title,
   required String date,
   required String content,
@@ -325,7 +325,7 @@ List<DocxTreeNode> getRepeatedSection({
   String subtitle3 = '',
   Style? contentStyle,
 }) {
-  return <DocxTreeNode<dynamic>>[
+  return <DocxNode<dynamic>>[
     Paragraph.text(
       text: title,
       styles: <Style>[
@@ -339,7 +339,7 @@ List<DocxTreeNode> getRepeatedSection({
             text: subtitle1,
             styles: <Object>[
               BoldAttribute(),
-              StyleBuilder.singularC()
+              StyleBuilder.uc()
                   .fontSize(
                     11.ptToHalfPoints(),
                   )
@@ -350,7 +350,7 @@ List<DocxTreeNode> getRepeatedSection({
           TextRun.text(
             text: subtitle2,
             styles: <Object>[
-              StyleBuilder.singularC()
+              StyleBuilder.uc()
                   .fontSize(
                     11.ptToHalfPoints(),
                   )
@@ -362,7 +362,7 @@ List<DocxTreeNode> getRepeatedSection({
             text: subtitle3,
             styles: <Object>[
               ItalicAttribute(),
-              StyleBuilder.singularC()
+              StyleBuilder.uc()
                   .fontSize(
                     11.ptToHalfPoints(),
                   )
@@ -374,7 +374,7 @@ List<DocxTreeNode> getRepeatedSection({
           TextRun.text(
             text: date,
             styles: <Object>[
-              StyleBuilder.singularC()
+              StyleBuilder.uc()
                   .fontSize(8.ptToHalfPoints())
                   .runColor(Color(
                     0x55666666,
@@ -391,7 +391,7 @@ List<DocxTreeNode> getRepeatedSection({
           text: content,
           styles: <Object>[
             contentStyle ??
-                StyleBuilder.singularC()
+                StyleBuilder.uc()
                     .fontSize(9.ptToHalfPoints())
                     .runColor(Color(
                       0x55666666,
@@ -402,7 +402,7 @@ List<DocxTreeNode> getRepeatedSection({
       ],
       styles: <Style>[
         Style.ref('body'),
-        StyleBuilder.singularP()
+        StyleBuilder.up()
             .spacing(
               line: 1.3.inchesToLineSpacing(),
               rule: LineRule.exact,

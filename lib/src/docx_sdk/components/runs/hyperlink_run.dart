@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
 import '../../../core/extensions/style_to_from_node.dart';
@@ -117,6 +118,37 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     length = child.text.length;
   }
 
+  @protected
+  @internal
+  HyperlinkRun.inheritFrom({
+    required String text,
+    required Text element,
+    String? id,
+    DocxNode? parent,
+  }) : super(
+          id: id ?? element.id,
+          parent: parent ?? element.parent,
+          child: HyperlinkTextPart(
+            text: text,
+            hyperlink: text,
+            styles: _buildStyles(
+              baseStyles: element.styles,
+              bold: element.bold,
+              italic: element.italic,
+              underline: element.underline,
+              strikethrough: element.strikethrough,
+              fontSize: element.size,
+              fontFamily: element.family,
+              color: element.color,
+              backgroundColor: element.backgroundColor,
+              subscript: element.subscript,
+              superscript: element.superscript,
+            ),
+          ),
+        ) {
+    length += child.text.length;
+  }
+
   /// Builds the list of styles from direct properties.
   static List<Object> _buildStyles({
     required List<Object> baseStyles,
@@ -148,7 +180,9 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     if (subscript == true) allStyles.add(SubscriptAttribute());
     if (superscript == true) allStyles.add(SuperscriptAttribute());
 
-    if (backgroundColor != null) allStyles.add(BackgroundTextColorAttribute(backgroundColor.toColorValue()!.toUpperCase()));
+    if (backgroundColor != null)
+      allStyles.add(BackgroundTextColorAttribute(
+          backgroundColor.toColorValue()!.toUpperCase()));
 
     return allStyles;
   }
@@ -264,6 +298,19 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
       );
 
   @override
+  HyperlinkRun copyWith({
+    HyperlinkTextPart? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return HyperlinkRun(
+      id: id ?? this.id,
+      child: child ?? this.child,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
   bool shouldIgnore() {
     return child.hyperlink.isEmpty;
   }
@@ -325,7 +372,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   HyperlinkRun? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     if (shouldGetElement(this)) return this;

@@ -73,8 +73,13 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
         ) {
     if (context != null) applyContext(context);
     for (final NumberingOptions con in options) {
+      final num id = abstractNumUniqueNumericId();
+      CompilerLogger.root.debug(
+        'Building abstract instance with ref "${con.refKey}" '
+        'and an id $id',
+      );
       abstractNumberingMap[con.refKey] = XmlAbstractNumComponent(
-        id: abstractNumUniqueNumericId(),
+        id: id,
         levels: con.levels,
       );
       referenceConfigMap[con.refKey] = con.levels;
@@ -162,9 +167,9 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     final List<LevelOptions>? referenceConfig = referenceConfigMap[ref];
     final int? firstLevelStartNumber = referenceConfig?.firstOrNull?.start;
 
-    CompilerLogger.root.d('Registering: $ref-$numRefId of level $level');
+    CompilerLogger.root.debug('Registering: $ref-$numRefId of level $level');
     CompilerLogger.root
-        .d('Overrides: first level number => $firstLevelStartNumber');
+        .debug('Overrides: first level number => $firstLevelStartNumber');
 
     final ConcreteNumberingOptions concreteOptions = ConcreteNumberingOptions(
       // to avoid some issues, we generates automatically an numId
@@ -199,9 +204,9 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
     // if there is no concrete instances, then we
     // add some to avoid conflicts
     if (concreteNumberingMap.isEmpty) {
-      CompilerLogger.root.d('Detected empty concrete instances.');
+      CompilerLogger.root.debug('Detected empty concrete instances.');
       abstractNumberingMap.forEach((String k, XmlAbstractNumComponent v) {
-        CompilerLogger.root.d('Registering concrete instance for "$k".');
+        CompilerLogger.root.debug('Registering concrete instance for "$k".');
         registerConcreteInstance(k, 1);
       });
     }

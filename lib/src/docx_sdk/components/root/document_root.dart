@@ -5,20 +5,20 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../utils/logger/logger_configs.dart';
 
-class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
+class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
   DocumentRoot({
-    required Iterable<DocxTreeNode<dynamic>> sections,
+    required Iterable<DocxNode<dynamic>> sections,
     super.parent,
     super.id,
   })  : assert(
             parent == null,
             'root must not be in any other '
             'point than the main build of the tree'),
-        super(child: <DocxTreeNode<dynamic>>[...sections]) {
+        super(child: <DocxNode<dynamic>>[...sections]) {
     this.index = -1;
     depth = -1;
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in child) {
+    for (final DocxNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -45,16 +45,15 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
 
   @override
   void updateElement(
-    DocxTreeNode<dynamic> component, {
+    DocxNode<dynamic> component, {
     int? index,
     bool strict = true,
   }) {
     if (component is! RunBase) return;
 
-    final int i = index ??
-        child.indexWhere((DocxTreeNode<dynamic> el) => component.id == el.id);
+    final int i = index ?? child.indexWhere((DocxNode<dynamic> el) => component.id == el.id);
     if (i <= -1) {
-      CompilerLogger.root.w(
+      CompilerLogger.root.warning(
         'Tried to updated an '
         'element using: $component, '
         'but there is no match for it',
@@ -62,15 +61,14 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
       return;
     }
 
-    final DocxTreeNode<dynamic> element = child[i];
-    if (strict && component.child.runtimeType != element.child.runtimeType ||
-        component.id != element.id) {
+    final DocxNode<dynamic> element = child[i];
+    if (strict && component.child.runtimeType != element.child.runtimeType || component.id != element.id) {
       return;
     }
 
     length -= element.length;
 
-    CompilerLogger.root.d(
+    CompilerLogger.root.debug(
       'Replaced | $element | '
       'state using | $component | '
       'state at: $i in $runtimeType class type',
@@ -78,7 +76,7 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
 
     length += component.length;
 
-    child[i] = component.copy.cast<DocxTreeNode<dynamic>>();
+    child[i] = component.copy.cast<DocxNode<dynamic>>();
   }
 
   @override
@@ -111,8 +109,7 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
     List<Style>? runStyles,
     int? path,
   }) {
-    final DocxTreeNode<dynamic> lazyElement =
-        DocxTreeNode.lazyBuild<Paragraph>((
+    final DocxNode<dynamic> lazyElement = DocxNode.lazyBuild<Paragraph>((
       DocumentContext context,
       String id,
     ) {
@@ -175,14 +172,14 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
         ),
       );
 
-  Iterable<DocxTreeNode<dynamic>> where(
-    bool Function(DocxTreeNode<dynamic>) predicate,
+  Iterable<DocxNode<dynamic>> where(
+    bool Function(DocxNode<dynamic>) predicate,
   ) {
     return child.where(predicate);
   }
 
-  DocxTreeNode<dynamic>? whereSingle(
-    bool Function(DocxTreeNode<dynamic>) predicate,
+  DocxNode<dynamic>? whereSingle(
+    bool Function(DocxNode<dynamic>) predicate,
   ) {
     return child.where(predicate).firstOrNull;
   }
@@ -192,9 +189,8 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
   @override
   List<XmlNode> buildXml({required DocumentContext context}) {
     final List<XmlNode> content = <XmlNode>[];
-    for (final DocxTreeNode<dynamic> section in child) {
-      if (section is IgnorableMixin &&
-          (section as IgnorableMixin).shouldIgnore()) {
+    for (final DocxNode<dynamic> section in child) {
+      if (section is IgnorableMixin && (section as IgnorableMixin).shouldIgnore()) {
         continue;
       }
       context.currentContentPart = this;
@@ -242,18 +238,31 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
       );
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocumentRoot copyWith({
+    Iterable<DocxNode<dynamic>>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return DocumentRoot(
+      sections: child ?? this.child,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
-    final List<DocxTreeNode> elements = <DocxTreeNode<dynamic>>[];
-    for (final DocxTreeNode element in child) {
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
+    final List<DocxNode> elements = <DocxNode<dynamic>>[];
+    for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? els = element.visitAllElement(
+        final List<DocxNode<dynamic>>? els = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -266,17 +275,17 @@ class DocumentRoot extends DocxTreeNode<List<DocxTreeNode<dynamic>>> {
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
-    for (final DocxTreeNode element in child) {
+    for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode<dynamic>? els = element.visitElement(
+        final DocxNode<dynamic>? els = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

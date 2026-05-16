@@ -37,7 +37,7 @@ import '../../../core/extensions/cast_ext.dart';
 /// will generate a generic one.
 ///
 /// In future releases incremental editing probably will be enabled and to avoid loss images provide one
-class LazyImage extends DocxTreeNode<ImageData<File>> {
+class LazyImage extends DocxNode<ImageData<File>> {
   LazyImage({
     required ImageData<File> data,
     super.parent,
@@ -75,8 +75,28 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
         transformOffsetX: transformOffsetX,
       );
 
-  String get getImageName =>
-      child.name ?? 'image:${Random.secure().nextInt(900) * 10}';
+  @override
+  LazyImage copyWith({
+    ImageData<File>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    int? elementId,
+    bool? asInline,
+    int? transformOffsetX,
+    int? transformOffsetY,
+  }) {
+    return LazyImage(
+      data: child ?? this.child,
+      elementId: elementId ?? this.elementId,
+      asInline: asInline ?? this.asInline,
+      transformOffsetX: transformOffsetX ?? this.transformOffsetX,
+      transformOffsetY: transformOffsetY ?? this.transformOffsetY,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  String get getImageName => child.name ?? 'image:${Random.secure().nextInt(900) * 10}';
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -89,8 +109,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
     }
 
     final String? relationshipId =
-        context.mediaStore.getRelationshipIdForRef(id) ??
-            context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
+        context.mediaStore.getRelationshipIdForRef(id) ?? context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
 
     elementId ??= context.drawingStore.getIdFromRef(ref: id) ??
         // usually, the element id is computed from
@@ -122,19 +141,18 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
     if (imgWidthEmu == null && imgHeightEmu == null) {
-      final Size size =
-          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
+      final Size size = ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
       imgWidthEmu = size.width * emuPerInch / imageDpi;
       imgHeightEmu = size.height * emuPerInch / imageDpi;
     }
 
     final Graphic graphic = Graphic.pic(
       child: Picture(
-        components: <DocxTreeNode<dynamic>>[
+        components: <DocxNode<dynamic>>[
           BlipFill.pic(
             blip: Blip(embedRelId: relationshipId.toString()),
             stretch: Stretch(
-              child: <DocxTreeNode<dynamic>>[
+              child: <DocxNode<dynamic>>[
                 FillRectangle(),
               ],
             ),
@@ -155,8 +173,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
               name: imageName,
               description: child.alt ?? imageName,
             ),
-            nonVisualPictureDrawingProperties:
-                NonVisualPictureDrawingProperties(),
+            nonVisualPictureDrawingProperties: NonVisualPictureDrawingProperties(),
           ),
         ],
       ),
@@ -170,7 +187,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
           name: imageName,
           width: imgWidthEmu,
           height: imgHeightEmu,
-          components: <DocxTreeNode<dynamic>>[graphic],
+          components: <DocxNode<dynamic>>[graphic],
           distance: child.anchorConfig.distanceFromText,
         ).buildXml(context: context),
     ];
@@ -188,7 +205,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
 
   @override
   LazyImage? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     return shouldGetElement(this) ? this : null;
@@ -196,7 +213,7 @@ class LazyImage extends DocxTreeNode<ImageData<File>> {
 
   @override
   List<LazyImage>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <LazyImage>[this] : null;

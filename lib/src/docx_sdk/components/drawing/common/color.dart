@@ -9,7 +9,7 @@ enum SystemColor { window, windowText, highlight, highlightText }
 /// Color representation in DrawingML.
 ///
 /// Can be specified as RGB value, theme color, or system color.
-class Color extends DocxTreeNode<void> {
+class Color extends DocxNode<void> {
   // Constructor for build hex integers like: 0xFF000000 or 0x000000
   Color(int value)
       : type = ColorType.rgb,
@@ -74,8 +74,7 @@ class Color extends DocxTreeNode<void> {
   /// Constructor para crear color desde un string hexadecimal (#RRGGBB o #AARRGGBB)
   Color.fromHex(String hexString, [int? alpha])
       : type = ColorType.rgb,
-        alpha = alpha ??
-            _parseAlphaFromHex(int.parse('0x${(hexString.substring(1))}')),
+        alpha = alpha ?? _parseAlphaFromHex(int.parse('0x${(hexString.substring(1))}')),
         rgbValue = _parseRgbFromHex(int.parse('0x${(hexString.substring(1))}')),
         themeColor = null,
         systemColor = null,
@@ -138,10 +137,8 @@ class Color extends DocxTreeNode<void> {
   /// Obtiene el valor RGB con alpha como string hexadecimal (#AARRGGBB)
   String toHexStringWithAlpha() {
     if (rgbValue != null && alpha != -1) {
-      final String alphaHex =
-          alpha.toRadixString(16).padLeft(2, '0').toUpperCase();
-      final String rgbHex =
-          rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase();
+      final String alphaHex = alpha.toRadixString(16).padLeft(2, '0').toUpperCase();
+      final String rgbHex = rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase();
       return '#$alphaHex$rgbHex';
     }
     return toHexString();
@@ -165,6 +162,25 @@ class Color extends DocxTreeNode<void> {
         ColorType.theme => Color.theme(themeColor!),
         ColorType.system => Color.system(systemColor!),
       };
+
+  @override
+  Color copyWith({
+    String? id,
+    DocxNode<void>? parent,
+    ColorType? type,
+    int? rgbValue,
+    int? alpha,
+    String? themeColor,
+    SystemColor? systemColor,
+  }) {
+    final ColorType currentType = type ?? this.type;
+    return switch (currentType) {
+      ColorType.rgb => Color.raw(rgbValue ?? this.rgbValue ?? 0, alpha ?? this.alpha),
+      ColorType.bgr => Color.bgr(rgbValue ?? this.rgbValue ?? 0, alpha ?? this.alpha),
+      ColorType.theme => Color.theme(themeColor ?? this.themeColor ?? ''),
+      ColorType.system => Color.system(systemColor ?? this.systemColor ?? SystemColor.window),
+    };
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -232,8 +248,7 @@ class Color extends DocxTreeNode<void> {
           XmlElement.tag(
             'a:sysClr',
             attributes: <XmlAttribute>[
-              XmlAttribute(
-                  XmlName.fromString('val'), _systemColorToXml(systemColor!)),
+              XmlAttribute(XmlName.fromString('val'), _systemColorToXml(systemColor!)),
             ],
             isSelfClosing: true,
           ),
@@ -256,16 +271,16 @@ class Color extends DocxTreeNode<void> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <Color>[this] : null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

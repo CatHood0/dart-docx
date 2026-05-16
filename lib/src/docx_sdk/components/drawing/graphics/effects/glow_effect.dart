@@ -13,12 +13,22 @@ class GlowEffectComponent extends Effect<GlowEffect> {
   GlowEffectComponent get copy => GlowEffectComponent(child: child.copy);
 
   @override
+  GlowEffectComponent copyWith({
+    GlowEffect? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return GlowEffectComponent(
+      child: child ?? this.child.copy,
+    )..parent = parent ?? this.parent;
+  }
+
+  @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final XmlElement colorElement = XmlElement.tag(
       'a:glow',
       attributes: <XmlAttribute>[
-        if (child.radius != 0)
-          XmlAttribute(XmlName.fromString('rad'), child.radius.toString()),
+        if (child.radius != 0) XmlAttribute(XmlName.fromString('rad'), child.radius.toString()),
       ],
       children: <XmlNode>[
         XmlElement.tag(
@@ -26,10 +36,7 @@ class GlowEffectComponent extends Effect<GlowEffect> {
           attributes: <XmlAttribute>[
             XmlAttribute(
               XmlName.fromString('val'),
-              child.color.rgbValue!
-                  .toRadixString(16)
-                  .padLeft(6, '0')
-                  .toUpperCase(),
+              child.color.rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase(),
             ),
           ],
           children: <XmlNode>[
@@ -37,8 +44,7 @@ class GlowEffectComponent extends Effect<GlowEffect> {
               XmlElement.tag(
                 'a:alpha',
                 attributes: <XmlAttribute>[
-                  XmlAttribute(XmlName.fromString('val'),
-                      (100000 - child.transparency).toString()),
+                  XmlAttribute(XmlName.fromString('val'), (100000 - child.transparency).toString()),
                 ],
                 isSelfClosing: true,
               ),
@@ -56,8 +62,8 @@ class GlowEffectComponent extends Effect<GlowEffect> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return <GlowEffectComponent>[this];
@@ -65,8 +71,8 @@ class GlowEffectComponent extends Effect<GlowEffect> {
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
@@ -104,7 +110,7 @@ class GlowEffect {
 
   /// The transparency of this effect
   ///
-  /// Allowed: 
+  /// Allowed:
   /// Low: 0 (no transparent effect)
   /// High: 100000 (fully transparent)
   final int transparency;

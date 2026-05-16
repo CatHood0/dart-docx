@@ -14,14 +14,25 @@ class AdjustValue {
 }
 
 // Represents a:avLst
-class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
+class AdjustValueList extends DocxNode<Iterable<AdjustValue>> {
   AdjustValueList({
     Iterable<AdjustValue> values = const <AdjustValue>[],
   })  : assert(values.length < 9, 'values cannot be major than 8 elements'),
         super(child: values);
 
   @override
-  AdjustValueList get copy => AdjustValueList();
+  AdjustValueList get copy => AdjustValueList(values: child);
+
+  @override
+  AdjustValueList copyWith({
+    Iterable<AdjustValue>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return AdjustValueList(
+      values: child ?? this.child,
+    )..parent = parent ?? this.parent;
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -53,7 +64,7 @@ class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
 
   @override
   List<AdjustValueList>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? <AdjustValueList>[this] : null;
@@ -61,7 +72,7 @@ class AdjustValueList extends DocxTreeNode<Iterable<AdjustValue>> {
 
   @override
   AdjustValueList? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

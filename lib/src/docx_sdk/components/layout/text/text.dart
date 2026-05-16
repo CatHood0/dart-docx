@@ -77,6 +77,8 @@ class Text extends ComponentContainer<String> {
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
+    // I hate this type assign. I'd prefer just making
+    // a different context per element instead just one
     context.currentContentPart = this;
     final List<XmlNode> paragraphChildren = <XmlNode>[];
     final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
@@ -90,14 +92,20 @@ class Text extends ComponentContainer<String> {
       );
     }
 
+    final bool hasNewLines = child.contains('\n');
     for (final String e in child.split('\n')) {
       context.currentContentPart = this;
       final List<XmlNode> element = TextRun.inheritFrom(
         text: e,
         element: this,
       ).buildXml(context: context);
-      paragraphChildren.addAll(element);
+      paragraphChildren.addAll([
+        ...element,
+        if (hasNewLines) ...Run.lineBreak().buildXml(context: context),
+      ]);
     }
+
+    context.currentContentPart = this;
 
     return <XmlElement>[
       super.paragraph(
@@ -107,6 +115,22 @@ class Text extends ComponentContainer<String> {
       ),
     ];
   }
+
+  Paragraph toParagraph() => Paragraph.text(
+        id: id,
+        bold: bold,
+        text: child,
+        parent: parent,
+        italic: italic,
+        fontSize: size,
+        fontColor: color,
+        runStyles: styles,
+        fontFamily: family,
+        underline: underline,
+        lineSpacing: lineSpacing,
+        strikethrough: strikethrough,
+        backgroundColor: backgroundColor,
+      );
 
   @override
   List<XmlElement> buildXmlStyle({required DocumentContext context}) {
@@ -148,7 +172,7 @@ class Text extends ComponentContainer<String> {
           st = normal;
         } else {
           st = null;
-          CompilerLogger.root.w(
+          CompilerLogger.root.warning(
             'Not found style "${context.defaultNormalStyle.styleId}". '
             'It will be ignored for '
             '$runtimeType:$id at $index with deep tree level $depth, '
@@ -176,7 +200,7 @@ class Text extends ComponentContainer<String> {
           st = stemp;
         } else {
           st = null;
-          CompilerLogger.root.w(
+          CompilerLogger.root.warning(
             'Not found style "${style.styleId}". '
             'It will be ignored for '
             '$runtimeType:$id at $index with deep tree level $depth, '
@@ -201,13 +225,13 @@ class Text extends ComponentContainer<String> {
   ///
   /// This allows applying formatting directly without requiring StyleBuilder.
   Style? _buildDirectStyle(DocumentContext context) {
-    final StyleBuilder builder = StyleBuilder.singularP();
+    final StyleBuilder builder = StyleBuilder.up();
     if (textAlign != null) builder.alignment(textAlign!.toAlign);
 
     if (context.childOfAncestorOfExactType<Align>()) {
       final Alignment al = context.getAncestorOfExactType<Align>()!.alignment;
       CompilerLogger.root
-          .d('Replace current align $textAlign to found ancestor ${al.name}');
+          .debug('Replace current align $textAlign to found ancestor ${al.name}');
       builder.alignment(al);
     }
 
@@ -243,21 +267,62 @@ class Text extends ComponentContainer<String> {
         size: size,
         family: family,
         color: color,
+        subscript: subscript,
+        superscript: superscript,
         backgroundColor: backgroundColor,
         lineSpacing: lineSpacing,
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  Text copyWith({
+    String? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    Iterable<Style>? styles,
+    TextAlign? textAlign,
+    bool? bold,
+    bool? italic,
+    bool? underline,
+    bool? strikethrough,
+    num? size,
+    String? family,
+    Color? color,
+    Color? backgroundColor,
+    int? lineSpacing,
+    bool? subscript,
+    bool? superscript,
+  }) {
+    return Text(
+      child ?? this.child,
+      styles: styles ?? this.styles,
+      textAlign: textAlign ?? this.textAlign,
+      bold: bold ?? this.bold,
+      italic: italic ?? this.italic,
+      underline: underline ?? this.underline,
+      strikethrough: strikethrough ?? this.strikethrough,
+      size: size ?? this.size,
+      family: family ?? this.family,
+      color: color ?? this.color,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      lineSpacing: lineSpacing ?? this.lineSpacing,
+      subscript: subscript ?? this.subscript,
+      superscript: superscript ?? this.superscript,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     return shouldGetElement(this) ? this : null;
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this.toList() : null;

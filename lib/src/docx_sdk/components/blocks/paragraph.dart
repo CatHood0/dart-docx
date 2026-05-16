@@ -7,7 +7,6 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
-import '../../utils/logger/logger_configs.dart';
 import '../../xml_components/numbering/abstract_numbering_component.dart';
 
 /// Fundamental document unit for organizing text content.
@@ -103,6 +102,7 @@ import '../../xml_components/numbering/abstract_numbering_component.dart';
 /// - [StyleBuilder] for creating complex styles
 /// - [ParagraphBorders] for paragraph border configuration
 /// - [WidowOrphanControl] for widow/orphan line control
+//TODO: should we change the name to allow making more similar as Text and Text.rich?
 class Paragraph extends ComponentContainer<List<RunBase>> {
   Paragraph({
     required Iterable<RunBase> children,
@@ -121,7 +121,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     this.fontSize,
     this.fontFamily,
     this.fontColor,
-    this.highlightColor,
+    this.backgroundColor,
     // Spacing properties
     this.spacingBefore,
     this.spacingAfter,
@@ -146,9 +146,10 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     this.shadingPattern,
     int? level,
     super.id,
+    super.parent,
   })  : headingLevel = level,
         styles = List.from(styles),
-        super(parent: null, child: <RunBase<dynamic>>[...children]) {
+        super(child: <RunBase<dynamic>>[...children]) {
     int index = 0;
     for (final RunBase content in children) {
       length += content.dataLength;
@@ -163,6 +164,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   factory Paragraph.text({
     required String text,
     String? id,
+    DocxNode? parent,
     Iterable<Style> styles = const <Style>[],
     Iterable<Object> runStyles = const <Object>[],
     ParagraphPageBreak pageBreak = ParagraphPageBreak.none,
@@ -180,7 +182,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     num? fontSize,
     String? fontFamily,
     Color? fontColor,
-    Color? highlightColor,
+    Color? backgroundColor,
     // Spacing properties
     int? spacingBefore,
     int? spacingAfter,
@@ -206,6 +208,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }) =>
       Paragraph(
         id: id,
+        parent: parent,
         styles: styles,
         numbering: numbering,
         level: level,
@@ -220,7 +223,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
         fontSize: fontSize,
         fontFamily: fontFamily,
         fontColor: fontColor,
-        highlightColor: highlightColor,
+        backgroundColor: backgroundColor,
         spacingBefore: spacingBefore,
         spacingAfter: spacingAfter,
         lineSpacing: lineSpacing,
@@ -251,12 +254,13 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       );
 
   factory Paragraph.run(
-    DocxTreeNode node, {
+    DocxNode node, {
     Iterable<Style> styles = const <Style>[],
     ParagraphPageBreak pageBreak = ParagraphPageBreak.none,
     Numbering? numbering,
     Alignment? align,
     String? id,
+    DocxNode? parent,
     // Text formatting properties
     bool bold = false,
     bool italic = false,
@@ -294,6 +298,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }) =>
       Paragraph(
         id: id,
+        parent: parent,
         styles: styles,
         numbering: numbering,
         alignment: align,
@@ -307,7 +312,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
         fontSize: fontSize,
         fontFamily: fontFamily,
         fontColor: fontColor,
-        highlightColor: highlightColor,
+        backgroundColor: highlightColor,
         spacingBefore: spacingBefore,
         spacingAfter: spacingAfter,
         lineSpacing: lineSpacing,
@@ -351,7 +356,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   final num? fontSize;
   final String? fontFamily;
   final Color? fontColor;
-  final Color? highlightColor;
+  final Color? backgroundColor;
 
   // Spacing properties
   final int? spacingBefore;
@@ -480,7 +485,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
           useConfigurators: false,
         ));
       } else {
-        CompilerLogger.root.w(
+        CompilerLogger.root.warning(
           'Not found heading '
           'level style for $headingLevel. '
           'Heading will be ignored for '
@@ -525,7 +530,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
           st = normal;
         } else {
           st = null;
-          CompilerLogger.root.w(
+          CompilerLogger.root.warning(
             'Not found style "${context.defaultNormalStyle.styleId}". '
             'It will be ignored for '
             '$runtimeType:$id at $index with deep tree level $depth, '
@@ -539,6 +544,10 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
         ...pPrChildren,
       ];
     }
+
+    // TODO: we need to create a part here to merge when we
+    // have two or more references, to allow using both
+    // without losing stuff like the styles of one or two styles
 
     for (final Style style in styles) {
       if (style.isInvalid || appliedStyles.containsKey(style.styleId)) {
@@ -554,7 +563,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
           st = stemp;
         } else {
           st = null;
-          CompilerLogger.root.w(
+          CompilerLogger.root.warning(
             'Not found style "${style.styleId}". '
             'It will be ignored for '
             '$runtimeType:$id at $index with deep tree level $depth, '
@@ -579,14 +588,14 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   ///
   /// This allows applying formatting directly without requiring StyleBuilder.
   Style? _buildDirectStyle(DocumentContext context) {
-    final StyleBuilder builder = StyleBuilder.singularP();
+    final StyleBuilder builder = StyleBuilder.up();
     if (pageBreak != ParagraphPageBreak.none) builder.pageBreakBefore();
     if (alignment != null) builder.alignment(alignment!);
 
     if (context.childOfAncestorOfExactType<Align>()) {
       final Alignment al = context.getAncestorOfExactType<Align>()!.alignment;
       CompilerLogger.root
-          .d('Replace current align $alignment to found ancestor ${al.name}');
+          .debug('Replace current align $alignment to found ancestor ${al.name}');
       builder.alignment(al);
     }
 
@@ -600,7 +609,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     if (fontSize != null) builder.fontSize(fontSize!.ptToHalfPoints());
     if (fontFamily != null) builder.fontFamily(fontFamily!);
     if (fontColor != null) builder.runColor(fontColor!);
-    if (highlightColor != null) builder.highlight(highlightColor!);
+    if (backgroundColor != null) builder.highlight(backgroundColor!);
 
     if (spacingBefore != null || spacingAfter != null || lineSpacing != null) {
       builder.spacing(
@@ -700,7 +709,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
         fontSize: fontSize,
         fontFamily: fontFamily,
         fontColor: fontColor,
-        highlightColor: highlightColor,
+        backgroundColor: backgroundColor,
         spacingBefore: spacingBefore,
         spacingAfter: spacingAfter,
         lineSpacing: lineSpacing,
@@ -719,15 +728,87 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  Paragraph copyWith({
+    String? id,
+    DocxNode? parent,
+    Iterable<RunBase>? children,
+    Iterable<Style>? styles,
+    Numbering? numbering,
+    ParagraphPageBreak? pageBreak,
+    Alignment? alignment,
+    bool? bold,
+    bool? italic,
+    bool? underline,
+    bool? strikethrough,
+    bool? smallCaps,
+    bool? caps,
+    num? fontSize,
+    String? fontFamily,
+    Color? fontColor,
+    Color? backgroundColor,
+    int? spacingBefore,
+    int? spacingAfter,
+    int? lineSpacing,
+    LineRule? lineSpacingRule,
+    int? indentLeft,
+    int? indentRight,
+    int? firstLineIndent,
+    int? hangingIndent,
+    ParagraphBorders? borders,
+    WidowOrphanControl? widowControl,
+    bool? keepNext,
+    bool? keepLines,
+    int? outlineLevel,
+    Color? shadingColor,
+    ShadingPattern? shadingPattern,
+    int? level,
+  }) {
+    return Paragraph(
+      id: id ?? this.id,
+      children: children ?? child,
+      styles: styles ?? this.styles,
+      alignment: alignment ?? this.alignment,
+      pageBreak: pageBreak ?? this.pageBreak,
+      numbering: numbering ?? this.numbering,
+      bold: bold ?? this.bold,
+      italic: italic ?? this.italic,
+      underline: underline ?? this.underline,
+      strikethrough: strikethrough ?? this.strikethrough,
+      smallCaps: smallCaps ?? this.smallCaps,
+      caps: caps ?? this.caps,
+      fontSize: fontSize ?? this.fontSize,
+      fontFamily: fontFamily ?? this.fontFamily,
+      fontColor: fontColor ?? this.fontColor,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      spacingBefore: spacingBefore ?? this.spacingBefore,
+      spacingAfter: spacingAfter ?? this.spacingAfter,
+      lineSpacing: lineSpacing ?? this.lineSpacing,
+      lineSpacingRule: lineSpacingRule ?? this.lineSpacingRule,
+      indentLeft: indentLeft ?? this.indentLeft,
+      indentRight: indentRight ?? this.indentRight,
+      firstLineIndent: firstLineIndent ?? this.firstLineIndent,
+      hangingIndent: hangingIndent ?? this.hangingIndent,
+      borders: borders ?? this.borders,
+      widowControl: widowControl ?? this.widowControl,
+      keepNext: keepNext ?? this.keepNext,
+      keepLines: keepLines ?? this.keepLines,
+      outlineLevel: outlineLevel ?? this.outlineLevel,
+      shadingColor: shadingColor ?? this.shadingColor,
+      shadingPattern: shadingPattern ?? this.shadingPattern,
+      level: level ?? headingLevel,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
     for (final RunBase<dynamic> element in child) {
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -740,17 +821,17 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (child.isEmpty) return <RunBase>[];
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
     for (final RunBase element in child) {
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode>? foundedEl = element.visitAllElement(
+        final List<DocxNode>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -834,8 +915,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }
 
   @override
-  void addAll(List<DocxTreeNode<dynamic>> components) {
-    for (final DocxTreeNode<dynamic> v in components) {
+  void addAll(List<DocxNode<dynamic>> components) {
+    for (final DocxNode<dynamic> v in components) {
       length += v.length;
       if (v is RunBase) {
         child.add(v);
@@ -886,7 +967,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       return;
     }
 
-    final DocxTreeNode<dynamic> childData = run is Run ? run.child : run;
+    final DocxNode<dynamic> childData = run is Run ? run.child : run;
     final int local = math.min(childData.length, remaining);
 
     if (childData is TextRun) {
@@ -1003,13 +1084,13 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }
 
   @override
-  void updateElement(DocxTreeNode component, {int? index, bool strict = true}) {
+  void updateElement(DocxNode component, {int? index, bool strict = true}) {
     if (component is! RunBase) return;
 
     final int i = index ??
         child.indexWhere((RunBase<dynamic> el) => component.id == el.id);
     if (i <= -1) {
-      CompilerLogger.root.w(
+      CompilerLogger.root.warning(
         'Tried to updated an '
         'element using: $component, '
         'but there is no match for it',
@@ -1025,7 +1106,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
 
     length -= element.length;
 
-    CompilerLogger.root.d(
+    CompilerLogger.root.debug(
       'Replaced | $element | '
       'state using | $component | '
       'state at: $i in $runtimeType class type',

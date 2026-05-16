@@ -2,11 +2,16 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents a:fillRect
-class FillRectangle extends DocxTreeNode<dynamic> {
+class FillRectangle extends DocxNode<dynamic> {
   FillRectangle() : super(child: null);
 
   @override
   FillRectangle get copy => FillRectangle();
+
+  @override
+  FillRectangle copyWith({String? id, DocxNode<dynamic>? parent}) {
+    return FillRectangle();
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -20,7 +25,7 @@ class FillRectangle extends DocxTreeNode<dynamic> {
 
   @override
   List<FillRectangle>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? [this] : null;
@@ -28,7 +33,7 @@ class FillRectangle extends DocxTreeNode<dynamic> {
 
   @override
   FillRectangle? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

@@ -6,8 +6,7 @@ import '../../../../../core/extensions/string_ext.dart';
 import '../../../../../core/extensions/style_to_from_node.dart';
 import '../../../../utils/logger/logger_configs.dart';
 
-export '../../../../../core/borders.dart'
-    show DocxBorder, DocxBorders, DocxCellBorders;
+export '../../../../../core/borders.dart' show DocxBorder, DocxBorders, DocxCellBorders;
 
 /// Backwards compatibility alias for [TableBorder].
 typedef TableBorder = DocxBorder;
@@ -45,7 +44,7 @@ typedef TableCellBorders = DocxCellBorders;
 ///   layout: false, // fixed layout
 /// );
 /// ```
-class TableProperties extends DocxTreeNode<void> {
+class TableProperties extends DocxNode<void> {
   TableProperties({
     Iterable<Style> styles = const <Style>[],
     this.width = 0,
@@ -57,19 +56,13 @@ class TableProperties extends DocxTreeNode<void> {
     super.id,
     super.parent,
   })  : assert(width >= 0, 'width cannot be less than zero'),
-        assert(
-            width != 0 ||
-                !widthType.isExpand ||
-                width == 0 && widthType.isExpand,
+        assert(width != 0 || !widthType.isExpand || width == 0 && widthType.isExpand,
             'widthType of type expand requires that width property be zero or less'),
-        assert(
-            width <= 0 && widthType.isNilOrAuto ||
-                width > 0 && widthType.needsWidth,
+        assert(width <= 0 && widthType.isNilOrAuto || width > 0 && widthType.needsWidth,
             'TableWidthType.auto can only be used when width is zero or less'),
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(20),
-        borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.fromContext({
@@ -85,8 +78,7 @@ class TableProperties extends DocxTreeNode<void> {
         widthType = TableWidthType.dxa,
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(20),
-        borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.expand({
@@ -101,8 +93,7 @@ class TableProperties extends DocxTreeNode<void> {
         widthType = TableWidthType.expand,
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
-        borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.auto({
@@ -117,8 +108,7 @@ class TableProperties extends DocxTreeNode<void> {
         widthType = TableWidthType.auto,
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
-        borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.dxa({
@@ -132,11 +122,9 @@ class TableProperties extends DocxTreeNode<void> {
     super.parent,
   })  : widthType = TableWidthType.dxa,
         styles = List<Style>.from(styles),
-        assert(width != 0,
-            'widthType of type expand requires that width property be zero or less'),
+        assert(width != 0, 'widthType of type expand requires that width property be zero or less'),
         cellMargins = padding ?? const EdgeInsets.all(55),
-        borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.pct({
@@ -149,12 +137,10 @@ class TableProperties extends DocxTreeNode<void> {
     super.id,
     super.parent,
   })  : widthType = TableWidthType.pct,
-        assert(width != 0,
-            'widthType of type expand requires that width property be zero or less'),
+        assert(width != 0, 'widthType of type expand requires that width property be zero or less'),
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
-        borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   /// Predefined table styles to apply.
@@ -209,12 +195,10 @@ class TableProperties extends DocxTreeNode<void> {
   List<XmlNode> buildXml({required DocumentContext context}) {
     context.currentContentPart = this;
 
-    int padding =
-        context.getAncestorOfExactType<Padding>()?.padding.all().toInt() ?? 0;
+    int padding = context.getAncestorOfExactType<Padding>()?.padding.all().toInt() ?? 0;
 
     if (context.childOfAncestorOfExactType<Padding>()) {
-      CompilerLogger.root.d(
-          'Founded Padding($padding) parent for $id in ${parent.runtimeType}');
+      CompilerLogger.root.debug('Founded Padding($padding) parent for $id in ${parent.runtimeType}');
     }
     final List<XmlNode> nodes = <XmlNode>[
       XmlElement.tag(
@@ -228,9 +212,7 @@ class TableProperties extends DocxTreeNode<void> {
           else if (widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              (context.options.availablePageWidth.floor() - padding)
-                  .nonNegative
-                  .toString(),
+              (context.options.availablePageWidth.floor() - padding).nonNegative.toString(),
             ),
           XmlAttribute(
             'w:type'.toName(),
@@ -242,8 +224,7 @@ class TableProperties extends DocxTreeNode<void> {
     ];
 
     if (alignment != null || context.childOfAncestorOfExactType<Align>()) {
-      final Alignment align =
-          context.getAncestorOfExactType<Align>()?.alignment ?? alignment!;
+      final Alignment align = context.getAncestorOfExactType<Align>()?.alignment ?? alignment!;
       nodes.add(XmlElement.tag(
         'w:jc',
         attributes: <XmlAttribute>[
@@ -323,12 +304,9 @@ class TableProperties extends DocxTreeNode<void> {
         XmlElement.tag(
           'w:tblCellMar',
           children: <XmlNode>[
-            if (cellMargins!.top != null)
-              _buildCellMargin('top', cellMargins!.top!),
-            if (cellMargins!.right != null)
-              _buildCellMargin('right', cellMargins!.right!),
-            if (cellMargins!.bottom != null)
-              _buildCellMargin('bottom', cellMargins!.bottom!),
+            if (cellMargins!.top != null) _buildCellMargin('top', cellMargins!.top!),
+            if (cellMargins!.right != null) _buildCellMargin('right', cellMargins!.right!),
+            if (cellMargins!.bottom != null) _buildCellMargin('bottom', cellMargins!.bottom!),
             // if (cellMargins!.left != null)
             //   _buildCellMargin('left', cellMargins!.left!),
           ],
@@ -346,14 +324,13 @@ class TableProperties extends DocxTreeNode<void> {
   /// style, thickness, spacing, and color.
   XmlElement _buildBorder(String position, TableBorder border) {
     if (border.color != null && !border.color!.isRGB) {
-      CompilerLogger.root
-          .e('Found TableBorder instance in TableProperties configuration '
-              'with non RGB Color definition \'${border.color}\'. We recommend '
-              'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
-              'This instance will be ignored.\n\n'
-              'Object: $id, '
-              'Parent: ${getAncestorOfExactType<Table>()?.runtimeType}\n'
-              'Parent-Id: ${getAncestorOfExactType<Table>()?.id}\n');
+      CompilerLogger.root.error('Found TableBorder instance in TableProperties configuration '
+          'with non RGB Color definition \'${border.color}\'. We recommend '
+          'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
+          'This instance will be ignored.\n\n'
+          'Object: $id, '
+          'Parent: ${getAncestorOfExactType<Table>()?.runtimeType}\n'
+          'Parent-Id: ${getAncestorOfExactType<Table>()?.id}\n');
     }
     return XmlElement.tag(
       'w:$position',
@@ -386,7 +363,7 @@ class TableProperties extends DocxTreeNode<void> {
   }
 
   @override
-  DocxTreeNode<void> get copy => TableProperties(
+  DocxNode<void> get copy => TableProperties(
         id: id,
         parent: parent,
         styles: styles,
@@ -399,16 +376,41 @@ class TableProperties extends DocxTreeNode<void> {
       );
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
-    bool visitChildrenIfNeeded = true,
+  TableProperties copyWith({
+    String? id,
+    DocxNode<void>? parent,
+    Iterable<Style>? styles,
+    int? width,
+    TableWidthType? widthType,
+    Alignment? alignment,
+    TableBorders? borders,
+    EdgeInsets? cellMargins,
+    bool? layout,
   }) {
-    return shouldGetElement(this) ? <DocxTreeNode<dynamic>>[this] : null;
+    return TableProperties(
+      styles: styles ?? this.styles,
+      width: width ?? this.width,
+      widthType: widthType ?? this.widthType,
+      alignment: alignment ?? this.alignment,
+      borders: borders ?? this.borders,
+      padding: cellMargins ?? this.cellMargins,
+      layout: layout ?? this.layout,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic>) shouldGetElement, {
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    return shouldGetElement(this) ? <DocxNode<dynamic>>[this] : null;
+  }
+
+  @override
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic>) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

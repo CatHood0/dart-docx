@@ -9,7 +9,7 @@ import '../../../../../docx.dart';
 // 5. Generar documentación
 //
 // Represents a:off
-class Offset extends DocxTreeNode<dynamic> {
+class Offset extends DocxNode<dynamic> {
   Offset({required this.x, required this.y}) : super(child: null);
 
   Offset.zero()
@@ -22,6 +22,16 @@ class Offset extends DocxTreeNode<dynamic> {
 
   @override
   Offset get copy => Offset(x: x, y: y);
+
+  @override
+  Offset copyWith({
+    String? id,
+    DocxNode<dynamic>? parent,
+    num? x,
+    num? y,
+  }) {
+    return Offset(x: x ?? this.x, y: y ?? this.y);
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -38,16 +48,16 @@ class Offset extends DocxTreeNode<dynamic> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? [this] : null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

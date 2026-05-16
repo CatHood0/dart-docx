@@ -20,14 +20,14 @@ import '../../../utils/logger/logger_configs.dart';
 /// in `DocumentLayout`, then column break will behavior like a page breaking
 /// instead.
 @experimental
-class PageColumn extends DocxTreeNode<List<DocxTreeNode>> {
+class PageColumn extends DocxNode<List<DocxNode>> {
   PageColumn({
-    required Iterable<DocxTreeNode> children,
+    required Iterable<DocxNode> children,
     super.id,
     super.parent,
   }) : super(child: List.from(children)) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in child) {
+    for (final DocxNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -39,23 +39,22 @@ class PageColumn extends DocxTreeNode<List<DocxTreeNode>> {
   @protected
   bool ignoreBreak = false;
 
-  void add(DocxTreeNode node) {
+  void add(DocxNode node) {
     child.add(node);
   }
 
-  void addFirst(DocxTreeNode node) {
+  void addFirst(DocxNode node) {
     child.insert(0, node);
   }
 
-  void addAt(int index, DocxTreeNode node) {
+  void addAt(int index, DocxNode node) {
     child.insert(index, node);
   }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
-    if (context.options.columns == null ||
-        context.options.columns!.numColumns == null) {
-      CompilerLogger.root.w(
+    if (context.options.columns == null || context.options.columns!.numColumns == null) {
+      CompilerLogger.root.warning(
         'Its not recommended the use of "$runtimeType:$id" in none '
         'multi-column documents (ColumnOptions is not defined or numColumns is null). '
         'This will not throw an exception, since '
@@ -66,24 +65,23 @@ class PageColumn extends DocxTreeNode<List<DocxTreeNode>> {
     }
     context.currentContentPart = this;
     final List<XmlElement> elements = <XmlElement>[];
-    for (final DocxTreeNode<dynamic> e in child) {
+    for (final DocxNode<dynamic> e in child) {
       final List<XmlElement> element = e
           .buildXml(
             context: context,
           )
           .cast();
-      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() ||
-          element.isEmpty) {
+      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() || element.isEmpty) {
         continue;
       }
       elements.addAll(element);
     }
     return <XmlElement>[
+      if (!ignoreBreak)
+        ...Paragraph.run(
+          Break.pageBreak(),
+        ).buildXml(context: context),
       ...elements,
-      // if (!ignoreBreak)
-      //   ...Paragraph.run(
-      //     Break.pageBreak(),
-      //   ).buildXml(context: context),
     ];
   }
 
@@ -99,16 +97,29 @@ class PageColumn extends DocxTreeNode<List<DocxTreeNode>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  PageColumn copyWith({
+    Iterable<DocxNode>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return PageColumn(
+      children: child ?? this.child,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxTreeNode<dynamic> element in child) {
+    for (final DocxNode<dynamic> element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -121,18 +132,18 @@ class PageColumn extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode>[];
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final DocxTreeNode element in child) {
+    if (child.isEmpty) return <DocxNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
+    for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

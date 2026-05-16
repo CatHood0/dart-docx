@@ -2,13 +2,16 @@ import 'package:xml/xml.dart' show XmlNode;
 
 import '../../../../docx.dart';
 
-class LazyNode<T extends DocxTreeNode>
-    extends DocxTreeNode<T Function(DocumentContext, String)> {
+typedef BuildNodeCallback<T> = T Function(DocumentContext, String);
+
+class LazyNode<T extends DocxNode> extends DocxNode<BuildNodeCallback<T>> {
   LazyNode({
     required super.child,
     super.parent,
     super.id,
   });
+
+  T build(DocumentContext context) => child(context, id);
 
   @override
   List<XmlNode> buildXml({required DocumentContext context}) {
@@ -24,18 +27,31 @@ class LazyNode<T extends DocxTreeNode>
       );
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return <DocxTreeNode<dynamic>>[];
+    return <DocxNode<dynamic>>[];
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return null;
+  }
+
+  @override
+  LazyNode<T> copyWith({
+    BuildNodeCallback<T>? child,
+    String? id,
+    DocxNode? parent,
+  }) {
+    return LazyNode(
+      child: child ?? this.child,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
   }
 }

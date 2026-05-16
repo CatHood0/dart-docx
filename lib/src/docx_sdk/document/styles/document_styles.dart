@@ -25,7 +25,7 @@ import '../../styles/latent_styles.dart';
 /// // Find a style by ID
 /// final headingStyle = stylesheet.getStyleById('Heading1');
 /// ```
-//TODO: we need to think about changing these elements to be 
+//TODO: we need to think about changing these elements to be
 // a HashMap instead of a list
 class DocumentStyles {
   DocumentStyles({
@@ -61,12 +61,12 @@ class DocumentStyles {
   /// Parameters:
   /// - [options]: Editor configuration including font family, size, and language.
   ///   If not provided, defaults to Times New Roman 12pt with US English.
-  DocumentStyles.base({EditorOptions? options})
-      : styles = <Style>[...EasyStyles.standardDocumentStyles],
+  DocumentStyles.base({EditorOptions? options, List<Style>? styles})
+      : styles = <Style>[...(styles ?? StyleBuilder.standardDocumentStyles)],
         latentStyles = LatentStyles.base(),
         _docDefaultParagraphStyles = <Style>[],
         _docDefaultRunStyles = <Style>[
-          StyleBuilder.singularC()
+          StyleBuilder.uc()
               .fontFamily(options?.fontFamily ?? 'Times New Roman')
               .fontSize(
                 (options?.fontSize ?? 10.ptToHalfPoints()).toDouble(),
@@ -82,8 +82,8 @@ class DocumentStyles {
   // The latentStyles elements provides a mechanism for storing information regarding certain behaviors of such styles
   // without storing the actual formatting properties of the styles.
   //
-  // Such behaviors include such things as how many latent styles must be initialized to their defaults when the 
-  // document is opened, whether latent styles should be locked so that instances of the styles cannot be created, 
+  // Such behaviors include such things as how many latent styles must be initialized to their defaults when the
+  // document is opened, whether latent styles should be locked so that instances of the styles cannot be created,
   // what the uiPriority should be for latent styles, etc.
   LatentStyles latentStyles;
 

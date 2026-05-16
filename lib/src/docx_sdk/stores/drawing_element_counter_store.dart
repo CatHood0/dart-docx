@@ -1,7 +1,7 @@
 import '../../../docx.dart';
-import 'listenable_store.dart';
 
-class DrawingElementCounterStore extends ListenableStore {
+class DrawingElementCounterStore  {
+
   late MediaStore mediaStore;
   int _lastId = 1;
 

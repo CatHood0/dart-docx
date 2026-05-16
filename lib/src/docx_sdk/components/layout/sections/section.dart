@@ -61,15 +61,15 @@ import '../../../xml_components/document/xml_section_configuration_component.dar
 /// **Note**: This is an experimental component (@experimental) and its API may change
 /// as the DOCX library evolves.
 @experimental
-class Section extends DocxTreeNode<List<DocxTreeNode>> {
+class Section extends DocxNode<List<DocxNode>> {
   Section({
-    required Iterable<DocxTreeNode> children,
+    required Iterable<DocxNode> children,
     required this.layout,
     super.id,
     super.parent,
   }) : super(child: List.from(children)) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in child) {
+    for (final DocxNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -79,14 +79,14 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   Section.inheritFromContext({
-    required Iterable<DocxTreeNode> children,
+    required Iterable<DocxNode> children,
     required DocumentContext context,
     super.id,
     super.parent,
   })  : layout = context.options.layoutOptions,
         super(child: List.from(children)) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in child) {
+    for (final DocxNode<dynamic> content in child) {
       content
         ..parent = this
         ..index = index
@@ -113,7 +113,7 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
   List<XmlElement> buildXml({required DocumentContext context}) {
     context.currentContentPart = this;
     final List<XmlElement> elements = <XmlElement>[];
-    for (final DocxTreeNode<dynamic> e in child) {
+    for (final DocxNode<dynamic> e in child) {
       final List<XmlElement> element = e
           .buildXml(
             context: context,
@@ -147,16 +147,31 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  Section copyWith({
+    Iterable<DocxNode>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    DocumentLayout? layout,
+  }) {
+    return Section(
+      children: child ?? this.child,
+      layout: layout ?? this.layout,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxTreeNode<dynamic> element in child) {
+    for (final DocxNode<dynamic> element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -169,18 +184,18 @@ class Section extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode>[];
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final DocxTreeNode element in child) {
+    if (child.isEmpty) return <DocxNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
+    for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );

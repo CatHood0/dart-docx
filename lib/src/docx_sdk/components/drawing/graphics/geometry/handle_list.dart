@@ -16,13 +16,24 @@ class AdjustHandle {
 }
 
 // Represents a:avLst
-class HandlesList extends DocxTreeNode<Iterable<AdjustHandle>> {
+class HandlesList extends DocxNode<Iterable<AdjustHandle>> {
   HandlesList({
     Iterable<AdjustHandle> values = const <AdjustHandle>[],
   }) : super(child: values);
 
   @override
   HandlesList get copy => HandlesList(values: child);
+
+  @override
+  HandlesList copyWith({
+    Iterable<AdjustHandle>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return HandlesList(
+      values: child ?? this.child,
+    )..parent = parent ?? this.parent;
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -57,16 +68,16 @@ class HandlesList extends DocxTreeNode<Iterable<AdjustHandle>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return shouldGetElement(this) ? <DocxTreeNode<dynamic>>[this] : null;
+    return shouldGetElement(this) ? <DocxNode<dynamic>>[this] : null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

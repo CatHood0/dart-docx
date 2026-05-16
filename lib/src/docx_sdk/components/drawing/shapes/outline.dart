@@ -6,7 +6,7 @@ import '../../../../core/extensions/string_ext.dart';
 ///
 /// Defines the line properties around the shape perimeter, including
 /// color, width, dash pattern, and cap/join styles.
-class ShapeBorder extends DocxTreeNode<void> {
+class ShapeBorder extends DocxNode<void> {
   ShapeBorder({
     required this.color,
     this.width = emu,
@@ -94,6 +94,29 @@ class ShapeBorder extends DocxTreeNode<void> {
         join: join,
         dashPattern: dashPattern,
       );
+
+  @override
+  ShapeBorder copyWith({
+    String? id,
+    DocxNode<void>? parent,
+    Color? color,
+    int? width,
+    LineStyle? style,
+    LineCap? cap,
+    LineJoin? join,
+    DashPattern? dashPattern,
+  }) {
+    return ShapeBorder(
+      color: color ?? this.color.copy,
+      width: width ?? this.width,
+      style: style ?? this.style,
+      cap: cap ?? this.cap,
+      join: join ?? this.join,
+      dashPattern: dashPattern ?? this.dashPattern,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -198,33 +221,23 @@ class ShapeBorder extends DocxTreeNode<void> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return shouldGetElement(this) ? <DocxTreeNode<dynamic>>[this] : null;
+    return shouldGetElement(this) ? <DocxNode<dynamic>>[this] : null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
   }
 }
 
-
-enum LineStyle {
-  solid,
-  dash,
-  dot,
-  dashDot,
-  dashDotDot,
-  longDash,
-  systemDash,
-  systemDot
-}
+enum LineStyle { solid, dash, dot, dashDot, dashDotDot, longDash, systemDash, systemDot }
 
 enum LineCap { flat, round, square }
 

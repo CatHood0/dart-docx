@@ -10,11 +10,11 @@ class Colors {
   static final Color cyan = Color(0x00FFFF);
   static final Color magenta = Color(0xFF00FF);
   
-  static final Color gray = Color(0x808080);
-  static final Color darkGray = Color(0x404040);
-  static final Color lightGray = Color(0xC0C0C0);
-  static final Color veryLightGray = Color(0xE0E0E0);
-  static final Color veryDarkGray = Color(0x202020);
+  static final Color grey = Color(0x808080);
+  static final Color darkGrey = Color(0x404040);
+  static final Color lightGrey = Color(0xC0C0C0);
+  static final Color veryLightGrey = Color(0xE0E0E0);
+  static final Color veryDarkGrey = Color(0x202020);
   
   static final Color darkRed = Color(0x8B0000);
   static final Color darkGreen = Color(0x006400);
@@ -86,9 +86,9 @@ class Colors {
       'yellow': yellow,
       'cyan': cyan,
       'magenta': magenta,
-      'gray': gray,
-      'darkgray': darkGray,
-      'lightgray': lightGray,
+      'gray': grey,
+      'darkgray': darkGrey,
+      'lightgray': lightGrey,
       'darkred': darkRed,
       'darkgreen': darkGreen,
       'darkblue': darkBlue,

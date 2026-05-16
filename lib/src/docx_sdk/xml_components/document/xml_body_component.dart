@@ -4,12 +4,12 @@ import 'package:xml/xml.dart' show XmlElement;
 import '../../../../docx.dart';
 import 'xml_section_configuration_component.dart';
 
-class XmlBodyComponent extends XmlComponentBase<DocxDocument> {
+class XmlBodyComponent extends XmlComponentBase<DocxNode> {
   XmlBodyComponent({
-    required DocxDocument document,
+    required DocxNode body,
     this.themeId,
   }) : super(
-          value: document,
+          value: body,
           xmlKey: 'w:body',
         );
   final String? themeId;

@@ -2,7 +2,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../../../docx.dart';
 import '../../../../../core/extensions/string_ext.dart';
-import '../../shared/fill.dart';
 
 class Shading extends Fill<void> {
   Shading({
@@ -135,16 +134,31 @@ class Shading extends Fill<void> {
       );
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
-    bool visitChildrenIfNeeded = true,
+  Shading copyWith({
+    String? id,
+    DocxNode<void>? parent,
+    ShadingPattern? style,
+    Color? color,
+    Color? fill,
   }) {
-    return shouldGetElement(this) ? <DocxTreeNode<dynamic>>[this] : null;
+    return Shading(
+      style: style ?? this.style,
+      color: color ?? this.color,
+      fill: fill ?? this.fill,
+    )..parent = parent ?? this.parent;
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    return shouldGetElement(this) ? <DocxNode<dynamic>>[this] : null;
+  }
+
+  @override
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

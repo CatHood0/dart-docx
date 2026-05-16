@@ -4,7 +4,7 @@ import '../../docx_sdk/sdk.dart'
         Alignment,
         CrossAxisAlignment,
         DocumentContext,
-        DocxTreeNode,
+        DocxNode,
         Drawing,
         GridColumn,
         MainAxisAlignment,
@@ -27,13 +27,14 @@ import '../../docx_sdk/sdk.dart'
         TableWidthType;
 import 'cast_ext.dart';
 
-extension WrapNode on DocxTreeNode {
+extension WrapNode on DocxNode {
   Paragraph paragraph({
     Iterable<Style> styles = const <Style>[],
     ParagraphPageBreak pageBreak = ParagraphPageBreak.none,
     Numbering? numbering,
     Alignment? align,
     String? id,
+    DocxNode? parent,
   }) {
     if (this is RunBase) {
       return Paragraph(
@@ -43,6 +44,7 @@ extension WrapNode on DocxTreeNode {
         pageBreak: pageBreak,
         numbering: numbering,
         alignment: align,
+        parent: parent,
       );
     }
 
@@ -53,24 +55,28 @@ extension WrapNode on DocxTreeNode {
       pageBreak: pageBreak,
       numbering: numbering,
       align: align,
+      parent: parent,
     );
   }
 
   Align align({
     required Alignment alignment,
     String? id,
+    DocxNode? parent,
   }) {
     assert(this is! Align, 'Couldn\'t be possible wrap an Align into another');
     return Align(
       id: id,
       child: this,
       alignment: alignment,
+      parent: parent,
     );
   }
 
   Run run({
     String? id,
     bool wrapInRunMark = true,
+    DocxNode? parent,
   }) {
     if (this is RunBase) {
       throw Exception('Cannot wrap $runtimeType:${this.id} into a Run');
@@ -79,33 +85,40 @@ extension WrapNode on DocxTreeNode {
       id: id,
       component: this,
       wrapInRunMark: wrapInRunMark,
+      parent: parent,
     );
   }
 
   Drawing drawing({
     String? id,
+    DocxNode? parent,
   }) {
     return Drawing(
       id: id,
       child: this,
-    );
+    )..parent = parent;
   }
 
-  DocxTreeNode lazy({
+  DocxNode lazy({
     String? id,
+    DocxNode? parent,
   }) {
-    return DocxTreeNode.lazyBuild((DocumentContext context, String id) {
-      return this;
-    });
+    return DocxNode.lazyBuild((DocumentContext context, String id) {
+      return this..parent = parent;
+    })
+      ..parent = this;
   }
 
   PageColumn column({
     String? id,
+    DocxNode? parent,
   }) {
     return PageColumn(
       id: id,
-      children: <DocxTreeNode<dynamic>>[
-        this is RunBase ? paragraph() : this,
+      children: <DocxNode<dynamic>>[
+        this is RunBase
+            ? (paragraph()..parent = parent)
+            : (this..parent = parent),
       ],
     );
   }
@@ -124,9 +137,11 @@ extension WrapNode on DocxTreeNode {
     bool? canSplit,
     bool? hidden,
     bool isHeader = false,
+    DocxNode? parent,
   }) {
     return Table(
       id: id,
+      parent: parent,
       rows: <TableRow>[
         tableRow(
           cellConfig: cellConfig,
@@ -155,12 +170,12 @@ extension WrapNode on DocxTreeNode {
     bool? canSplit,
     bool? hidden,
     int? height,
+    DocxNode? parent,
     TableHeightRule? heightRule,
     Alignment? alignment,
     bool isHeader = false,
     int spacing = 0,
     TableCellConfig? cellConfig,
-    DocxTreeNode? parent,
   }) {
     return TableRow(
       id: id,
@@ -181,16 +196,18 @@ extension WrapNode on DocxTreeNode {
   TableCell tableCell({
     String? id,
     TableCellConfig? cellConfig,
+    DocxNode? parent,
   }) {
     return TableCell.one(
       id: id,
       child: this,
       cellConfig: cellConfig ?? TableCellConfig.nil(),
+      parent: parent,
     );
   }
 }
 
-extension WrapNodes on Iterable<DocxTreeNode> {
+extension WrapNodes on Iterable<DocxNode> {
   Paragraph paragraph({
     Iterable<Style> styles = const <Style>[],
     ParagraphPageBreak pageBreak = ParagraphPageBreak.none,
@@ -201,7 +218,7 @@ extension WrapNodes on Iterable<DocxTreeNode> {
     return Paragraph(
       children: this is Iterable<RunBase<dynamic>>
           ? this.cast<RunBase<dynamic>>()
-          : map((DocxTreeNode<dynamic> e) => e.run()).cast<RunBase<dynamic>>(),
+          : map((DocxNode<dynamic> e) => e.run()).cast<RunBase<dynamic>>(),
       id: id,
       styles: styles,
       pageBreak: pageBreak,
@@ -213,13 +230,13 @@ extension WrapNodes on Iterable<DocxTreeNode> {
   Iterable<Run> run({
     String? id,
   }) {
-    return map((DocxTreeNode<dynamic> e) => e.run());
+    return map((DocxNode<dynamic> e) => e.run());
   }
 
   Iterable<Drawing> drawing({
     String? id,
   }) {
-    return map((DocxTreeNode<dynamic> e) => e.drawing());
+    return map((DocxNode<dynamic> e) => e.drawing());
   }
 
   PageColumn column({
@@ -227,10 +244,10 @@ extension WrapNodes on Iterable<DocxTreeNode> {
   }) {
     return PageColumn(
       id: id,
-      children: <DocxTreeNode<dynamic>>[
+      children: <DocxNode<dynamic>>[
         ...(this is Iterable<RunBase<dynamic>>
             ? map(
-                (DocxTreeNode<dynamic> e) => e.paragraph(),
+                (DocxNode<dynamic> e) => e.paragraph(),
               )
             : this),
       ],
@@ -255,7 +272,7 @@ extension WrapNodes on Iterable<DocxTreeNode> {
     return Table(
       id: id,
       rows: <TableRow>[
-        ...map<TableRow>((DocxTreeNode<dynamic> e) => e.tableRow(
+        ...map<TableRow>((DocxNode<dynamic> e) => e.tableRow(
               cellConfig: cellConfig,
               heightRule: heightRule,
               height: height,
@@ -288,7 +305,7 @@ extension WrapNodes on Iterable<DocxTreeNode> {
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
       width: width ?? 0,
-      children: List<DocxTreeNode<dynamic>>.from(this),
+      children: List<DocxNode<dynamic>>.from(this),
     );
   }
 }

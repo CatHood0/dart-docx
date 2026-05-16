@@ -23,10 +23,7 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
             if (child.extrusionColor != null)
               XmlAttribute(
                 'clr'.toName(),
-                (child.extrusionColor!.rgbValue ??
-                        child.extrusionColor!.themeColor)!
-                    .toString()
-                    .replaceFirst('0x', ''),
+                (child.extrusionColor!.rgbValue ?? child.extrusionColor!.themeColor)!.toString().replaceFirst('0x', ''),
               ),
             XmlAttribute(
               'h'.toName(),
@@ -47,10 +44,7 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
             if (child.contourColor != null)
               XmlAttribute(
                 'clr'.toName(),
-                (child.contourColor!.rgbValue ??
-                        child.contourColor!.themeColor)!
-                    .toString()
-                    .replaceFirst('0x', ''),
+                (child.contourColor!.rgbValue ?? child.contourColor!.themeColor)!.toString().replaceFirst('0x', ''),
               ),
             XmlAttribute(
               'w'.toName(),
@@ -170,17 +164,17 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (shouldGetElement(this)) return <DocxTreeNode<dynamic>>[this];
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     return null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
@@ -189,6 +183,17 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
 
   @override
   ThreeDEffectComponent get copy => ThreeDEffectComponent(child: child);
+
+  @override
+  ThreeDEffectComponent copyWith({
+    ThreeDEffect? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return ThreeDEffectComponent(
+      child: child ?? this.child,
+    )..parent = parent ?? this.parent;
+  }
 }
 
 /// 3D effect configuration for shapes with developer-friendly units.
@@ -217,8 +222,7 @@ class ThreeDEffect {
   })  : extrusionHeight = extrusionHeight.ptToEmu(),
         contourWidth = contourWidth.ptToEmu(),
         lightingAngle = (lightingAngle * (60000 / 360)).round(),
-        lightingIntensity =
-            (lightingIntensity * 100000).clamp(0, 100000).toInt();
+        lightingIntensity = (lightingIntensity * 100000).clamp(0, 100000).toInt();
 
   /// Creates a simple 3D effect with default bevels.
   factory ThreeDEffect.simple({
@@ -302,14 +306,10 @@ class ThreeDEffect {
   }) {
     return ThreeDEffect(
       extrusionHeight: extrusionHeight,
-      extrusionColor: baseColor != null
-          ? Color(_darkenColor(baseColor.rgbValue!, 30))
-          : Color(0x666666),
+      extrusionColor: baseColor != null ? Color(_darkenColor(baseColor.rgbValue!, 30)) : Color(0x666666),
       material: PresetMaterial.plastic,
       contourWidth: 0.5,
-      contourColor: baseColor != null
-          ? Color(_darkenColor(baseColor.rgbValue!, 50))
-          : Color(0x333333),
+      contourColor: baseColor != null ? Color(_darkenColor(baseColor.rgbValue!, 50)) : Color(0x333333),
       topBevel: const Bevel(
         width: 19050, // 1.5 points
         height: 19050,

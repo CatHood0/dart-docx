@@ -14,10 +14,10 @@ import '../../../core/extensions/string_ext.dart';
 ///
 /// Note: The internal implementation treats the frame's content as part
 /// of a single paragraph that has frame properties.
-class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
+class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
   /// Creates a [TextFrame] instance.
   ///
-  /// [data] is the iterable of [DocxTreeNode] that will be placed inside the frame.
+  /// [data] is the iterable of [DocxNode] that will be placed inside the frame.
   /// This typically includes [Paragraph] or [TextRun] elements.
   /// [width] and [height] specify the dimensions of the frame in pixels (constructor computes the correct sizes automatically).
   /// [wrap] defines how text wraps around the frame.
@@ -27,7 +27,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
   /// [border] is an optional map to define borders for the frame,
   /// similar to how paragraph borders are defined in [StyleBuilder].
   TextFrame({
-    required Iterable<DocxTreeNode> data,
+    required Iterable<DocxNode> data,
     required int width,
     required int height,
     super.id,
@@ -43,11 +43,9 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
         height = height.pixelsToTwips(),
         super(child: data) {
     int index = 0;
-    for (final DocxTreeNode<dynamic> content in data) {
+    for (final DocxNode<dynamic> content in data) {
       if (content is ShapeTextBox) {
-        length += content.child.content
-            .map((DocxTreeNode<dynamic> e) => e.length)
-            .reduce(
+        length += content.child.content.map((DocxNode<dynamic> e) => e.length).reduce(
               (int a, int b) => a + b,
             );
       }
@@ -75,7 +73,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
         id: id,
         data: child
             .map(
-              (DocxTreeNode<dynamic> e) => e.copy,
+              (DocxNode<dynamic> e) => e.copy,
             )
             .toList(),
         width: width,
@@ -89,6 +87,38 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
         offsetY: offsetY,
         border: border,
       );
+
+  @override
+  TextFrame copyWith({
+    Iterable<DocxNode>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    int? width,
+    int? height,
+    FrameWrap? wrap,
+    VerticalAnchorPosition? vAnchor,
+    HorizontalAnchorPosition? hAnchor,
+    AnchorPosition? xAlign,
+    AnchorPosition? yAlign,
+    int? offsetX,
+    int? offsetY,
+    Style? border,
+  }) {
+    return TextFrame(
+      data: child ?? this.child.map((e) => e.copy).toList(),
+      width: width ?? this.width,
+      height: height ?? this.height,
+      wrap: wrap ?? this.wrap,
+      vAnchor: vAnchor ?? this.vAnchor,
+      hAnchor: hAnchor ?? this.hAnchor,
+      xAlign: xAlign ?? this.xAlign,
+      yAlign: yAlign ?? this.yAlign,
+      offsetX: offsetX ?? this.offsetX,
+      offsetY: offsetY ?? this.offsetY,
+      border: border ?? this.border,
+      id: id ?? this.id,
+    )..parent = parent ?? this.parent;
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -135,11 +165,9 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
 
     // Add the content of the TextFrame (e.g., actual paragraphs, text runs)
     // directly as children of the w:p element that forms the frame.
-    for (final DocxTreeNode child in child) {
+    for (final DocxNode child in child) {
       final List<XmlNode> element = child.buildXml(context: context);
-      if (child is IgnorableMixin &&
-              child.cast<IgnorableMixin>().shouldIgnore() ||
-          element.isEmpty) {
+      if (child is IgnorableMixin && child.cast<IgnorableMixin>().shouldIgnore() || element.isEmpty) {
         continue;
       }
       paragraphChildren.addAll(element);
@@ -157,8 +185,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
   List<XmlNode> buildXmlStyle({required DocumentContext context}) {
     final List<XmlNode> borderConfigs = <XmlNode>[];
     if (border != null) {
-      final StyleConfigurator? pBdrConfig =
-          border!.getConfiguratorOrNull('w:pBdr', fullName: true);
+      final StyleConfigurator? pBdrConfig = border!.getConfiguratorOrNull('w:pBdr', fullName: true);
       if (pBdrConfig != null && pBdrConfig.hasChildren) {
         for (final StyleConfigurator borderChild in pBdrConfig.configurators) {
           final List<XmlAttribute> attrs = borderChild.attributes?.entries.map((
@@ -199,18 +226,18 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
   }
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode<dynamic>>[];
-    final List<DocxTreeNode<dynamic>> elements = <DocxTreeNode<dynamic>>[];
-    for (final DocxTreeNode element in child) {
+    if (child.isEmpty) return <DocxNode<dynamic>>[];
+    final List<DocxNode<dynamic>> elements = <DocxNode<dynamic>>[];
+    for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -223,16 +250,16 @@ class TextFrame extends ComponentContainer<Iterable<DocxTreeNode>> {
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    for (final DocxTreeNode element in child) {
+    for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode<dynamic>? foundedEl = element.visitElement(
+        final DocxNode<dynamic>? foundedEl = element.visitElement(
           shouldGetElement,
         );
         if (foundedEl != null) {

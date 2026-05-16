@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
-import '../../shared/fill.dart';
 
 /// Indicates that a shape has no fill (transparent).
 ///
@@ -11,6 +10,14 @@ class NoFillComponent extends Fill<void> {
 
   @override
   NoFillComponent get copy => NoFillComponent();
+
+  @override
+  NoFillComponent copyWith({
+    String? id,
+    DocxNode<void>? parent,
+  }) {
+    return NoFillComponent()..parent = parent ?? this.parent;
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -28,16 +35,16 @@ class NoFillComponent extends Fill<void> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? [this] : null;
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

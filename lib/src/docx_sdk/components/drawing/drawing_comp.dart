@@ -15,7 +15,7 @@ import '../../../../docx.dart';
 /// ```dart
 /// final drawing = DrawingML(data: myShapeComponent);
 /// ```
-class Drawing extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
+class Drawing extends DocxNode<DocxNode> with IgnorableMixin {
   Drawing({
     required super.child,
     super.id,
@@ -45,18 +45,30 @@ class Drawing extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   }
 
   @override
-  DocxTreeNode<DocxTreeNode<dynamic>> get copy => Drawing(
+  DocxNode<DocxNode<dynamic>> get copy => Drawing(
         child: child.copy,
         id: id,
       );
 
   @override
-  List<DocxTreeNode<dynamic>>? visitAllElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  Drawing copyWith({
+    DocxNode? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return Drawing(
+      child: child ?? this.child.copy,
+      id: id ?? this.id,
+    )..parent = parent ?? this.parent;
+  }
+
+  @override
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this)
-        ? <DocxTreeNode<dynamic>>[this]
+        ? <DocxNode<dynamic>>[this]
         : !visitChildrenIfNeeded
             ? null
             : child.visitAllElement(
@@ -66,8 +78,8 @@ class Drawing extends DocxTreeNode<DocxTreeNode> with IgnorableMixin {
   }
 
   @override
-  DocxTreeNode<dynamic>? visitElement(
-    bool Function(DocxTreeNode<dynamic> element) shouldGetElement, {
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this)

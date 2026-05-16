@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents wp:docPr
-class DocProperties extends DocxTreeNode<dynamic> {
+class DocProperties extends DocxNode<dynamic> {
   DocProperties({
     required String docPrId,
     required this.name,
@@ -22,7 +22,24 @@ class DocProperties extends DocxTreeNode<dynamic> {
         docPrId: id,
         name: name,
         description: description,
+        relativeHeight: relativeHeight,
       );
+
+  @override
+  DocProperties copyWith({
+    String? id,
+    DocxNode<dynamic>? parent,
+    String? name,
+    String? description,
+    String? relativeHeight,
+  }) {
+    return DocProperties(
+      docPrId: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      relativeHeight: relativeHeight ?? this.relativeHeight,
+    );
+  }
 
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
@@ -47,7 +64,7 @@ class DocProperties extends DocxTreeNode<dynamic> {
 
   @override
   List<DocProperties>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? [this] : null;
@@ -55,7 +72,7 @@ class DocProperties extends DocxTreeNode<dynamic> {
 
   @override
   DocProperties? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;

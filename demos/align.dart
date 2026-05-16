@@ -25,7 +25,7 @@ Future<void> main() async {
       ),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         Align(
           alignment: Alignment.center,
           child: Paragraph.text(

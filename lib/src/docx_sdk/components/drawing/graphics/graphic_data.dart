@@ -2,7 +2,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
 // Represents a:graphicData
-class GraphicData extends DocxTreeNode<DocxTreeNode> {
+class GraphicData extends DocxNode<DocxNode> {
   GraphicData({
     required super.child,
     required this.uri,
@@ -19,6 +19,20 @@ class GraphicData extends DocxTreeNode<DocxTreeNode> {
       );
 
   @override
+  GraphicData copyWith({
+    DocxNode? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    String? uri,
+  }) {
+    return GraphicData(
+      child: child ?? this.child.copy,
+      uri: uri ?? this.uri,
+      id: id ?? this.id,
+    )..parent = parent ?? this.parent;
+  }
+
+  @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     return <XmlElement>[
       XmlElement.tag(
@@ -33,25 +47,23 @@ class GraphicData extends DocxTreeNode<DocxTreeNode> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return child.visitAllElement(shouldGetElement,
-        visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return child.visitElement(shouldGetElement,
-        visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override

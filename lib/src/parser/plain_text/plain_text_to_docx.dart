@@ -23,9 +23,9 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
     return bytes!;
   }
 
-  List<DocxTreeNode> _documentContentBuilder({required String data}) {
+  List<DocxNode> _documentContentBuilder({required String data}) {
     final List<String> lines = const LineSplitter().convert(data);
-    final List<DocxTreeNode> buffer = <DocxTreeNode>[];
+    final List<DocxNode> buffer = <DocxNode>[];
     for (final String text in lines) {
       buffer.add(
         Paragraph(

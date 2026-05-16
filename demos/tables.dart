@@ -62,13 +62,13 @@ Future<void> main() async {
       ),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         // Document title
         Paragraph.text(
           text: 'Advanced Table Examples in DOCX',
           runStyles: <Object>[
             BoldAttribute(),
-            StyleBuilder.singularC().fontSize(16.ptToHalfPoints()).build(),
+            StyleBuilder.uc().fontSize(16.ptToHalfPoints()).build(),
           ],
           styles: <Style>[
             Style.ref('title'),
@@ -196,10 +196,9 @@ Table _buildSimpleTable() {
     ),
     columns: GridColumn(width: 2500).repeat(2),
     rows: <TableRow>[
-      TableRow(
+      TableRow.header(
         height: 504,
         heightRule: TableHeightRule.atLeast,
-        isHeader: true,
         cells: <TableCell>[
           TableCell.one(
             cellConfig: TableCellConfig.auto(
@@ -371,7 +370,7 @@ Table _buildComplexContentTable() {
         cells: <TableCell>[
           TableCell(
             cellConfig: TableCellConfig.dxa(width: 4000),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'Text with multiple formats:',
                 runStyles: <Object>[BoldAttribute()],
@@ -407,7 +406,7 @@ Table _buildComplexContentTable() {
               width: 4000,
               widthType: TableWidthType.dxa,
             ),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'List inside a table:',
                 runStyles: <Object>[BoldAttribute()],
@@ -453,7 +452,7 @@ Table _buildComplexContentTable() {
               Paragraph.text(
                 text: 'Final paragraph with right alignment',
                 styles: <Style>[
-                  StyleBuilder.singularP().alignment(Alignment.right).build(),
+                  StyleBuilder.up().alignment(Alignment.right).build(),
                 ],
               ),
             ],
@@ -504,7 +503,7 @@ Table _buildCustomBordersTable() {
                 ),
               ),
             ),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'Thick green borders',
                 align: Alignment.center,
@@ -523,7 +522,7 @@ Table _buildCustomBordersTable() {
                 ),
               ),
             ),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'Wavy magenta borders',
                 align: Alignment.center,
@@ -547,7 +546,7 @@ Table _buildCustomBordersTable() {
                 ),
               ),
             ),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'All orange borders',
                 align: Alignment.center,
@@ -560,7 +559,7 @@ Table _buildCustomBordersTable() {
               widthType: TableWidthType.dxa,
               borders: TableCellBorders.all(TableBorder.none()),
             ),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(text: 'No borders', align: Alignment.center),
             ],
           ),
@@ -619,7 +618,7 @@ Table _buildShadedTable() {
               widthType: TableWidthType.dxa,
               shading: Shading.diagonalCross(fill: Color(0xCCCCFF)),
             ),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'Blue background with pattern',
                 align: Alignment.center,
@@ -632,7 +631,7 @@ Table _buildShadedTable() {
               widthType: TableWidthType.dxa,
               shading: Shading.horizontalStripe(fill: Color(0xFFFFCC)),
             ),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'Yellow background with stripes',
                 align: Alignment.center,
@@ -713,7 +712,7 @@ Table _buildCustomWidthTable() {
         cells: <TableCell>[
           TableCell(
             cellConfig: TableCellConfig.dxa(width: 1000),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: '10%',
                 align: Alignment.center,
@@ -722,7 +721,7 @@ Table _buildCustomWidthTable() {
           ),
           TableCell(
             cellConfig: TableCellConfig.dxa(width: 3000),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: '30%',
                 align: Alignment.center,
@@ -731,7 +730,7 @@ Table _buildCustomWidthTable() {
           ),
           TableCell(
             cellConfig: TableCellConfig.dxa(width: 4000),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: '40% (wider)',
                 align: Alignment.center,
@@ -740,7 +739,7 @@ Table _buildCustomWidthTable() {
           ),
           TableCell(
             cellConfig: TableCellConfig.dxa(width: 2000),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: '20%',
                 align: Alignment.center,
@@ -816,7 +815,7 @@ Table _buildHeaderTable() {
             ),
             TableCell(
               cellConfig: TableCellConfig.dxa(width: 2500),
-              children: <DocxTreeNode<dynamic>>[
+              children: <DocxNode<dynamic>>[
                 Paragraph.text(
                   text: 'Data B$i',
                   align: Alignment.center,
@@ -887,7 +886,7 @@ Table _buildNestedTable() {
         cells: <TableCell>[
           TableCell(
             cellConfig: TableCellConfig.dxa(width: 3500),
-            children: <DocxTreeNode<dynamic>>[
+            children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'Cell with nested table:',
                 runStyles: <Object>[BoldAttribute()],

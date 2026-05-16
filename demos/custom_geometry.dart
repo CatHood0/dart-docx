@@ -52,7 +52,7 @@ Future<void> main() async {
       ),
     ),
     root: DocumentRoot(
-      sections: <DocxTreeNode<dynamic>>[
+      sections: <DocxNode<dynamic>>[
         // Document title
         Paragraph.text(
           text: 'Custom Geometry Shapes Gallery',
@@ -321,7 +321,7 @@ Future<void> main() async {
 }
 
 /// Builds a shape example with title, description, and the shape itself
-DocxTreeNode<dynamic> _buildShapeExample({
+DocxNode<dynamic> _buildShapeExample({
   required String title,
   required String description,
   required ShapePath shapePath,
@@ -361,7 +361,7 @@ DocxTreeNode<dynamic> _buildShapeExample({
 
   // Create column with centered content
   return Column(
-    children: <DocxTreeNode<dynamic>>[
+    children: <DocxNode<dynamic>>[
       Paragraph.text(
         text: title,
         styles: <Style>[

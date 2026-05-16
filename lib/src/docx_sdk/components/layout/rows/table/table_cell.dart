@@ -37,9 +37,9 @@ import '../../../../utils/logger/logger_configs.dart';
 ///   ],
 /// ),
 /// ```
-class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
+class TableCell extends DocxNode<List<DocxNode>> {
   TableCell({
-    required List<DocxTreeNode> children,
+    required List<DocxNode> children,
     required this.cellConfig,
     bool reversed = false,
     super.id,
@@ -49,7 +49,7 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
         _start = 0,
         super(child: children) {
     int childIndex = 0;
-    for (final DocxTreeNode el in reversed ? child.reversed : child) {
+    for (final DocxNode el in reversed ? child.reversed : child) {
       el
         ..parent = this
         ..index = childIndex
@@ -59,7 +59,7 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   TableCell.one({
-    required DocxTreeNode child,
+    required DocxNode child,
     required this.cellConfig,
     bool reversed = false,
     super.id,
@@ -67,7 +67,7 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   })  : _length = 1,
         _fixed = true,
         _start = 0,
-        super(child: <DocxTreeNode<dynamic>>[child]) {
+        super(child: <DocxNode<dynamic>>[child]) {
     child
       ..parent = this
       ..index = 0
@@ -82,10 +82,10 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   })  : _length = 0,
         _fixed = true,
         _start = 0,
-        super(child: <DocxTreeNode<dynamic>>[]);
+        super(child: <DocxNode<dynamic>>[]);
 
   TableCell.builder({
-    required DocxTreeNode Function(DocumentContext, int) itemBuilder,
+    required DocxNode Function(DocumentContext, int) itemBuilder,
     required int itemCount,
     required this.cellConfig,
     bool reversed = false,
@@ -95,7 +95,7 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
         _fixed = false,
         _start = 0,
         _itemBuilder = itemBuilder,
-        super(child: const <DocxTreeNode<dynamic>>[]);
+        super(child: const <DocxNode<dynamic>>[]);
 
   /// Configuration for the table cell, including:
   /// - Width and sizing behavior
@@ -105,7 +105,7 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   /// - Background shading
   final TableCellConfig cellConfig;
 
-  DocxTreeNode Function(DocumentContext, int)? _itemBuilder;
+  DocxNode Function(DocumentContext, int)? _itemBuilder;
   int _length;
   int _start;
   bool _fixed;
@@ -113,14 +113,12 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   @override
   List<XmlElement> buildXml({required DocumentContext context}) {
     final List<XmlNode> cellChildren = <XmlNode>[];
-    List<DocxTreeNode<dynamic>>? children = _fixed ? child : null;
+    List<DocxNode<dynamic>>? children = _fixed ? child : null;
 
     if (children == null) {
-      children = <DocxTreeNode<dynamic>>[];
-      for (int i = _start;
-          _start > 0 ? i > 0 : i < _length;
-          _start > 0 ? i-- : i++) {
-        final DocxTreeNode<dynamic> el = _itemBuilder!(context, i);
+      children = <DocxNode<dynamic>>[];
+      for (int i = _start; _start > 0 ? i > 0 : i < _length; _start > 0 ? i-- : i++) {
+        final DocxNode<dynamic> el = _itemBuilder!(context, i);
         context.currentContentPart = this;
         children.add(el);
       }
@@ -139,7 +137,7 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
     }
 
     // Cell content (can be multiple elements)
-    for (final DocxTreeNode child in children) {
+    for (final DocxNode child in children) {
       final List<XmlNode> childXml = child.buildXml(context: context);
       cellChildren.addAll(childXml);
     }
@@ -157,9 +155,8 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
     //    | TableCell <- (we are here)
     //
     // As you see, we don't get a Row instance here
-    if ((child.lastOrNull is Table || child.lastOrNull is Row) &&
-        context.getAncestorOfExactType<Table>() != null) {
-      CompilerLogger.root.w(
+    if ((child.lastOrNull is Table || child.lastOrNull is Row) && context.getAncestorOfExactType<Table>() != null) {
+      CompilerLogger.root.warning(
         'Detected ending ${child.last.runtimeType} '
         'child in $runtimeType:$depth:$id. '
         'Inserting empty paragraph to avoid rendering issues with multiple editors',
@@ -197,17 +194,11 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
           else if (cellConfig.widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              (context.options.pageSize.width -
-                      (context.options.margins.left +
-                          context.options.margins.right))
-                  .floor()
-                  .toString(),
+              (context.options.pageSize.width - (context.options.margins.left + context.options.margins.right)).floor().toString(),
             ),
           XmlAttribute(
             'w:type'.toName(),
-            cellConfig.widthType.isExpand
-                ? TableWidthType.dxa.name
-                : cellConfig.widthType.name,
+            cellConfig.widthType.isExpand ? TableWidthType.dxa.name : cellConfig.widthType.name,
           ),
         ],
         isSelfClosing: true,
@@ -320,7 +311,7 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
 
   XmlElement _buildBorder(String position, TableBorder border) {
     if (border.color != null && !border.color!.isRGB) {
-      CompilerLogger.root.e(
+      CompilerLogger.root.error(
         'Found TableBorder instance '
         'with a non RGB Color definition \'${border.color}\'. We recommend '
         'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
@@ -341,8 +332,7 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
         XmlAttribute('w:val'.toName(), border.style.value),
         XmlAttribute('w:sz'.toName(), border.size.toString()),
         XmlAttribute('w:space'.toName(), border.space.toString()),
-        if (border.color != null && border.color!.isRGB)
-          XmlAttribute('w:color'.toName(), border.color!.toColorValue()!),
+        if (border.color != null && border.color!.isRGB) XmlAttribute('w:color'.toName(), border.color!.toColorValue()!),
       ],
       isSelfClosing: true,
     );
@@ -357,15 +347,30 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
       );
 
   @override
-  DocxTreeNode? visitElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  TableCell copyWith({
+    List<DocxNode<dynamic>>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+    TableCellConfig? cellConfig,
+  }) {
+    return TableCell(
+      cellConfig: cellConfig ?? this.cellConfig,
+      children: child ?? this.child,
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxTreeNode<dynamic> element in child) {
+    for (final DocxNode<dynamic> element in child) {
       if (shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
-        final DocxTreeNode? foundedEl = element.visitElement(
+        final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
@@ -378,17 +383,17 @@ class TableCell extends DocxTreeNode<List<DocxTreeNode>> {
   }
 
   @override
-  List<DocxTreeNode>? visitAllElement(
-    bool Function(DocxTreeNode element) shouldGetElement, {
+  List<DocxNode>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmpty) return <DocxTreeNode>[];
-    final List<DocxTreeNode> elements = <DocxTreeNode>[];
-    for (final DocxTreeNode<dynamic> element in child) {
+    if (child.isEmpty) return <DocxNode>[];
+    final List<DocxNode> elements = <DocxNode>[];
+    for (final DocxNode<dynamic> element in child) {
       if (shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
-        final List<DocxTreeNode<dynamic>>? foundedEl = element.visitAllElement(
+        final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
