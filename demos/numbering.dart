@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
-import 'package:docx/src/docx_sdk/utils/logger/logger_configs.dart';
 
 const String orderedKey = 'ordered';
 const String unorderedKey = 'unordered';

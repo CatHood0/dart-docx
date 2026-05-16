@@ -300,14 +300,20 @@ final pr2 = Paragraph.text(
 
 ### List and Numberings
 
-Paragraphs can be formatted as list items with configurable numbering styles and levels. This supports both ordered (numbered) and unordered (bulleted) lists with proper indentation and formatting.
+You can create list items with configurable numbering styles and levels. `Paragraph` being configured to be an item. By default, this library supports: ordered (numbered) and unordered (bulleted) lists styles with proper indentation and formatting using `NumberingOptions` class.
 
 #### Example: Paragraph as list item
 ```dart
 final pr = Paragraph.text(
   text: 'List item content',
+  // It's mandatory injecting this style
+  // since it's part of the standard of word
+  // (i guess, since if it's not in the
+  // styles of the paragraph, list does not
+  // work correctly)
+  styles: [Style.ref('ListParagraph')],
   numbering: Numbering(
-    // default list style implemented by
+    // Default list style implemented by
     // the docx library
     reference: 'unordered',
     level: 0,
@@ -316,9 +322,15 @@ final pr = Paragraph.text(
 );
 ```
 
-Or, if you want to leave us all the boring stuff, you can just use `NumberingList`:
+If you want leave to us all the boring stuff, you can just use:
 
-_`NumberingList` natively manages references, id, and indentation levels. It only support these types: `Paragraph`, `Text`, `TextRun`, `HyperlinkRun` and others `NumberingList` nested. It manages automatically the indentation level using the context and `<node>.getAncestorOfExactType` to get always the exact level where a `ǸumberingList` is. Every time that you define a new `NumberingList` instance, the count is restarted to "1" (depends on the `NumberingOptions` specified, but you probably already get what I'm trying to say)_
+#### NumberingList
+
+`NumberingList` manage: the references, ids, list styles (it injects the `ListParagraph` style), and indentation levels (uses the `<node>.getAncestorOfExactType<NumberingList>` to get always the exact level where a `NumberingList` is). 
+
+It only support these types: `Paragraph`, `Text`, `TextRun`, `HyperlinkRun` and others `NumberingList` nested. 
+
+_Every time that you define a new `NumberingList`, the count is restarted to "1" (depends on the `NumberingOptions` specified, but you probably already get what I'm trying to say)_
 
 ```dart
 final list = NumberingList(
@@ -343,12 +355,10 @@ final list = NumberingList(
       ],
     ),
   ],
-),
-
+);
 ```
 
 See more about in [Numbering definition](./docs/numbering_internals.md) and an example of this in [Numbering Demo](./demos/numbering.dart)
-
 
 ### Images anchoring
 
