@@ -200,9 +200,13 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     }
 
     key = inheritFromParent ? lastOwner!.refKey : refKey;
-    CompilerLogger.root.info('Decided Key: $key => Numbering Map: $_lastNumberingIds');
+    CompilerLogger.root.info(
+        'Decided Key: $key${lastOwner != null ? ' (Nested)' : ''} => Numbering Map: $_lastNumberingIds');
 
-    _lastNumberingIds[key] = (_lastNumberingIds[key] ?? refId) + 1;
+    // nested lists uses the same refId
+    _lastNumberingIds[key] = lastOwner != null
+        ? _lastNumberingIds[key] ?? (refId + 1)
+        : (_lastNumberingIds[key] ?? refId) + 1;
     // Since every refId is start in a different point when the
     // key is different, then we use this to allow sharing correctly
     // the count
