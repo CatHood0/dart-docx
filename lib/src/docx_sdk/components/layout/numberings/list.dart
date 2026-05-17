@@ -2,8 +2,6 @@ import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
-import '../../../utils/logger/logger_configs.dart';
-import '../../../xml_components/numbering/abstract_numbering_component.dart';
 
 //TODO: we should have a way to define a stuff like the DocumentStyles but for Numberings
 // to allow reusing constants to avoid magic strings
@@ -20,11 +18,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
         assert(refKey.isNotEmpty, 'listKey must not be empty'),
         assert(
             children.every((DocxNode<dynamic> e) =>
-                e is Text ||
-                e is Paragraph ||
-                e is NumberingList ||
-                e is LazyNode<NumberingList> ||
-                e is RunBase && e is! Run),
+                e is Text || e is Paragraph || e is NumberingList || e is LazyNode<NumberingList> || e is RunBase && e is! Run),
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -48,10 +42,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   })  : inheritFromParent = false,
         assert(refKey.isNotEmpty, 'listKey must not be empty'),
         assert(
-            child is Text ||
-                child is Paragraph ||
-                child is NumberingList ||
-                child is RunBase && child is! Run,
+            child is Text || child is Paragraph || child is NumberingList || child is RunBase && child is! Run,
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -74,10 +65,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   })  : refKey = '',
         inheritFromParent = true,
         assert(
-            child is Text ||
-                child is Paragraph ||
-                child is NumberingList ||
-                child is RunBase && child is! Run,
+            child is Text || child is Paragraph || child is NumberingList || child is RunBase && child is! Run,
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -100,14 +88,9 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     required List<DocxNode> children,
     super.id,
     super.parent,
-  })  : assert(inheritFromParent || !inheritFromParent && refKey.isNotEmpty,
-            'listKey must not be empty'),
+  })  : assert(inheritFromParent || !inheritFromParent && refKey.isNotEmpty, 'listKey must not be empty'),
         assert(
-            children.every((DocxNode<dynamic> e) =>
-                e is Text ||
-                e is Paragraph ||
-                e is NumberingList ||
-                e is RunBase && e is! Run),
+            children.every((DocxNode<dynamic> e) => e is Text || e is Paragraph || e is NumberingList || e is RunBase && e is! Run),
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -130,11 +113,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   })  : refKey = '',
         inheritFromParent = true,
         assert(
-            children.every((DocxNode<dynamic> e) =>
-                e is Text ||
-                e is Paragraph ||
-                e is NumberingList ||
-                e is RunBase && e is! Run),
+            children.every((DocxNode<dynamic> e) => e is Text || e is Paragraph || e is NumberingList || e is RunBase && e is! Run),
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -163,13 +142,18 @@ class NumberingList extends DocxNode<List<DocxNode>> {
 
   final List<DocxNode> _temp = <DocxNode<dynamic>>[];
 
+  int getRefId() {
+    // perfom was not executed
+    if (_temp.isEmpty || inheritFromParent || refKey.isEmpty) return -1;
+    // lastNumberingIds = { "unordered": 1, "ordered": 3, "bullet": 10 }
+    return _lastNumberingIds[refKey]!;
+  }
+
   //TODO: implement this
   @override
-  void perfom() {}
-
-  void init(DocumentContext context) {
+  void perfom([DocumentContext? context]) {
+    if (_temp.isNotEmpty) return;
     String key = refKey;
-    _temp.clear();
 
     int level = 0;
     int refId = 0;
@@ -200,13 +184,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     }
 
     key = inheritFromParent ? lastOwner!.refKey : refKey;
-    CompilerLogger.root.info(
-        'Decided Key: $key${lastOwner != null ? ' (Nested)' : ''} => Numbering Map: $_lastNumberingIds');
+    CompilerLogger.root.info('Decided Key: $key${lastOwner != null ? ' (Nested)' : ''} => Numbering Map: $_lastNumberingIds');
 
     // nested lists uses the same refId
-    _lastNumberingIds[key] = lastOwner != null
-        ? _lastNumberingIds[key] ?? (refId + 1)
-        : (_lastNumberingIds[key] ?? refId) + 1;
+    _lastNumberingIds[key] = lastOwner != null ? _lastNumberingIds[key] ?? (refId + 1) : (_lastNumberingIds[key] ?? refId) + 1;
     // Since every refId is start in a different point when the
     // key is different, then we use this to allow sharing correctly
     // the count
@@ -264,6 +245,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
           ),
         );
       } else if (element is LazyNode<NumberingList>) {
+        if (context == null) {
+          _temp.add(element.copyWith(parent: this));
+          continue;
+        }
         _temp.add(element.build(context).copyWith(parent: this));
       } else {
         _temp.add(element.copyWith(parent: this));
@@ -274,14 +259,16 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   @override
   List<XmlNode> buildXml({required DocumentContext context}) {
     context.currentContentPart = this;
-    init(context);
+    // By now, we will call this
+    // but should be do it automatically by the compiler
+    perfom(context);
     List<XmlNode> nodes = <XmlNode>[];
     for (DocxNode<dynamic> e in _temp) {
-      nodes.addAll(
-        e.buildXml(
-          context: context,
-        ),
-      );
+      if (e is LazyNode) {
+        nodes.addAll(e.build(context).buildXml(context: context));
+        continue;
+      }
+      nodes.addAll(e.buildXml(context: context));
     }
     return nodes;
   }
@@ -359,58 +346,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     DocumentContext context,
     String ref,
   ) {
-    // Checks if context provided comes from
-    // a test or [visitElement] callback
-    // to avoid exceptions during checking. And then, we
-    // just ignore it
-    if (context.getAbstractNumId != null) {
-      final XmlNumberingComponent c =
-          context.numberingStore.buildNumberingXmlDocumentComponent();
-      final XmlAbstractNumComponent? abstractInstance =
-          c.abstractNumberingMap[ref];
-      //TODO: put this exception in another place
-      // or create a custom Exception for this particular thing
-      if (abstractInstance == null) {
-        throw Exception(
-          '''No registered abstract instance for $ref. Please, ensure that you are passing the NumberingOption in "numberingOption" property from DocumentOptions class.
-  NumberingOptions(
-    refKey: '$ref',
-    levels: <LevelOptions>[
-        LevelOptions(
-          level: 0,
-          format: LevelFormat.bullet, // or "LevelFormat.decimal"
-          text: '\u25CF', // or "%1." for digits or list of letters
-          start: 1,
-          paragraphStyle: StyleBuilder.paragraph('$ref-lvl0')
-            .indent(
-              left: 0.5.inchesToTwips(),
-              hanging: 0.25.inchesToTwips(),
-            )
-            .build(),
-          runStyle: StyleBuilder.character('$ref-lvl0')
-            .fontFamily('Symbol')
-            .build(),
-        ),
-        LevelOptions(
-          level: 1,
-          format: LevelFormat.bullet, // or "LevelFormat.decimal"
-          text: '\u25CF', // or "%2." for digits or list of letters (never use the same text for different levels)
-          start: 1,
-          paragraphStyle: StyleBuilder.paragraph('$ref-lvl1')
-            .indent(
-              left: 1.0.inchesToTwips(),
-              hanging: 0.25.inchesToTwips(),
-            )
-            .build(),
-          runStyle: StyleBuilder.character('$ref-lvl0')
-            .fontFamily('Symbol')
-            .build(),
-        ),
-    ],
-  );
-''',
-        );
-      }
-    }
+    // Delegate to NumberingStore for validation
+    context.numberingStore.validateAbstractNumberingExistence(ref);
   }
 }

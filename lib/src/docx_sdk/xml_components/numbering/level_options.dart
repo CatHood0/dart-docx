@@ -14,6 +14,17 @@ class LevelOptions {
     this.runStyle,
   });
 
+  LevelOptions.bullet({
+    required this.level,
+    required this.text,
+    this.alignment = Alignment.left,
+    this.start = 1,
+    this.suffix,
+    this.isLegalNumberingStyle = false,
+    this.paragraphStyle,
+    this.runStyle,
+  }) : format = LevelFormat.bullet;
+
   final num level;
   final LevelFormat format;
 

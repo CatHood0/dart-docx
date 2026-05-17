@@ -7,6 +7,7 @@ import 'package:xml/xml.dart' as xml;
 
 import '../../../docx.dart';
 import '../../core/extensions/cast_ext.dart';
+import '../stores/sdt_store.dart';
 import '../events/docx_event.dart';
 import '../utils/logger/logger_configs.dart';
 import '../xml_components/docProps/xml_app_component.dart';
@@ -20,7 +21,7 @@ import '../xml_components/web_settings/xml_web_settings_component.dart';
 import '../xml_components/xml_content_type_component.dart';
 
 // TODO: should we do something like a "runApp" but for this?
-//  We need to take in account stuff like BuildContext and how works the Widgets 
+//  We need to take in account stuff like BuildContext and how works the Widgets
 // lifecycle
 /// Core compiler that transforms [DocxDocument] objects into .docx files.
 ///
@@ -47,8 +48,7 @@ class DocxCompiler {
 
   LoggablePhaseConfig config;
 
-  late StreamController<DocxEvent> _eventController =
-      StreamController<DocxEvent>.broadcast();
+  late StreamController<DocxEvent> _eventController = StreamController<DocxEvent>.broadcast();
 
   /// Enables dynamic font discovery from document content.
   ///
@@ -98,6 +98,9 @@ class DocxCompiler {
   /// Manages all drawing definitions for the current compilation process.
   late DocumentRelsCounterStore docRelsStore = DocumentRelsCounterStore();
 
+  /// Manages SDT identifiers for the current compilation process.
+  late SdtStore sdtStore = SdtStore();
+
   DocumentContext buildContext(DocumentOptions options) {
     return DocumentContext(
       options: options,
@@ -106,6 +109,7 @@ class DocxCompiler {
       hyperlinkStore: hyperlinkStore,
       numberingStore: numberingStore,
       drawingStore: drawingStore,
+      sdtStore: sdtStore,
       defaultNormalStyle: defaultNormalStyle,
       setNormalStyleToNotStyledParagraphs: applyNormalStyleIfNeeded,
       noTrim: noTrim,
@@ -138,8 +142,7 @@ class DocxCompiler {
       _emit(DocxEvent.end(error: 'Document content is empty'));
       return null;
     }
-    final Set<String> supportedFileExtensions =
-        document.options.supportedFileExtensions;
+    final Set<String> supportedFileExtensions = document.options.supportedFileExtensions;
     final Archive archive = Archive();
     final DocumentOptions options = document.options;
     _emit(DocxEvent.start());
@@ -152,6 +155,7 @@ class DocxCompiler {
     numberingStore.reset();
     fontStore.reset();
     drawingStore.reset();
+    sdtStore.reset();
     mediaStore.drawingStore = drawingStore;
     drawingStore.mediaStore = mediaStore;
     mediaStore.docRelsStore = docRelsStore;
@@ -211,17 +215,16 @@ class DocxCompiler {
     final bool hasNumberingUsage = document.root.visitElement(
           visitChildrenIfNeeded: true,
           (DocxNode<dynamic> el) {
-            return el is Paragraph && el.cast<Paragraph>().numbering != null ||
-                el is NumberingList;
+            return el is Paragraph && el.cast<Paragraph>().numbering != null || el is NumberingList;
           },
         ) !=
         null;
 
-    numberingStore.initializeAndApplyContext(documentContext);
+    numberingStore.initialize(documentContext.options.numberingOptions);
+    numberingStore.discoverAndRegister(document);
 
     CompilerLogger.root.debug('Numbering store initialized.');
-    final List<RelationShip> defaultDocRelations =
-        XmlDocumentRelsComponent.defaultDocumentFileRelations(
+    final List<RelationShip> defaultDocRelations = XmlDocumentRelsComponent.defaultDocumentFileRelations(
       applyCustomTheme,
       docRelsStore,
       hasNumberingUsage,
@@ -230,14 +233,12 @@ class DocxCompiler {
     _emit(DocxEvent.searching(subject: 'Searching media (images)'));
     CompilerLogger.root.debug('Initiating media search.');
     mediaStore.discoverMedia(document, supportedFileExtensions);
-    CompilerLogger.root.debug(
-        'Media search completed. Found ${mediaStore.mediaComponents.length} images.');
+    CompilerLogger.root.debug('Media search completed. Found ${mediaStore.mediaComponents.length} images.');
 
     _emit(DocxEvent.searching(subject: 'Searching hyperlinks'));
     CompilerLogger.root.debug('Initiating hyperlink search.');
     hyperlinkStore.discoverHyperlinks(document);
-    CompilerLogger.root.debug(
-        'Hyperlink search completed. Found ${hyperlinkStore.hyperlinks.length} hyperlinks.');
+    CompilerLogger.root.debug('Hyperlink search completed. Found ${hyperlinkStore.hyperlinks.length} hyperlinks.');
 
     // Discover fonts (either dynamically or from DocumentOptions)
     _emit(DocxEvent.searching(subject: 'Discovering fonts'));
@@ -246,31 +247,26 @@ class DocxCompiler {
       document,
       dynamicSearchEnabled: dynamicFontSearch,
     );
-    CompilerLogger.root.debug(
-        'Font discovery completed. Found ${fontStore.hasFonts ? fontStore.fonts.length : 0} fonts.');
+    CompilerLogger.root.debug('Font discovery completed. Found ${fontStore.hasFonts ? fontStore.fonts.length : 0} fonts.');
 
     _emit(DocxEvent.unknownProgress(subject: 'Registering images'));
     // this part register all the media allow context
     // and different part of the nodes
     // to access to image references
     CompilerLogger.root.debug('Registering images and building relationships.');
-    final List<RelationShip> imageRelationships =
-        await mediaStore.registerAndBuildImageRelationships(
+    final List<RelationShip> imageRelationships = await mediaStore.registerAndBuildImageRelationships(
       namespaces['images']!,
     );
-    CompilerLogger.root
-        .debug('Image relationships built. Count: ${imageRelationships.length}.');
+    CompilerLogger.root.debug('Image relationships built. Count: ${imageRelationships.length}.');
 
     // Update lastRId after adding images
     _emit(DocxEvent.unknownProgress(subject: 'Registering links'));
     CompilerLogger.root.debug('Registering hyperlinks and building relationships.');
-    final List<RelationShip> hyperlinkRelationships =
-        hyperlinkStore.buildHyperlinkRelationships(
+    final List<RelationShip> hyperlinkRelationships = hyperlinkStore.buildHyperlinkRelationships(
       namespaces['hyperlinks']!,
     );
 
-    CompilerLogger.root.debug(
-        'Hyperlink relationships built. Count: ${hyperlinkRelationships.length}.');
+    CompilerLogger.root.debug('Hyperlink relationships built. Count: ${hyperlinkRelationships.length}.');
 
     String? theme;
     CompilerLogger.root.debug('Building XML components.');
@@ -286,8 +282,7 @@ class DocxCompiler {
       ),
       XmlRelsComponent(),
       XmlCoreComponent(options: document.options),
-      XmlAppComponent(
-          metadata: documentContext.options.editorSettings.metadata),
+      XmlAppComponent(metadata: documentContext.options.editorSettings.metadata),
 
       // since we need register first the theme
       // we pass document.xml.rels
@@ -310,12 +305,10 @@ class DocxCompiler {
           themeId: theme,
         ),
       ),
-      if (hasNumberingUsage)
-        numberingStore.buildNumberingXmlDocumentComponent(),
+      if (hasNumberingUsage) numberingStore.buildNumberingXmlComponent(),
       XmlStylesComponent(),
       fontStore.buildFontTableXmlComponent(documentContext),
-      if (dynamicFontSearch && fontStore.fontRelations.isNotEmpty)
-        fontStore.buildFontTableRelsXmlDocument(documentContext),
+      if (dynamicFontSearch && fontStore.fontRelations.isNotEmpty) fontStore.buildFontTableRelsXmlDocument(documentContext),
       XmlSettingsComponent(options: document.options.settings),
       if (applyCustomTheme) XmlThemeComponent(options: document.options.theme),
       XmlWebSettingsComponent(options: document.options.webSettings)
@@ -324,11 +317,8 @@ class DocxCompiler {
     for (int i = 0; i < components.length; i++) {
       final XmlComponentBase<dynamic> comp = components[i];
       final String path = components[i].path;
-      CompilerLogger.root
-          .debug('Building named ${comp.name} component to - "$path"');
-      if (comp is XmlDocumentRelsComponent &&
-          comp.path == DocxPaths.documentXmlRelsFilePath &&
-          applyCustomTheme) {
+      CompilerLogger.root.debug('Building named ${comp.name} component to - "$path"');
+      if (comp is XmlDocumentRelsComponent && comp.path == DocxPaths.documentXmlRelsFilePath && applyCustomTheme) {
         theme = comp.theme;
       }
       _addXmlToArchive(
@@ -343,8 +333,7 @@ class DocxCompiler {
     CompilerLogger.root.debug('All XML components built and added to archive.');
 
     if (mediaStore.media.isNotEmpty) {
-      CompilerLogger.root.debug(
-          'Saving media files to archive. Total: ${mediaStore.media.length}');
+      CompilerLogger.root.debug('Saving media files to archive. Total: ${mediaStore.media.length}');
       await for (final (int, int) el in mediaStore.saveMedia(archive)) {
         _emit(DocxEvent.progress(
           subject: 'Saving media',
@@ -399,8 +388,7 @@ class DocxCompiler {
   ) {
     final xml.XmlDocument document = generateXmlDocument();
     if (config.shouldLogPhase(phaseName)) {
-      CompilerLogger.root.info(
-          'XML Content for $phaseName:\n${document.toXmlString(pretty: true)}');
+      CompilerLogger.root.info('XML Content for $phaseName:\n${document.toXmlString(pretty: true)}');
     }
     archive.add(
       ArchiveFile.bytes(

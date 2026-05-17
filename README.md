@@ -4,9 +4,26 @@
 
 
 > [!NOTE]
+>
+> At this moment, the current implementation is just to create Dart to .docx documents. 
+> I'm working hard to implement most common (and profesional) required features to be reliable as a toolkit.
+>
+> Not Implemented yet:
+> 1. Dynamic Fields
+> 2. Placeholders (auto-replace values with no efforts using `${{<key>}}` sintax)
+> 3. Testing more complex tables
+> 4. Charts
+> 5. Partial compilation (only compiles elements that are not passed. This feature let you compile first 
+>    things like parts of the .docx, and then you can later compile the dynamic parts without making the whole file and 
+>    passing just the created one) 
+> 6. SDT Content Controls (7 types implemented)
+> 7. Bookmarks
+>
+> About parsers and future features
 > * HTML, Markdown, plain text, and Quill Delta, are being planned. At this point, is useless since we're still working on the bidirectional parsing.
 > * Incremental editing is partially implemented. But does not work at all points. Stuff like graphics, images and tables are still a difficult part. 
 > * Shape effects (e.g., shadows, gradients) are experimental at this points. They're like "magic" stuff that I don't at all what they do.
+
 
 ## Examples
 
@@ -609,7 +626,7 @@ final row = TableRow.header(
 
 `TableRow` only supported: `left`, `center` and `right` alignments, other ones will throw an `Exception`.
 
-_**Note:** if you have an `Align` wrapping your `Table` at some point, `TableRow` will get that alignment and applies it to its content_
+_**Note:** if you have an `Align` wrapping your `Table` at some point, `TableRow` will get that alignment and applies it to its content (only when `alignment` property is not provided for the row)_
 
 ```dart
 final row = TableRow(
@@ -752,14 +769,14 @@ final row = Row(
 
 See more examples in [row.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/row.dart) and [row_alignments.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/row_alignments.dart).
 
-### Column Layout
+### PageColumn Layout
 
-The `Column` component is a container that groups multiple elements vertically. It is commonly used in multi-column document layouts, such as newspapers or newsletters.
+The `PageColumn` component is a container that groups multiple elements vertically. It is commonly used in multi-column document layouts, such as newspapers or newsletters.
 
 #### Basic Usage
 
 ```dart
-final column = Column(
+final column = PageColumn(
   children: <DocxNode<dynamic>>[
     Paragraph.text(text: 'First paragraph'),
     Paragraph.text(text: 'Second paragraph'),
@@ -875,6 +892,116 @@ final row = Row(
 ### Shapes
 
 _Under active development_
+
+### SDT Content Controls
+
+_SDT (Structured Document Tags) are Word's Content Controls - interactive elements that allow users to input or modify data within a document while maintaining structure._
+
+SDT components enable forms, data binding to Custom XML Parts, and dynamic content in Word documents. This library supports the following SDT types:
+
+#### Available SDT Types
+
+| Type | Description | Status |
+|------|-------------|--------|
+| `SdtPlainText` | Single-line text input fields | ✅ Implemented |
+| `SdtRichText` | Multi-paragraph rich text | ✅ Implemented |
+| `SdtDropDownList` | Fixed dropdown selection | ✅ Implemented |
+| `SdtComboBox` | Editable dropdown | ✅ Implemented |
+| `SdtDate` | Date picker control | ✅ Implemented |
+| `SdtCheckbox` | Checkbox control | ✅ Implemented |
+| `SdtPicture` | Image container | ✅ Implemented |
+
+#### SdtPlainText
+
+Plain text SDT components are used for single-line text input fields like names, IDs, or short values. They support placeholder text, max length validation, and lock properties.
+
+```dart
+final sdt = SdtPlainText(
+  alias: 'client_name',
+  tag: 'client_name',
+  placeholder: '[Enter name]',
+  content: [
+    TextRun.text(text: 'John Doe'),
+  ],
+);
+
+// With max length validation
+final sdtWithLimit = SdtPlainText(
+  alias: 'phone_number',
+  tag: 'phone',
+  maxLength: 10,
+  content: [
+    TextRun.text(text: '555-123-4567'),
+  ],
+);
+
+// Locked SDT (cannot be edited)
+final sdtLocked = SdtPlainText(
+  alias: 'document_id',
+  tag: 'doc_id',
+  lock: StdLock.lock,
+  content: [
+    TextRun.text(text: 'DOC-2024-001'),
+  ],
+);
+```
+
+#### Key SDT Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `alias` | `String` | Visible label in Word's content control UI |
+| `tag` | `String` | Internal tag for programming reference |
+| `sdtId` | `int?` | Optional unique identifier for the SDT |
+| `placeholder` | `String?` | Placeholder text shown when empty |
+| `showingPlacHdr` | `bool` | Whether to show placeholder (default: `true`) |
+| `maxLength` | `int?` | Maximum character length |
+| `lock` | `StdLock?` | Lock type: `'lock'`, `'lockContent'`, `'no'` |
+| `temporary` | `bool` | If `true`, SDT is not saved permanently |
+
+#### Using SDT in Paragraphs
+
+SDT components are block-level elements that should be wrapped in `Run` when used within paragraphs:
+
+```dart
+final paragraph = Paragraph(
+  children: [
+    TextRun.text(text: 'Client Name: '),
+    Run(component: SdtPlainText(
+      alias: 'client_name',
+      tag: 'client_name',
+      placeholder: '[Enter name]',
+      content: [
+        TextRun.text(text: 'John Doe'),
+      ],
+    )),
+    TextRun.text(text: ' '),
+  ],
+);
+```
+
+#### SDT in Row Layouts
+
+For form-like layouts, SDT components can be used within Row structures by wrapping them in `Paragraph`:
+
+```dart
+final formRow = Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    Text('Field Label:'),
+    SdtPlainText(
+      alias: 'field_value',
+      tag: 'field_value',
+      placeholder: '[Enter value]',
+      content: [
+        TextRun.text(text: ''),
+      ],
+    ).run().paragraph(),
+  ],
+);
+```
+
+For technical details on SDT XML structure, see [docs/sdt_elements.md](docs/sdt_elements.md).
 
 ## Style Customization
 

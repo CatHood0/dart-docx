@@ -7,7 +7,6 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
-import '../../xml_components/numbering/abstract_numbering_component.dart';
 
 /// Fundamental document unit for organizing text content.
 ///
@@ -460,24 +459,18 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
             'all/does-word-support-more-than-9-list-levels/'
             'd130fdcd-1781-446d-8c84-c6c79124e4d7';
       }
-      checkAbstractNumberingInstanceExistence(context, numbering!.reference);
-      assert(
-        context.registerInstance != null,
-        'registerInstance must not be null at this point',
-      );
-      context.registerInstance!.call(
-        numbering!.reference,
-        numbering!.refId ?? 0,
-        level: numbering!.level,
-      );
-      pPrChildren.add(numbering!.build(context));
+      context.numberingStore.validateAbstractNumberingExistence(numbering!.reference);
+      pPrChildren.add(numbering!.build(
+        context.numberingStore.getConcreteNumId(
+          numbering!.concreteRef,
+        )!,
+      ));
     }
 
     bool alreadyHasReference = false;
 
     if (context.checkStyleRefExistence && headingLevel != null) {
-      final Style? header =
-          context.options.docStyles.getStyleById('Heading${headingLevel!}');
+      final Style? header = context.options.docStyles.getStyleById('Heading${headingLevel!}');
       if (header != null && !header.isInvalid) {
         alreadyHasReference = true;
         pPrChildren.addAll(header.forParagraphStyle(
@@ -524,8 +517,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       );
       Style? st = context.defaultNormalStyle;
       if (alreadyHasReference || context.checkStyleRefExistence) {
-        final Style? normal = context.options.docStyles
-            .getStyleById(context.defaultNormalStyle.styleId);
+        final Style? normal = context.options.docStyles.getStyleById(context.defaultNormalStyle.styleId);
         if (normal != null && !normal.isInvalid) {
           st = normal;
         } else {
@@ -555,10 +547,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       }
       Style? st = style;
       // Resolve references
-      if (alreadyHasReference && st.isReference ||
-          context.checkStyleRefExistence) {
-        final Style? stemp =
-            context.options.docStyles.getStyleById(style.styleId);
+      if (alreadyHasReference && st.isReference || context.checkStyleRefExistence) {
+        final Style? stemp = context.options.docStyles.getStyleById(style.styleId);
         if (stemp != null && !stemp.isInvalid) {
           st = stemp;
         } else {
@@ -594,8 +584,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
 
     if (context.childOfAncestorOfExactType<Align>()) {
       final Alignment al = context.getAncestorOfExactType<Align>()!.alignment;
-      CompilerLogger.root
-          .debug('Replace current align $alignment to found ancestor ${al.name}');
+      CompilerLogger.root.debug('Replace current align $alignment to found ancestor ${al.name}');
       builder.alignment(al);
     }
 
@@ -620,10 +609,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       );
     }
 
-    if (indentLeft != null ||
-        indentRight != null ||
-        firstLineIndent != null ||
-        hangingIndent != null) {
+    if (indentLeft != null || indentRight != null || firstLineIndent != null || hangingIndent != null) {
       builder.indent(
         left: indentLeft!.inchesToTwips(),
         right: indentRight!.inchesToTwips(),
@@ -847,59 +833,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     DocumentContext context,
     String ref,
   ) {
-    // Checks if context provided comes from
-    // a test or [visitElement] callback
-    // to avoid exceptions during checking. And then, we
-    // just ignore it
-    if (context.getAbstractNumId != null) {
-      final XmlNumberingComponent c =
-          context.numberingStore.buildNumberingXmlDocumentComponent();
-      final XmlAbstractNumComponent? abstractInstance =
-          c.abstractNumberingMap[ref];
-      //TODO: put this exception in another place
-      // or create a custom Exception for this particular thing
-      if (abstractInstance == null) {
-        throw Exception(
-          '''No registered abstract instance for $ref. Please, ensure that you are passing the NumberingOption in "numberingOption" property from DocumentOptions class.
-  NumberingOptions(
-    refKey: '$ref',
-    levels: <LevelOptions>[
-        LevelOptions(
-          level: 0,
-          format: LevelFormat.bullet, // or "LevelFormat.decimal"
-          text: '\u25CF', // or "%1." for digits or list of letters
-          start: 1,
-          paragraphStyle: StyleBuilder.paragraph('$ref-lvl0')
-            .indent(
-              left: 0.5.inchesToTwips(),
-              hanging: 0.25.inchesToTwips(),
-            )
-            .build(),
-          runStyle: StyleBuilder.character('$ref-lvl0')
-            .fontFamily('Symbol')
-            .build(),
-        ),
-        LevelOptions(
-          level: 1,
-          format: LevelFormat.bullet, // or "LevelFormat.decimal"
-          text: '\u25CF', // or "%2." for digits or list of letters (never use the same text for different levels)
-          start: 1,
-          paragraphStyle: StyleBuilder.paragraph('$ref-lvl1')
-            .indent(
-              left: 1.0.inchesToTwips(),
-              hanging: 0.25.inchesToTwips(),
-            )
-            .build(),
-          runStyle: StyleBuilder.character('$ref-lvl0')
-            .fontFamily('Symbol')
-            .build(),
-        ),
-    ],
-  );
-''',
-        );
-      }
-    }
+    // Delegate to NumberingStore for validation
+    context.numberingStore.validateAbstractNumberingExistence(ref);
   }
 
   void addRun(RunBase run) {
@@ -936,8 +871,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     bool mergeStyles = true,
   }) {
     assert(
-      styles == null ||
-          styles.every((Object e) => e is Attributes || e is Style),
+      styles == null || styles.every((Object e) => e is Attributes || e is Style),
       'styles must be only Attributes or Style type',
     );
     offset ??= 0;
@@ -1016,11 +950,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
 
     for (int i = index; i < child.length; i++) {
       if (remaining <= 0) break;
-      final (
-        RunBase<dynamic> left,
-        RunBase<dynamic> center,
-        RunBase<dynamic> right
-      ) = child[i].cutAll(start, remaining);
+      final (RunBase<dynamic> left, RunBase<dynamic> center, RunBase<dynamic> right) = child[i].cutAll(start, remaining);
 
       //TODO: check if this works as expected
       if ((!left.isEmptyData || left.length > 0) && !left.isEmptyNode()) {
@@ -1087,8 +1017,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   void updateElement(DocxNode component, {int? index, bool strict = true}) {
     if (component is! RunBase) return;
 
-    final int i = index ??
-        child.indexWhere((RunBase<dynamic> el) => component.id == el.id);
+    final int i = index ?? child.indexWhere((RunBase<dynamic> el) => component.id == el.id);
     if (i <= -1) {
       CompilerLogger.root.warning(
         'Tried to updated an '
@@ -1099,8 +1028,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     final RunBase<dynamic> element = child[i];
-    if (strict && component.child.runtimeType != element.child.runtimeType ||
-        component.id != element.id) {
+    if (strict && component.child.runtimeType != element.child.runtimeType || component.id != element.id) {
       return;
     }
 
@@ -1163,7 +1091,7 @@ class Numbering {
 
   String get concreteRef => '$reference-${refId ?? 0}';
 
-  XmlElement build(DocumentContext context) {
+  XmlElement build(int id) {
     return XmlElement.tag(
       'w:numPr',
       children: <XmlNode>[
@@ -1181,7 +1109,7 @@ class Numbering {
           attributes: <XmlAttribute>[
             XmlAttribute(
               'w:val'.toName(),
-              context.getConcreteNumId!(concreteRef)!.toString(),
+              id.toString(),
             ),
           ],
         ),

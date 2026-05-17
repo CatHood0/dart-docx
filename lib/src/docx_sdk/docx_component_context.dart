@@ -2,9 +2,7 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 
 import 'sdk.dart';
-import 'utils/logger/logger_configs.dart';
-import 'xml_components/numbering/abstract_numbering_component.dart';
-import 'xml_components/numbering/concrete_numbering_component.dart';
+import 'stores/sdt_store.dart';
 
 //TODO: context should behave more like BuildContext from Flutter
 class DocumentContext {
@@ -17,6 +15,7 @@ class DocumentContext {
     required this.setNormalStyleToNotStyledParagraphs,
     required this.defaultNormalStyle,
     required this.drawingStore,
+    required this.sdtStore,
     this.noTrim = true,
     this.checkStyleRefExistence = false,
     Map<String, int>? lastNumberingIds,
@@ -30,6 +29,7 @@ class DocumentContext {
         checkStyleRefExistence = false,
         drawingStore = DrawingElementCounterStore(),
         numberingStore = NumberingStore(),
+        sdtStore = SdtStore(),
         setNormalStyleToNotStyledParagraphs = true,
         defaultNormalStyle = Style.ref('Normal'),
         options = options ?? DocumentOptions.standard(title: 'unnamed');
@@ -44,10 +44,10 @@ class DocumentContext {
         checkStyleRefExistence = false,
         drawingStore = DrawingElementCounterStore(),
         numberingStore = NumberingStore(),
+        sdtStore = SdtStore(),
         setNormalStyleToNotStyledParagraphs = true,
         defaultNormalStyle = Style.ref('Normal'),
-        options = options ?? DocumentOptions.standard(title: 'unnamed'),
-        registerInstance = ((String ref, int num, {int? level}) {});
+        options = options ?? DocumentOptions.standard(title: 'unnamed');
 
   /// Determines if the paragraph will be created referencing the
   /// "Normal" style
@@ -63,6 +63,7 @@ class DocumentContext {
   final HyperlinkStore hyperlinkStore;
   final FontStore fontStore;
   final NumberingStore numberingStore;
+  final SdtStore sdtStore;
 
   /// Determines if the run instances will be preserve its whitespaces
   /// since this confirm to the compiler to assign to every text
@@ -70,18 +71,6 @@ class DocumentContext {
   final bool noTrim;
 
   final bool checkStyleRefExistence;
-
-  //
-  late void Function(String ref, int numId, {int? level})? registerInstance;
-  late Iterable<XmlAbstractNumComponent> Function()?
-      getAbstractNumberingTemplates;
-  late Iterable<XmlConcreteNumberingComponent> Function()?
-      getConcreteNumberingInstances;
-  late XmlAbstractNumComponent? Function(String ref)? getAbstractNumbering;
-  late XmlConcreteNumberingComponent? Function(String ref)?
-      getConcreteNumbering;
-  late num? Function(String ref)? getAbstractNumId;
-  late num? Function(String ref)? getConcreteNumId;
 
   DocumentStyles get docStyleSheet => options.docStyles;
 
@@ -143,8 +132,7 @@ class DocumentContext {
       loopTraverse++;
       current = current.parent;
     }
-    CompilerLogger.root
-        .debug('${' ' * _currentContentPart!.depth} |_ $R was not found');
+    CompilerLogger.root.debug('${' ' * _currentContentPart!.depth} |_ $R was not found');
     return null;
   }
 

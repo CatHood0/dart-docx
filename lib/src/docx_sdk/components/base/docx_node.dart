@@ -1,5 +1,4 @@
-import 'package:meta/meta.dart'
-    show experimental, visibleForOverriding, protected;
+import 'package:meta/meta.dart' show experimental, visibleForOverriding, protected;
 import 'package:xml/xml.dart' show XmlNode;
 
 import '../../../../docx.dart'
@@ -146,11 +145,10 @@ abstract class DocxNode<T> {
   /// before the `build` pahase
   @visibleForOverriding
   @experimental
-  void perfom() {}
+  void perfom([DocumentContext? context]) {}
 
   List<XmlNode> buildXml({required DocumentContext context});
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) =>
-      <XmlNode>[];
+  List<XmlNode> buildXmlStyle({required DocumentContext context}) => <XmlNode>[];
 
   /// Creates a lazy version of the same node, that waits for the Compilation
   /// time to build the [DocxNode] type specified

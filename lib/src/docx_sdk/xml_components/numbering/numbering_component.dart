@@ -4,7 +4,6 @@
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
-import '../../utils/logger/logger_configs.dart';
 import '../../xml_components/numbering/abstract_numbering_component.dart';
 import '../../xml_components/numbering/concrete_numbering_component.dart';
 
@@ -45,21 +44,25 @@ class NumberingOptions {
 /// XML component for document numbering (lists and outlines).
 ///
 /// This class is responsible for generating the `w:numbering` XML element
-/// in a DOCX document. It manages both abstract numbering definitions
-/// (templates) and concrete numbering instances (actual list instances).
+/// in a DOCX document. It ONLY constructs XML from pre-built components.
 ///
-/// The component maintains maps for abstract and concrete numbering
-/// configurations and handles the generation of unique IDs for both.
+/// The store (NumberingStore) is responsible for:
+/// - Storing abstract and concrete numbering data
+/// - Generating unique IDs
+/// - Managing registration of instances
+///
+/// This component receives the data ready to be serialized to XML.
 ///
 /// Inspired by the https://github.com/dolanmiu/docx implementation.
-class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
+class XmlNumberingComponent extends XmlComponentBase<void> {
   XmlNumberingComponent({
-    required List<NumberingOptions> options,
-    DocumentContext? context,
-  }) : super(
-          value: <NumberingOptions>[],
+    required List<XmlAbstractNumComponent> abstracts,
+    required List<XmlConcreteNumberingComponent> concretes,
+  })  : _abstracts = abstracts,
+        _concretes = concretes,
+        super(
+          value: null,
           xmlKey: 'w:numbering',
-          //TODO: use XmlDocAttribute instead
           attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
             'xmlns:w': namespaces['w']!,
             'xmlns:ve': namespaces['ve']!,
@@ -70,54 +73,13 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
             'xmlns:w10': namespaces['w10']!,
             'xmlns:wne': namespaces['wne']!,
           }),
-        ) {
-    if (context != null) applyContext(context);
-    for (final NumberingOptions con in options) {
-      final num id = abstractNumUniqueNumericId();
-      CompilerLogger.root.debug(
-        'Building abstract instance with ref "${con.refKey}" '
-        'and an id $id',
-      );
-      abstractNumberingMap[con.refKey] = XmlAbstractNumComponent(
-        id: id,
-        levels: con.levels,
-      );
-      referenceConfigMap[con.refKey] = con.levels;
-    }
-    // we need to check if the id is not duplicated
-    final Set<num> temp = <num>{};
-    for (final XmlAbstractNumComponent comp in abstractNumberingMap.values) {
-      if (temp.contains(comp.id)) {
-        throw 'Duplicate abstract id("${comp.id}") in $temp'
-            'found during XmlNumberingComponent build';
-      }
-      temp.add(comp.id);
-    }
-  }
+        );
 
-  /// Map of abstract numbering templates by reference key.
-  ///
-  /// Abstract numbering defines the template/structure of a list.
-  final Map<String, XmlAbstractNumComponent> abstractNumberingMap =
-      <String, XmlAbstractNumComponent>{};
+  /// List of abstract numbering components.
+  final List<XmlAbstractNumComponent> _abstracts;
 
-  /// Map of concrete numbering instances by reference key.
-  ///
-  /// Concrete numbering represents actual list instances in the document.
-  final Map<String, XmlConcreteNumberingComponent> concreteNumberingMap =
-      <String, XmlConcreteNumberingComponent>{};
-
-  /// Map of reference configurations by reference key.
-  final Map<String, List<LevelOptions>> referenceConfigMap =
-      <String, List<LevelOptions>>{};
-
-  /// Function to generate unique IDs for abstract numbering.
-  final int Function() abstractNumUniqueNumericId =
-      abstractNumUniqueNumericIdGen;
-
-  /// Function to generate unique IDs for concrete numbering.
-  final int Function() concreteNumUniqueNumericId =
-      concreteNumUniqueNumericIdGen;
+  /// List of concrete numbering components.
+  final List<XmlConcreteNumberingComponent> _concretes;
 
   @override
   String get name => 'Numbering';
@@ -125,105 +87,15 @@ class XmlNumberingComponent extends XmlComponentBase<List<NumberingOptions>> {
   @override
   String get path => DocxPaths.numberingXmlFilePath;
 
-  /// Applies document context to the numbering component.
-  ///
-  /// Registers the numbering component with the document context, making
-  /// its abstract and concrete numbering configurations available to
-  /// other document components (like paragraphs).
-  ///
-  /// Parameters:
-  /// - [context]: The document context to register with.
-  void applyContext(DocumentContext context) {
-    // when the context is applied, this means that we
-    // are ready to insert list styles, so, we need to ensure
-    // that the ids really are uniques
-    reloadIds();
-    context
-      ..getAbstractNumberingTemplates = (() => abstractNumberingMap.values)
-      ..registerInstance = registerConcreteInstance
-      ..getConcreteNumberingInstances = (() => concreteNumberingMap.values)
-      ..getAbstractNumId = ((String ref) => abstractNumberingMap[ref]?.id)
-      ..getConcreteNumId = ((String ref) => concreteNumberingMap[ref]?.numId)
-      ..getAbstractNumbering = ((String ref) => abstractNumberingMap[ref])
-      ..getConcreteNumbering = ((String ref) => concreteNumberingMap[ref]);
-  }
-
-  /// Registers a concrete numbering instance for a given reference.
-  ///
-  /// Creates a concrete numbering instance based on an abstract numbering
-  /// template. This is called when a paragraph uses a particular numbering
-  /// reference key.
-  ///
-  /// Parameters:
-  /// - [ref]: The reference key of the abstract numbering template.
-  /// - [numRefId]: The instance ID for this concrete numbering.
-  void registerConcreteInstance(String ref, int numRefId, {int? level}) {
-    final XmlAbstractNumComponent? abstractN = abstractNumberingMap[ref];
-    if (abstractN == null) return;
-
-    final String effectiveReference = '$ref-$numRefId';
-    if (concreteNumberingMap[effectiveReference] != null) return;
-
-    final List<LevelOptions>? referenceConfig = referenceConfigMap[ref];
-    final int? firstLevelStartNumber = referenceConfig?.firstOrNull?.start;
-
-    CompilerLogger.root.debug('Registering: $ref-$numRefId of level $level');
-    CompilerLogger.root
-        .debug('Overrides: first level number => $firstLevelStartNumber');
-
-    final ConcreteNumberingOptions concreteOptions = ConcreteNumberingOptions(
-      // to avoid some issues, we generates automatically an numId
-      // for new concrete instances
-      //
-      // usually should be the same than numRefId, but we use it
-      // together with  the abstract num key reference,
-      // for create an unique string reference and we can get it
-      // through the context during build phase
-      numId: concreteNumUniqueNumericIdGen(),
-      abstractRefId: abstractN.id.toInt(),
-      refKey: ref,
-      copyId: numRefId,
-      overrides: <ConcreteLevelOverride>[
-        if (firstLevelStartNumber != null)
-          ConcreteLevelOverride(
-            indentLevel: 0,
-            startAt: firstLevelStartNumber,
-          ),
-      ],
-    );
-
-    // then with just the key and the instance value
-    // we can get it
-    concreteNumberingMap[effectiveReference] =
-        XmlConcreteNumberingComponent(concreteOptions);
-  }
-
   /// Builds the XML element for the numbering component.
   @override
   XmlElement buildXml(DocumentContext context) {
-    // if there is no concrete instances, then we
-    // add some to avoid conflicts
-    if (concreteNumberingMap.isEmpty) {
-      CompilerLogger.root.debug('Detected empty concrete instances.');
-      abstractNumberingMap.forEach((String k, XmlAbstractNumComponent v) {
-        CompilerLogger.root.debug('Registering concrete instance for "$k".');
-        registerConcreteInstance(k, 1);
-      });
-    }
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[...attributes.buildXml()],
       children: <XmlNode>[
-        ...abstractNumberingMap.values.map(
-          (XmlAbstractNumComponent el) => el.buildXml(
-            context,
-          ),
-        ),
-        ...concreteNumberingMap.values.map(
-          (XmlConcreteNumberingComponent el) => el.buildXml(
-            context,
-          ),
-        ),
+        ..._abstracts.map((XmlAbstractNumComponent el) => el.buildXml(context)),
+        ..._concretes.map((XmlConcreteNumberingComponent el) => el.buildXml(context)),
       ],
     );
   }
