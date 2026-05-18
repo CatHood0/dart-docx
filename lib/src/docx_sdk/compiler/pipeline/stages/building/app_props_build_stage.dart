@@ -4,14 +4,6 @@ import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
 import '../../../../xml_components/docProps/xml_app_component.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
-
-/// Stage que construye docProps/app.xml.
-///
-/// Este archivo contiene información de la aplicación que creó
-/// el documento, incluyendo el nombre, versión, y metadatos
-/// específicos de la aplicación.
 class AppPropsBuildStage extends PipelineStage {
   const AppPropsBuildStage();
 
@@ -25,7 +17,7 @@ class AppPropsBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye docProps/app.xml con información de la aplicación.';
+  String get description => 'Build docProps/app.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;

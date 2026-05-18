@@ -4,13 +4,7 @@ import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
 import '../../../../xml_components/styles/xml_styles_component.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
-/// Stage que construye word/styles.xml.
-///
-/// Este archivo contiene todas las definiciones de estilos usadas
-/// en el documento, incluyendo el estilo Normal y estilos latent.
 class StylesBuildStage extends PipelineStage {
   const StylesBuildStage();
 
@@ -24,7 +18,7 @@ class StylesBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye word/styles.xml con todas las definiciones de estilos.';
+  String get description => 'Build word/styles.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;

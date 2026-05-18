@@ -4,15 +4,7 @@ import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
 import '../../../../xml_components/document/xml_body_component.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
-/// Stage que construye word/document.xml.
-///
-/// Este es el archivo principal del documento, contiene todo el contenido
-/// del documento (párrafos, tablas, etc.) envuelto en w:body.
-///
-/// El body se construye usando XmlBodyComponent que visita el DocxNode tree.
 class DocumentBuildStage extends PipelineStage {
   const DocumentBuildStage();
 
@@ -26,7 +18,8 @@ class DocumentBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye word/document.xml con el contenido del documento.';
+  String get description =>
+      'Build word/document.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;
@@ -43,7 +36,11 @@ class DocumentBuildStage extends PipelineStage {
 
     final documentComponent = XmlDocumentComponent(body: bodyComponent);
 
-    final document = documentComponent.buildDocument(context.buildDocumentContext());
+    final document = documentComponent.buildDocument(
+      context.buildDocumentContext(
+        context.document.root,
+      ),
+    );
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.documentFilePath,

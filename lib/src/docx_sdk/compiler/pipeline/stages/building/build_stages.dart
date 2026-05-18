@@ -1,19 +1,3 @@
-/// Build Stages - Generan los archivos XML del documento DOCX.
-///
-/// Estos stages construyen los componentes XML y los añaden al archive:
-/// - ContentTypeBuildStage: [Content_Types].xml
-/// - RelsBuildStage: _rels/.rels
-/// - CorePropsBuildStage: docProps/core.xml
-/// - AppPropsBuildStage: docProps/app.xml
-/// - DocumentRelsBuildStage: word/_rels/document.xml.rels
-/// - DocumentBuildStage: word/document.xml
-/// - NumberingBuildStage: word/numbering.xml
-/// - StylesBuildStage: word/styles.xml
-/// - FontTableBuildStage: word/fontTable.xml
-/// - FontRelsBuildStage: word/_rels/fontTable.xml.rels
-/// - SettingsBuildStage: word/settings.xml
-/// - ThemeBuildStage: word/theme/theme1.xml
-/// - WebSettingsBuildStage: word/webSettings.xml
 library;
 
 export 'app_props_build_stage.dart';

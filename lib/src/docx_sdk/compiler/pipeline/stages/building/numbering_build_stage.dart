@@ -3,15 +3,6 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
-
-/// Stage que construye word/numbering.xml.
-///
-/// Este archivo define las plantillas de numeración (w:abstractNum)
-/// y las instancias concretas (w:num) usadas en el documento.
-///
-/// Solo se ejecuta si [hasNumberingUsage] es true.
 class NumberingBuildStage extends PipelineStage {
   const NumberingBuildStage();
 
@@ -26,7 +17,7 @@ class NumberingBuildStage extends PipelineStage {
 
   @override
   String get description =>
-      'build word/numbering.xml wih numbering definitions.';
+      'Build word/numbering.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) {

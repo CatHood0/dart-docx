@@ -1,6 +1,3 @@
-/// Discovery Stages - barrel file
-///
-/// Re-exports all discovery stage implementations for convenient imports.
 export 'column_discovery_stage.dart';
 export 'font_discovery_stage.dart';
 export 'hyperlink_discovery_stage.dart';

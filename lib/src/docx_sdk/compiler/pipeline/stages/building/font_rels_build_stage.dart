@@ -3,13 +3,6 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
-
-/// Stage que construye word/_rels/fontTable.xml.rels.
-///
-/// Este archivo contiene las relaciones para fuentes embebidas.
-/// Solo se construye si hay fuentes embebidas y [dynamicFontSearch] está habilitado.
 class FontRelsBuildStage extends PipelineStage {
   const FontRelsBuildStage();
 
@@ -24,7 +17,7 @@ class FontRelsBuildStage extends PipelineStage {
 
   @override
   String get description =>
-      'Construye word/_rels/fontTable.xml.rels para fuentes embebidas.';
+      'Build word/_rels/fontTable.xml.rels for embedded fonts.';
 
   @override
   bool shouldExecute(PipelineContext context) {

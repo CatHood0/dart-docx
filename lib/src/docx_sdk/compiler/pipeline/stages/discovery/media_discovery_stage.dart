@@ -1,8 +1,4 @@
 import '../../../../../../docx.dart';
-import '../../../../events/docx_event.dart';
-import '../../../../utils/logger/logger_configs.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
 /// Stage that discovers all images in the document.
 ///

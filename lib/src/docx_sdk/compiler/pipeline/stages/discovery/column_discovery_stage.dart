@@ -1,12 +1,4 @@
-import '../../../../components/layout/columns/page_column.dart';
-import '../../../../components/blocks/paragraph.dart';
-import '../../../../components/runs/run.dart';
-import '../../../../components/base/run_base.dart';
 import '../../../../sdk.dart';
-import '../../../../events/docx_event.dart';
-import '../../../../utils/logger/logger_configs.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
 /// Stage that discovers columns and processes column breaks.
 ///

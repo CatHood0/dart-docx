@@ -1,16 +1,7 @@
 import 'dart:convert';
-
 import 'package:archive/archive.dart';
-
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
-/// Stage que construye word/settings.xml.
-///
-/// Este archivo contiene configuración avanzada del documento,
-/// incluyendo opciones de compatibilidad, protección, y otros
-/// settings técnicos.
 class SettingsBuildStage extends PipelineStage {
   const SettingsBuildStage();
 
@@ -24,7 +15,7 @@ class SettingsBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye word/settings.xml con configuración del documento.';
+  String get description => 'Build word/settings.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;

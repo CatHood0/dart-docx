@@ -3,14 +3,7 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
-/// Stage que construye [Content_Types].xml.
-///
-/// Este archivo es requerido por el formato OPC y define los content types
-/// de todas las partes del documento. Incluye overrides para las partes
-/// específicas del DOCX y defaults para extensiones comunes.
 class ContentTypeBuildStage extends PipelineStage {
   const ContentTypeBuildStage();
 
@@ -24,7 +17,7 @@ class ContentTypeBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye [Content_Types].xml con todos los content types.';
+  String get description => 'Build [Content_Types].xml.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;

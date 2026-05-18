@@ -3,13 +3,6 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
-
-/// Stage que construye word/fontTable.xml.
-///
-/// Este archivo define las fuentes usadas en el documento.
-/// Si [context.fontStore.hasFonts] es false, este stage no hace nada.
 class FontTableBuildStage extends PipelineStage {
   const FontTableBuildStage();
 
@@ -24,7 +17,7 @@ class FontTableBuildStage extends PipelineStage {
 
   @override
   String get description =>
-      'Construye word/fontTable.xml con las fuentes del documento.';
+      'Build word/fontTable.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) {

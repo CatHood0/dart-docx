@@ -3,16 +3,7 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
-/// Stage que construye word/_rels/document.xml.rels.
-///
-/// Este archivo contiene las relaciones del documento principal,
-/// incluyendo relaciones a estilos, settings, numbering (si aplica),
-/// imágenes, hipervínculos, fuentes embebidas, y theme.
-///
-/// El theme ID se resuelve aquí si applyCustomTheme es true.
 class DocumentRelsBuildStage extends PipelineStage {
   const DocumentRelsBuildStage();
 
@@ -26,7 +17,7 @@ class DocumentRelsBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye word/_rels/document.xml.rels con todas las relaciones.';
+  String get description => 'Build word/_rels/document.xml.rels relationships.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;

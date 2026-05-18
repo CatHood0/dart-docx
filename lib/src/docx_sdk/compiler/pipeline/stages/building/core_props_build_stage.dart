@@ -4,13 +4,7 @@ import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
 import '../../../../xml_components/docProps/xml_core_component.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
-/// Stage que construye docProps/core.xml.
-///
-/// Este archivo contiene metadatos básicos del documento como
-/// título, autor, fecha de creación, etc.
 class CorePropsBuildStage extends PipelineStage {
   const CorePropsBuildStage();
 
@@ -24,7 +18,7 @@ class CorePropsBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye docProps/core.xml con metadatos del documento.';
+  String get description => 'Build docProps/core.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;

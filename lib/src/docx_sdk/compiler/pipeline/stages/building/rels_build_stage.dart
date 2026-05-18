@@ -3,13 +3,6 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
-
-/// Stage que construye _rels/.rels.
-///
-/// Este archivo define las relaciones de nivel superior del paquete.
-/// Solo incluye una relación hacia word/_rels/document.xml.rels.
 class RelsBuildStage extends PipelineStage {
   const RelsBuildStage();
 
@@ -23,7 +16,7 @@ class RelsBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye _rels/.rels con relaciones de nivel superior.';
+  String get description => 'Build _rels/.rels.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;

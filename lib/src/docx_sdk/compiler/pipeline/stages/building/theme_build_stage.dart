@@ -4,14 +4,6 @@ import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
 import '../../../../xml_components/themes/xml_theme_component.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
-
-/// Stage que construye word/theme/theme1.xml.
-///
-/// Este archivo contiene el tema visual del documento (colores,
-/// fuentes de tema, efectos). Solo se construye si
-/// [PipelineConfig.applyCustomTheme] es true.
 class ThemeBuildStage extends PipelineStage {
   const ThemeBuildStage();
 
@@ -25,7 +17,7 @@ class ThemeBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye word/theme/theme1.xml con el tema visual.';
+  String get description => 'Build word/theme/theme1.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) {

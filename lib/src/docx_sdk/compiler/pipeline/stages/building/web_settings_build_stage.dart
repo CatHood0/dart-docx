@@ -4,13 +4,7 @@ import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
 import '../../../../xml_components/web_settings/xml_web_settings_component.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
-/// Stage que construye word/webSettings.xml.
-///
-/// Este archivo contiene settings específicos para publicación web
-/// y otros ajustes relacionados con la distribución del documento.
 class WebSettingsBuildStage extends PipelineStage {
   const WebSettingsBuildStage();
 
@@ -24,7 +18,7 @@ class WebSettingsBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description => 'Construye word/webSettings.xml con settings web.';
+  String get description => 'Build word/webSettings.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;
