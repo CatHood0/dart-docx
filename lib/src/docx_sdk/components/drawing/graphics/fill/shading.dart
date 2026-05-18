@@ -8,83 +8,111 @@ class Shading extends Fill<void> {
     this.style = ShadingPattern.solid,
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   }) : super(child: null);
 
   Shading.clear({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.clear,
         super(child: null);
 
   Shading.horizontalCross({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.horzCross,
         super(child: null);
 
   Shading.horizontalStripe({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.horzStripe,
         super(child: null);
 
   Shading.diagonalCross({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.diagCross,
         super(child: null);
 
   Shading.fwdDiagStripe({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.fwdDiagStripe,
         super(child: null);
 
   Shading.bkwdDiagStripe({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.bkwdDiagStripe,
         super(child: null);
 
   Shading.pct10({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.pct10,
         super(child: null);
 
   Shading.pct20({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.pct20,
         super(child: null);
 
   Shading.pct30({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.pct30,
         super(child: null);
 
   Shading.pct40({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.pct40,
         super(child: null);
 
   Shading.pct50({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.pct50,
         super(child: null);
 
   Shading.pct60({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.pct60,
         super(child: null);
 
   Shading.pct70({
     this.color,
     this.fill,
+    super.id,
+    super.parent,
   })  : style = ShadingPattern.pct70,
         super(child: null);
 
@@ -95,14 +123,14 @@ class Shading extends Fill<void> {
   final Color? fill;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     assert(
       color == null || color!.rgbValue != null,
       'color property '
       'only accept Color.rgb '
       'instances. Found: $color',
     );
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'w:shd',
         attributes: <XmlAttribute>[
@@ -128,9 +156,11 @@ class Shading extends Fill<void> {
 
   @override
   Shading get copy => Shading(
+        id: id,
         fill: fill,
         color: color,
         style: style,
+        parent: parent,
       );
 
   @override

@@ -25,7 +25,7 @@ Future<void> main() async {
             .build(),
       ]),
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         Paragraph.text(
           text: 'First list',

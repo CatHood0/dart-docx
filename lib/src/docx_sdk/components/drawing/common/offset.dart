@@ -34,8 +34,8 @@ class Offset extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:off',
         isSelfClosing: true,
@@ -61,10 +61,5 @@ class Offset extends DocxNode<dynamic> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
   }
 }

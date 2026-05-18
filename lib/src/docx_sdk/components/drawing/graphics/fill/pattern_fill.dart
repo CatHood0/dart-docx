@@ -23,14 +23,15 @@ class PatternFillComponent extends Fill<PatternFill> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
 
     if (child.foregroundColor != null) {
       children.add(
         XmlElement.tag(
           'a:fgClr',
-          children: child.foregroundColor!.buildXml(context: context),
+          children:
+              child.foregroundColor!.ensureInitialized(context).buildXml(),
         ),
       );
     }
@@ -39,16 +40,20 @@ class PatternFillComponent extends Fill<PatternFill> {
       children.add(
         XmlElement.tag(
           'a:bgClr',
-          children: child.backgroundColor!.buildXml(context: context),
+          children:
+              child.backgroundColor!.ensureInitialized(context).buildXml(),
         ),
       );
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'a:pattFill',
         attributes: <XmlAttribute>[
-          XmlAttribute(XmlName.fromString('prst'), _patternTypeToXml(child.type)),
+          XmlAttribute(
+            XmlName.fromString('prst'),
+            _patternTypeToXml(child.type),
+          ),
         ],
         children: children,
       ),
@@ -109,11 +114,6 @@ class PatternFillComponent extends Fill<PatternFill> {
       PatternType.outlinedDiamond => 'openDmnd',
       PatternType.solidDiamond => 'solidDmnd',
     };
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

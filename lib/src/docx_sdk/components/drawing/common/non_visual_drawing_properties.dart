@@ -34,8 +34,8 @@ class NonVisualDrawingProperties extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'pic:cNvPr',
         isSelfClosing: false,
@@ -72,11 +72,5 @@ class NonVisualDrawingProperties extends DocxNode<dynamic> {
       bool Function(DocxNode element) shouldGetElement,
       {bool visitChildrenIfNeeded = true}) {
     return shouldGetElement(this) ? this : null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    // TODO: implement buildXmlStyle
-    throw UnimplementedError();
   }
 }

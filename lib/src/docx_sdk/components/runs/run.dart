@@ -32,15 +32,18 @@ class Run extends RunBase<DocxNode> {
   }
 
   factory Run.lineBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(breaker: Break.lineBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(
+        breaker: Break.lineBreak(), wrapInRunMark: wrapInRunMark);
   }
 
   factory Run.pageBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(breaker: Break.pageBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(
+        breaker: Break.pageBreak(), wrapInRunMark: wrapInRunMark);
   }
 
   factory Run.columnBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(breaker: Break.columnBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(
+        breaker: Break.columnBreak(), wrapInRunMark: wrapInRunMark);
   }
 
   bool wrapInRunMark;
@@ -118,28 +121,26 @@ class Run extends RunBase<DocxNode> {
   }
 
   @override
-  List<XmlNode> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
+    final DocxNode<dynamic> el = child.ensureInitialized(context);
     return wrapInRunMark
         ? <XmlNode>[
             super.runParent(
-              nodes: child.buildXml(
-                context: context,
-              ),
+              nodes: el.buildXml(),
             ),
           ]
-        : child.buildXml(context: context);
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
+        : el.buildXml();
   }
 
   @override
   int get dataLength => length;
 
   @override
-  Run get copy => Run(component: child.copy);
+  Run get copy => Run(
+        id: id,
+        component: child.copy,
+        parent: parent,
+      );
 
   @override
   Run copyWith({
@@ -195,7 +196,9 @@ class Run extends RunBase<DocxNode> {
   //TODO: improve these methods
   @override
   String toPlainText() {
-    return child is PrintableMixin ? (child as PrintableMixin).toPlainText() : '';
+    return child is PrintableMixin
+        ? (child as PrintableMixin).toPlainText()
+        : '';
   }
 
   @override

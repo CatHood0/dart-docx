@@ -8,16 +8,21 @@ import '../../../../core/extensions/string_ext.dart';
 /// Allows adding formatted text content inside a shape, with configurable
 /// margins, wrapping behavior, and vertical/horizontal alignment.
 class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
-  ShapeTextBox({required super.child});
+  ShapeTextBox({
+    required super.child,
+    super.id,
+    super.parent,
+  });
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child.content) {
-      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
+      if (element is IgnorableMixin &&
+          element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      children.addAll(element.buildXml(context: context));
+      children.addAll(element.ensureInitialized(context).buildXml());
     }
     final XmlElement textBoxElement = XmlElement.tag(
       'wps:txbx',
@@ -48,7 +53,10 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
         ),
       ],
       children: _buildInsets(child.margin),
-      isSelfClosing: child.margin.left == 0 && child.margin.top == 0 && child.margin.right == 0 && child.margin.bottom == 0,
+      isSelfClosing: child.margin.left == 0 &&
+          child.margin.top == 0 &&
+          child.margin.right == 0 &&
+          child.margin.bottom == 0,
     );
 
     return <XmlElement>[
@@ -58,7 +66,10 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
   }
 
   List<XmlNode> _buildInsets(EdgeInsets margin) {
-    if (margin.left == 0 && margin.top == 0 && margin.right == 0 && margin.bottom == 0) {
+    if (margin.left == 0 &&
+        margin.top == 0 &&
+        margin.right == 0 &&
+        margin.bottom == 0) {
       return <XmlNode>[];
     }
 
@@ -95,7 +106,11 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
   }
 
   @override
-  ShapeTextBox get copy => ShapeTextBox(child: child.copy);
+  ShapeTextBox get copy => ShapeTextBox(
+        id: id,
+        child: child.copy,
+        parent: parent,
+      );
 
   @override
   ShapeTextBox copyWith({
@@ -104,13 +119,10 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
     DocxNode<dynamic>? parent,
   }) {
     return ShapeTextBox(
+      id: id ?? this.id,
       child: child ?? this.child.copy,
-    )..parent = parent ?? this.parent;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
+      parent: parent ?? this.parent,
+    );
   }
 
   @override

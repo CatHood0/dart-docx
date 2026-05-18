@@ -11,17 +11,32 @@ enum BreakType {
 }
 
 class Break extends RunBase<BreakType> {
-  Break({required super.child});
+  Break({required super.child, super.id, super.parent});
 
-  Break.lineBreak() : super(child: BreakType.newline);
-  Break.pageBreak() : super(child: BreakType.page);
-  Break.columnBreak() : super(child: BreakType.column);
+  Break.lineBreak([String? id, DocxNode? parent])
+      : super(
+          child: BreakType.newline,
+          id: id,
+          parent: parent,
+        );
+  Break.pageBreak([String? id, DocxNode? parent])
+      : super(
+          child: BreakType.page,
+          id: id,
+          parent: parent,
+        );
+  Break.columnBreak([String? id, DocxNode? parent])
+      : super(
+          child: BreakType.column,
+          id: id,
+          parent: parent,
+        );
 
   @override
   int get dataLength => 0;
 
   @override
-  List<XmlNode> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     return <XmlNode>[
       XmlElement.tag(
         'w:br',
@@ -34,11 +49,6 @@ class Break extends RunBase<BreakType> {
         ],
       ),
     ];
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

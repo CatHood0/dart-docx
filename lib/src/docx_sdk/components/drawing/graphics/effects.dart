@@ -37,24 +37,19 @@ class EffectList extends Effect<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> effectElements = <XmlNode>[];
 
     for (final DocxNode<dynamic> child in child) {
-      effectElements.addAll(child.buildXml(context: context));
+      effectElements.addAll(child.ensureInitialized(context).buildXml());
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'a:effectLst',
         children: effectElements,
       ),
     ];
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

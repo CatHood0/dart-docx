@@ -6,6 +6,7 @@ class Graphic extends DocxNode<GraphicData> {
   Graphic({
     required super.child,
     super.id,
+    super.parent,
   });
 
   Graphic.pic({
@@ -32,8 +33,9 @@ class Graphic extends DocxNode<GraphicData> {
 
   @override
   Graphic get copy => Graphic(
-        child: child.copy,
         id: id,
+        parent: parent,
+        child: child.copy,
       );
 
   @override
@@ -45,16 +47,17 @@ class Graphic extends DocxNode<GraphicData> {
     return Graphic(
       child: child ?? this.child.copy,
       id: id ?? this.id,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:graphic',
         isSelfClosing: false,
-        children: child.buildXml(context: context),
+        children: child.ensureInitialized(context).buildXml(),
       ),
     ];
   }
@@ -66,7 +69,8 @@ class Graphic extends DocxNode<GraphicData> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return child.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitAllElement(shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -76,11 +80,7 @@ class Graphic extends DocxNode<GraphicData> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return child.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
+    return child.visitElement(shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

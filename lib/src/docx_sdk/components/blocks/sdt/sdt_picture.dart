@@ -84,19 +84,19 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
   /// If true, the SDT is temporary and not saved permanently.
   final bool temporary;
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
         children: <XmlNode>[
-          _buildPropertiesXml(context),
-          _buildContentXml(context),
+          _buildPropertiesXml(),
+          _buildContentXml(),
         ],
       ),
     ];
   }
 
-  XmlElement _buildPropertiesXml(BuildNodeContext context) {
+  XmlElement _buildPropertiesXml() {
     final List<XmlNode> children = <XmlNode>[
       // w:picture element (self-closing)
       XmlElement.tag('w:picture', isSelfClosing: true),
@@ -187,15 +187,11 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(BuildNodeContext context) {
-    final List<XmlNode> runs = child.buildXml(context: context);
+  XmlElement _buildContentXml() {
+    final List<XmlNode> runs = child.ensureInitialized(context).buildXml();
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
   @override
   SdtPicture get copy => SdtPicture(
         id: id,

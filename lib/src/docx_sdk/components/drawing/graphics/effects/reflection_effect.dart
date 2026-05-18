@@ -1,7 +1,6 @@
 import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
 import '../../../../../core/extensions/string_ext.dart';
-import '../../shared/effects.dart';
 
 /// Reflection effect applied to a shape (a:reflection).
 ///
@@ -11,8 +10,8 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
   ReflectionEffectComponent({required super.child});
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:reflection',
         attributes: <XmlAttribute>[
@@ -95,11 +94,6 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
   List<DocxNode>? visitAllElement(
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
@@ -118,6 +112,8 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
   }
 }
 
+//TODO: this effect was not tested totally
+// we need to removed harcoded numbers
 /// Reflection effect configuration with developer-friendly units.
 class ReflectionEffect {
   /// Creates a reflection effect with intuitive units.

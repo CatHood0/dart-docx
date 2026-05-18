@@ -31,14 +31,14 @@ class NonVisualPictureProperties extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'pic:nvPicPr',
         isSelfClosing: false,
         children: [
-          ...nonVisualDrawingProperties.buildXml(context: context),
-          ...nonVisualPictureDrawingProperties.buildXml(context: context),
+          ...nonVisualDrawingProperties.ensureInitialized(context).buildXml(),
+          ...nonVisualPictureDrawingProperties.ensureInitialized(context).buildXml(),
         ],
       ),
     ];
@@ -64,10 +64,5 @@ class NonVisualPictureProperties extends DocxNode<dynamic> {
     if (!visitChildrenIfNeeded) return null;
     return nonVisualDrawingProperties.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
         nonVisualPictureDrawingProperties.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
   }
 }

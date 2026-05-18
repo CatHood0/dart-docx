@@ -10,13 +10,13 @@ class DocxDocument {
     required this.options,
   });
 
-  final DocumentRoot root;
+  final DocxRoot root;
 
   //NOTE: probably we will move these to DocxDocument class
   final DocumentOptions options;
 
   List<XmlNode> buildXml({required BuildNodeContext context}) {
-    return root.buildXml(context: context);
+    return root.ensureInitialized(context).buildXml();
   }
 
   String toPlainText() {

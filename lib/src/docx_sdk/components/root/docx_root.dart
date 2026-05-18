@@ -5,8 +5,8 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../utils/logger/logger_configs.dart';
 
-class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
-  DocumentRoot({
+class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
+  DocxRoot({
     required Iterable<DocxNode<dynamic>> sections,
     super.parent,
     super.id,
@@ -51,7 +51,8 @@ class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
   }) {
     if (component is! RunBase) return;
 
-    final int i = index ?? child.indexWhere((DocxNode<dynamic> el) => component.id == el.id);
+    final int i = index ??
+        child.indexWhere((DocxNode<dynamic> el) => component.id == el.id);
     if (i <= -1) {
       CompilerLogger.root.warning(
         'Tried to updated an '
@@ -62,7 +63,8 @@ class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
     }
 
     final DocxNode<dynamic> element = child[i];
-    if (strict && component.child.runtimeType != element.child.runtimeType || component.id != element.id) {
+    if (strict && component.child.runtimeType != element.child.runtimeType ||
+        component.id != element.id) {
       return;
     }
 
@@ -77,6 +79,10 @@ class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
     length += component.length;
 
     child[i] = component.copy.cast<DocxNode<dynamic>>();
+
+    if (child[i].mounted) {
+      child[i].markAsDirty();
+    }
   }
 
   @override
@@ -187,13 +193,14 @@ class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
   bool get isEmpty => child.isEmpty;
 
   @override
-  List<XmlNode> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> content = <XmlNode>[];
     for (final DocxNode<dynamic> section in child) {
-      if (section is IgnorableMixin && (section as IgnorableMixin).shouldIgnore()) {
+      if (section is IgnorableMixin &&
+          (section as IgnorableMixin).shouldIgnore()) {
         continue;
       }
-      content.addAll(section.buildXml(context: context));
+      content.addAll(section.ensureInitialized(context).buildXml());
     }
 
     // Detect if this component is a row into another one
@@ -218,31 +225,26 @@ class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
       // What is this problem? Literally, all the tables break the current flows, and are "moved"
       // internally to behave as independent external tables, that makes look it likes we moved
       // all outsided without nesting the tree
-      content.addAll(Paragraph.empty().buildXml(context: context));
+      content.addAll(Paragraph.empty().ensureInitialized(context).buildXml());
     }
 
     return content;
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
-  DocumentRoot get copy => DocumentRoot(
+  DocxRoot get copy => DocxRoot(
         id: id,
         sections: child,
         parent: parent,
       );
 
   @override
-  DocumentRoot copyWith({
+  DocxRoot copyWith({
     Iterable<DocxNode<dynamic>>? child,
     String? id,
     DocxNode<dynamic>? parent,
   }) {
-    return DocumentRoot(
+    return DocxRoot(
       sections: child ?? this.child,
       id: id ?? this.id,
       parent: parent ?? this.parent,

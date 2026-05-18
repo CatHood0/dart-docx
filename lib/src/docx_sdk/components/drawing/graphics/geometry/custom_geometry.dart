@@ -71,11 +71,11 @@ class CustomGeometryComponent extends Geometry<void> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[
-      ...adjustValue.buildXml(context: context),
-      ...guide.buildXml(context: context),
-      ...handle.buildXml(context: context),
+      ...adjustValue.ensureInitialized(context).buildXml(),
+      ...guide.ensureInitialized(context).buildXml(),
+      ...handle.ensureInitialized(context).buildXml(),
     ];
 
     // Connection points (a:cxnLst)
@@ -103,7 +103,7 @@ class CustomGeometryComponent extends Geometry<void> {
       // Path list (a:pathLst)
       ..add(_buildPathList());
 
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'a:custGeom',
         children: children,
@@ -151,11 +151,6 @@ class CustomGeometryComponent extends Geometry<void> {
       'a:pathLst',
       children: pathElements,
     );
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

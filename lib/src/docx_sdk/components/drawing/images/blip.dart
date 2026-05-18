@@ -3,10 +3,18 @@ import '../../../../../docx.dart';
 
 // Represents a:blip
 class Blip extends DocxNode<String> {
-  Blip({required String embedRelId}) : super(child: embedRelId);
+  Blip({
+    required String embedRelId,
+    super.id,
+    super.parent,
+  }) : super(child: embedRelId);
 
   @override
-  Blip get copy => Blip(embedRelId: child);
+  Blip get copy => Blip(
+        embedRelId: child,
+        id: id,
+        parent: parent,
+      );
 
   @override
   Blip copyWith({
@@ -16,12 +24,14 @@ class Blip extends DocxNode<String> {
   }) {
     return Blip(
       embedRelId: child ?? this.child,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+      id: id ?? this.id,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:blip',
         attributes: <XmlAttribute>[
@@ -46,10 +56,5 @@ class Blip extends DocxNode<String> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 }

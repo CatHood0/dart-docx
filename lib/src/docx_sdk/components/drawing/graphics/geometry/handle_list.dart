@@ -19,10 +19,16 @@ class AdjustHandle {
 class HandlesList extends DocxNode<Iterable<AdjustHandle>> {
   HandlesList({
     Iterable<AdjustHandle> values = const <AdjustHandle>[],
+    super.id,
+    super.parent,
   }) : super(child: values);
 
   @override
-  HandlesList get copy => HandlesList(values: child);
+  HandlesList get copy => HandlesList(
+        id: id,
+        values: child,
+        parent: parent,
+      );
 
   @override
   HandlesList copyWith({
@@ -31,13 +37,15 @@ class HandlesList extends DocxNode<Iterable<AdjustHandle>> {
     DocxNode<dynamic>? parent,
   }) {
     return HandlesList(
+      id: id ?? this.id,
       values: child ?? this.child,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:ahLst',
         children: child.map((AdjustHandle handle) {
@@ -81,10 +89,5 @@ class HandlesList extends DocxNode<Iterable<AdjustHandle>> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 }

@@ -4,7 +4,6 @@ import '../../../../../../docx.dart';
 import '../../../../../core/extensions/num_extensions.dart';
 import '../../../../../core/extensions/string_ext.dart';
 import '../../../../../core/extensions/style_to_from_node.dart';
-import '../../../../utils/logger/logger_configs.dart';
 
 export '../../../../../core/borders.dart' show DocxBorder, DocxBorders, DocxCellBorders;
 
@@ -192,7 +191,7 @@ class TableProperties extends DocxNode<void> {
   final bool layout;
 
   @override
-  List<XmlNode> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
 
     int padding = context.getAncestorOfExactType<Padding>()?.padding.all().toInt() ?? 0;
 

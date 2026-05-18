@@ -36,7 +36,7 @@ Future<void> main() async {
       ),
       styles: DocumentStyles.base(),
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         Paragraph(
           children: <RunBase<dynamic>>[

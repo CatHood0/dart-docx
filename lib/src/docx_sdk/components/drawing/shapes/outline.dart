@@ -119,8 +119,8 @@ class ShapeBorder extends DocxNode<void> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:ln',
         attributes: <XmlAttribute>[
@@ -142,7 +142,7 @@ class ShapeBorder extends DocxNode<void> {
         children: <XmlNode>[
           ...SolidFill(
             color: color,
-          ).buildXml(context: context),
+          ).ensureInitialized(context).buildXml(),
           if (style != LineStyle.solid) _buildLineStyle(style, dashPattern),
         ],
       ),
@@ -215,11 +215,6 @@ class ShapeBorder extends DocxNode<void> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
   List<DocxNode>? visitAllElement(
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
@@ -236,7 +231,16 @@ class ShapeBorder extends DocxNode<void> {
   }
 }
 
-enum LineStyle { solid, dash, dot, dashDot, dashDotDot, longDash, systemDash, systemDot }
+enum LineStyle {
+  solid,
+  dash,
+  dot,
+  dashDot,
+  dashDotDot,
+  longDash,
+  systemDash,
+  systemDot
+}
 
 enum LineCap { flat, round, square }
 

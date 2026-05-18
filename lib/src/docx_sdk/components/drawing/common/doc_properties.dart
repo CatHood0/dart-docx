@@ -42,8 +42,8 @@ class DocProperties extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'wp:docPr',
         isSelfClosing: true,
@@ -76,10 +76,5 @@ class DocProperties extends DocxNode<dynamic> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
   }
 }

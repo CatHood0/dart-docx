@@ -76,6 +76,9 @@ class Image extends DocxNode<ImageData<Uint8List>> {
       ),
       transformOffsetX: transformOffsetX,
       transformOffsetY: transformOffsetY,
+      parent: parent,
+      elementId: elementId,
+      asInline: asInline,
     );
   }
 
@@ -127,7 +130,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
                 bytes.cast<Uint8List>(),
               ),
       ).size;
-      final NormalizedSizeResult resultSize = AutoSizeNormalizer.resizeImageBySettings(
+      final NormalizedSizeResult resultSize =
+          AutoSizeNormalizer.resizeImageBySettings(
         size,
         pageSize?.toInches(),
         margins?.toInches(),
@@ -152,17 +156,10 @@ class Image extends DocxNode<ImageData<Uint8List>> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    final String imageName = getImageName;
-    if (imageName.isEmpty) {
-      throw Exception(
-        'The image "${child.name}" couldn\'t be '
-        'founded into the DocxComponentContext',
-      );
-    }
-
+  void perform() {
     final String? relationshipId =
-        context.mediaStore.getRelationshipIdForRef(id) ?? context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
+        context.mediaStore.getRelationshipIdForRef(id) ??
+            context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
 
     elementId ??= context.drawingStore.getIdFromRef(ref: id) ??
         // usually, the element id is computed from
@@ -182,6 +179,20 @@ class Image extends DocxNode<ImageData<Uint8List>> {
         'MediaStore registry during start of the compilation',
       );
     }
+  }
+
+  @override
+  List<XmlNode> buildXml() {
+    final String imageName = getImageName;
+    if (imageName.isEmpty) {
+      throw Exception(
+        'The image "${child.name}" couldn\'t be '
+        'founded into the DocxComponentContext',
+      );
+    }
+    final String relationshipId =
+        (context.mediaStore.getRelationshipIdForRef(id) ??
+            context.mediaStore.getRelationshipIdForRef(rId ?? '-1'))!;
 
     final ImageSize imageSize = getSizeForImage(
       child,
@@ -208,7 +219,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
                   x: transformOffsetX,
                   y: transformOffsetY,
                 ),
-                extents: AnnotationExtents(cx: imageSize.width, cy: imageSize.height),
+                extents: AnnotationExtents(
+                    cx: imageSize.width, cy: imageSize.height),
               ),
               presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
             ),
@@ -218,16 +230,17 @@ class Image extends DocxNode<ImageData<Uint8List>> {
                 name: imageName,
                 description: child.alt ?? imageName,
               ),
-              nonVisualPictureDrawingProperties: NonVisualPictureDrawingProperties(),
+              nonVisualPictureDrawingProperties:
+                  NonVisualPictureDrawingProperties(),
             ),
           ],
         ),
       ),
     );
 
-    return <XmlElement>[
+    return <XmlNode>[
       if (!asInline)
-        ...graphic.buildXml(context: context)
+        ...graphic.ensureInitialized(context).buildXml()
       else
         ...Inline(
           name: imageName,
@@ -235,13 +248,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
           height: imageSize.height,
           components: <DocxNode<dynamic>>[graphic],
           distance: child.anchorConfig.distanceFromText,
-        ).buildXml(context: context),
+        ).ensureInitialized(context).buildXml(),
     ];
-  }
-
-  @override
-  List<XmlAttribute> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlAttribute>[];
   }
 
   @override

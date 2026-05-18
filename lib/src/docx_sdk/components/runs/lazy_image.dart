@@ -73,6 +73,9 @@ class LazyImage extends DocxNode<ImageData<File>> {
         ),
         transformOffsetY: transformOffsetY,
         transformOffsetX: transformOffsetX,
+        elementId: elementId,
+        asInline: asInline,
+        parent: parent,
       );
 
   @override
@@ -96,10 +99,11 @@ class LazyImage extends DocxNode<ImageData<File>> {
     );
   }
 
-  String get getImageName => child.name ?? 'image:${Random.secure().nextInt(900) * 10}';
+  String get getImageName =>
+      child.name ?? 'image:${Random.secure().nextInt(900) * 10}';
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
@@ -109,7 +113,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
     }
 
     final String? relationshipId =
-        context.mediaStore.getRelationshipIdForRef(id) ?? context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
+        context.mediaStore.getRelationshipIdForRef(id) ??
+            context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
 
     elementId ??= context.drawingStore.getIdFromRef(ref: id) ??
         // usually, the element id is computed from
@@ -141,7 +146,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
     if (imgWidthEmu == null && imgHeightEmu == null) {
-      final Size size = ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
+      final Size size =
+          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
       imgWidthEmu = size.width * emuPerInch / imageDpi;
       imgHeightEmu = size.height * emuPerInch / imageDpi;
     }
@@ -173,15 +179,16 @@ class LazyImage extends DocxNode<ImageData<File>> {
               name: imageName,
               description: child.alt ?? imageName,
             ),
-            nonVisualPictureDrawingProperties: NonVisualPictureDrawingProperties(),
+            nonVisualPictureDrawingProperties:
+                NonVisualPictureDrawingProperties(),
           ),
         ],
       ),
     );
 
-    return <XmlElement>[
+    return <XmlNode>[
       if (!asInline)
-        ...graphic.buildXml(context: context)
+        ...graphic.ensureInitialized(context).buildXml()
       else
         ...Inline(
           name: imageName,
@@ -189,13 +196,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
           height: imgHeightEmu,
           components: <DocxNode<dynamic>>[graphic],
           distance: child.anchorConfig.distanceFromText,
-        ).buildXml(context: context),
+        ).ensureInitialized(context).buildXml(),
     ];
-  }
-
-  @override
-  List<XmlAttribute> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
   }
 
   @override

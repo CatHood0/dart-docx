@@ -110,30 +110,24 @@ class Section extends DocxNode<List<DocxNode>> {
   final DocumentLayout layout;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    final List<XmlElement> elements = <XmlElement>[];
+  List<XmlNode> buildXml() {
+    final List<XmlNode> elements = <XmlNode>[];
     for (final DocxNode<dynamic> e in child) {
-      final List<XmlElement> element = e
-          .buildXml(
-            context: context,
-          )
-          .cast();
+      final List<XmlNode> element = e.ensureInitialized(context).buildXml();
       if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() ||
           element.isEmpty) {
         continue;
       }
       elements.addAll(element);
     }
-    return <XmlElement>[
+    return <XmlNode>[
       ...elements,
       // This creates the section break with the specified layout settings
       // In Word, the <w:sectPr> element typically appears in the last paragraph
       // of a section to define the layout for the NEXT section
       XmlElementWithChild(
         xmlKey: xmlParagraphNode,
-        value: XmlDocumentSectionSettingsComponent(
-          options: layout,
-        ),
+        value: XmlDocumentSectionSettingsComponent(options: layout),
       ).buildXml(context),
     ];
   }
@@ -141,6 +135,7 @@ class Section extends DocxNode<List<DocxNode>> {
   @override
   Section get copy => Section(
         id: id,
+        parent: parent,
         children: child,
         layout: layout,
       );

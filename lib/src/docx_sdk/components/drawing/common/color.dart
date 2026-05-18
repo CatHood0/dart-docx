@@ -183,7 +183,7 @@ class Color extends DocxNode<void> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     return switch (type) {
       ColorType.rgb => <XmlElement>[
           XmlElement.tag(
@@ -263,11 +263,6 @@ class Color extends DocxNode<void> {
       SystemColor.highlight => 'highlight',
       SystemColor.highlightText => 'highlightText',
     };
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

@@ -70,7 +70,7 @@ class FloatingImage extends DocxNode<ImageData<Uint8List>> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
@@ -104,7 +104,7 @@ class FloatingImage extends DocxNode<ImageData<Uint8List>> {
       imgHeightEmu ??= resultSize.height?.inchesToEmu();
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       ...Anchor(
         child: Image(
           // should be unique by component
@@ -121,13 +121,8 @@ class FloatingImage extends DocxNode<ImageData<Uint8List>> {
         height: imgHeightEmu!,
         name: imageName,
         elementId: elementId,
-      ).buildXml(context: context),
+      ).ensureInitialized(context).buildXml(),
     ];
-  }
-
-  @override
-  List<XmlAttribute> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
   }
 
   @override

@@ -47,21 +47,20 @@ class Column extends DocxNode<List<DocxNode>> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final Iterable<DocxNode<dynamic>> columns = child.where(
         (DocxNode<dynamic> e) =>
             e is! IgnorableMixin ||
             !e.cast<IgnorableMixin>().shouldIgnore() ||
             !e.isEmptyNode());
 
-    final List<XmlElement> elements = <XmlElement>[];
+    final List<XmlNode> elements = <XmlNode>[];
     for (final DocxNode<dynamic> c in columns) {
       elements.addAll(c
-          .buildXml(
-              context: createdInheritedContext(
+          .ensureInitialized(
             context,
-          ))
-          .cast());
+          )
+          .buildXml());
     }
 
     // Detect if this component is a row into another one
@@ -92,20 +91,12 @@ class Column extends DocxNode<List<DocxNode>> {
       // What is this problem? Literally, all the tables break the current flows, and are "moved"
       // internally to behave as independent external tables, that makes look it likes we moved
       // all outsided without nesting the tree
-      elements.addAll(Paragraph.empty().buildXml(
-          context: createdInheritedContext(
-        context,
-      )));
+      elements.addAll(Paragraph.empty().ensureInitialized(context).buildXml());
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       ...elements,
     ];
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

@@ -177,7 +177,7 @@ Future<void> main() async {
         autoHyphenation: false,
       ),
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         Paragraph(
           children: <RunBase<dynamic>>[

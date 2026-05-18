@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
+import '../../../../core/extensions/cast_ext.dart';
 
 //TODO: we should have a way to define a stuff like the DocumentStyles but for Numberings
 // to allow reusing constants to avoid magic strings
@@ -170,8 +171,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
 
   //TODO: implement this
   @override
-  void perfom([BuildNodeContext? context]) {
-    if (_temp.isNotEmpty) return;
+  void perform([BuildNodeContext? context]) {
     String key = refKey;
 
     int level = 0;
@@ -272,9 +272,9 @@ class NumberingList extends DocxNode<List<DocxNode>> {
           continue;
         }
         _temp.add(element
-            .build(element.createdInheritedContext(
-              context,
-            ))
+            .ensureInitialized(context)
+            .cast<LazyNode>()
+            .build()
             .copyWith(parent: this));
       } else {
         _temp.add(element.copyWith(parent: this));
@@ -283,18 +283,17 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXml({required BuildNodeContext context}) {
-    // By now, we will call this
-    // but should be do it automatically by the compiler
-    perfom(context);
+  List<XmlNode> buildXml() {
     List<XmlNode> nodes = <XmlNode>[];
     for (DocxNode<dynamic> e in _temp) {
-      final BuildNodeContext childContext = e.createdInheritedContext(context);
+      if (!e.mounted) {
+        e.ensureInitialized(context);
+      }
       if (e is LazyNode) {
-        nodes.addAll(e.build(childContext).buildXml(context: childContext));
+        nodes.addAll(e.build().buildXml());
         continue;
       }
-      nodes.addAll(e.buildXml(context: childContext));
+      nodes.addAll(e.buildXml());
     }
     return nodes;
   }

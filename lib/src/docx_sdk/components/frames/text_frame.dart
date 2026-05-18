@@ -30,7 +30,6 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
     required Iterable<DocxNode> data,
     required int width,
     required int height,
-    super.id,
     this.wrap = FrameWrap.auto,
     this.vAnchor = VerticalAnchorPosition.page,
     this.hAnchor = HorizontalAnchorPosition.page,
@@ -39,15 +38,18 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
     this.offsetX,
     this.offsetY,
     this.border,
+    super.id,
+    super.parent,
   })  : width = width.pixelsToTwips(),
         height = height.pixelsToTwips(),
         super(child: data) {
     int index = 0;
     for (final DocxNode<dynamic> content in data) {
       if (content is ShapeTextBox) {
-        length += content.child.content.map((DocxNode<dynamic> e) => e.length).reduce(
-              (int a, int b) => a + b,
-            );
+        length +=
+            content.child.content.map((DocxNode<dynamic> e) => e.length).reduce(
+                  (int a, int b) => a + b,
+                );
       }
       content
         ..parent = this
@@ -86,6 +88,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
         offsetX: offsetX,
         offsetY: offsetY,
         border: border,
+        parent: parent,
       );
 
   @override
@@ -117,11 +120,12 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
       offsetY: offsetY ?? this.offsetY,
       border: border ?? this.border,
       id: id ?? this.id,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlAttribute> frameAttributes = <XmlAttribute>[
       XmlAttribute('w:w'.toName(), width.toString()),
       XmlAttribute('w:h'.toName(), height.toString()),
@@ -142,7 +146,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
       ),
     ];
 
-    final List<XmlNode> borderConfigs = buildXmlStyle(context: context);
+    final List<XmlNode> borderConfigs = buildXmlStyle();
 
     if (borderConfigs.isNotEmpty) {
       paragraphPropertiesChildren.add(
@@ -166,14 +170,16 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
     // Add the content of the TextFrame (e.g., actual paragraphs, text runs)
     // directly as children of the w:p element that forms the frame.
     for (final DocxNode child in child) {
-      final List<XmlNode> element = child.buildXml(context: context);
-      if (child is IgnorableMixin && child.cast<IgnorableMixin>().shouldIgnore() || element.isEmpty) {
+      final List<XmlNode> element = child.ensureInitialized(context).buildXml();
+      if (child is IgnorableMixin &&
+              child.cast<IgnorableMixin>().shouldIgnore() ||
+          element.isEmpty) {
         continue;
       }
       paragraphChildren.addAll(element);
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         xmlParagraphNode,
         children: paragraphChildren,
@@ -182,10 +188,11 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
+  List<XmlNode> buildXmlStyle() {
     final List<XmlNode> borderConfigs = <XmlNode>[];
     if (border != null) {
-      final StyleConfigurator? pBdrConfig = border!.getConfiguratorOrNull('w:pBdr', fullName: true);
+      final StyleConfigurator? pBdrConfig =
+          border!.getConfiguratorOrNull('w:pBdr', fullName: true);
       if (pBdrConfig != null && pBdrConfig.hasChildren) {
         for (final StyleConfigurator borderChild in pBdrConfig.configurators) {
           final List<XmlAttribute> attrs = borderChild.attributes?.entries.map((

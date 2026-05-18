@@ -296,10 +296,10 @@ class TextRun extends RunBase<TextPart> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       super.runParent(
-        runProperties: buildXmlStyle(context: context),
+        runProperties: buildXmlStyle(),
         nodes: <XmlNode>[
           XmlElement.tag(
             xmlTextNode,
@@ -321,7 +321,7 @@ class TextRun extends RunBase<TextPart> {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
+  List<XmlNode> buildXmlStyle() {
     final List<Object> styles = <Object>[...child.styles];
     if (styles.any(
       (Object e) => e is TextRunAttribution && e.scope != Scope.portion,
@@ -344,7 +344,7 @@ class TextRun extends RunBase<TextPart> {
         xmlStyles.addAll(elements);
       }
     }
-    return <XmlElement>[
+    return <XmlNode>[
       ...xmlStyles,
     ];
   }

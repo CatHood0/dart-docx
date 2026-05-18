@@ -25,18 +25,13 @@ class SolidFill extends Fill<Color> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:solidFill',
-        children: child.buildXml(context: context),
+        children: child.ensureInitialized(context).buildXml(),
       ),
     ];
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

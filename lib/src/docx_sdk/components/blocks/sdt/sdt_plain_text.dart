@@ -75,19 +75,19 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
   final List<RunBase> _content;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
         children: <XmlNode>[
-          _buildPropertiesXml(context),
-          _buildContentXml(context),
+          _buildPropertiesXml(),
+          _buildContentXml(),
         ],
       ),
     ];
   }
 
-  XmlElement _buildPropertiesXml(BuildNodeContext context) {
+  XmlElement _buildPropertiesXml() {
     final List<XmlNode> children = <XmlNode>[
       XmlElement.tag('w:plainText', isSelfClosing: true),
       XmlElement.tag(
@@ -190,35 +190,20 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(BuildNodeContext context) {
+  XmlElement _buildContentXml() {
     final List<XmlNode> runs = <XmlNode>[];
 
     if (_content.isEmpty) {
       // Empty content - show placeholder or empty run
-      runs.add(
-        XmlElement.tag(
-          'w:r',
-          children: <XmlNode>[
-            XmlElement.tag(
-              'w:t',
-              children: <XmlNode>[XmlText('')],
-            ),
-          ],
-        ),
-      );
+      runs.addAll(TextRun.empty().ensureInitialized(context).buildXml());
     } else {
       // Build runs from content
       for (final RunBase run in _content) {
-        runs.addAll(run.buildXml(context: context));
+        runs.addAll(run.ensureInitialized(context).buildXml());
       }
     }
 
     return XmlElement.tag('w:sdtContent', children: runs);
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

@@ -27,7 +27,7 @@ class AnnotationExtents extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     return <XmlElement>[
       XmlElement.tag(
         'a:ext',
@@ -54,10 +54,5 @@ class AnnotationExtents extends DocxNode<dynamic> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
   }
 }

@@ -13,7 +13,7 @@ class PlainTextToDocx extends Parser<String, List<int>?, BasicParserOptions> {
   Future<List<int>> build({required String data}) async {
     final bytes = await packer.execute(
       DocxDocument(
-        root: DocumentRoot(sections: _documentContentBuilder(data: data).cast()),
+        root: DocxRoot(sections: _documentContentBuilder(data: data).cast()),
         options: options.documentOptions,
       ),
     );

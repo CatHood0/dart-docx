@@ -11,12 +11,12 @@ class LazyNode<T extends DocxNode> extends DocxNode<BuildNodeCallback<T>> {
     super.id,
   });
 
-  T build(BuildNodeContext context) => child(context, id);
+  T build() => child(createdInheritedContext(context), id);
 
   @override
-  List<XmlNode> buildXml({required BuildNodeContext context}) {
-    final T value = child(context, id);
-    return value.buildXml(context: context);
+  List<XmlNode> buildXml() {
+    final T value = build()..init(context);
+    return value.buildXml();
   }
 
   @override

@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
-import '../../shared/effects.dart';
 
 /// Shadow effect applied to a shape (a:outerShdw or a:innerShdw).
 class ShadowEffect extends Effect<ShadowEffectData> {
@@ -21,7 +20,7 @@ class ShadowEffect extends Effect<ShadowEffectData> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlAttribute> attributes = <XmlAttribute>[
       if (child.blur != 0)
         XmlAttribute(
@@ -66,12 +65,7 @@ class ShadowEffect extends Effect<ShadowEffectData> {
       ],
     );
 
-    return <XmlElement>[colorElement];
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
+    return <XmlNode>[colorElement];
   }
 
   @override
@@ -80,7 +74,6 @@ class ShadowEffect extends Effect<ShadowEffectData> {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return <ShadowEffect>[this];
-    if (!visitChildrenIfNeeded) return null;
     return null;
   }
 

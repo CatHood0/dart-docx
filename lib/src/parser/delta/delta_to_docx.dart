@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 import 'package:dart_quill_delta/dart_quill_delta.dart';
 import '../../../docx.dart';
-import '../../docx_sdk/components/root/document_root.dart';
 
 class DeltaToDocx extends Parser<Delta, Uint8List?, DocxParserOptions> {
   DeltaToDocx({
@@ -24,7 +23,7 @@ class DeltaToDocx extends Parser<Delta, Uint8List?, DocxParserOptions> {
 
   DocxDocument deltaToComponents(Delta delta) {
     return DocxDocument(
-      root: DocumentRoot(sections: <ComponentContainer<dynamic>>[]),
+      root: DocxRoot(sections: <ComponentContainer<dynamic>>[]),
       options: options.documentProperties,
     );
   }

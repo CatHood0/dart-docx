@@ -51,7 +51,7 @@ Future<void> main() async {
         margins: margins,
       ),
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         // Document title
         Paragraph.text(

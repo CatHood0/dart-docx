@@ -111,13 +111,48 @@ class TableCell extends DocxNode<List<DocxNode>> {
   bool _fixed;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  void perform() {}
+
+  @override
+  void updateElement(
+    DocxNode<dynamic> component, {
+    int? index,
+    bool strict = true,
+  }) {}
+
+  @override
+  void insertText(
+    String text, {
+    int? offset,
+    int? path,
+    List<Object>? styles,
+    bool mergeStyles = true,
+  }) {}
+
+  @override
+  void deleteText({required int start, required int length, int? path}) {}
+
+  @override
+  void addAll(List<DocxNode<dynamic>> components) {}
+
+  @override
+  void addListItem(
+    String text, {
+    required Numbering numbering,
+    List<Style>? styles,
+    int? path,
+  }) {}
+
+  @override
+  List<XmlElement> buildXml() {
     final List<XmlNode> cellChildren = <XmlNode>[];
     List<DocxNode<dynamic>>? children = _fixed ? child : null;
 
     if (children == null) {
       children = <DocxNode<dynamic>>[];
-      for (int i = _start; _start > 0 ? i > 0 : i < _length; _start > 0 ? i-- : i++) {
+      for (int i = _start;
+          _start > 0 ? i > 0 : i < _length;
+          _start > 0 ? i-- : i++) {
         final DocxNode<dynamic> el = _itemBuilder!(context, i);
         children.add(el);
       }
@@ -137,7 +172,8 @@ class TableCell extends DocxNode<List<DocxNode>> {
 
     // Cell content (can be multiple elements)
     for (final DocxNode child in children) {
-      final List<XmlNode> childXml = child.buildXml(context: context);
+      final List<XmlNode> childXml =
+          child.ensureInitialized(context).buildXml();
       cellChildren.addAll(childXml);
     }
 
@@ -154,7 +190,8 @@ class TableCell extends DocxNode<List<DocxNode>> {
     //    | TableCell <- (we are here)
     //
     // As you see, we don't get a Row instance here
-    if ((child.lastOrNull is Table || child.lastOrNull is Row) && context.getAncestorOfExactType<Table>() != null) {
+    if ((child.lastOrNull is Table || child.lastOrNull is Row) &&
+        context.getAncestorOfExactType<Table>() != null) {
       CompilerLogger.root.warning(
         'Detected ending ${child.last.runtimeType} '
         'child in $runtimeType:$depth:$id. '
@@ -168,7 +205,11 @@ class TableCell extends DocxNode<List<DocxNode>> {
       // What is this problem? Literally, all the tables break the current flows, and are "moved"
       // internally to behave as independent external tables, that makes look it likes we moved
       // all outsided without nesting the tree
-      cellChildren.addAll(Paragraph.empty().buildXml(context: context));
+      cellChildren.addAll(Paragraph.empty()
+          .ensureInitialized(
+            context,
+          )
+          .buildXml());
     }
 
     return <XmlElement>[
@@ -193,11 +234,17 @@ class TableCell extends DocxNode<List<DocxNode>> {
           else if (cellConfig.widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              (context.options.pageSize.width - (context.options.margins.left + context.options.margins.right)).floor().toString(),
+              (context.options.pageSize.width -
+                      (context.options.margins.left +
+                          context.options.margins.right))
+                  .floor()
+                  .toString(),
             ),
           XmlAttribute(
             'w:type'.toName(),
-            cellConfig.widthType.isExpand ? TableWidthType.dxa.name : cellConfig.widthType.name,
+            cellConfig.widthType.isExpand
+                ? TableWidthType.dxa.name
+                : cellConfig.widthType.name,
           ),
         ],
         isSelfClosing: true,
@@ -300,9 +347,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
 
     // Cell background/fill
     if (cellConfig.shading != null) {
-      nodes.addAll(cellConfig.shading!.buildXml(
-        context: context,
-      ));
+      nodes.addAll(cellConfig.shading!.ensureInitialized(context).buildXml());
     }
 
     return nodes;
@@ -331,7 +376,8 @@ class TableCell extends DocxNode<List<DocxNode>> {
         XmlAttribute('w:val'.toName(), border.style.value),
         XmlAttribute('w:sz'.toName(), border.size.toString()),
         XmlAttribute('w:space'.toName(), border.space.toString()),
-        if (border.color != null && border.color!.isRGB) XmlAttribute('w:color'.toName(), border.color!.toColorValue()!),
+        if (border.color != null && border.color!.isRGB)
+          XmlAttribute('w:color'.toName(), border.color!.toColorValue()!),
       ],
       isSelfClosing: true,
     );

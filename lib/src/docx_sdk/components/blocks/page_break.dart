@@ -4,35 +4,35 @@ import '../../../../docx.dart';
 import '../../../core/extensions/string_ext.dart';
 
 class PageBreak extends ComponentContainer {
-  PageBreak._(String type)
+  PageBreak._(String type, [String? id, DocxNode? parent])
       : _type = type,
-        super(parent: null, child: null);
+        super(parent: parent, id: id, child: null);
 
-  PageBreak.next()
+  PageBreak.next([String? id, DocxNode? parent])
       : _type = 'nextPage',
-        super(parent: null, child: null);
+        super(parent: parent, id: id, child: null);
 
-  PageBreak.continuous()
+  PageBreak.continuous([String? id, DocxNode? parent])
       : _type = 'continuous',
-        super(parent: null, child: null);
+        super(parent: parent, id: id, child: null);
 
-  PageBreak.even()
+  PageBreak.even([String? id, DocxNode? parent])
       : _type = 'evenPage',
-        super(parent: null, child: null);
+        super(parent: parent, id: id, child: null);
 
-  PageBreak.odd()
+  PageBreak.odd([String? id, DocxNode? parent])
       : _type = 'oddPage',
-        super(parent: null, child: null);
+        super(parent: parent, id: id, child: null);
 
   final String _type;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     return <XmlElement>[
       XmlElement.tag(
         xmlParagraphNode,
         children: <XmlNode>[
-          ...buildXmlStyle(context: context),
+          ...buildXmlStyle(),
         ],
         isSelfClosing: false,
       ),
@@ -40,7 +40,7 @@ class PageBreak extends ComponentContainer {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
+  List<XmlElement> buildXmlStyle() {
     return <XmlElement>[
       XmlElement.tag(
         xmlParagraphBlockAttrsNode,

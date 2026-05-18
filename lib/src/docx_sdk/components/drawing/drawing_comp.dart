@@ -19,6 +19,7 @@ class Drawing extends DocxNode<DocxNode> with IgnorableMixin {
   Drawing({
     required super.child,
     super.id,
+    super.parent,
   }) {
     child
       ..parent = this
@@ -27,27 +28,23 @@ class Drawing extends DocxNode<DocxNode> with IgnorableMixin {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'w:drawing',
         isSelfClosing: false,
         children: <XmlNode>[
-          ...child.buildXml(context: context),
+          ...child.ensureInitialized(context).buildXml(),
         ],
       ),
     ];
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
   DocxNode<DocxNode<dynamic>> get copy => Drawing(
         child: child.copy,
         id: id,
+    parent: parent,
       );
 
   @override
@@ -57,9 +54,10 @@ class Drawing extends DocxNode<DocxNode> with IgnorableMixin {
     DocxNode<dynamic>? parent,
   }) {
     return Drawing(
-      child: child ?? this.child.copy,
       id: id ?? this.id,
-    )..parent = parent ?? this.parent;
+      child: child ?? this.child.copy,
+      parent: parent ?? this.parent,
+    );
   }
 
   @override

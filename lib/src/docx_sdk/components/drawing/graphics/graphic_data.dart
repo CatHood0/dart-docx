@@ -7,15 +7,17 @@ class GraphicData extends DocxNode<DocxNode> {
     required super.child,
     required this.uri,
     super.id,
+    super.parent,
   });
 
   final String uri;
 
   @override
   GraphicData get copy => GraphicData(
-        child: child.copy,
-        uri: uri,
         id: id,
+        uri: uri,
+        parent: parent,
+        child: child.copy,
       );
 
   @override
@@ -29,19 +31,20 @@ class GraphicData extends DocxNode<DocxNode> {
       child: child ?? this.child.copy,
       uri: uri ?? this.uri,
       id: id ?? this.id,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:graphicData',
         isSelfClosing: false,
         attributes: [
           XmlAttribute(XmlName.fromString('uri'), uri),
         ],
-        children: child.buildXml(context: context),
+        children: child.ensureInitialized(context).buildXml(),
       ),
     ];
   }
@@ -53,7 +56,8 @@ class GraphicData extends DocxNode<DocxNode> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return child.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitAllElement(shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -63,11 +67,7 @@ class GraphicData extends DocxNode<DocxNode> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return child.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
+    return child.visitElement(shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

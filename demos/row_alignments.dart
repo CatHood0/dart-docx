@@ -116,7 +116,7 @@ Future<void> main() async {
         margins: margins,
       ),
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         Paragraph.text(
           text: 'Row Alignment Showcase',

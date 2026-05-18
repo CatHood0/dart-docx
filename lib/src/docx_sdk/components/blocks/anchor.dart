@@ -29,7 +29,7 @@ import '../../../core/extensions/string_ext.dart';
 /// ```
 class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
   Anchor({
-    required DocxNode child,
+    required super.child,
     required this.width,
     required this.height,
     required this.name,
@@ -37,8 +37,8 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
     this.elementId,
     super.parent,
     super.id,
-  }) : super(child: child) {
-    this.child
+  }) {
+    child
       ..parent = this
       ..index = 0
       ..depth = depth + 1;
@@ -57,7 +57,7 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
   final num height;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     elementId ??= context.drawingStore.getNextId(id);
     return <XmlElement>[
       XmlElement.tag(
@@ -146,27 +146,22 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
           ...Extent(
             cx: width,
             cy: height,
-          ).buildXml(context: context),
+          ).ensureInitialized(context).buildXml(),
           ...DocProperties(
             docPrId: elementId.toString(),
             name: name.toString(),
             relativeHeight: '0',
-          ).buildXml(context: context),
-          ...child.buildXml(context: context),
+          ).ensureInitialized(context).buildXml(),
+          ...child.ensureInitialized(context).buildXml(),
         ],
       ),
     ];
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
   Anchor get copy => Anchor(
         id: id,
-        child: this.child,
+        child: child,
         config: config,
         parent: parent,
         width: width,

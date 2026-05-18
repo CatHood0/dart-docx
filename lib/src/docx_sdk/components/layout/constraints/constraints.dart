@@ -29,21 +29,17 @@ class LayoutConstraints extends DocxNode<List<DocxNode>> {
   final int? minWidth;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     return child
         .expand<XmlElement>(
           (DocxNode<dynamic> node) => node
-              .buildXml(
-                context: context,
+              .ensureInitialized(
+                context,
               )
+              .buildXml()
               .cast(),
         )
         .toList();
-  }
-
-  @override
-  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlElement>[];
   }
 
   @override

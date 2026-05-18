@@ -12,7 +12,7 @@ Future<void> main() async {
       title: 'My Heart Shape Document',
       styles: DocumentStyles.base(),
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         Anchor(
           width: size,

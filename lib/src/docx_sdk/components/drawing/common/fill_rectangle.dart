@@ -14,8 +14,8 @@ class FillRectangle extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:fillRect',
         isSelfClosing: true,
@@ -38,10 +38,4 @@ class FillRectangle extends DocxNode<dynamic> {
   }) {
     return shouldGetElement(this) ? this : null;
   }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
-  }
 }
-

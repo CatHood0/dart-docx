@@ -10,8 +10,8 @@ class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
   SoftEdgeEffectComponent({required super.child});
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:softEdge',
         attributes: <XmlAttribute>[
@@ -37,11 +37,6 @@ class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
     return SoftEdgeEffectComponent(
       child: child ?? this.child,
     )..parent = parent ?? this.parent;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

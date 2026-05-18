@@ -110,28 +110,26 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
         children: <XmlNode>[
-          _buildPropertiesXml(context),
-          _buildContentXml(context),
+          _buildPropertiesXml(),
+          _buildContentXml(),
         ],
       ),
     ];
   }
 
-  XmlElement _buildPropertiesXml(BuildNodeContext context) {
+  XmlElement _buildPropertiesXml() {
     final List<XmlNode> children = <XmlNode>[
       XmlElement.tag(
         'w:comboBox',
         children: () {
           final List<XmlNode> nodes = [];
           for (var item in child) {
-            nodes.addAll(item.buildXml(
-              context: context,
-            ));
+            nodes.addAll(item.ensureInitialized(context).buildXml());
           }
           return nodes;
         }()
@@ -203,15 +201,15 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(BuildNodeContext context) {
+  XmlElement _buildContentXml() {
     final List<XmlNode> runs = TextRun.empty(
       parent: this,
-    ).buildXml(context: context);
+    ).ensureInitialized(context).buildXml();
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
+  List<XmlNode> buildXmlStyle() {
     return <XmlNode>[];
   }
 

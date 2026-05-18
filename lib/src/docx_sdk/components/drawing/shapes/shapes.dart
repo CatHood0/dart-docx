@@ -15,7 +15,10 @@ class WPShape extends DocxNode<DocxNode> {
   }) : super(child: shapeProperties) {
     final List<DocxNode<dynamic>> components = <DocxNode<dynamic>>[
       shapeProperties,
-      if (textBox != null) textBox! else ShapeTextBox(child: ShapeTextBoxData.empty()),
+      if (textBox != null)
+        textBox!
+      else
+        ShapeTextBox(child: ShapeTextBoxData.empty()),
     ];
 
     for (int i = 0; i < components.length; i++) {
@@ -42,12 +45,15 @@ class WPShape extends DocxNode<DocxNode> {
   final ShapeTextBox? textBox;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final Anchor? anchor = context.getAncestorOfExactType<Anchor>();
     final Inline? inline = context.getAncestorOfExactType<Inline>();
-    final int shapeId = anchor?.elementId?.castOrNull() ?? inline?.elementId?.castOrNull() ?? context.drawingStore.getNextId(id);
+    final int shapeId = anchor?.elementId?.castOrNull() ??
+        inline?.elementId?.castOrNull() ??
+        context.drawingStore.getNextId(id);
 
-    final NonVisualShapeProperties nonVisualProperties = NonVisualShapeProperties(
+    final NonVisualShapeProperties nonVisualProperties =
+        NonVisualShapeProperties(
       id: shapeId.toString(),
       name: name,
       description: description,
@@ -75,15 +81,15 @@ class WPShape extends DocxNode<DocxNode> {
     );
 
     final List<XmlNode> children = <XmlNode>[
-      ...nonVisualProperties.buildXml(context: context),
-      ...shapeProperties.buildXml(context: context),
+      ...nonVisualProperties.ensureInitialized(context).buildXml(),
+      ...shapeProperties.ensureInitialized(context).buildXml(),
     ];
 
     if (textBox != null) {
-      children.addAll(textBox!.buildXml(context: context));
+      children.addAll(textBox!.ensureInitialized(context).buildXml());
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'wps:wsp',
         children: children,
@@ -99,6 +105,7 @@ class WPShape extends DocxNode<DocxNode> {
         description: description,
         shapeLocks: shapeLocks,
         shapeProperties: shapeProperties,
+        parent: parent,
       );
 
   @override
@@ -132,7 +139,8 @@ class WPShape extends DocxNode<DocxNode> {
 
     final List<DocxNode<dynamic>> results = <DocxNode<dynamic>>[];
 
-    final List<DocxNode<dynamic>>? shapeResult = shapeProperties.visitAllElement(
+    final List<DocxNode<dynamic>>? shapeResult =
+        shapeProperties.visitAllElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );

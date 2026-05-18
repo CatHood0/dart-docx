@@ -3,7 +3,6 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 import '../../../../core/extensions/style_to_from_node.dart';
-import '../../../utils/logger/logger_configs.dart';
 
 /// Fundamental document unit for organizing text content.
 ///
@@ -76,11 +75,11 @@ class Text extends ComponentContainer<String> {
   final bool superscript;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     // I hate this type assign. I'd prefer just making
     // a different context per element instead just one
     final List<XmlNode> paragraphChildren = <XmlNode>[];
-    final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
+    final List<XmlElement> paragraphStyles = buildXmlStyle();
     if (paragraphStyles.isNotEmpty) {
       paragraphChildren.add(
         XmlElement.tag(
@@ -96,10 +95,10 @@ class Text extends ComponentContainer<String> {
       final List<XmlNode> element = TextRun.inheritFrom(
         text: e,
         element: this,
-      ).buildXml(context: context);
+      ).ensureInitialized(context).buildXml();
       paragraphChildren.addAll([
         ...element,
-        if (hasNewLines) ...Run.lineBreak().buildXml(context: context),
+        if (hasNewLines) ...Run.lineBreak().buildXml(),
       ]);
     }
 
@@ -129,7 +128,7 @@ class Text extends ComponentContainer<String> {
       );
 
   @override
-  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
+  List<XmlElement> buildXmlStyle() {
     final List<XmlElement> pPrChildren = <XmlElement>[];
 
     bool alreadyHasReference = false;
@@ -226,8 +225,8 @@ class Text extends ComponentContainer<String> {
 
     if (context.childOfAncestorOfExactType<Align>()) {
       final Alignment al = context.getAncestorOfExactType<Align>()!.alignment;
-      CompilerLogger.root
-          .debug('Replace current align $textAlign to found ancestor ${al.name}');
+      CompilerLogger.root.debug(
+          'Replace current align $textAlign to found ancestor ${al.name}');
       builder.alignment(al);
     }
 
@@ -321,6 +320,6 @@ class Text extends ComponentContainer<String> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return shouldGetElement(this) ? this.toList() : null;
+    return shouldGetElement(this) ? toList() : null;
   }
 }

@@ -83,19 +83,19 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
   final List<DocxNode> _content;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
         children: <XmlNode>[
-          _buildPropertiesXml(context),
-          _buildContentXml(context),
+          _buildPropertiesXml(),
+          _buildContentXml(),
         ],
       ),
     ];
   }
 
-  XmlElement _buildPropertiesXml(BuildNodeContext context) {
+  XmlElement _buildPropertiesXml() {
     final List<XmlNode> children = <XmlNode>[
       XmlElement.tag('w:richText', isSelfClosing: true),
       XmlElement.tag(
@@ -185,40 +185,21 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(BuildNodeContext context) {
+  XmlElement _buildContentXml() {
     final List<XmlNode> paragraphs = <XmlNode>[];
 
     if (_content.isEmpty) {
       // Empty content - show placeholder or empty paragraph
-      paragraphs.add(
-        XmlElement.tag(
-          'w:p',
-          children: <XmlNode>[
-            XmlElement.tag(
-              'w:r',
-              children: <XmlNode>[
-                XmlElement.tag(
-                  'w:t',
-                  children: <XmlNode>[XmlText('')],
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
+      paragraphs.addAll(
+          Paragraph.text(text: '').ensureInitialized(context).buildXml());
     } else {
       // Build paragraphs from content
       for (final DocxNode node in _content) {
-        paragraphs.addAll(node.buildXml(context: context));
+        paragraphs.addAll(node.ensureInitialized(context).buildXml());
       }
     }
 
     return XmlElement.tag('w:sdtContent', children: paragraphs);
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

@@ -23,7 +23,7 @@ class SdtListItem extends DocxNode<void> {
 
   /// Builds the XML element for this list item.
   @override
-  List<XmlNode> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     return [
       XmlElement.tag(
         'w:listItem',
@@ -38,9 +38,9 @@ class SdtListItem extends DocxNode<void> {
 
   @override
   SdtListItem get copy => SdtListItem(
+        id: id,
         displayText: displayText,
         value: value,
-        id: id,
         parent: parent,
       );
 

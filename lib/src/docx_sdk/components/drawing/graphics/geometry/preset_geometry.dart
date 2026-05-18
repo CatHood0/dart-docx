@@ -9,6 +9,8 @@ class PresetGeometry extends Geometry<List<DocxNode<dynamic>>> {
   PresetGeometry({
     required this.preset,
     Iterable<DocxNode<dynamic>>? data,
+    super.id,
+    super.parent,
   }) : super(child: <DocxNode<dynamic>>[...?data]) {
     if (super.child.isEmpty) {
       super.child.addAll(<DocxNode<dynamic>>[
@@ -20,7 +22,12 @@ class PresetGeometry extends Geometry<List<DocxNode<dynamic>>> {
   final PresetShapeType preset;
 
   @override
-  PresetGeometry get copy => PresetGeometry(data: child, preset: preset);
+  PresetGeometry get copy => PresetGeometry(
+        data: child,
+        preset: preset,
+        id: id,
+        parent: parent,
+      );
 
   @override
   PresetGeometry copyWith({
@@ -30,21 +37,28 @@ class PresetGeometry extends Geometry<List<DocxNode<dynamic>>> {
     PresetShapeType? preset,
   }) {
     return PresetGeometry(
+      id: id ?? this.id,
       preset: preset ?? this.preset,
       data: child ?? this.child,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
-      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
+      if (element is IgnorableMixin &&
+          element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      children.addAll(element.buildXml(context: context));
+      children.addAll(element
+          .ensureInitialized(
+            context,
+          )
+          .buildXml());
     }
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'a:prstGeom',
         isSelfClosing: false,
@@ -92,10 +106,5 @@ class PresetGeometry extends Geometry<List<DocxNode<dynamic>>> {
       if (temp != null) return temp;
     }
     return null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 }

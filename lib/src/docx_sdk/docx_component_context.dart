@@ -80,8 +80,8 @@ class BuildNodeContext {
       '${' ' * (current?.depth ?? 0)} | search ancestor '
       'of type $R',
     );
-    if (current is R || current is DocumentRoot) {
-      return current is DocumentRoot ? null : current as R?;
+    if (current is R || current is DocxRoot) {
+      return current is DocxRoot ? null : current as R?;
     }
     int countTries = 0;
     String lastId = current!.id;

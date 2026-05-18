@@ -18,9 +18,9 @@ class Align extends DocxNode<DocxNode> {
   final Alignment alignment;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
-      ...child.buildXml(context: context).cast(),
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
+      ...child.ensureInitialized(context).buildXml(),
     ];
   }
 
@@ -71,7 +71,8 @@ class Align extends DocxNode<DocxNode> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmptyNode() || child.castOrNull<IgnorableMixin>()?.shouldIgnore() == true) {
+    if (child.isEmptyNode() ||
+        child.castOrNull<IgnorableMixin>()?.shouldIgnore() == true) {
       return <DocxNode>[];
     }
     final List<DocxNode> elements = <DocxNode>[];

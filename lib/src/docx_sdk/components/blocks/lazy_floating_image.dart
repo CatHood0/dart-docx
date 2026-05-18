@@ -75,7 +75,7 @@ class LazyFloatingImage extends DocxNode<ImageData<File>>
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
@@ -109,7 +109,7 @@ class LazyFloatingImage extends DocxNode<ImageData<File>>
       imgHeightEmu ??= resultSize.height?.inchesToEmu();
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       ...Anchor(
         child: LazyImage(
           // should be unique by component
@@ -128,18 +128,13 @@ class LazyFloatingImage extends DocxNode<ImageData<File>>
         config: child.anchorConfig,
         name: imageName,
         elementId: elementId,
-      ).buildXml(context: context),
+      ).ensureInitialized(context).buildXml(),
     ];
   }
 
   @override
-  List<XmlAttribute> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlAttribute>[];
-  }
-
-  @override
   String toString() {
-    return 'LazyImage(id: $id, data: $child)';
+    return 'LazyImage(id: $id, data: $child, anchor: ${child.anchorConfig})';
   }
 
   @override

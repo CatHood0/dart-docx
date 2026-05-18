@@ -19,7 +19,7 @@ class Padding extends DocxNode<DocxNode<dynamic>> {
   final EdgeInsets padding;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     if (child is! Row &&
         child is! Table &&
         child.visitElement(
@@ -48,13 +48,14 @@ class Padding extends DocxNode<DocxNode<dynamic>> {
                 : GridColumn.intrintric().toList(),
             rows: TableRow.one(
               cell: child.tableCell(
-                  cellConfig: TableCellConfig.dxa(width: maxWidth)),
+                cellConfig: TableCellConfig.dxa(width: maxWidth),
+              ),
             ).toList(),
           )
         ],
-      ).buildXml(context: context);
+      ).ensureInitialized(context).buildXml();
     }
-    return child.buildXml(context: context).cast<XmlElement>();
+    return child.ensureInitialized(context).buildXml();
   }
 
   @override

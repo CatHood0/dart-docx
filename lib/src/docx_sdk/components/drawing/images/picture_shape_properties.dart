@@ -6,6 +6,8 @@ class PictureShapeProperties extends DocxNode<dynamic> {
   PictureShapeProperties({
     required this.transform2D,
     required this.presetGeometry,
+    super.id,
+    super.parent,
   }) : super(child: null);
 
   final Transform2D transform2D;
@@ -15,6 +17,8 @@ class PictureShapeProperties extends DocxNode<dynamic> {
   PictureShapeProperties get copy => PictureShapeProperties(
         transform2D: transform2D.copy,
         presetGeometry: presetGeometry.copy,
+        id: id,
+        parent: parent,
       );
 
   @override
@@ -27,18 +31,20 @@ class PictureShapeProperties extends DocxNode<dynamic> {
     return PictureShapeProperties(
       transform2D: transform2D ?? this.transform2D.copy,
       presetGeometry: presetGeometry ?? this.presetGeometry.copy,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+      id: id ?? this.id,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'pic:spPr',
         isSelfClosing: false,
         children: [
-          ...transform2D.buildXml(context: context),
-          ...presetGeometry.buildXml(context: context),
+          ...transform2D.ensureInitialized(context).buildXml(),
+          ...presetGeometry.ensureInitialized(context).buildXml(),
           XmlElement.tag('a:noFill', isSelfClosing: true),
         ],
       ),
@@ -52,8 +58,10 @@ class PictureShapeProperties extends DocxNode<dynamic> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return transform2D.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        presetGeometry.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return transform2D.visitAllElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        presetGeometry.visitAllElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -63,12 +71,9 @@ class PictureShapeProperties extends DocxNode<dynamic> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return transform2D.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        presetGeometry.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
+    return transform2D.visitElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        presetGeometry.visitElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

@@ -17,11 +17,17 @@ class AdjustValue {
 class AdjustValueList extends DocxNode<Iterable<AdjustValue>> {
   AdjustValueList({
     Iterable<AdjustValue> values = const <AdjustValue>[],
+    super.id,
+    super.parent,
   })  : assert(values.length < 9, 'values cannot be major than 8 elements'),
         super(child: values);
 
   @override
-  AdjustValueList get copy => AdjustValueList(values: child);
+  AdjustValueList get copy => AdjustValueList(
+        id: id,
+        values: child,
+        parent: parent,
+      );
 
   @override
   AdjustValueList copyWith({
@@ -30,13 +36,15 @@ class AdjustValueList extends DocxNode<Iterable<AdjustValue>> {
     DocxNode<dynamic>? parent,
   }) {
     return AdjustValueList(
+      id: id ?? this.id,
       values: child ?? this.child,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:avLst',
         isSelfClosing: child.isEmpty,
@@ -76,10 +84,5 @@ class AdjustValueList extends DocxNode<Iterable<AdjustValue>> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 }

@@ -49,8 +49,8 @@ class NonVisualShapeProperties extends DocxNode<void> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'wps:nvSpPr',
         children: <XmlNode>[
@@ -83,11 +83,6 @@ class NonVisualShapeProperties extends DocxNode<void> {
         ],
       ),
     ];
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override

@@ -15,6 +15,8 @@ class ShapeProperties extends DocxNode<void> {
     this.fill,
     this.border,
     this.effects,
+    super.id,
+    super.parent,
   }) : super(child: null) {
     final List<DocxNode<dynamic>> components = <DocxNode<dynamic>>[
       transform,
@@ -39,6 +41,8 @@ class ShapeProperties extends DocxNode<void> {
     Fill<dynamic>? fill,
     ShapeBorder? border,
     Effect<dynamic>? effect,
+    String? id,
+    DocxNode? parent,
   }) {
     return ShapeProperties(
       transform: transform,
@@ -46,6 +50,8 @@ class ShapeProperties extends DocxNode<void> {
       fill: fill,
       border: border,
       effects: effect,
+      id: id,
+      parent: parent,
     );
   }
 
@@ -55,6 +61,8 @@ class ShapeProperties extends DocxNode<void> {
     Fill<dynamic>? fill,
     ShapeBorder? border,
     Effect<dynamic>? effect,
+    String? id,
+    DocxNode? parent,
   }) {
     return ShapeProperties(
       transform: transform,
@@ -62,6 +70,8 @@ class ShapeProperties extends DocxNode<void> {
       fill: fill,
       border: border,
       effects: effect,
+      id: id,
+      parent: parent,
     );
   }
 
@@ -81,25 +91,25 @@ class ShapeProperties extends DocxNode<void> {
   final Effect<dynamic>? effects;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[
-      ...transform.buildXml(context: context),
-      ...geometryComponent.buildXml(context: context),
+      ...transform.ensureInitialized(context).buildXml(),
+      ...geometryComponent.ensureInitialized(context).buildXml(),
     ];
 
     if (fill != null) {
-      children.addAll(fill!.buildXml(context: context));
+      children.addAll(fill!.ensureInitialized(context).buildXml());
     }
 
     if (border != null) {
-      children.addAll(border!.buildXml(context: context));
+      children.addAll(border!.ensureInitialized(context).buildXml());
     }
 
     if (effects != null) {
-      children.addAll(effects!.buildXml(context: context));
+      children.addAll(effects!.ensureInitialized(context).buildXml());
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'wps:spPr',
         children: children,
@@ -108,17 +118,14 @@ class ShapeProperties extends DocxNode<void> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
   ShapeProperties get copy => ShapeProperties(
+        id: id,
         transform: transform,
         geometryComponent: geometryComponent,
         fill: fill,
         border: border,
         effects: effects,
+        parent: parent,
       );
 
   @override
@@ -137,7 +144,9 @@ class ShapeProperties extends DocxNode<void> {
       fill: fill ?? this.fill,
       border: border ?? this.border,
       effects: effects ?? this.effects,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+      id: id ?? this.id,
+    );
   }
 
   @override
@@ -155,7 +164,8 @@ class ShapeProperties extends DocxNode<void> {
     );
     if (transformResult != null) results.addAll(transformResult);
 
-    final List<DocxNode<dynamic>>? geometryResult = geometryComponent.visitAllElement(
+    final List<DocxNode<dynamic>>? geometryResult =
+        geometryComponent.visitAllElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );

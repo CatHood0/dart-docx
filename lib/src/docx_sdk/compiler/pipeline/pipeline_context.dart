@@ -86,13 +86,14 @@ class PipelineContext {
 
   void emit(DocxEvent event) {}
 
-  BuildNodeContext buildDocumentContext([DocumentRoot? root]) {
+  BuildNodeContext buildDocumentContext([DocxRoot? root]) {
     return BuildNodeContext(
       options: options,
       element: root,
-      defaultNormalStyle: Style.ref('Normal'),
+      defaultNormalStyle: config.defaultNormalStyle,
       setNormalStyleToNotStyledParagraphs: flags.forceNormalStyle,
-      noTrim: true,
+      noTrim: config.noTrim,
+      stores: _stores,
       checkStyleRefExistence: flags.checkStyleRefExistence,
     );
   }

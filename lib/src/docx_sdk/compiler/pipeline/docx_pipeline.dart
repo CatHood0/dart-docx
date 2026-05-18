@@ -205,6 +205,25 @@ class DocxPipeline {
       stores: _stores,
     );
 
+    if (DocxElements.instance.needsPreviousInitialization) {
+      final Stopwatch watch = Stopwatch()..start();
+      CompilerLogger.root.debug('Ensuring initializatin start');
+      final BuildNodeContext treeContext =
+          context.buildDocumentContext(document.root);
+      document.root.visitAllElement(
+        (DocxNode<dynamic> element) {
+          element.init(treeContext);
+          return false;
+        },
+        visitChildrenIfNeeded: true,
+      );
+      watch.stop();
+      CompilerLogger.root.debug(
+        'Ensuring initializatin end '
+        'time ${watch.elapsedMilliseconds > 0 ? '${watch.elapsedMilliseconds}ms' : '${watch.elapsedMicroseconds}ns'}',
+      );
+    }
+
     try {
       for (final hook in _preCompileHooks) {
         hook(context);

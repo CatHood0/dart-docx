@@ -38,7 +38,7 @@ export 'components/layout/rows/table/table_pr.dart';
 export 'components/layout/rows/table/table_row.dart';
 export 'components/layout/sections/section.dart';
 export 'components/layout/text/text.dart';
-export 'components/root/document_root.dart';
+export 'components/root/docx_root.dart';
 export 'components/runs/component_attributes/attribute.dart';
 export 'components/runs/component_attributes/run_attributes.dart';
 export 'components/runs/hyperlink_run.dart';

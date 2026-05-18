@@ -2,7 +2,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/string_ext.dart';
-import '../../mixins/ignorable_mixin.dart';
 
 /// Inline drawing element for images and shapes that flow with text.
 ///
@@ -32,6 +31,7 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
     required this.height,
     required this.distance,
     super.id,
+    super.parent,
   }) : super(child: components) {
     int index = 0;
     for (final DocxNode<dynamic> content in child) {
@@ -67,6 +67,7 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
         width: width,
         components: child,
         distance: distance,
+        parent: parent,
       );
 
   @override
@@ -86,20 +87,22 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
       height: height ?? this.height,
       components: child ?? this.child,
       id: id ?? this.id,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
-      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
+      if (element is IgnorableMixin &&
+          element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      children.addAll(element.buildXml(context: context));
+      children.addAll(element.ensureInitialized(context).buildXml());
     }
     elementId ??= context.drawingStore.getNextId(id);
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'wp:inline',
         attributes: <XmlAttribute>[
@@ -125,12 +128,12 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
           ...Extent(
             cx: width,
             cy: height,
-          ).buildXml(context: context),
+          ).ensureInitialized(context).buildXml(),
           ...DocProperties(
             docPrId: elementId!.toString(),
             name: name,
             description: name,
-          ).buildXml(context: context),
+          ).ensureInitialized(context).buildXml(),
           ...children,
         ],
       ),

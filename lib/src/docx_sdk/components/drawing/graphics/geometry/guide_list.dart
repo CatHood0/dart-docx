@@ -35,8 +35,8 @@ class GeometryGuideList extends DocxNode<Iterable<GeometryGuide>> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:gdLst',
         isSelfClosing: child.isEmpty,
@@ -69,10 +69,5 @@ class GeometryGuideList extends DocxNode<Iterable<GeometryGuide>> {
     bool visitChildrenIfNeeded = true,
   }) {
     return shouldGetElement(this) ? this : null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 }

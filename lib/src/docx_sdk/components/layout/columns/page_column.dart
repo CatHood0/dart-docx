@@ -52,7 +52,7 @@ class PageColumn extends DocxNode<List<DocxNode>> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     if (context.options.columns == null ||
         context.options.columns!.numColumns == null) {
       CompilerLogger.root.warning(
@@ -64,34 +64,29 @@ class PageColumn extends DocxNode<List<DocxNode>> {
         'you to not use this with the current configurations ',
       );
     }
-    final List<XmlElement> elements = <XmlElement>[];
+    final List<XmlNode> elements = <XmlNode>[];
     for (final DocxNode<dynamic> e in child) {
-      final List<XmlElement> element =
-          e.buildXml(context: createdInheritedContext(context)).cast();
+      final List<XmlNode> element = e.ensureInitialized(context).buildXml();
       if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() ||
           element.isEmpty) {
         continue;
       }
       elements.addAll(element);
     }
-    return <XmlElement>[
+    return <XmlNode>[
       if (!ignoreBreak)
         ...Paragraph.run(
           Break.pageBreak(),
-        ).buildXml(context: context),
+        ).ensureInitialized(context).buildXml(),
       ...elements,
     ];
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
   }
 
   @override
   PageColumn get copy => PageColumn(
         id: id,
         children: child,
+        parent: parent,
       );
 
   @override

@@ -316,10 +316,10 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       super.runParent(
-        runProperties: buildXmlStyle(context: context),
+        runProperties: buildXmlStyle(),
         nodes: [
           if (child.text.isNotEmpty && child.text != '\n')
             XmlElement.tag(
@@ -335,7 +335,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
+  List<XmlNode> buildXmlStyle() {
     final List<Object> styles = <Object>[...child.styles];
     if (styles.any(
         (Object e) => e is TextRunAttribution && e.scope != Scope.portion)) {
@@ -376,6 +376,15 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     bool visitChildrenIfNeeded = false,
   }) {
     if (shouldGetElement(this)) return this;
+    return null;
+  }
+
+  @override
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     return null;
   }
 }

@@ -412,9 +412,9 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   final ShadingPattern? shadingPattern;
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlElement> buildXml() {
     final List<XmlNode> paragraphChildren = <XmlNode>[];
-    final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
+    final List<XmlElement> paragraphStyles = buildXmlStyle();
     if (paragraphStyles.isNotEmpty) {
       paragraphChildren.add(
         XmlElement.tag(
@@ -426,8 +426,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     for (final RunBase e in child) {
-      final List<XmlNode> element =
-          e.buildXml(context: e.createdInheritedContext(context));
+      final List<XmlNode> element = e.ensureInitialized(context).buildXml();
       if (e.shouldIgnore() || element.isEmpty || e.isEmptyNode()) {
         continue;
       }
@@ -435,10 +434,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     if (pageBreak == ParagraphPageBreak.after) {
-      final run = Run.pageBreak();
-      paragraphChildren.addAll(run.buildXml(
-        context: run.createdInheritedContext(context),
-      ));
+      paragraphChildren
+          .addAll(Run.pageBreak().ensureInitialized(context).buildXml());
     }
 
     return <XmlElement>[
@@ -451,7 +448,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
+  List<XmlElement> buildXmlStyle() {
     final List<XmlElement> pPrChildren = <XmlElement>[];
 
     if (numbering != null) {
@@ -1062,6 +1059,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       return;
     }
 
+    element.markAsDirty();
+
     length -= element.length;
 
     CompilerLogger.root.debug(
@@ -1073,6 +1072,10 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     length += component.length;
 
     child[i] = component.copy.cast<RunBase>();
+
+    final RunBase<dynamic> t = child[i];
+
+    if (t.mounted) t.markAsDirty();
   }
 }
 

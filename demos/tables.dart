@@ -61,7 +61,7 @@ Future<void> main() async {
         ],
       ),
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         // Document title
         Paragraph.text(

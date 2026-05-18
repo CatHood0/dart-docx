@@ -9,7 +9,10 @@ class Transform2D extends DocxNode<dynamic> {
     int rotation = 0,
     this.flipHorizontal = false,
     this.flipVertical = false,
-  })  : rotation = rotation > 360 ? rotation : (rotation * (degressTh / 360)).toInt(),
+    super.id,
+    super.parent,
+  })  : rotation =
+            rotation > 360 ? rotation : (rotation * (degressTh / 360)).toInt(),
         super(child: null);
 
   Transform2D.zero({
@@ -18,9 +21,12 @@ class Transform2D extends DocxNode<dynamic> {
     int rotation = 0,
     this.flipHorizontal = false,
     this.flipVertical = false,
+    super.id,
+    super.parent,
   })  : offset = offset ?? Offset.zero(),
         extents = extents ?? AnnotationExtents.zero(),
-        rotation = rotation > 360 ? rotation : (rotation * (degressTh / 360)).toInt(),
+        rotation =
+            rotation > 360 ? rotation : (rotation * (degressTh / 360)).toInt(),
         super(child: null);
 
   Transform2D.degre90({
@@ -28,6 +34,8 @@ class Transform2D extends DocxNode<dynamic> {
     AnnotationExtents? extents,
     this.flipHorizontal = false,
     this.flipVertical = false,
+    super.id,
+    super.parent,
   })  : offset = offset ?? Offset.zero(),
         extents = extents ?? AnnotationExtents.zero(),
         rotation = (90 * (degressTh / 360)).toInt(),
@@ -38,6 +46,8 @@ class Transform2D extends DocxNode<dynamic> {
     AnnotationExtents? extents,
     this.flipHorizontal = false,
     this.flipVertical = false,
+    super.id,
+    super.parent,
   })  : offset = offset ?? Offset.zero(),
         extents = extents ?? AnnotationExtents.zero(),
         rotation = (180 * (degressTh / 360)).toInt(),
@@ -69,6 +79,8 @@ class Transform2D extends DocxNode<dynamic> {
         rotation: rotation,
         flipHorizontal: flipHorizontal,
         flipVertical: flipVertical,
+        parent: parent,
+        id: id,
       );
 
   @override
@@ -87,19 +99,21 @@ class Transform2D extends DocxNode<dynamic> {
       rotation: rotation ?? this.rotation,
       flipHorizontal: flipHorizontal ?? this.flipHorizontal,
       flipVertical: flipVertical ?? this.flipVertical,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+      id: id ?? this.id,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         'a:xfrm',
         isSelfClosing: false,
-        attributes: buildXmlStyle(context: context).cast<XmlAttribute>(),
+        attributes: buildXmlStyle().cast<XmlAttribute>(),
         children: <XmlNode>[
-          ...offset.buildXml(context: context),
-          ...extents.buildXml(context: context),
+          ...offset.ensureInitialized(context).buildXml(),
+          ...extents.ensureInitialized(context).buildXml(),
           if (rotation != 0)
             XmlElement.tag(
               'a:rot',
@@ -117,7 +131,7 @@ class Transform2D extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
+  List<XmlNode> buildXmlStyle() {
     final List<XmlAttribute> attributes = <XmlAttribute>[];
 
     if (flipHorizontal) {
@@ -137,8 +151,10 @@ class Transform2D extends DocxNode<dynamic> {
   }) {
     if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     if (!visitChildrenIfNeeded) return null;
-    return offset.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        extents.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return offset.visitAllElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        extents.visitAllElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -148,7 +164,9 @@ class Transform2D extends DocxNode<dynamic> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return offset.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        extents.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return offset.visitElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        extents.visitElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

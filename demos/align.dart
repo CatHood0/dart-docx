@@ -24,7 +24,7 @@ Future<void> main() async {
         margins: margins,
       ),
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         Align(
           alignment: Alignment.center,

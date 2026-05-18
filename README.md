@@ -99,6 +99,10 @@ dependencies:
 
 ### 1. Define the Document Content
 
+> [!IMPORTANT]
+>
+> Since we are changing the way on how we build documents and how compiler is used, this part is partially outdated. I will work as fast as I can to update it! 
+
 Your document content is structured using classes that extend `DocxContent` and `ComponentContainer`. `DocxDocument` is the, and within it you can add `Paragraph`s, `TextRun`s, `Image`s, `HyperlinkRun`s, etc.
 
 Here is an example of how to create a simple document:
@@ -115,7 +119,7 @@ Future<void> main() async {
       author: 'me',
       subject: 'example',
     ),
-    root: DocumentRoot(
+    root: DocxRoot(
       sections: <DocxNode<dynamic>>[
         Paragraph(
           data: <RunBase>[
@@ -1233,7 +1237,7 @@ final DocxDocument document = DocxDocument(
      author: 'yeah-me',
      settings: customDocSettings,
    ),
-   root: DocumentRoot(sections: <DocxNode<dynamic>>[]),
+   root: DocxRoot(sections: <DocxNode<dynamic>>[]),
 );
  
 ```

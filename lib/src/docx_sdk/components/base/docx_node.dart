@@ -7,7 +7,7 @@ import '../../../../docx.dart'
         AnchorConfig,
         CompilerLogger,
         BuildNodeContext,
-        DocumentRoot,
+        DocxRoot,
         Effect,
         Fill,
         Geometry,
@@ -139,13 +139,17 @@ abstract class DocxNode<T> {
   BuildNodeContext? _context;
 
   BuildNodeContext get context {
-    if (context == null) {
-      // shows the full tree stacktrace 
+    if (_context == null) {
+      // shows the full tree stacktrace
       // for the exception
-      throw Exception('init() must be called');
+      throw Exception(
+          'init() or ensureInitialized() must be called before any other requirement');
     }
     return _context!;
   }
+
+  // Not used yet
+  bool dirty = false;
 
   /// The internal random id of this component
   final String id;
@@ -155,25 +159,49 @@ abstract class DocxNode<T> {
   DocxNode<T> copyWith({String? id, DocxNode<T>? parent});
 
   @mustCallSuper
+  bool get mounted => _context != null;
+
+  void markAsDirty() {
+    dirty = true;
+    _context = null;
+  }
+
+  @mustCallSuper
   void init(BuildNodeContext context) {
-    //TODO: add diff
+    // Does not requires
+    if (mounted && !dirty) {
+      return;
+    }
     _context = createdInheritedContext(context);
+    dirty = false;
+    perform();
+  }
+
+  @mustCallSuper
+  DocxNode<T> ensureInitialized(BuildNodeContext context) {
+    return this..init(context);
+  }
+
+  void deactivate() {
+    dirty = true;
+    _context = null;
   }
 
   /// Performs all the required stuff that need to be ready
   /// before the `build` pahase
   @visibleForOverriding
   @experimental
-  void perfom([BuildNodeContext? context]) {}
+  void perform() {}
 
-  List<XmlNode> buildXml({required BuildNodeContext context});
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) =>
-      <XmlNode>[];
+  List<XmlNode> buildXml();
+  List<XmlNode> buildXmlStyle() => <XmlNode>[];
 
+  @mustCallSuper
   BuildNodeContext createdInheritedContext(BuildNodeContext context) {
     return BuildNodeContext.inherited(context, this);
   }
 
+  @mustCallSuper
   BuildNodeContext createdContext({DocumentOptions? options}) {
     return BuildNodeContext.base(options: options, element: this);
   }
@@ -226,7 +254,7 @@ abstract class DocxNode<T> {
       return current;
     }
 
-    if (current is DocumentRoot) {
+    if (current is DocxRoot) {
       CompilerLogger.root.debug(
         '${' ' * depth} |_ $R not found by root limitation',
       );
@@ -281,4 +309,18 @@ abstract class DocxNode<T> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   });
+}
+
+class DocxElements {
+  DocxElements._();
+
+  static final DocxElements instance = DocxElements._();
+
+  Map<String, dynamic> metadata = <String, dynamic>{};
+
+  bool get needsPreviousInitialization => metadata['ensureInitialize'] == true;
+
+  void ensureInitialized() {
+    metadata['ensureInitialize'] = true;
+  }
 }

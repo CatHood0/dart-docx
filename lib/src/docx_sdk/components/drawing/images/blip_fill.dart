@@ -8,12 +8,14 @@ class BlipFill extends Fill<void> {
     required this.blip,
     required this.stretch,
     super.id,
+    super.parent,
   }) : super(child: null);
 
   BlipFill.pic({
     required this.blip,
     required this.stretch,
     super.id,
+    super.parent,
   })  : name = 'pic',
         super(child: null);
 
@@ -21,6 +23,7 @@ class BlipFill extends Fill<void> {
     required this.blip,
     required this.stretch,
     super.id,
+    super.parent,
   })  : name = 'a',
         super(child: null);
 
@@ -34,6 +37,7 @@ class BlipFill extends Fill<void> {
         stretch: stretch.copy,
         name: name,
         id: id,
+        parent: parent,
       );
 
   @override
@@ -49,18 +53,19 @@ class BlipFill extends Fill<void> {
       blip: blip ?? this.blip.copy,
       stretch: stretch ?? this.stretch.copy,
       id: id ?? this.id,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
       XmlElement.tag(
         '$name:blipFill',
         isSelfClosing: false,
         children: <XmlNode>[
-          ...blip.buildXml(context: context),
-          ...stretch.buildXml(context: context),
+          ...blip.ensureInitialized(context).buildXml(),
+          ...stretch.ensureInitialized(context).buildXml(),
         ],
       ),
     ];
@@ -73,8 +78,10 @@ class BlipFill extends Fill<void> {
   }) {
     if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     if (!visitChildrenIfNeeded) return null;
-    return blip.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        stretch.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return blip.visitAllElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        stretch.visitAllElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -84,12 +91,9 @@ class BlipFill extends Fill<void> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return blip.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        stretch.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
+    return blip.visitElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        stretch.visitElement(shouldGetElement,
+            visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

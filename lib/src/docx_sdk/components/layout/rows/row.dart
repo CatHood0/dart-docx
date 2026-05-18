@@ -39,20 +39,49 @@ class Row extends DocxNode<List<DocxNode>> {
   final MainAxisAlignment? mainAxisAlignment;
   final CrossAxisAlignment? crossAxisAlignment;
 
+  DocxNode? _table;
+
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
-    return <XmlElement>[
-      ...toTable(
-        context,
-      ).buildXml(context: context).cast(),
+  void perform() {
+    // Some dumb diffing
+    if (_table != null) {
+      int maxWidth =
+          context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ??
+              width;
+
+      if (maxWidth == 0) {
+        maxWidth = context.options.availablePageWidth;
+      }
+
+      maxWidth = maxWidth.nonNegative.toInt();
+
+      final LayoutConstraints constraint = _table!.cast<LayoutConstraints>();
+
+      if (constraint.maxWidth == maxWidth) {
+        return;
+      }
+    }
+    _table = toTable(context);
+  }
+
+  @override
+  List<XmlNode> buildXml() {
+    if (_table == null) {
+      throw Exception(
+          '$runtimeType was not initialized before calling buildXml. Please, ensure that you call row..ensureInitialized(<context>)');
+    }
+    return <XmlNode>[
+      ..._table!.buildXml(),
     ];
   }
 
   /// Converts this [Row] in a [Table] equivalent version
   DocxNode toTable(BuildNodeContext context) {
-    int maxWidth = context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
+    int maxWidth =
+        context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
-    final EdgeInsets padding = context.getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
+    final EdgeInsets padding =
+        context.getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
 
     if (maxWidth == 0) {
       maxWidth = context.options.availablePageWidth;
@@ -149,7 +178,8 @@ class Row extends DocxNode<List<DocxNode>> {
         padding: padding,
       ),
       columns: maxWidth > 0
-          ? GridColumn(width: (maxWidth / cells.length).toInt()).repeat(cells.length)
+          ? GridColumn(width: (maxWidth / cells.length).toInt())
+              .repeat(cells.length)
           : GridColumn.intrintric().repeat(cells.length),
       rows: TableRow(
         canSplit: true,
@@ -170,14 +200,15 @@ class Row extends DocxNode<List<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
   Row get copy => Row(
         id: id,
         children: child,
+        width: width,
+        minHeight: minHeight,
+        spacing: spacing,
+        parent: parent,
+        mainAxisAlignment: mainAxisAlignment,
+        crossAxisAlignment: crossAxisAlignment,
       );
 
   @override

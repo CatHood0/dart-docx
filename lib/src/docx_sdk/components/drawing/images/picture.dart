@@ -6,6 +6,8 @@ import '../../../../core/extensions/cast_ext.dart';
 class Picture extends DocxNode<Iterable<DocxNode>> {
   Picture({
     required Iterable<DocxNode> components,
+    super.id,
+    super.parent,
   }) : super(child: components) {
     int index = 0;
     for (final DocxNode<dynamic> content in child) {
@@ -28,19 +30,22 @@ class Picture extends DocxNode<Iterable<DocxNode>> {
   }) {
     return Picture(
       components: child ?? this.child,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+      id: id ?? this.id,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
-      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
+      if (element is IgnorableMixin &&
+          element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      children.addAll(element.buildXml(context: context));
+      children.addAll(element.ensureInitialized(context).buildXml());
     }
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag('pic:pic', isSelfClosing: false, children: children),
     ];
   }
@@ -79,8 +84,4 @@ class Picture extends DocxNode<Iterable<DocxNode>> {
     return null;
   }
 
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
-  }
 }

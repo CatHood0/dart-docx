@@ -8,11 +8,11 @@ import '../../shared/effects.dart';
 /// Adds three-dimensional effects like extrusion (depth), contour, and bevels
 /// to create the illusion of a 3D object. Can simulate materials like plastic,
 /// metal, or matte surfaces.
-class ThreeDEffectComponent extends Effect<ThreeDEffect> {
-  ThreeDEffectComponent({required super.child});
+class Dimensional3DEffect extends Effect<Dimensional3DData> {
+  Dimensional3DEffect({required super.child});
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
 
     if (child.extrusionHeight != 0) {
@@ -120,7 +120,7 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
       );
     }
 
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'a:sp3d',
         children: children,
@@ -159,11 +159,6 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return <XmlNode>[];
-  }
-
-  @override
   List<DocxNode>? visitAllElement(
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
@@ -182,22 +177,22 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
   }
 
   @override
-  ThreeDEffectComponent get copy => ThreeDEffectComponent(child: child);
+  Dimensional3DEffect get copy => Dimensional3DEffect(child: child);
 
   @override
-  ThreeDEffectComponent copyWith({
-    ThreeDEffect? child,
+  Dimensional3DEffect copyWith({
+    Dimensional3DData? child,
     String? id,
     DocxNode<dynamic>? parent,
   }) {
-    return ThreeDEffectComponent(
+    return Dimensional3DEffect(
       child: child ?? this.child,
     )..parent = parent ?? this.parent;
   }
 }
 
 /// 3D effect configuration for shapes with developer-friendly units.
-class ThreeDEffect {
+class Dimensional3DData {
   /// Creates a 3D effect with intuitive units.
   ///
   /// - [extrusionHeight]: Depth of 3D extrusion in points
@@ -209,7 +204,7 @@ class ThreeDEffect {
   /// - [bottomBevel]: Bevel effect for the bottom edge
   /// - [lightingAngle]: Direction of light source in degrees
   /// - [lightingIntensity]: Brightness of lighting (0-1)
-  ThreeDEffect({
+  Dimensional3DData({
     double extrusionHeight = 10.0,
     this.extrusionColor,
     double contourWidth = 1.0,
@@ -225,12 +220,12 @@ class ThreeDEffect {
         lightingIntensity = (lightingIntensity * 100000).clamp(0, 100000).toInt();
 
   /// Creates a simple 3D effect with default bevels.
-  factory ThreeDEffect.simple({
+  factory Dimensional3DData.simple({
     double extrusionHeight = 10.0,
     Color? extrusionColor,
     PresetMaterial material = PresetMaterial.plastic,
   }) {
-    return ThreeDEffect(
+    return Dimensional3DData(
       extrusionHeight: extrusionHeight,
       extrusionColor: extrusionColor,
       material: material,
@@ -248,11 +243,11 @@ class ThreeDEffect {
   }
 
   /// Creates a metallic 3D effect.
-  factory ThreeDEffect.metallic({
+  factory Dimensional3DData.metallic({
     double extrusionHeight = 15.0,
     Color? extrusionColor,
   }) {
-    return ThreeDEffect(
+    return Dimensional3DData(
       extrusionHeight: extrusionHeight,
       extrusionColor: extrusionColor ?? Color(0x888888),
       material: PresetMaterial.metal,
@@ -274,12 +269,12 @@ class ThreeDEffect {
   }
 
   /// Creates a plastic/rounded 3D effect.
-  factory ThreeDEffect.plasticRounded({
+  factory Dimensional3DData.plasticRounded({
     double extrusionHeight = 8.0,
     double width = 0.5,
     Color? extrusionColor,
   }) {
-    return ThreeDEffect(
+    return Dimensional3DData(
       extrusionHeight: extrusionHeight,
       extrusionColor: extrusionColor,
       material: PresetMaterial.plastic,
@@ -300,11 +295,11 @@ class ThreeDEffect {
   }
 
   /// Creates a subtle 3D effect for buttons.
-  factory ThreeDEffect.button({
+  factory Dimensional3DData.button({
     double extrusionHeight = 5.0,
     Color? baseColor,
   }) {
-    return ThreeDEffect(
+    return Dimensional3DData(
       extrusionHeight: extrusionHeight,
       extrusionColor: baseColor != null ? Color(_darkenColor(baseColor.rgbValue!, 30)) : Color(0x666666),
       material: PresetMaterial.plastic,
@@ -321,11 +316,11 @@ class ThreeDEffect {
   }
 
   /// Creates a dramatic 3D effect for emphasis.
-  factory ThreeDEffect.dramatic({
+  factory Dimensional3DData.dramatic({
     double extrusionHeight = 20.0,
     Color? extrusionColor,
   }) {
-    return ThreeDEffect(
+    return Dimensional3DData(
       extrusionHeight: extrusionHeight,
       extrusionColor: extrusionColor ?? Color(0x555555),
       material: PresetMaterial.metal,
@@ -369,7 +364,7 @@ class ThreeDEffect {
   double get lightingIntensityDecimal => lightingIntensity / 100000.0;
 
   /// Creates a copy with overridden values.
-  ThreeDEffect copyWith({
+  Dimensional3DData copyWith({
     double? extrusionHeight,
     Color? extrusionColor,
     double? contourWidth,
@@ -380,7 +375,7 @@ class ThreeDEffect {
     double? lightingAngle,
     double? lightingIntensity,
   }) {
-    return ThreeDEffect(
+    return Dimensional3DData(
       extrusionHeight: extrusionHeight ?? extrusionHeightInPoints,
       extrusionColor: extrusionColor ?? this.extrusionColor,
       contourWidth: contourWidth ?? contourWidthInPoints,
@@ -394,36 +389,36 @@ class ThreeDEffect {
   }
 
   /// Creates a deeper 3D effect.
-  ThreeDEffect deeper([double factor = 1.5]) {
+  Dimensional3DData deeper([double factor = 1.5]) {
     return copyWith(
       extrusionHeight: extrusionHeightInPoints * factor,
     );
   }
 
   /// Creates a shallower 3D effect.
-  ThreeDEffect shallower([double factor = 0.7]) {
+  Dimensional3DData shallower([double factor = 0.7]) {
     return copyWith(
       extrusionHeight: extrusionHeightInPoints * factor,
     );
   }
 
   /// Changes the material type.
-  ThreeDEffect withMaterial(PresetMaterial newMaterial) {
+  Dimensional3DData withMaterial(PresetMaterial newMaterial) {
     return copyWith(material: newMaterial);
   }
 
   /// Adds or replaces the top bevel.
-  ThreeDEffect withTopBevel(Bevel bevel) {
+  Dimensional3DData withTopBevel(Bevel bevel) {
     return copyWith(topBevel: bevel);
   }
 
   /// Removes the top bevel.
-  ThreeDEffect withoutTopBevel() {
+  Dimensional3DData withoutTopBevel() {
     return copyWith(topBevel: null);
   }
 
   /// Changes the lighting direction.
-  ThreeDEffect withLightingAngle(double angle) {
+  Dimensional3DData withLightingAngle(double angle) {
     return copyWith(lightingAngle: angle);
   }
 

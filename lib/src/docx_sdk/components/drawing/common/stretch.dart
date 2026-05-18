@@ -4,7 +4,11 @@ import '../../../../core/extensions/cast_ext.dart';
 
 // Represents a:stretch
 class Stretch extends DocxNode<Iterable<DocxNode>> {
-  Stretch({required super.child}) {
+  Stretch({
+    required super.child,
+    super.id,
+    super.parent,
+  }) {
     int index = 0;
     for (final DocxNode<dynamic> content in child) {
       content
@@ -16,7 +20,11 @@ class Stretch extends DocxNode<Iterable<DocxNode>> {
   }
 
   @override
-  Stretch get copy => Stretch(child: child);
+  Stretch get copy => Stretch(
+        id: id,
+        parent: parent,
+        child: child,
+      );
 
   @override
   Stretch copyWith({
@@ -24,20 +32,24 @@ class Stretch extends DocxNode<Iterable<DocxNode>> {
     String? id,
     DocxNode<dynamic>? parent,
   }) {
-    return Stretch(child: child ?? this.child)..parent = parent ?? this.parent;
+    return Stretch(
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+      child: child ?? this.child,
+    );
   }
 
   @override
-  List<XmlElement> buildXml({required BuildNodeContext context}) {
+  List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
-      element.init(context);
-      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
+      if (element is IgnorableMixin &&
+          element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      children.addAll(element.buildXml(context: context));
+      children.addAll(element.ensureInitialized(context).buildXml());
     }
-    return <XmlElement>[
+    return <XmlNode>[
       XmlElement.tag(
         'a:stretch',
         isSelfClosing: false,
@@ -78,10 +90,5 @@ class Stretch extends DocxNode<Iterable<DocxNode>> {
       if (result != null) return result;
     }
     return null;
-  }
-
-  @override
-  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
-    return [];
   }
 }
