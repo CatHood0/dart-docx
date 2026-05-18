@@ -90,17 +90,15 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
       if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      context.currentContentPart = element;
       children.addAll(element.buildXml(context: context));
     }
     elementId ??= context.drawingStore.getNextId(id);
-    context.currentContentPart = this;
     return <XmlElement>[
       XmlElement.tag(
         'wp:inline',

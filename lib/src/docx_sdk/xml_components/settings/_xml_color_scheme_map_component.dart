@@ -21,7 +21,7 @@ class XmlColorSchemeMappingComponent extends XmlComponentBase<void> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

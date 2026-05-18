@@ -1,8 +1,7 @@
 import 'package:xml/xml.dart';
 
-import '../../../../core/extensions/string_ext.dart';
 import '../../../../../docx.dart';
-import 'sdt_enums.dart';
+import '../../../../core/extensions/string_ext.dart';
 
 /// Plain text SDT component for single-line text input fields.
 ///
@@ -21,21 +20,13 @@ import 'sdt_enums.dart';
 ///   content: 'John Doe',
 /// );
 /// ```
-///
-/// ## Variants:
-/// - Basic plainText with content
-/// - plainText with placeholder (when empty)
-/// - plainText with maxLength validation
-/// - plainText with dataBinding to Custom XML Parts
-///
 /// See also:
 /// - [SdtRichText] for multi-paragraph rich text SDT
 /// - [docs/sdt_elements.md] for complete SDT documentation
-class SdtPlainText extends DocxNode<List<RunBase>> with PrintableMixin {
+class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
   SdtPlainText({
     required String alias,
     required this.tag,
-    this.sdtId,
     this.placeholder,
     this.showingPlacHdr = true,
     this.maxLength,
@@ -44,6 +35,7 @@ class SdtPlainText extends DocxNode<List<RunBase>> with PrintableMixin {
     List<RunBase> content = const [],
     super.parent,
     super.id,
+    super.sdtId,
   })  : _alias = alias,
         _content = content,
         super(child: <RunBase>[...content]) {
@@ -64,10 +56,6 @@ class SdtPlainText extends DocxNode<List<RunBase>> with PrintableMixin {
   /// Internal tag for programming reference.
   final String tag;
 
-  /// Optional unique identifier for the SDT.
-  /// Note: This is different from DocxNode.id which is auto-generated.
-  final int? sdtId;
-
   /// Placeholder text shown when the field is empty.
   final String? placeholder;
 
@@ -87,7 +75,7 @@ class SdtPlainText extends DocxNode<List<RunBase>> with PrintableMixin {
   final List<RunBase> _content;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
@@ -99,35 +87,28 @@ class SdtPlainText extends DocxNode<List<RunBase>> with PrintableMixin {
     ];
   }
 
-  XmlElement _buildPropertiesXml(DocumentContext context) {
+  XmlElement _buildPropertiesXml(BuildNodeContext context) {
     final List<XmlNode> children = <XmlNode>[
       XmlElement.tag('w:plainText', isSelfClosing: true),
-    ]
-
-      // Add alias
-      ..add(
-        XmlElement.tag(
-          'w:alias',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), _alias),
-          ],
-          isSelfClosing: true,
-        ),
-      )
-
-      // Add tag
-      ..add(
-        XmlElement.tag(
-          'w:tag',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), tag),
-          ],
-          isSelfClosing: true,
-        ),
-      );
+      XmlElement.tag(
+        'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:tag',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), tag),
+        ],
+        isSelfClosing: true,
+      ),
+    ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId = context.sdtStore.getNextId(preferredId: sdtId);
+    final int actualSdtId =
+        context.sdtStore.getNextId(nodeId: id, preferredId: sdtId);
     children.add(
       XmlElement.tag(
         'w:id',
@@ -209,7 +190,7 @@ class SdtPlainText extends DocxNode<List<RunBase>> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(DocumentContext context) {
+  XmlElement _buildContentXml(BuildNodeContext context) {
     final List<XmlNode> runs = <XmlNode>[];
 
     if (_content.isEmpty) {
@@ -236,12 +217,13 @@ class SdtPlainText extends DocxNode<List<RunBase>> with PrintableMixin {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 
   @override
   SdtPlainText get copy => SdtPlainText(
+        id: id,
         sdtId: sdtId,
         alias: _alias,
         tag: tag,

@@ -44,7 +44,7 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
   }
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     final List<XmlNode> children = [];
 
     if (value.panose1 != null) {

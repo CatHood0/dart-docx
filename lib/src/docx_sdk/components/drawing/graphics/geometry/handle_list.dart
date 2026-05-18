@@ -36,7 +36,7 @@ class HandlesList extends DocxNode<Iterable<AdjustHandle>> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'a:ahLst',
@@ -84,7 +84,7 @@ class HandlesList extends DocxNode<Iterable<AdjustHandle>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 }

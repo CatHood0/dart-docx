@@ -23,7 +23,7 @@ class PatternFillComponent extends Fill<PatternFill> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> children = <XmlNode>[];
 
     if (child.foregroundColor != null) {
@@ -112,7 +112,7 @@ class PatternFillComponent extends Fill<PatternFill> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

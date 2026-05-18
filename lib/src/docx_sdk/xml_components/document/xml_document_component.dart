@@ -54,7 +54,7 @@ class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
   String get path => DocxPaths.documentFilePath;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

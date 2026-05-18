@@ -21,7 +21,7 @@ class ShadowEffect extends Effect<ShadowEffectData> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlAttribute> attributes = <XmlAttribute>[
       if (child.blur != 0)
         XmlAttribute(
@@ -70,7 +70,7 @@ class ShadowEffect extends Effect<ShadowEffectData> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

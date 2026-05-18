@@ -1,3 +1,5 @@
+import '../../../docx.dart';
+
 /// Manages SDT (Structured Document Tag) identifiers for a Docx document.
 ///
 /// This store ensures that all SDT elements have unique IDs by:
@@ -16,21 +18,26 @@
 /// // In SdtPlainText.buildXml():
 /// final int sdtId = context.sdtStore.getNextId(preferredId: sdtId);
 /// ```
-class SdtStore {
+//TODO: we should allow computing ids and assigning node id
+// to avoid re-using existing ones for incremental changes
+class SdtStore extends Store {
   SdtStore();
 
   /// Tracks all registered SDT IDs to ensure uniqueness.
-  final Set<int> _registeredIds = <int>{};
+  final Map<String, int> _registeredIds = <String, int>{};
 
   /// The next auto-generated ID to use when no preferred ID is provided.
   int _nextAutoId = 1;
+
+  @override
+  String get storeName => 'SDT Counter Store';
 
   /// Registers an ID as already used.
   ///
   /// This is called internally by [getNextId] when a preferred ID is provided.
   /// Use this method to pre-register IDs that may be used by the document.
-  void registerId(int id) {
-    _registeredIds.add(id);
+  void registerId(String nodeId, int id) {
+    _registeredIds[nodeId] = id;
   }
 
   /// Gets the next available SDT ID.
@@ -38,14 +45,13 @@ class SdtStore {
   /// If [preferredId] is provided and not already registered, it will be used.
   /// Otherwise, a new auto-generated ID is returned and registered.
   ///
-  /// Parameters:
-  /// - [preferredId]: An optional ID to use if available. If null or already
-  ///   registered, a new ID will be generated.
-  ///
   /// Returns: A unique SDT ID to use in the XML.
-  int getNextId({int? preferredId}) {
-    if (preferredId != null && !_registeredIds.contains(preferredId)) {
-      _registeredIds.add(preferredId);
+  int getNextId({required String nodeId, int? preferredId}) {
+    if (_registeredIds[nodeId] != null) {
+      return _registeredIds[nodeId]!;
+    }
+    if (preferredId != null && !_registeredIds.containsKey(nodeId)) {
+      _registeredIds[nodeId] = preferredId;
       // Update _nextAutoId to be after the preferred ID if needed
       if (preferredId >= _nextAutoId) {
         _nextAutoId = preferredId + 1;
@@ -54,12 +60,12 @@ class SdtStore {
     }
 
     // Find the next available auto-generated ID
-    while (_registeredIds.contains(_nextAutoId)) {
+    while (_registeredIds.containsValue(_nextAutoId)) {
       _nextAutoId++;
     }
 
     final int id = _nextAutoId;
-    _registeredIds.add(id);
+    _registeredIds[nodeId] = id;
     _nextAutoId++;
     return id;
   }
@@ -67,14 +73,18 @@ class SdtStore {
   /// Resets the store to its initial state.
   ///
   /// This should be called at the start of each document compilation.
+  @override
   void reset() {
     _registeredIds.clear();
     _nextAutoId = 1;
   }
 
+  @override
+  void initialize(PipelineContext context) {}
+
   /// Returns the count of registered IDs.
   int get registeredCount => _registeredIds.length;
 
   /// Returns all registered IDs (for debugging purposes).
-  Set<int> get registeredIds => Set.from(_registeredIds);
+  Map<String, int> get registeredIds => Map.from(_registeredIds);
 }

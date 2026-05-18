@@ -75,7 +75,7 @@ class LazyFloatingImage extends DocxNode<ImageData<File>>
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final String imageName = getImageName;
     if (imageName.isEmpty) {
       throw Exception(
@@ -133,7 +133,7 @@ class LazyFloatingImage extends DocxNode<ImageData<File>>
   }
 
   @override
-  List<XmlAttribute> buildXmlStyle({required DocumentContext context}) {
+  List<XmlAttribute> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlAttribute>[];
   }
 

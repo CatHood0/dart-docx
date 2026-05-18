@@ -35,7 +35,7 @@ class AdjustValueList extends DocxNode<Iterable<AdjustValue>> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'a:avLst',
@@ -79,7 +79,7 @@ class AdjustValueList extends DocxNode<Iterable<AdjustValue>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 }

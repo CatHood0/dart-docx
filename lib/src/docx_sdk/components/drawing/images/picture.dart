@@ -32,16 +32,14 @@ class Picture extends DocxNode<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
       if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      context.currentContentPart = element;
       children.addAll(element.buildXml(context: context));
     }
-    context.currentContentPart = this;
     return <XmlElement>[
       XmlElement.tag('pic:pic', isSelfClosing: false, children: children),
     ];
@@ -82,7 +80,7 @@ class Picture extends DocxNode<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return [];
   }
 }

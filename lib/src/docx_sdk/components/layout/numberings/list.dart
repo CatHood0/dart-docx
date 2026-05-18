@@ -18,7 +18,11 @@ class NumberingList extends DocxNode<List<DocxNode>> {
         assert(refKey.isNotEmpty, 'listKey must not be empty'),
         assert(
             children.every((DocxNode<dynamic> e) =>
-                e is Text || e is Paragraph || e is NumberingList || e is LazyNode<NumberingList> || e is RunBase && e is! Run),
+                e is Text ||
+                e is Paragraph ||
+                e is NumberingList ||
+                e is LazyNode<NumberingList> ||
+                e is RunBase && e is! Run),
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -42,7 +46,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   })  : inheritFromParent = false,
         assert(refKey.isNotEmpty, 'listKey must not be empty'),
         assert(
-            child is Text || child is Paragraph || child is NumberingList || child is RunBase && child is! Run,
+            child is Text ||
+                child is Paragraph ||
+                child is NumberingList ||
+                child is RunBase && child is! Run,
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -65,7 +72,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   })  : refKey = '',
         inheritFromParent = true,
         assert(
-            child is Text || child is Paragraph || child is NumberingList || child is RunBase && child is! Run,
+            child is Text ||
+                child is Paragraph ||
+                child is NumberingList ||
+                child is RunBase && child is! Run,
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -88,9 +98,14 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     required List<DocxNode> children,
     super.id,
     super.parent,
-  })  : assert(inheritFromParent || !inheritFromParent && refKey.isNotEmpty, 'listKey must not be empty'),
+  })  : assert(inheritFromParent || !inheritFromParent && refKey.isNotEmpty,
+            'listKey must not be empty'),
         assert(
-            children.every((DocxNode<dynamic> e) => e is Text || e is Paragraph || e is NumberingList || e is RunBase && e is! Run),
+            children.every((DocxNode<dynamic> e) =>
+                e is Text ||
+                e is Paragraph ||
+                e is NumberingList ||
+                e is RunBase && e is! Run),
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -113,7 +128,11 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   })  : refKey = '',
         inheritFromParent = true,
         assert(
-            children.every((DocxNode<dynamic> e) => e is Text || e is Paragraph || e is NumberingList || e is RunBase && e is! Run),
+            children.every((DocxNode<dynamic> e) =>
+                e is Text ||
+                e is Paragraph ||
+                e is NumberingList ||
+                e is RunBase && e is! Run),
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
@@ -151,7 +170,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
 
   //TODO: implement this
   @override
-  void perfom([DocumentContext? context]) {
+  void perfom([BuildNodeContext? context]) {
     if (_temp.isNotEmpty) return;
     String key = refKey;
 
@@ -184,10 +203,13 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     }
 
     key = inheritFromParent ? lastOwner!.refKey : refKey;
-    CompilerLogger.root.info('Decided Key: $key${lastOwner != null ? ' (Nested)' : ''} => Numbering Map: $_lastNumberingIds');
+    CompilerLogger.root.info(
+        'Decided Key: $key${lastOwner != null ? ' (Nested)' : ''} => Numbering Map: $_lastNumberingIds');
 
     // nested lists uses the same refId
-    _lastNumberingIds[key] = lastOwner != null ? _lastNumberingIds[key] ?? (refId + 1) : (_lastNumberingIds[key] ?? refId) + 1;
+    _lastNumberingIds[key] = lastOwner != null
+        ? _lastNumberingIds[key] ?? (refId + 1)
+        : (_lastNumberingIds[key] ?? refId) + 1;
     // Since every refId is start in a different point when the
     // key is different, then we use this to allow sharing correctly
     // the count
@@ -249,7 +271,11 @@ class NumberingList extends DocxNode<List<DocxNode>> {
           _temp.add(element.copyWith(parent: this));
           continue;
         }
-        _temp.add(element.build(context).copyWith(parent: this));
+        _temp.add(element
+            .build(element.createdInheritedContext(
+              context,
+            ))
+            .copyWith(parent: this));
       } else {
         _temp.add(element.copyWith(parent: this));
       }
@@ -257,18 +283,18 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
     // By now, we will call this
     // but should be do it automatically by the compiler
     perfom(context);
     List<XmlNode> nodes = <XmlNode>[];
     for (DocxNode<dynamic> e in _temp) {
+      final BuildNodeContext childContext = e.createdInheritedContext(context);
       if (e is LazyNode) {
-        nodes.addAll(e.build(context).buildXml(context: context));
+        nodes.addAll(e.build(childContext).buildXml(context: childContext));
         continue;
       }
-      nodes.addAll(e.buildXml(context: context));
+      nodes.addAll(e.buildXml(context: childContext));
     }
     return nodes;
   }
@@ -343,7 +369,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   }
 
   void checkAbstractNumberingInstanceExistence(
-    DocumentContext context,
+    BuildNodeContext context,
     String ref,
   ) {
     // Delegate to NumberingStore for validation

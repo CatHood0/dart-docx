@@ -6,32 +6,37 @@ import 'package:archive/archive_io.dart';
 import '../../../docx.dart';
 import '../../core/extensions/cast_ext.dart';
 import '../../core/extensions/string_ext.dart';
-import '../mixins/ignorable_mixin.dart';
-import '../utils/logger/logger_configs.dart';
-import '../xml_components/xml_content_type_component.dart';
 
-//TODO: add listeners to events
 /// Manages all media-related operations for a Docx document,
 /// including discovering, registering, and creating relationships for images.
-class MediaStore {
+///
+/// Implements [Store] to integrate with the pipeline system.
+/// Call [initialize] before using this store in the pipeline.
+class MediaStore implements Store {
   MediaStore();
+
+  @override
+  String get storeName => 'MediaStore';
+
   static const String mediaPath = 'word/media/';
 
-  // both are closely related, so, both have a pointer
-  // to get and set elements with fastly
-  late DrawingElementCounterStore drawingStore;
+  /// Reference to the drawing store for counter operations.
+  late DrawingElementCounterStore? drawingStore;
 
-  // both are closely related, so, both have a pointer
-  // to get and set elements with fastly
+  /// Reference to the document rels store for relationship ID generation.
   late DocumentRelsCounterStore docRelsStore;
 
   /// Stores registered [MediaData] objects, keyed by their generated unique name.
   final Map<String, MediaData> media = <String, MediaData>{};
 
+  //TODO: instead of using direct instances
+  // we should use paths, and suscribe to changes to get precise positioning 
+  // after changes
   /// Stores discovered media components ([FloatingImage], [LazyFloatingImage]), keyed by their internal ID.
   final Map<String, DocxNode<ImageData<dynamic>>> mediaComponents =
       <String, DocxNode<ImageData<dynamic>>>{};
 
+  /// Stores content type overrides for media files.
   final List<XmlOverrideElementTypeComponent> overrides =
       <XmlOverrideElementTypeComponent>[];
 
@@ -41,14 +46,22 @@ class MediaStore {
   /// Internal counter for generating unique media file names.
   int _lastMediaNameId = 1;
 
-  /// Resets the media store to its initial state, clearing all discovered and registered data.
+  @override
   void reset() {
     _lastMediaNameId = 1;
     extensions.clear();
     media.clear();
     overrides.clear();
+    mediaComponents.clear();
   }
 
+  @override
+  void initialize(PipelineContext context) {
+    drawingStore = context.getStoreOfExactType();
+    docRelsStore = context.getStoreOfExactType()!;
+  }
+
+  //TODO: i guess this is not being used, right?
   /// Whether the store is empty and requires to got in XmlComponent tree
   bool get needStore => media.isEmpty;
 
@@ -275,11 +288,6 @@ class MediaStore {
       }
     }
     return null;
-  }
-
-  /// Gets the index of the graphic where this media is
-  int getIndexId() {
-    return drawingStore.getNextId();
   }
 
   /// Gets the raw `rId` that was inserted in document.xml.rels

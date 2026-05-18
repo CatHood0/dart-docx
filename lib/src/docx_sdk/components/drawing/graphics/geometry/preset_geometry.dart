@@ -36,13 +36,12 @@ class PresetGeometry extends Geometry<List<DocxNode<dynamic>>> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
       if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      context.currentContentPart = element;
       children.addAll(element.buildXml(context: context));
     }
     return <XmlElement>[
@@ -96,7 +95,7 @@ class PresetGeometry extends Geometry<List<DocxNode<dynamic>>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 }

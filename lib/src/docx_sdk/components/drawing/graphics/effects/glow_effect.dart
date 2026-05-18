@@ -24,7 +24,7 @@ class GlowEffectComponent extends Effect<GlowEffect> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final XmlElement colorElement = XmlElement.tag(
       'a:glow',
       attributes: <XmlAttribute>[
@@ -57,7 +57,7 @@ class GlowEffectComponent extends Effect<GlowEffect> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

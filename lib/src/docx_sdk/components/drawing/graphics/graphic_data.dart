@@ -33,7 +33,7 @@ class GraphicData extends DocxNode<DocxNode> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'a:graphicData',
@@ -67,7 +67,7 @@ class GraphicData extends DocxNode<DocxNode> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return [];
   }
 }

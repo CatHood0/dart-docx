@@ -3,7 +3,7 @@ import '../../docx_sdk/sdk.dart'
         Align,
         Alignment,
         CrossAxisAlignment,
-        DocumentContext,
+        BuildNodeContext,
         DocxNode,
         Drawing,
         GridColumn,
@@ -24,7 +24,8 @@ import '../../docx_sdk/sdk.dart'
         TableHeightRule,
         TableProperties,
         TableRow,
-        TableWidthType;
+        TableWidthType,
+        NumberingList;
 import 'cast_ext.dart';
 
 extension WrapNode on DocxNode {
@@ -56,6 +57,24 @@ extension WrapNode on DocxNode {
       numbering: numbering,
       align: align,
       parent: parent,
+    );
+  }
+
+  NumberingList numbering([String? key]) {
+    if (key == null) {
+      final NumberingList? owner = getAncestorOfExactType<NumberingList>();
+      if (owner == null) {
+        throw Exception(
+          'key must be provided if '
+          'node $runtimeType:$id at $depth is not '
+          'wrapped by a NumberingList node',
+        );
+      }
+      return NumberingList.inheritOne(child: this);
+    }
+    return NumberingList(
+      refKey: key,
+      children: <DocxNode<dynamic>>[this],
     );
   }
 
@@ -103,7 +122,7 @@ extension WrapNode on DocxNode {
     String? id,
     DocxNode? parent,
   }) {
-    return DocxNode.lazyBuild((DocumentContext context, String id) {
+    return DocxNode.lazyBuild((BuildNodeContext context, String id) {
       return this..parent = parent;
     })
       ..parent = this;

@@ -1,53 +1,40 @@
 import 'dart:typed_data';
-import 'package:meta/meta.dart';
 
+import '../core/extensions/cast_ext.dart';
 import 'sdk.dart';
-import 'stores/sdt_store.dart';
 
-//TODO: context should behave more like BuildContext from Flutter
-class DocumentContext {
-  DocumentContext({
+//TODO: commonly BuildContext is basically an Element object
+// so, we probably can create a context using nodes
+class BuildNodeContext {
+  BuildNodeContext({
     required this.options,
-    required this.mediaStore,
-    required this.hyperlinkStore,
-    required this.fontStore,
-    required this.numberingStore,
+    required this.element,
     required this.setNormalStyleToNotStyledParagraphs,
     required this.defaultNormalStyle,
-    required this.drawingStore,
-    required this.sdtStore,
     this.noTrim = true,
     this.checkStyleRefExistence = false,
     Map<String, int>? lastNumberingIds,
-  });
+    Map<Type, Store>? stores,
+  }) : _stores = <Type, Store>{...?stores};
 
-  DocumentContext.base({DocumentOptions? options})
-      : mediaStore = MediaStore(),
-        hyperlinkStore = HyperlinkStore(),
-        fontStore = FontStore(),
-        noTrim = true,
+  BuildNodeContext.base({DocumentOptions? options, this.element})
+      : noTrim = true,
         checkStyleRefExistence = false,
-        drawingStore = DrawingElementCounterStore(),
-        numberingStore = NumberingStore(),
-        sdtStore = SdtStore(),
+        _stores = {},
         setNormalStyleToNotStyledParagraphs = true,
         defaultNormalStyle = Style.ref('Normal'),
         options = options ?? DocumentOptions.standard(title: 'unnamed');
 
-  /// A factory designed specificaly for work during testing phases
-  @visibleForTesting
-  DocumentContext.test({DocumentOptions? options})
-      : mediaStore = MediaStore(),
-        hyperlinkStore = HyperlinkStore(),
-        fontStore = FontStore(),
-        noTrim = true,
-        checkStyleRefExistence = false,
-        drawingStore = DrawingElementCounterStore(),
-        numberingStore = NumberingStore(),
-        sdtStore = SdtStore(),
-        setNormalStyleToNotStyledParagraphs = true,
-        defaultNormalStyle = Style.ref('Normal'),
-        options = options ?? DocumentOptions.standard(title: 'unnamed');
+  BuildNodeContext.inherited(BuildNodeContext context, this.element)
+      : noTrim = context.noTrim,
+        _stores = context._stores,
+        checkStyleRefExistence = context.checkStyleRefExistence,
+        setNormalStyleToNotStyledParagraphs =
+            context.setNormalStyleToNotStyledParagraphs,
+        defaultNormalStyle = context.defaultNormalStyle,
+        options = context.options;
+
+  final DocxNode? element;
 
   /// Determines if the paragraph will be created referencing the
   /// "Normal" style
@@ -56,14 +43,21 @@ class DocumentContext {
   /// Determines if the paragraph will be created referencing the
   /// "Normal" style
   final Style defaultNormalStyle;
-  // {filename: rid}
-  final MediaStore mediaStore;
-  final DrawingElementCounterStore drawingStore;
+
   final DocumentOptions options;
-  final HyperlinkStore hyperlinkStore;
-  final FontStore fontStore;
-  final NumberingStore numberingStore;
-  final SdtStore sdtStore;
+
+  final Map<Type, Store> _stores;
+
+  // {filename: rid}
+  MediaStore get mediaStore => getAncestorOfExactType<MediaStore>()!;
+  DrawingElementCounterStore get drawingStore =>
+      getAncestorOfExactType<DrawingElementCounterStore>()!;
+  HyperlinkStore get hyperlinkStore =>
+      getAncestorOfExactType<HyperlinkStore>()!;
+  FontStore get fontStore => getAncestorOfExactType<FontStore>()!;
+  NumberingStore get numberingStore =>
+      getAncestorOfExactType<NumberingStore>()!;
+  SdtStore get sdtStore => getAncestorOfExactType<SdtStore>()!;
 
   /// Determines if the run instances will be preserve its whitespaces
   /// since this confirm to the compiler to assign to every text
@@ -74,21 +68,14 @@ class DocumentContext {
 
   DocumentStyles get docStyleSheet => options.docStyles;
 
-  //TODO: document context will need to be more independent
-  // from its component build to allow more large lifetime
-  // during compilation
-  //
-  // all the media are saved
-  DocxNode? _currentContentPart;
-  DocxNode? get currentContentPart => _currentContentPart;
-  set currentContentPart(DocxNode? content) {
-    if (_currentContentPart == content) return;
-    _currentContentPart = content;
-  }
+  R? getAncestorOfExactType<R>() {
+    if (_stores.containsKey(R)) {
+      return _stores[R]?.castOrNull<R>();
+    }
 
-  R? getAncestorOfExactType<R extends DocxNode<dynamic>>() {
-    DocxNode? current = _currentContentPart;
-    CompilerLogger.root.debug('${current?.runtimeType}:${current?.id} will try to');
+    DocxNode? current = element;
+    CompilerLogger.root
+        .debug('${current?.runtimeType}:${current?.id} will try to');
     CompilerLogger.root.debug(
       '${' ' * (current?.depth ?? 0)} | search ancestor '
       'of type $R',
@@ -102,14 +89,14 @@ class DocumentContext {
     while (current != null) {
       if (current is R) {
         CompilerLogger.root.debug(
-          '${' ' * _currentContentPart!.depth} |_ $R found at ${current.depth}',
+          '${' ' * element!.depth} |_ $R found at ${current.depth}',
         );
-        return current;
+        return current as R;
       }
 
       if (loopTraverse > 0 && lastId == current.id) {
         CompilerLogger.root.debug(
-          '${' ' * _currentContentPart!.depth}Hit element id again. Count: $countTries -> ${countTries + 1}',
+          '${' ' * element!.depth}Hit element id again. Count: $countTries -> ${countTries + 1}',
         );
         countTries++;
       } else {
@@ -123,7 +110,7 @@ class DocumentContext {
       // repeated every time
       if (countTries > 3) {
         CompilerLogger.root.debug(
-          '${' ' * _currentContentPart!.depth}Hit element ${_currentContentPart!.runtimeType} '
+          '${' ' * element!.depth}Hit element ${element!.runtimeType} '
           'with id ${current.id} too many times. '
           'Breaking loop...',
         );
@@ -132,7 +119,7 @@ class DocumentContext {
       loopTraverse++;
       current = current.parent;
     }
-    CompilerLogger.root.debug('${' ' * _currentContentPart!.depth} |_ $R was not found');
+    CompilerLogger.root.debug('${' ' * element!.depth} |_ $R was not found');
     return null;
   }
 

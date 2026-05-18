@@ -42,7 +42,7 @@ class DocProperties extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'wp:docPr',
@@ -79,7 +79,7 @@ class DocProperties extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return [];
   }
 }

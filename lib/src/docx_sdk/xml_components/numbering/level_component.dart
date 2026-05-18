@@ -14,7 +14,7 @@ class NumberFormatComponent extends XmlComponentBase<LevelFormat> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: [
@@ -35,7 +35,7 @@ class LevelTextComponent extends XmlComponentBase<void> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[
@@ -56,7 +56,7 @@ class LevelAlignmentComponent extends XmlComponentBase<void> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[
@@ -99,7 +99,7 @@ class LevelComponent extends XmlComponentBase<List<XmlComponentBase<dynamic>>> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: [

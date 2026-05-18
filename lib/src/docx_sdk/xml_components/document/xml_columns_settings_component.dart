@@ -16,7 +16,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnOptions> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     final List<XmlAttribute> attributes = [];
 
     // w:num attribute

@@ -18,7 +18,7 @@ class Align extends DocxNode<DocxNode> {
   final Alignment alignment;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       ...child.buildXml(context: context).cast(),
     ];

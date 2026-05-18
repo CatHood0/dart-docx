@@ -78,7 +78,7 @@ class XmlSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
   String get path => DocxPaths.settingsXmlFilePath;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

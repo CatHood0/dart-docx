@@ -1,8 +1,7 @@
 import 'package:xml/xml.dart';
 
-import '../../../../core/extensions/string_ext.dart';
 import '../../../../../docx.dart';
-import 'sdt_enums.dart';
+import '../../../../core/extensions/string_ext.dart';
 
 /// Picture SDT component for image content controls.
 ///
@@ -42,11 +41,10 @@ import 'sdt_enums.dart';
 ///
 /// See also:
 /// - [docs/sdt_elements.md] for complete SDT documentation
-class SdtPicture extends DocxNode<RunBase> with PrintableMixin {
+class SdtPicture extends Sdt<RunBase> with PrintableMixin {
   SdtPicture({
     required String alias,
     required this.tag,
-    this.sdtId,
     this.placeholder,
     this.showingPlacHdr = true,
     this.lock,
@@ -54,6 +52,7 @@ class SdtPicture extends DocxNode<RunBase> with PrintableMixin {
     RunBase? content,
     super.parent,
     super.id,
+    super.sdtId,
   })  : _alias = alias,
         _content = content,
         super(child: content ?? TextRun.empty()) {
@@ -62,10 +61,6 @@ class SdtPicture extends DocxNode<RunBase> with PrintableMixin {
       ..index = 0
       ..depth = depth + 1;
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // PROPIEDADES
-  // ═══════════════════════════════════════════════════════════
 
   /// The alias is the visible label in Word's content control UI.
   final String _alias;
@@ -76,9 +71,6 @@ class SdtPicture extends DocxNode<RunBase> with PrintableMixin {
 
   /// The image content run.
   final RunBase? _content;
-
-  /// Optional unique identifier for the SDT.
-  final int? sdtId;
 
   /// Placeholder text shown when no image is set.
   final String? placeholder;
@@ -91,13 +83,8 @@ class SdtPicture extends DocxNode<RunBase> with PrintableMixin {
 
   /// If true, the SDT is temporary and not saved permanently.
   final bool temporary;
-
-  // ═══════════════════════════════════════════════════════════
-  // BUILD XML
-  // ═══════════════════════════════════════════════════════════
-
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
@@ -109,36 +96,29 @@ class SdtPicture extends DocxNode<RunBase> with PrintableMixin {
     ];
   }
 
-  XmlElement _buildPropertiesXml(DocumentContext context) {
+  XmlElement _buildPropertiesXml(BuildNodeContext context) {
     final List<XmlNode> children = <XmlNode>[
       // w:picture element (self-closing)
       XmlElement.tag('w:picture', isSelfClosing: true),
-    ]
-
-      // Add alias
-      ..add(
-        XmlElement.tag(
-          'w:alias',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), _alias),
-          ],
-          isSelfClosing: true,
-        ),
-      )
-
-      // Add tag
-      ..add(
-        XmlElement.tag(
-          'w:tag',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), tag),
-          ],
-          isSelfClosing: true,
-        ),
-      );
+      XmlElement.tag(
+        'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:tag',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), tag),
+        ],
+        isSelfClosing: true,
+      ),
+    ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId = context.sdtStore.getNextId(preferredId: sdtId);
+    final int actualSdtId =
+        context.sdtStore.getNextId(nodeId: id, preferredId: sdtId);
     children.add(
       XmlElement.tag(
         'w:id',
@@ -207,22 +187,18 @@ class SdtPicture extends DocxNode<RunBase> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(DocumentContext context) {
+  XmlElement _buildContentXml(BuildNodeContext context) {
     final List<XmlNode> runs = child.buildXml(context: context);
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // COPY PATTERN
-  // ═══════════════════════════════════════════════════════════
-
   @override
   SdtPicture get copy => SdtPicture(
+        id: id,
         sdtId: sdtId,
         alias: _alias,
         tag: tag,
@@ -260,11 +236,6 @@ class SdtPicture extends DocxNode<RunBase> with PrintableMixin {
       parent: parent ?? this.parent,
     );
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // VISIT PATTERN
-  // ═══════════════════════════════════════════════════════════
-
   @override
   DocxNode<dynamic>? visitElement(
     bool Function(DocxNode element) shouldGetElement, {

@@ -2,6 +2,8 @@ import 'package:xml/xml.dart';
 
 import '../sdk.dart';
 
+//TODO: we should support indexing most modified was used paths
+// for the stores
 class DocxDocument {
   DocxDocument({
     required this.root,
@@ -13,7 +15,7 @@ class DocxDocument {
   //NOTE: probably we will move these to DocxDocument class
   final DocumentOptions options;
 
-  List<XmlNode> buildXml({required DocumentContext context}) {
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
     return root.buildXml(context: context);
   }
 

@@ -89,7 +89,7 @@ class XmlNumberingComponent extends XmlComponentBase<void> {
 
   /// Builds the XML element for the numbering component.
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[...attributes.buildXml()],

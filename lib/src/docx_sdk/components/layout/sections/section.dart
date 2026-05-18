@@ -80,7 +80,7 @@ class Section extends DocxNode<List<DocxNode>> {
 
   Section.inheritFromContext({
     required Iterable<DocxNode> children,
-    required DocumentContext context,
+    required BuildNodeContext context,
     super.id,
     super.parent,
   })  : layout = context.options.layoutOptions,
@@ -110,8 +110,7 @@ class Section extends DocxNode<List<DocxNode>> {
   final DocumentLayout layout;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlElement> elements = <XmlElement>[];
     for (final DocxNode<dynamic> e in child) {
       final List<XmlElement> element = e

@@ -1,11 +1,12 @@
-import 'package:meta/meta.dart' show experimental, visibleForOverriding, protected;
+import 'package:meta/meta.dart'
+    show experimental, visibleForOverriding, protected, mustCallSuper;
 import 'package:xml/xml.dart' show XmlNode;
 
 import '../../../../docx.dart'
     show
         AnchorConfig,
         CompilerLogger,
-        DocumentContext,
+        BuildNodeContext,
         DocumentRoot,
         Effect,
         Fill,
@@ -18,7 +19,8 @@ import '../../../../docx.dart'
         ShapeTextBox,
         Style,
         Transform2D,
-        nanoid;
+        nanoid,
+        DocumentOptions;
 import 'empty_node.dart';
 
 //TODO: implement child diff for nodes to allow making cache versions of parts of the tree
@@ -134,6 +136,17 @@ abstract class DocxNode<T> {
   // since we have an store exactly for this
   String? rId;
 
+  BuildNodeContext? _context;
+
+  BuildNodeContext get context {
+    if (context == null) {
+      // shows the full tree stacktrace 
+      // for the exception
+      throw Exception('init() must be called');
+    }
+    return _context!;
+  }
+
   /// The internal random id of this component
   final String id;
   DocxNode<dynamic>? parent;
@@ -141,14 +154,29 @@ abstract class DocxNode<T> {
 
   DocxNode<T> copyWith({String? id, DocxNode<T>? parent});
 
+  @mustCallSuper
+  void init(BuildNodeContext context) {
+    //TODO: add diff
+    _context = createdInheritedContext(context);
+  }
+
   /// Performs all the required stuff that need to be ready
   /// before the `build` pahase
   @visibleForOverriding
   @experimental
-  void perfom([DocumentContext? context]) {}
+  void perfom([BuildNodeContext? context]) {}
 
-  List<XmlNode> buildXml({required DocumentContext context});
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) => <XmlNode>[];
+  List<XmlNode> buildXml({required BuildNodeContext context});
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) =>
+      <XmlNode>[];
+
+  BuildNodeContext createdInheritedContext(BuildNodeContext context) {
+    return BuildNodeContext.inherited(context, this);
+  }
+
+  BuildNodeContext createdContext({DocumentOptions? options}) {
+    return BuildNodeContext.base(options: options, element: this);
+  }
 
   /// Creates a lazy version of the same node, that waits for the Compilation
   /// time to build the [DocxNode] type specified
@@ -157,7 +185,7 @@ abstract class DocxNode<T> {
   /// manually for your unique logic at that situation and you dont want to
   /// create an specific class for that case.
   static LazyNode<C> lazyBuild<C extends DocxNode<dynamic>>(
-    C Function(DocumentContext, String) callback, {
+    C Function(BuildNodeContext, String) callback, {
     DocxNode<dynamic>? parent,
     String? id,
   }) {

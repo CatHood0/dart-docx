@@ -32,7 +32,7 @@ class XmlAbstractNumComponent extends XmlComponentBase<List<XmlComponentBase>> {
   final num id;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: [

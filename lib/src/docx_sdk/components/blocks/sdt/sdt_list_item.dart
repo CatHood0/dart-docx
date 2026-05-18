@@ -2,7 +2,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../core/extensions/string_ext.dart';
 import '../../../sdk.dart';
-import '../../base/docx_node.dart';
 
 /// List item for drop-down and combo-box SDT controls.
 ///
@@ -24,7 +23,7 @@ class SdtListItem extends DocxNode<void> {
 
   /// Builds the XML element for this list item.
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
     return [
       XmlElement.tag(
         'w:listItem',

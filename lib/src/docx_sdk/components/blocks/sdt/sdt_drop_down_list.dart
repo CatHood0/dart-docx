@@ -51,19 +51,19 @@ import '../../../../core/extensions/string_ext.dart';
 /// See also:
 /// - [SdtComboBox] for editable drop-down
 /// - [docs/sdt_elements.md] for complete SDT documentation
-class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
+class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
   SdtDropDownList({
     required String alias,
     required this.tag,
     required List<SdtListItem> items,
     String? selectedValue,
-    this.sdtId,
     this.placeholder,
     this.showingPlacHdr = true,
     this.lock,
     this.temporary = false,
     super.parent,
     super.id,
+    super.sdtId,
   })  : _alias = alias,
         _items = items,
         _selectedValue = selectedValue,
@@ -72,10 +72,6 @@ class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
             child: TextRun.text(
           text: _computeDisplayText(items, selectedValue),
         ));
-
-  // ═══════════════════════════════════════════════════════════
-  // PROPIEDADES
-  // ═══════════════════════════════════════════════════════════
 
   /// The alias is the visible label in Word's content control UI.
   final String _alias;
@@ -94,10 +90,6 @@ class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
   /// The display text for the selected value.
   final String _displayText;
 
-  /// Optional unique identifier for the SDT.
-  /// Note: This is different from DocxNode.id which is auto-generated.
-  final int? sdtId;
-
   /// Placeholder text shown when no selection is made.
   final String? placeholder;
 
@@ -111,7 +103,8 @@ class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
   final bool temporary;
 
   /// Helper to compute display text from items and selected value.
-  static String _computeDisplayText(List<SdtListItem> items, String? selectedValue) {
+  static String _computeDisplayText(
+      List<SdtListItem> items, String? selectedValue) {
     if (selectedValue == null) return '';
     for (final SdtListItem item in items) {
       if (item.value == selectedValue) {
@@ -121,12 +114,8 @@ class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
     return '';
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // BUILD XML
-  // ═══════════════════════════════════════════════════════════
-
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
@@ -138,38 +127,36 @@ class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
     ];
   }
 
-  XmlElement _buildPropertiesXml(DocumentContext context) {
+  XmlElement _buildPropertiesXml(BuildNodeContext context) {
     final List<XmlNode> children = <XmlNode>[
       XmlElement.tag(
         'w:dropDownList',
-        children: _items.expand((item) => item.buildXml(context: context)).toList(),
+        children: _items
+            .expand((
+              SdtListItem item,
+            ) =>
+                item.buildXml(context: context))
+            .toList(),
       ),
-    ]
-
-      // Add alias
-      ..add(
-        XmlElement.tag(
-          'w:alias',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), _alias),
-          ],
-          isSelfClosing: true,
-        ),
-      )
-
-      // Add tag
-      ..add(
-        XmlElement.tag(
-          'w:tag',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), tag),
-          ],
-          isSelfClosing: true,
-        ),
-      );
+      XmlElement.tag(
+        'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:tag',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), tag),
+        ],
+        isSelfClosing: true,
+      ),
+    ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId = context.sdtStore.getNextId(preferredId: sdtId);
+    final int actualSdtId =
+        context.sdtStore.getNextId(nodeId: id, preferredId: sdtId);
     children.add(
       XmlElement.tag(
         'w:id',
@@ -238,22 +225,19 @@ class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(DocumentContext context) {
+  XmlElement _buildContentXml(BuildNodeContext context) {
     final List<XmlNode> runs = child.buildXml(context: context);
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // COPY PATTERN
-  // ═══════════════════════════════════════════════════════════
-
   @override
   SdtDropDownList get copy => SdtDropDownList(
+        id: id,
         sdtId: sdtId,
         alias: _alias,
         tag: tag,
@@ -295,10 +279,6 @@ class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // VISIT PATTERN
-  // ═══════════════════════════════════════════════════════════
-
   @override
   DocxNode<dynamic>? visitElement(
     bool Function(DocxNode element) shouldGetElement, {
@@ -328,10 +308,6 @@ class SdtDropDownList extends DocxNode<RunBase> with PrintableMixin {
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // PRINTABLE MIXIN
-  // ═══════════════════════════════════════════════════════════
 
   @override
   String toPlainText() => _displayText;

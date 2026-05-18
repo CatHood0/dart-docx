@@ -24,7 +24,7 @@ class XmlStylesComponent extends XmlComponentBase<void> {
   String get path => DocxPaths.stylesXmlFilePath;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     CompilerLogger.root.info('Analyzing styles to build LatentStyles');
     final (List<Style> styles, LatentStyles latent) = LatentAnalyzer.analyze(
       context.docStyleSheet.styles,

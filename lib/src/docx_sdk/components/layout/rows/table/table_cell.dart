@@ -85,7 +85,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
         super(child: <DocxNode<dynamic>>[]);
 
   TableCell.builder({
-    required DocxNode Function(DocumentContext, int) itemBuilder,
+    required DocxNode Function(BuildNodeContext, int) itemBuilder,
     required int itemCount,
     required this.cellConfig,
     bool reversed = false,
@@ -105,13 +105,13 @@ class TableCell extends DocxNode<List<DocxNode>> {
   /// - Background shading
   final TableCellConfig cellConfig;
 
-  DocxNode Function(DocumentContext, int)? _itemBuilder;
+  DocxNode Function(BuildNodeContext, int)? _itemBuilder;
   int _length;
   int _start;
   bool _fixed;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> cellChildren = <XmlNode>[];
     List<DocxNode<dynamic>>? children = _fixed ? child : null;
 
@@ -119,7 +119,6 @@ class TableCell extends DocxNode<List<DocxNode>> {
       children = <DocxNode<dynamic>>[];
       for (int i = _start; _start > 0 ? i > 0 : i < _length; _start > 0 ? i-- : i++) {
         final DocxNode<dynamic> el = _itemBuilder!(context, i);
-        context.currentContentPart = this;
         children.add(el);
       }
     }
@@ -181,7 +180,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
     ];
   }
 
-  List<XmlNode> _buildTcPr(DocumentContext context) {
+  List<XmlNode> _buildTcPr(BuildNodeContext context) {
     final List<XmlNode> nodes = <XmlNode>[
       XmlElement.tag(
         'w:tcW',

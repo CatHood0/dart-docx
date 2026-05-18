@@ -99,7 +99,7 @@ class XmlCoreComponent extends XmlComponentBase<List<XmlComponentBase>> {
   String get path => DocxPaths.coreFilePath;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

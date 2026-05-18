@@ -157,8 +157,7 @@ class TableRow extends DocxNode<List<TableCell>> {
   final int spacing;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> rowChildren = <XmlNode>[
       // To maintain compatibility with certain editors,
       // we always include a w:trPr element, even if empty.
@@ -203,7 +202,7 @@ class TableRow extends DocxNode<List<TableCell>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     final Alignment? align =
         alignment ?? context.getAncestorOfExactType<Align>()?.alignment;
     assert(

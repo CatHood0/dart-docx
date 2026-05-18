@@ -118,7 +118,7 @@ class Run extends RunBase<DocxNode> {
   }
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
     return wrapInRunMark
         ? <XmlNode>[
             super.runParent(
@@ -131,7 +131,7 @@ class Run extends RunBase<DocxNode> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

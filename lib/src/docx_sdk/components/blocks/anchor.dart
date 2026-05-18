@@ -33,8 +33,8 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
     required this.width,
     required this.height,
     required this.name,
-    this.elementId,
     required this.config,
+    this.elementId,
     super.parent,
     super.id,
   }) : super(child: child) {
@@ -57,7 +57,7 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
   final num height;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     elementId ??= context.drawingStore.getNextId(id);
     return <XmlElement>[
       XmlElement.tag(
@@ -159,7 +159,7 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 
@@ -275,7 +275,7 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
   final String? alignment;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       isSelfClosing: false,

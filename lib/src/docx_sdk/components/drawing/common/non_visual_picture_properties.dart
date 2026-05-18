@@ -31,7 +31,7 @@ class NonVisualPictureProperties extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'pic:nvPicPr',
@@ -67,7 +67,7 @@ class NonVisualPictureProperties extends DocxNode<dynamic> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return [];
   }
 }

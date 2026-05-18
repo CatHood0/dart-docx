@@ -121,7 +121,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlAttribute> frameAttributes = <XmlAttribute>[
       XmlAttribute('w:w'.toName(), width.toString()),
       XmlAttribute('w:h'.toName(), height.toString()),
@@ -182,7 +182,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     final List<XmlNode> borderConfigs = <XmlNode>[];
     if (border != null) {
       final StyleConfigurator? pBdrConfig = border!.getConfiguratorOrNull('w:pBdr', fullName: true);

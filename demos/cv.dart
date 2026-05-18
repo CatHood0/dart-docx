@@ -303,9 +303,11 @@ Future<void> main() async {
       .noTrimRuns()
       .setNormalIfNeeded(true)
       .defaultNormalStyle(Style.ref('body'))
+      .setStandardStores()
       .execute(
         doc,
         applyCustomTheme: false,
+        stages: DocxPipeline.defaultStages,
       );
 
   if (bytes != null) {

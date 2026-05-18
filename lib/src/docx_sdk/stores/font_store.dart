@@ -3,7 +3,6 @@ import 'package:archive/archive.dart';
 import '../../../docx.dart';
 import '../utils/values.dart';
 import '../xml_components/fonts/xml_font_table_component.dart';
-import '../xml_components/rels/xml_document_rels_component.dart';
 
 //TODO: add listeners to events
 //TODO add log capabilities
@@ -15,7 +14,7 @@ import '../xml_components/rels/xml_document_rels_component.dart';
 /// - Generating the `fontTable.xml` component.
 /// - Generating the `fontTable.xml.rels` relationships for embedded fonts.
 /// - Adding obfuscated font binary files to the DOCX archive.
-class FontStore {
+class FontStore extends Store {
   FontStore();
 
   bool get hasFonts => _fontsByName.isNotEmpty;
@@ -38,6 +37,12 @@ class FontStore {
 
   /// Collects extensions of embedded font files (e.g., 'odttf').
   final Set<String> extensions = <String>{'odttf'};
+
+  @override
+  void initialize(PipelineContext context) {}
+
+  @override
+  String get storeName => 'FontStore';
 
   /// Stores all the families registered in this instance
   Map<String, RelationShip> get fontRelations => Map.from(_relationshipsByRId);
@@ -185,13 +190,14 @@ class FontStore {
   }
 
   /// Builds the [XmlFontTableComponent] for the `fontTable.xml` part.
-  XmlComponentBase buildFontTableXmlComponent(DocumentContext context) =>
+  XmlComponentBase buildFontTableXmlComponent(BuildNodeContext context) =>
       XmlFontTableComponent(fonts: fonts);
 
   /// Builds rels for `fontTable.xml.rels` part.
   /// This contains relationships for embedded fonts.
-  XmlComponentBase buildFontTableRelsXmlDocument(DocumentContext context) =>
-      XmlDocumentRelsComponent.fontRels(relations: _relationshipsByRId.values.toList());
+  XmlComponentBase buildFontTableRelsXmlDocument(BuildNodeContext context) =>
+      XmlDocumentRelsComponent.fontRels(
+          relations: _relationshipsByRId.values.toList());
 
   /// Adds all embedded font binary files to the provided [Archive].
   ///

@@ -27,7 +27,7 @@ class Drawing extends DocxNode<DocxNode> with IgnorableMixin {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'w:drawing',
@@ -40,7 +40,7 @@ class Drawing extends DocxNode<DocxNode> with IgnorableMixin {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

@@ -1,41 +1,31 @@
+import 'package:meta/meta.dart';
+
 import '../../../docx.dart';
 import '../xml_components/numbering/abstract_numbering_component.dart';
 import '../xml_components/numbering/concrete_numbering_component.dart';
-import '../xml_components/numbering/numbering_component.dart';
 
-//TODO: add listeners to events
-
-/// Manages numbering definitions and instances for a Docx document.
+/// Stores numbering abstract instances and concretes ones.
 ///
-/// This store is responsible for:
+/// Manages all about:
 /// - Storing abstract numbering templates (w:abstractNum)
 /// - Storing concrete numbering instances (w:num)
 /// - Generating unique IDs for both abstract and concrete numberings
 /// - Registering concrete instances when numbering is used in content
 /// - Auto-discovering numbering usage in the document
-///
-/// The store provides a clean separation of concerns:
-/// - **NumberingStore**: Business logic, data management, ID generation
-/// - **XmlNumberingComponent**: XML construction only
-///
-/// Example usage:
-/// ```dart
-/// final store = NumberingStore();
-/// store.initialize(customNumberingOptions);
-/// store.discoverAndRegister(document);
-/// final component = store.buildNumberingXmlComponent();
-/// ```
-class NumberingStore {
+class NumberingStore extends Store {
   NumberingStore();
 
   /// Map of abstract numbering templates by reference key.
-  final Map<String, XmlAbstractNumComponent> _abstractNumberings = <String, XmlAbstractNumComponent>{};
+  final Map<String, XmlAbstractNumComponent> _abstractNumberings =
+      <String, XmlAbstractNumComponent>{};
 
   /// Map of concrete numbering instances by reference key.
-  final Map<String, XmlConcreteNumberingComponent> _concreteNumberings = <String, XmlConcreteNumberingComponent>{};
+  final Map<String, XmlConcreteNumberingComponent> _concreteNumberings =
+      <String, XmlConcreteNumberingComponent>{};
 
   /// Map of reference configurations (LevelOptions) by reference key.
-  final Map<String, List<LevelOptions>> _referenceConfigMap = <String, List<LevelOptions>>{};
+  final Map<String, List<LevelOptions>> _referenceConfigMap =
+      <String, List<LevelOptions>>{};
 
   int _nextAbstractId = 0;
   int _nextConcreteId = 0;
@@ -47,10 +37,12 @@ class NumberingStore {
   final List<NumberingOptions> _customNumbering = <NumberingOptions>[];
 
   /// Returns all abstract numbering templates.
-  Iterable<XmlAbstractNumComponent> get abstractTemplates => _abstractNumberings.values;
+  Iterable<XmlAbstractNumComponent> get abstractTemplates =>
+      _abstractNumberings.values;
 
   /// Returns all concrete numbering instances.
-  Iterable<XmlConcreteNumberingComponent> get concreteInstances => _concreteNumberings.values;
+  Iterable<XmlConcreteNumberingComponent> get concreteInstances =>
+      _concreteNumberings.values;
 
   /// Gets the abstract numbering ID for a given reference key.
   num? getAbstractNumId(String ref) => _abstractNumberings[ref]?.id;
@@ -61,18 +53,38 @@ class NumberingStore {
   /// use that exact concrete instance reference. If not provided, there's no
   /// problem, but then you'll need to know that then numberings must be registered
   /// in compilation time instead of previous discovering
-  int? getConcreteNumId(String ref, {String? nodeId}) =>
-      _concreteNumberings['$ref${nodeId != null && nodeId.isNotEmpty ? '-$nodeId' : ''}']?.numId ?? _concreteNumberings[ref]?.numId;
+  int? getConcreteNumId(
+    String ref, {
+    String? nodeId,
+  }) =>
+      _concreteNumberings[
+              '$ref${nodeId != null && nodeId.isNotEmpty ? '-$nodeId' : ''}']
+          ?.numId ??
+      _concreteNumberings[ref]?.numId;
 
+  bool hasConcreteInstance(String ref, [String? nodeId]) =>
+      getConcreteNumId(ref, nodeId: nodeId) != null;
 
   /// Gets the abstract numbering component for a given reference key.
-  XmlAbstractNumComponent? getAbstractNumbering(String ref) => _abstractNumberings[ref];
+  @internal
+  XmlAbstractNumComponent? getAbstractNumbering(String ref) =>
+      _abstractNumberings[ref];
 
   /// Gets the concrete numbering component for a given reference key.
-  XmlConcreteNumberingComponent? getConcreteNumbering(String ref, {String? nodeId}) =>
-      _concreteNumberings['$ref${nodeId != null && nodeId.isNotEmpty ? '-$nodeId' : ''}'] ?? _concreteNumberings[ref];
+  @internal
+  XmlConcreteNumberingComponent? getConcreteNumbering(
+    String ref, {
+    String? nodeId,
+  }) =>
+      _concreteNumberings[
+          '$ref${nodeId != null && nodeId.isNotEmpty ? '-$nodeId' : ''}'] ??
+      _concreteNumberings[ref];
+
+  @override
+  String get storeName => 'Numbering Store';
 
   /// Resets the numbering store to its initial state.
+  @override
   void reset() {
     _abstractNumberings.clear();
     _concreteNumberings.clear();
@@ -87,8 +99,11 @@ class NumberingStore {
   ///
   /// This method must be called before `buildNumberingXmlComponent`
   /// or any component attempts to register concrete numbering instances.
-  void initialize(List<NumberingOptions> options) {
-    _registerCustom(options);
+  @override
+  void initialize(PipelineContext context) {
+    _registerCustom(List.from(
+      context.document.options.numberingOptions,
+    ));
     _registerDefaultNumberings();
     _isInitialized = true;
   }
@@ -98,11 +113,11 @@ class NumberingStore {
   }
 
   void _registerDefaultNumberings() {
-    for (final opt in _customNumbering) {
+    for (final NumberingOptions opt in _customNumbering) {
       _registerAbstractNumbering(opt);
     }
     // Register default numberings
-    for (final opt in defaultNumberings) {
+    for (final NumberingOptions opt in defaultNumberings) {
       _registerAbstractNumbering(opt);
     }
   }
@@ -136,7 +151,8 @@ class NumberingStore {
   /// - [ref]: The reference key of the abstract numbering template.
   /// - [numRefId]: The instance ID for this concrete numbering.
   /// - [level]: Optional level override.
-  void registerConcreteInstance(String ref, int numRefId, {String? nodeId, int? level}) {
+  void registerConcreteInstance(String ref, int numRefId,
+      {String? nodeId, int? level}) {
     final XmlAbstractNumComponent? abstractN = _abstractNumberings[ref];
     if (abstractN == null) {
       CompilerLogger.root.warning(
@@ -145,7 +161,8 @@ class NumberingStore {
       return;
     }
 
-    final String effectiveReference = '$ref-$numRefId${nodeId != null && nodeId.isNotEmpty ? '-$nodeId' : ''}';
+    final String effectiveReference =
+        '$ref-$numRefId${nodeId != null && nodeId.isNotEmpty ? '-$nodeId' : ''}';
     if (_concreteNumberings.containsKey(effectiveReference)) {
       CompilerLogger.root.debug(
         'Concrete instance "$effectiveReference" already registered, skipping',
@@ -177,7 +194,8 @@ class NumberingStore {
       ],
     );
 
-    _concreteNumberings[effectiveReference] = XmlConcreteNumberingComponent(concreteOptions);
+    _concreteNumberings[effectiveReference] =
+        XmlConcreteNumberingComponent(concreteOptions);
   }
 
   /// Discovers all numbering usage in the document and registers concrete instances.
@@ -197,17 +215,11 @@ class NumberingStore {
         if (element is Paragraph && element.numbering != null) {
           final num = element.numbering!;
           uniqueNumberings.add((element.id, num.reference, num.refId!));
-        } else if (element is NumberingList) {
-          // Nested numberings not count in the ref id creations
-          if (element.getAncestorOfExactType<NumberingList>() != null) {
-            return false;
-          }
-
-          // NumberingList handles nested numbering internally
-          // but we need to register the top-level refKey
-          element.perfom(null);
-          uniqueNumberings.add((element.id, element.refKey, element.getRefId()));
         }
+        // NumberingList will not count, since will register the concrete instances
+        // in compilation time. At this point, the implementation replaces
+        // some elements automatically, and cannot be do it in another way
+        // so, letting to the Paragraph the task of registering the concrete instance
         return false;
       },
     );
@@ -298,7 +310,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions.bullet(
               level: 1,
@@ -310,7 +324,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions.bullet(
               level: 2,
@@ -322,7 +338,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions.bullet(
               level: 3,
@@ -334,7 +352,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions.bullet(
               level: 4,
@@ -346,7 +366,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions.bullet(
               level: 5,
@@ -358,7 +380,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions.bullet(
               level: 6,
@@ -370,7 +394,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions.bullet(
               level: 7,
@@ -382,7 +408,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
             LevelOptions.bullet(
               level: 8,
@@ -394,7 +422,9 @@ NumberingOptions(
                     hanging: 0.25.inchesToTwips(),
                   )
                   .build(),
-              runStyle: StyleBuilder.character('unordered-lvl0').fontFamily('Symbol').build(),
+              runStyle: StyleBuilder.character('unordered-lvl0')
+                  .fontFamily('Symbol')
+                  .build(),
             ),
           ],
         ),

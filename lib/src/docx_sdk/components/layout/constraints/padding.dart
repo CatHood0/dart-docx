@@ -19,15 +19,20 @@ class Padding extends DocxNode<DocxNode<dynamic>> {
   final EdgeInsets padding;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     if (child is! Row &&
         child is! Table &&
-        child.visitElement(visitChildrenIfNeeded: true, (DocxNode<dynamic> e) => e is Row || e is Table) == null) {
-      int maxWidth = context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? context.options.availablePageWidth;
+        child.visitElement(
+                visitChildrenIfNeeded: true,
+                (DocxNode<dynamic> e) => e is Row || e is Table) ==
+            null) {
+      int maxWidth =
+          context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ??
+              context.options.availablePageWidth;
 
       return LayoutConstraints(
-        maxWidth: maxWidth > 0 ? maxWidth - padding.all().twipsToPt().ptToDxa() : 0,
+        maxWidth:
+            maxWidth > 0 ? maxWidth - padding.all().twipsToPt().ptToDxa() : 0,
         children: <DocxNode<dynamic>>[
           Table(
             id: id,
@@ -38,9 +43,12 @@ class Padding extends DocxNode<DocxNode<dynamic>> {
               layout: true,
               padding: padding,
             ),
-            columns: maxWidth > 0 ? GridColumn(width: maxWidth.toInt()).toList() : GridColumn.intrintric().toList(),
+            columns: maxWidth > 0
+                ? GridColumn(width: maxWidth.toInt()).toList()
+                : GridColumn.intrintric().toList(),
             rows: TableRow.one(
-              cell: child.tableCell(cellConfig: TableCellConfig.dxa(width: maxWidth)),
+              cell: child.tableCell(
+                  cellConfig: TableCellConfig.dxa(width: maxWidth)),
             ).toList(),
           )
         ],
@@ -96,7 +104,8 @@ class Padding extends DocxNode<DocxNode<dynamic>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    if (child.isEmptyNode() || child.castOrNull<IgnorableMixin>()?.shouldIgnore() == true) {
+    if (child.isEmptyNode() ||
+        child.castOrNull<IgnorableMixin>()?.shouldIgnore() == true) {
       return <DocxNode>[];
     }
     final List<DocxNode> elements = <DocxNode>[];

@@ -11,7 +11,7 @@ class XmlMathPrComponent extends XmlComponentBase<MathPropertiesOptions> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     final List<XmlNode> children = <XmlNode>[];
 
     if (value.mathFont != null) {

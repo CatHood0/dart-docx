@@ -1,8 +1,7 @@
 import 'package:xml/xml.dart';
 
-import '../../../../core/extensions/string_ext.dart';
 import '../../../../../docx.dart';
-import 'sdt_enums.dart';
+import '../../../../core/extensions/string_ext.dart';
 
 /// Date picker SDT component with calendar dropdown.
 ///
@@ -45,24 +44,24 @@ import 'sdt_enums.dart';
 ///
 /// See also:
 /// - [docs/sdt_elements.md] for complete SDT documentation
-class SdtDate extends DocxNode<RunBase> with PrintableMixin {
+class SdtDate extends Sdt<RunBase> with PrintableMixin {
   SdtDate({
     required String alias,
     required this.tag,
     required this.dateFormat,
-    required String lid,
+    required String locale,
     String storeMappedDataAs = 'dateTime',
     SdtCalendar calendar = SdtCalendar.gregorian,
     DateTime? value,
-    this.sdtId,
     this.placeholder,
     this.showingPlacHdr = true,
     this.lock,
     this.temporary = false,
     super.parent,
     super.id,
+    super.sdtId,
   })  : _alias = alias,
-        _lid = lid,
+        _locale = locale,
         _storeMappedDataAs = storeMappedDataAs,
         _calendar = calendar,
         _value = value,
@@ -71,10 +70,6 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
             child: TextRun.text(
           text: _formatDate(value, dateFormat),
         ));
-
-  // ═══════════════════════════════════════════════════════════
-  // PROPIEDADES
-  // ═══════════════════════════════════════════════════════════
 
   /// The alias is the visible label in Word's content control UI.
   final String _alias;
@@ -87,8 +82,8 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
   final String dateFormat;
 
   /// Language/locale identifier (e.g., 'es-ES', 'en-US').
-  final String _lid;
-  String get lid => _lid;
+  final String _locale;
+  String get locale => _locale;
 
   /// How to store the mapped data (usually 'dateTime').
   final String _storeMappedDataAs;
@@ -102,9 +97,6 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
 
   /// The display text for the date value.
   final String _displayText;
-
-  /// Optional unique identifier for the SDT.
-  final int? sdtId;
 
   /// Placeholder text shown when no date is selected.
   final String? placeholder;
@@ -123,19 +115,18 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
     if (value == null) return '';
     // Simple date formatting - in production would use intl package
     final Map<String, String> formatMap = <String, String>{
-      'dd/MM/yyyy': '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}',
-      'yyyy-MM-dd': '${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}',
-      'MM/dd/yyyy': '${value.month.toString().padLeft(2, '0')}/${value.day.toString().padLeft(2, '0')}/${value.year}',
+      'dd/MM/yyyy':
+          '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}',
+      'yyyy-MM-dd':
+          '${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}',
+      'MM/dd/yyyy':
+          '${value.month.toString().padLeft(2, '0')}/${value.day.toString().padLeft(2, '0')}/${value.year}',
     };
     return formatMap[dateFormat] ?? '${value.day}/${value.month}/${value.year}';
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // BUILD XML
-  // ═══════════════════════════════════════════════════════════
-
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
@@ -147,7 +138,7 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
     ];
   }
 
-  XmlElement _buildPropertiesXml(DocumentContext context) {
+  XmlElement _buildPropertiesXml(BuildNodeContext context) {
     final List<XmlNode> children = <XmlNode>[
       XmlElement.tag(
         'w:date',
@@ -164,7 +155,7 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
           XmlElement.tag(
             'w:lid',
             attributes: <XmlAttribute>[
-              XmlAttribute('w:val'.toName(), _lid),
+              XmlAttribute('w:val'.toName(), _locale),
             ],
             isSelfClosing: true,
           ),
@@ -186,32 +177,27 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
           ),
         ],
       ),
-    ]
-
-      // Add alias
-      ..add(
-        XmlElement.tag(
-          'w:alias',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), _alias),
-          ],
-          isSelfClosing: true,
-        ),
-      )
-
-      // Add tag
-      ..add(
-        XmlElement.tag(
-          'w:tag',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), tag),
-          ],
-          isSelfClosing: true,
-        ),
-      );
+      XmlElement.tag(
+        'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:tag',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), tag),
+        ],
+        isSelfClosing: true,
+      ),
+    ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId = context.sdtStore.getNextId(preferredId: sdtId);
+    final int actualSdtId = context.sdtStore.getNextId(
+      nodeId: id,
+      preferredId: sdtId,
+    );
     children.add(
       XmlElement.tag(
         'w:id',
@@ -280,13 +266,13 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(DocumentContext context) {
+  XmlElement _buildContentXml(BuildNodeContext context) {
     final List<XmlNode> runs = child.buildXml(context: context);
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 
@@ -300,7 +286,7 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
         alias: _alias,
         tag: tag,
         dateFormat: dateFormat,
-        lid: _lid,
+        locale: _locale,
         storeMappedDataAs: _storeMappedDataAs,
         calendar: _calendar,
         value: _value,
@@ -334,7 +320,7 @@ class SdtDate extends DocxNode<RunBase> with PrintableMixin {
       alias: alias ?? _alias,
       tag: tag ?? this.tag,
       dateFormat: dateFormat ?? this.dateFormat,
-      lid: lid ?? _lid,
+      locale: lid ?? _locale,
       storeMappedDataAs: storeMappedDataAs ?? _storeMappedDataAs,
       calendar: calendar ?? _calendar,
       value: value ?? _value,

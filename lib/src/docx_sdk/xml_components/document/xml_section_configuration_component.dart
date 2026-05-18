@@ -49,7 +49,7 @@ class XmlDocumentSectionSettingsComponent
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -85,7 +85,7 @@ class XmlPageMarginsComponent extends XmlComponentBase<DocumentMargins> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -111,7 +111,7 @@ class XmlPageSizeComponent extends XmlComponentBase<PageSize> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

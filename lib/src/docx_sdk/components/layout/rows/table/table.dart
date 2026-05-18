@@ -104,8 +104,7 @@ class Table extends DocxNode<List<TableRow>> {
   final List<GridColumn> columns;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
 
     final List<XmlNode> tableChildren = <XmlNode>[];
 
@@ -121,7 +120,6 @@ class Table extends DocxNode<List<TableRow>> {
       );
     }
 
-    context.currentContentPart = this;
 
     // Build column grid definitions (tblGrid)
     final List<XmlNode> gridCols = <XmlNode>[];
@@ -150,7 +148,6 @@ class Table extends DocxNode<List<TableRow>> {
 
     // Build all table rows
     for (final TableRow row in child) {
-      context.currentContentPart = this;
       if (row.child.length != columns.length) {
         throw Exception(
           '$runtimeType:$id => Cannot process row of cells ${row.child.length}, '

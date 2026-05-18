@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
-import '../../shared/effects.dart';
 
 /// Soft edge effect applied to a shape (a:softEdge).
 ///
@@ -11,7 +10,7 @@ class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
   SoftEdgeEffectComponent({required super.child});
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'a:softEdge',
@@ -41,7 +40,7 @@ class SoftEdgeEffectComponent extends Effect<SoftEdgeEffect> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

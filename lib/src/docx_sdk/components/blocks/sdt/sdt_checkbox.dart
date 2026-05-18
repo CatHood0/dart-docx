@@ -1,8 +1,7 @@
 import 'package:xml/xml.dart';
 
-import '../../../../core/extensions/string_ext.dart';
 import '../../../../../docx.dart';
-import 'sdt_enums.dart';
+import '../../../../core/extensions/string_ext.dart';
 
 /// Checkbox SDT component for binary on/off selection.
 ///
@@ -41,20 +40,20 @@ import 'sdt_enums.dart';
 ///
 /// See also:
 /// - [docs/sdt_elements.md] for complete SDT documentation
-class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
+class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
   SdtCheckbox({
     required String alias,
     required this.tag,
     required bool checked,
     SdtCheckboxState checkedState = SdtCheckboxState.checked,
     SdtCheckboxState uncheckedState = SdtCheckboxState.unchecked,
-    this.sdtId,
     this.placeholder,
     this.showingPlacHdr = true,
     this.lock,
     this.temporary = false,
     super.parent,
     super.id,
+    super.sdtId,
   })  : _alias = alias,
         _checked = checked,
         _checkedState = checkedState,
@@ -64,10 +63,6 @@ class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
             child: TextRun.text(
           text: checked ? checkedState.symbol : uncheckedState.symbol,
         ));
-
-  // ═══════════════════════════════════════════════════════════
-  // PROPIEDADES
-  // ═══════════════════════════════════════════════════════════
 
   /// The alias is the visible label in Word's content control UI.
   final String _alias;
@@ -89,9 +84,6 @@ class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
   /// The display text (checkbox symbol).
   final String _displayText;
 
-  /// Optional unique identifier for the SDT.
-  final int? sdtId;
-
   /// Placeholder text shown when the checkbox is empty.
   final String? placeholder;
 
@@ -104,12 +96,8 @@ class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
   /// If true, the SDT is temporary and not saved permanently.
   final bool temporary;
 
-  // ═══════════════════════════════════════════════════════════
-  // BUILD XML
-  // ═══════════════════════════════════════════════════════════
-
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
@@ -121,7 +109,7 @@ class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
     ];
   }
 
-  XmlElement _buildPropertiesXml(DocumentContext context) {
+  XmlElement _buildPropertiesXml(BuildNodeContext context) {
     final List<XmlNode> children = <XmlNode>[
       // w14:checkbox element
       XmlElement.tag(
@@ -155,37 +143,34 @@ class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
           ),
         ],
       ),
-    ]
+      XmlElement.tag(
+        'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:tag',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), tag),
+        ],
+        isSelfClosing: true,
+      ),
+    ];
 
-      // Add alias
-      ..add(
-        XmlElement.tag(
-          'w:alias',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), _alias),
-          ],
-          isSelfClosing: true,
-        ),
-      )
-
-      // Add tag
-      ..add(
-        XmlElement.tag(
-          'w:tag',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), tag),
-          ],
-          isSelfClosing: true,
-        ),
-      );
-
-    // Add id - use SdtStore to get unique ID
-    final int actualSdtId = context.sdtStore.getNextId(preferredId: sdtId);
+    final int actualSdtId = context.sdtStore.getNextId(
+      nodeId: id,
+      preferredId: sdtId,
+    );
     children.add(
       XmlElement.tag(
         'w:id',
         attributes: <XmlAttribute>[
-          XmlAttribute('w:val'.toName(), actualSdtId.toString()),
+          XmlAttribute(
+            'w:val'.toName(),
+            actualSdtId.toString(),
+          ),
         ],
         isSelfClosing: true,
       ),
@@ -249,22 +234,19 @@ class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(DocumentContext context) {
+  XmlElement _buildContentXml(BuildNodeContext context) {
     final List<XmlNode> runs = child.buildXml(context: context);
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // COPY PATTERN
-  // ═══════════════════════════════════════════════════════════
-
   @override
   SdtCheckbox get copy => SdtCheckbox(
+        id: id,
         sdtId: sdtId,
         alias: _alias,
         tag: tag,
@@ -309,10 +291,6 @@ class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // VISIT PATTERN
-  // ═══════════════════════════════════════════════════════════
-
   @override
   DocxNode<dynamic>? visitElement(
     bool Function(DocxNode element) shouldGetElement, {
@@ -342,10 +320,6 @@ class SdtCheckbox extends DocxNode<RunBase> with PrintableMixin {
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // PRINTABLE MIXIN
-  // ═══════════════════════════════════════════════════════════
 
   @override
   String toPlainText() => _displayText;

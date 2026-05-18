@@ -17,7 +17,7 @@ class XmlDefaultDocStylesComponent
 
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -38,7 +38,7 @@ class XmlDefaultParagraphStylesComponent extends XmlComponentBase<List<Style>> {
   }) : super(xmlKey: 'w:pPrDefault');
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     final List<XmlElement> styles = <XmlElement>[];
     for (final Style n in value) {
       styles.addAll(n.forParagraphStyle(
@@ -68,7 +68,7 @@ class XmlDefaultRunStylesComponent extends XmlComponentBase<List<Style>> {
   }) : super(xmlKey: 'w:rPrDefault');
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     final List<XmlElement> styles = <XmlElement>[];
     for (final Style n in value) {
       styles.addAll(

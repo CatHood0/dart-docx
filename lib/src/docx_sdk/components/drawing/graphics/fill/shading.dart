@@ -95,7 +95,7 @@ class Shading extends Fill<void> {
   final Color? fill;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     assert(
       color == null || color!.rgbValue != null,
       'color property '

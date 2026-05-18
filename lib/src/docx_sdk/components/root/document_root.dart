@@ -110,7 +110,7 @@ class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
     int? path,
   }) {
     final DocxNode<dynamic> lazyElement = DocxNode.lazyBuild<Paragraph>((
-      DocumentContext context,
+      BuildNodeContext context,
       String id,
     ) {
       return Paragraph.text(
@@ -187,13 +187,12 @@ class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
   bool get isEmpty => child.isEmpty;
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> content = <XmlNode>[];
     for (final DocxNode<dynamic> section in child) {
       if (section is IgnorableMixin && (section as IgnorableMixin).shouldIgnore()) {
         continue;
       }
-      context.currentContentPart = this;
       content.addAll(section.buildXml(context: context));
     }
 
@@ -226,7 +225,7 @@ class DocumentRoot extends DocxNode<List<DocxNode<dynamic>>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

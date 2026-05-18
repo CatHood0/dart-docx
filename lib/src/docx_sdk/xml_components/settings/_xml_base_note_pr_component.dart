@@ -11,7 +11,7 @@ class _XmlBaseNotePrComponent extends XmlComponentBase<NotePropertiesOptions> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       children: [

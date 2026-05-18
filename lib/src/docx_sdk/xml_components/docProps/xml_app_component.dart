@@ -19,7 +19,7 @@ class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
   String get path => DocxPaths.appFilePath;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

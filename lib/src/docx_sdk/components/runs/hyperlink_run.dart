@@ -316,7 +316,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       super.runParent(
         runProperties: buildXmlStyle(context: context),
@@ -335,7 +335,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required DocumentContext context}) {
+  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
     final List<Object> styles = <Object>[...child.styles];
     if (styles.any(
         (Object e) => e is TextRunAttribution && e.scope != Scope.portion)) {

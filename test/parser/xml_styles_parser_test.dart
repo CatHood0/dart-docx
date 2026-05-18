@@ -15,7 +15,7 @@ void main() {
       final XmlDocument xmlDocument = XmlDocument.parse(
         XmlStylesComponent()
             .buildDocument(
-              DocumentContext.base(
+              BuildNodeContext.base(
                   options: DocumentOptions.standard(
                 styles: DocumentStyles.base(),
               )),

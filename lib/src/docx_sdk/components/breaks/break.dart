@@ -21,7 +21,7 @@ class Break extends RunBase<BreakType> {
   int get dataLength => 0;
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
     return <XmlNode>[
       XmlElement.tag(
         'w:br',
@@ -37,7 +37,7 @@ class Break extends RunBase<BreakType> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

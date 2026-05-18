@@ -71,7 +71,7 @@ class CustomGeometryComponent extends Geometry<void> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> children = <XmlNode>[
       ...adjustValue.buildXml(context: context),
       ...guide.buildXml(context: context),
@@ -154,7 +154,7 @@ class CustomGeometryComponent extends Geometry<void> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

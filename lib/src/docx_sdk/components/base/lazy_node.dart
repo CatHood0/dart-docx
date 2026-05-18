@@ -2,7 +2,7 @@ import 'package:xml/xml.dart' show XmlNode;
 
 import '../../../../docx.dart';
 
-typedef BuildNodeCallback<T> = T Function(DocumentContext, String);
+typedef BuildNodeCallback<T> = T Function(BuildNodeContext, String);
 
 class LazyNode<T extends DocxNode> extends DocxNode<BuildNodeCallback<T>> {
   LazyNode({
@@ -11,10 +11,10 @@ class LazyNode<T extends DocxNode> extends DocxNode<BuildNodeCallback<T>> {
     super.id,
   });
 
-  T build(DocumentContext context) => child(context, id);
+  T build(BuildNodeContext context) => child(context, id);
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
     final T value = child(context, id);
     return value.buildXml(context: context);
   }

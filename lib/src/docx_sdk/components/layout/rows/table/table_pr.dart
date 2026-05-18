@@ -66,7 +66,7 @@ class TableProperties extends DocxNode<void> {
         super(child: null);
 
   TableProperties.fromContext({
-    required DocumentContext context,
+    required BuildNodeContext context,
     Iterable<Style> styles = const <Style>[],
     this.alignment = Alignment.left,
     TableBorders? borders,
@@ -192,8 +192,7 @@ class TableProperties extends DocxNode<void> {
   final bool layout;
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
 
     int padding = context.getAncestorOfExactType<Padding>()?.padding.all().toInt() ?? 0;
 

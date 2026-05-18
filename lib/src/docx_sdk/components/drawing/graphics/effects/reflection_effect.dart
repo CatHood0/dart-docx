@@ -11,7 +11,7 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
   ReflectionEffectComponent({required super.child});
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'a:reflection',
@@ -95,7 +95,7 @@ class ReflectionEffectComponent extends Effect<ReflectionEffect> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

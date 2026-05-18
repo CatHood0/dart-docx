@@ -66,21 +66,6 @@ class DocxPacker {
     return this;
   }
 
-  DocxPacker setMediaStore(MediaStore store) {
-    _compiler.mediaStore = store;
-    return this;
-  }
-
-  DocxPacker setFontStore(FontStore store) {
-    _compiler.fontStore = store;
-    return this;
-  }
-
-  DocxPacker setPhasesConfig(LoggablePhaseConfig phaseConfig) {
-    _compiler.config = phaseConfig;
-    return this;
-  }
-
   DocxPacker logAllPaths() {
     _compiler.config = LoggablePhaseConfig(
       enabled: true,
@@ -101,8 +86,8 @@ class DocxPacker {
     );
     return this;
   }
-  
-  DocxPacker log(void Function(String) callback)  {
+
+  DocxPacker log(void Function(String) callback) {
     _compiler.config = LoggablePhaseConfig(
       loggablePhases: <String>{..._compiler.config.loggablePhases},
       level: _compiler.config.level,
@@ -126,6 +111,45 @@ class DocxPacker {
     return this;
   }
 
+  /// Adds a hook that executes before starting the pipeline.
+  DocxPacker addPreCompileHook(PreCompileHook hook) {
+    _compiler.addPreCompileHook(hook);
+    return this;
+  }
+
+  /// Adds a hook that executes after completing the pipeline.
+  DocxPacker addPostCompileHook(PostCompileHook hook) {
+    _compiler.addPostCompileHook(hook);
+    return this;
+  }
+
+  /// Adds a hook that executes before each stage.
+  DocxPacker addPreStageHook(StageHook hook) {
+    _compiler.addPreStageHook(hook);
+    return this;
+  }
+
+  /// Adds a hook that executes after each stage.
+  DocxPacker addPostStageHook(StageHook hook) {
+    _compiler.addPostStageHook(hook);
+    return this;
+  }
+
+  /// Configures custom stores.
+  ///
+  /// Custom stores replace the default stores.
+  /// Useful for advanced use cases requiring custom logic.
+  DocxPacker configureStores({required Iterable<Store> newStores}) {
+    _compiler.configureStores(newStores: newStores);
+    return this;
+  }
+
+  /// Configured media store (custom or default).
+  DocxPacker setStandardStores() {
+    _compiler.setStandardStores();
+    return this;
+  }
+
   /// Release all resources in this packer
   void release() {
     _compiler.release();
@@ -133,12 +157,15 @@ class DocxPacker {
 
   Future<Uint8List?> execute(
     DocxDocument document, {
-    List<XmlOverrideFile> overrides = const <XmlOverrideFile>[],
     bool applyCustomTheme = false,
+    ExecutionFlags? flags,
+    List<PipelineStage>? stages,
   }) async {
     final Archive? zip = await _compiler.compile(
       document,
       applyCustomTheme: applyCustomTheme,
+      stages: stages,
+      flags: flags,
     );
     if (zip == null) return null;
     return _encoder.encodeBytes(

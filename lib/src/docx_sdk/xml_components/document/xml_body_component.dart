@@ -15,7 +15,7 @@ class XmlBodyComponent extends XmlComponentBase<DocxNode> {
   final String? themeId;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       children: <XmlNode>[

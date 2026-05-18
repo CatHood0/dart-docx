@@ -1,9 +1,7 @@
 import 'package:xml/xml.dart';
 
-import '../../../../core/extensions/string_ext.dart';
 import '../../../../../docx.dart';
-import 'sdt_enums.dart';
-import 'sdt_list_item.dart';
+import '../../../../core/extensions/string_ext.dart';
 
 /// Combo-box SDT component for editable drop-down selection.
 ///
@@ -54,19 +52,19 @@ import 'sdt_list_item.dart';
 /// See also:
 /// - [SdtDropDownList] for non-editable drop-down
 /// - [docs/sdt_elements.md] for complete SDT documentation
-class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
+class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
   SdtComboBox({
     required String alias,
     required this.tag,
     required List<SdtListItem> items,
     String? selectedValue,
-    this.sdtId,
     this.placeholder,
     this.showingPlacHdr = true,
     this.lock,
     this.temporary = false,
     super.parent,
     super.id,
+    super.sdtId,
   })  : _alias = alias,
         _selectedValue = selectedValue,
         _displayText = _computeDisplayText(items, selectedValue),
@@ -86,10 +84,6 @@ class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
   /// The display text for the selected value.
   final String _displayText;
 
-  /// Optional unique identifier for the SDT.
-  /// Note: This is different from DocxNode.id which is auto-generated.
-  final int? sdtId;
-
   /// Placeholder text shown when no selection is made.
   final String? placeholder;
 
@@ -103,7 +97,8 @@ class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
   final bool temporary;
 
   /// Helper to compute display text from items and selected value.
-  static String _computeDisplayText(List<SdtListItem> items, String? selectedValue) {
+  static String _computeDisplayText(
+      List<SdtListItem> items, String? selectedValue) {
     if (selectedValue == null) return '';
     for (final SdtListItem item in items) {
       if (item.value == selectedValue) {
@@ -115,7 +110,7 @@ class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       XmlElement.tag(
         'w:sdt',
@@ -127,7 +122,7 @@ class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
     ];
   }
 
-  XmlElement _buildPropertiesXml(DocumentContext context) {
+  XmlElement _buildPropertiesXml(BuildNodeContext context) {
     final List<XmlNode> children = <XmlNode>[
       XmlElement.tag(
         'w:comboBox',
@@ -157,12 +152,16 @@ class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
         isSelfClosing: true,
       ),
       XmlElement.tag(
-          'w:id',
-          attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), context.sdtStore.getNextId(preferredId: sdtId).toString()),
-          ],
-          isSelfClosing: true,
-        ),
+        'w:id',
+        attributes: <XmlAttribute>[
+          XmlAttribute(
+              'w:val'.toName(),
+              context.sdtStore
+                  .getNextId(nodeId: id, preferredId: sdtId)
+                  .toString()),
+        ],
+        isSelfClosing: true,
+      ),
       if (placeholder != null)
         XmlElement.tag(
           'w:placeholder',
@@ -204,7 +203,7 @@ class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
     return XmlElement.tag('w:sdtPr', children: children);
   }
 
-  XmlElement _buildContentXml(DocumentContext context) {
+  XmlElement _buildContentXml(BuildNodeContext context) {
     final List<XmlNode> runs = TextRun.empty(
       parent: this,
     ).buildXml(context: context);
@@ -212,12 +211,13 @@ class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 
   @override
   SdtComboBox get copy => SdtComboBox(
+        id: id,
         sdtId: sdtId,
         alias: _alias,
         items: child,
@@ -248,7 +248,7 @@ class SdtComboBox extends DocxNode<List<SdtListItem>> with PrintableMixin {
       sdtId: sdtId ?? this.sdtId,
       alias: alias ?? _alias,
       tag: tag ?? this.tag,
-      items: items ?? this.child,
+      items: items ?? child,
       selectedValue: selectedValue ?? _selectedValue,
       placeholder: placeholder ?? this.placeholder,
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,

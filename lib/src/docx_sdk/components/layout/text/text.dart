@@ -76,10 +76,9 @@ class Text extends ComponentContainer<String> {
   final bool superscript;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     // I hate this type assign. I'd prefer just making
     // a different context per element instead just one
-    context.currentContentPart = this;
     final List<XmlNode> paragraphChildren = <XmlNode>[];
     final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
     if (paragraphStyles.isNotEmpty) {
@@ -94,7 +93,6 @@ class Text extends ComponentContainer<String> {
 
     final bool hasNewLines = child.contains('\n');
     for (final String e in child.split('\n')) {
-      context.currentContentPart = this;
       final List<XmlNode> element = TextRun.inheritFrom(
         text: e,
         element: this,
@@ -104,8 +102,6 @@ class Text extends ComponentContainer<String> {
         if (hasNewLines) ...Run.lineBreak().buildXml(context: context),
       ]);
     }
-
-    context.currentContentPart = this;
 
     return <XmlElement>[
       super.paragraph(
@@ -133,7 +129,7 @@ class Text extends ComponentContainer<String> {
       );
 
   @override
-  List<XmlElement> buildXmlStyle({required DocumentContext context}) {
+  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
     final List<XmlElement> pPrChildren = <XmlElement>[];
 
     bool alreadyHasReference = false;
@@ -224,7 +220,7 @@ class Text extends ComponentContainer<String> {
   /// Builds a Style from direct paragraph properties.
   ///
   /// This allows applying formatting directly without requiring StyleBuilder.
-  Style? _buildDirectStyle(DocumentContext context) {
+  Style? _buildDirectStyle(BuildNodeContext context) {
     final StyleBuilder builder = StyleBuilder.up();
     if (textAlign != null) builder.alignment(textAlign!.toAlign);
 

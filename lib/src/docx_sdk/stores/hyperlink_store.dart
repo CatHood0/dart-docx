@@ -3,21 +3,31 @@ import '../../../docx.dart';
 //TODO: add listeners to events
 /// Manages all hyperlink-related operations for a Docx document,
 /// including discovering and creating relationships for [HyperlinkRun] components.
-class HyperlinkStore {
+class HyperlinkStore extends Store {
   HyperlinkStore();
 
   /// Stores discovered [HyperlinkRun] components.
   final List<HyperlinkRun> _hyperlinks = <HyperlinkRun>[];
 
+  //TODO: use paths instead of direct instances
   List<HyperlinkRun> get hyperlinks => List<HyperlinkRun>.from(_hyperlinks);
 
   // both are closely related, so, both have a pointer
   // to get and set elements with fastly
   late DocumentRelsCounterStore docRelsStore;
 
+  @override
+  String get storeName => 'Hyperlink store';
+
   /// Resets the hyperlink store to its initial state, clearing all discovered data.
+  @override
   void reset() {
     _hyperlinks.clear();
+  }
+
+  @override
+  void initialize(PipelineContext context) {
+    docRelsStore = context.getStoreOfExactType()!;
   }
 
   /// Discovers all [HyperlinkRun] elements from the provided [DocxDocument] structure

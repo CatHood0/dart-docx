@@ -40,9 +40,7 @@ class Row extends DocxNode<List<DocxNode>> {
   final CrossAxisAlignment? crossAxisAlignment;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
-
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     return <XmlElement>[
       ...toTable(
         context,
@@ -51,7 +49,7 @@ class Row extends DocxNode<List<DocxNode>> {
   }
 
   /// Converts this [Row] in a [Table] equivalent version
-  DocxNode toTable(DocumentContext context) {
+  DocxNode toTable(BuildNodeContext context) {
     int maxWidth = context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
     final EdgeInsets padding = context.getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
@@ -172,7 +170,7 @@ class Row extends DocxNode<List<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

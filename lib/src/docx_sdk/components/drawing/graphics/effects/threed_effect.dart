@@ -12,7 +12,7 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
   ThreeDEffectComponent({required super.child});
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> children = <XmlNode>[];
 
     if (child.extrusionHeight != 0) {
@@ -159,7 +159,7 @@ class ThreeDEffectComponent extends Effect<ThreeDEffect> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

@@ -88,7 +88,7 @@ class LatentStyles extends XmlComponentBase<void> {
   }
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: XmlComponentAttributes(xmlAttributes: <String, String>{
@@ -128,7 +128,7 @@ class LatentException extends XmlComponentBase<void> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

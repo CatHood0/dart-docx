@@ -412,8 +412,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   final ShadingPattern? shadingPattern;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> paragraphChildren = <XmlNode>[];
     final List<XmlElement> paragraphStyles = buildXmlStyle(context: context);
     if (paragraphStyles.isNotEmpty) {
@@ -427,8 +426,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     for (final RunBase e in child) {
-      context.currentContentPart = this;
-      final List<XmlNode> element = e.buildXml(context: context);
+      final List<XmlNode> element =
+          e.buildXml(context: e.createdInheritedContext(context));
       if (e.shouldIgnore() || element.isEmpty || e.isEmptyNode()) {
         continue;
       }
@@ -436,7 +435,10 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     if (pageBreak == ParagraphPageBreak.after) {
-      paragraphChildren.addAll(Run.pageBreak().buildXml(context: context));
+      final run = Run.pageBreak();
+      paragraphChildren.addAll(run.buildXml(
+        context: run.createdInheritedContext(context),
+      ));
     }
 
     return <XmlElement>[
@@ -449,7 +451,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }
 
   @override
-  List<XmlElement> buildXmlStyle({required DocumentContext context}) {
+  List<XmlElement> buildXmlStyle({required BuildNodeContext context}) {
     final List<XmlElement> pPrChildren = <XmlElement>[];
 
     if (numbering != null) {
@@ -459,7 +461,20 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
             'all/does-word-support-more-than-9-list-levels/'
             'd130fdcd-1781-446d-8c84-c6c79124e4d7';
       }
-      context.numberingStore.validateAbstractNumberingExistence(numbering!.reference);
+      if (context.getAncestorOfExactType<NumberingList>() != null) {
+        final bool hasConcreteId = context.numberingStore
+            .hasConcreteInstance(numbering!.concreteRef, id);
+        if (!hasConcreteId) {
+          context.numberingStore.registerConcreteInstance(
+            numbering!.concreteRef,
+            numbering!.refId ?? 0,
+            nodeId: id,
+          );
+        }
+      } else {
+        context.numberingStore
+            .validateAbstractNumberingExistence(numbering!.reference);
+      }
       pPrChildren.add(numbering!.build(
         context.numberingStore.getConcreteNumId(
           numbering!.concreteRef,
@@ -470,7 +485,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     bool alreadyHasReference = false;
 
     if (context.checkStyleRefExistence && headingLevel != null) {
-      final Style? header = context.options.docStyles.getStyleById('Heading${headingLevel!}');
+      final Style? header =
+          context.options.docStyles.getStyleById('Heading${headingLevel!}');
       if (header != null && !header.isInvalid) {
         alreadyHasReference = true;
         pPrChildren.addAll(header.forParagraphStyle(
@@ -517,7 +533,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       );
       Style? st = context.defaultNormalStyle;
       if (alreadyHasReference || context.checkStyleRefExistence) {
-        final Style? normal = context.options.docStyles.getStyleById(context.defaultNormalStyle.styleId);
+        final Style? normal = context.options.docStyles
+            .getStyleById(context.defaultNormalStyle.styleId);
         if (normal != null && !normal.isInvalid) {
           st = normal;
         } else {
@@ -547,8 +564,10 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       }
       Style? st = style;
       // Resolve references
-      if (alreadyHasReference && st.isReference || context.checkStyleRefExistence) {
-        final Style? stemp = context.options.docStyles.getStyleById(style.styleId);
+      if (alreadyHasReference && st.isReference ||
+          context.checkStyleRefExistence) {
+        final Style? stemp =
+            context.options.docStyles.getStyleById(style.styleId);
         if (stemp != null && !stemp.isInvalid) {
           st = stemp;
         } else {
@@ -577,14 +596,15 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   /// Builds a Style from direct paragraph properties.
   ///
   /// This allows applying formatting directly without requiring StyleBuilder.
-  Style? _buildDirectStyle(DocumentContext context) {
+  Style? _buildDirectStyle(BuildNodeContext context) {
     final StyleBuilder builder = StyleBuilder.up();
     if (pageBreak != ParagraphPageBreak.none) builder.pageBreakBefore();
     if (alignment != null) builder.alignment(alignment!);
 
     if (context.childOfAncestorOfExactType<Align>()) {
       final Alignment al = context.getAncestorOfExactType<Align>()!.alignment;
-      CompilerLogger.root.debug('Replace current align $alignment to found ancestor ${al.name}');
+      CompilerLogger.root.debug(
+          'Replace current align $alignment to found ancestor ${al.name}');
       builder.alignment(al);
     }
 
@@ -609,7 +629,10 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       );
     }
 
-    if (indentLeft != null || indentRight != null || firstLineIndent != null || hangingIndent != null) {
+    if (indentLeft != null ||
+        indentRight != null ||
+        firstLineIndent != null ||
+        hangingIndent != null) {
       builder.indent(
         left: indentLeft!.inchesToTwips(),
         right: indentRight!.inchesToTwips(),
@@ -830,7 +853,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   }
 
   void checkAbstractNumberingInstanceExistence(
-    DocumentContext context,
+    BuildNodeContext context,
     String ref,
   ) {
     // Delegate to NumberingStore for validation
@@ -871,7 +894,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     bool mergeStyles = true,
   }) {
     assert(
-      styles == null || styles.every((Object e) => e is Attributes || e is Style),
+      styles == null ||
+          styles.every((Object e) => e is Attributes || e is Style),
       'styles must be only Attributes or Style type',
     );
     offset ??= 0;
@@ -950,7 +974,11 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
 
     for (int i = index; i < child.length; i++) {
       if (remaining <= 0) break;
-      final (RunBase<dynamic> left, RunBase<dynamic> center, RunBase<dynamic> right) = child[i].cutAll(start, remaining);
+      final (
+        RunBase<dynamic> left,
+        RunBase<dynamic> center,
+        RunBase<dynamic> right
+      ) = child[i].cutAll(start, remaining);
 
       //TODO: check if this works as expected
       if ((!left.isEmptyData || left.length > 0) && !left.isEmptyNode()) {
@@ -1017,7 +1045,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   void updateElement(DocxNode component, {int? index, bool strict = true}) {
     if (component is! RunBase) return;
 
-    final int i = index ?? child.indexWhere((RunBase<dynamic> el) => component.id == el.id);
+    final int i = index ??
+        child.indexWhere((RunBase<dynamic> el) => component.id == el.id);
     if (i <= -1) {
       CompilerLogger.root.warning(
         'Tried to updated an '
@@ -1028,7 +1057,8 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     final RunBase<dynamic> element = child[i];
-    if (strict && component.child.runtimeType != element.child.runtimeType || component.id != element.id) {
+    if (strict && component.child.runtimeType != element.child.runtimeType ||
+        component.id != element.id) {
       return;
     }
 

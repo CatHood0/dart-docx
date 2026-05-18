@@ -81,7 +81,7 @@ class ShapeProperties extends DocxNode<void> {
   final Effect<dynamic>? effects;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> children = <XmlNode>[
       ...transform.buildXml(context: context),
       ...geometryComponent.buildXml(context: context),
@@ -99,7 +99,6 @@ class ShapeProperties extends DocxNode<void> {
       children.addAll(effects!.buildXml(context: context));
     }
 
-    context.currentContentPart = this;
     return <XmlElement>[
       XmlElement.tag(
         'wps:spPr',
@@ -109,7 +108,7 @@ class ShapeProperties extends DocxNode<void> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

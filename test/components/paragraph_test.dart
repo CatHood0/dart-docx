@@ -12,7 +12,7 @@ void main() {
 
   test('should init a paragraph a build expected xml', () {
     expect(
-      pr.buildXml(context: DocumentContext.test()).single.toXmlString(),
+      pr.buildXml(context: BuildNodeContext.test()).single.toXmlString(),
       XmlElement.tag(
         'w:p',
         isSelfClosing: false,
@@ -33,7 +33,7 @@ void main() {
   });
   test('should add element to the paragraph', () {
     expect(
-      pr.buildXml(context: DocumentContext.test()).single.toXmlString(),
+      pr.buildXml(context: BuildNodeContext.test()).single.toXmlString(),
       XmlElement.tag(
         'w:p',
         isSelfClosing: false,

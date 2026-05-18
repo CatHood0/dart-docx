@@ -19,7 +19,7 @@ class XmlThemeFontLangComponent extends XmlComponentBase {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

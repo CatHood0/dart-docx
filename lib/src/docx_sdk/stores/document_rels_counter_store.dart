@@ -1,8 +1,10 @@
 import '../../../docx.dart';
 
-class DocumentRelsCounterStore {
-  late MediaStore mediaStore;
+class DocumentRelsCounterStore extends Store {
   int _lastId = 1;
+
+  @override
+  String get storeName => 'Document Relations Counter Store';
 
   /// Count all the elements wrapped by a Drawing component.
   ///
@@ -25,10 +27,15 @@ class DocumentRelsCounterStore {
 
   int? getIdFromRef({required String ref}) => elements[ref];
 
+  @override
   void reset() {
     _lastId = 1;
     count.clear();
     elements.clear();
   }
 
+  @override
+  void initialize(PipelineContext context) {
+    // nothing
+  }
 }

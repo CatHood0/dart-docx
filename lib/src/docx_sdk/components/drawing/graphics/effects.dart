@@ -37,7 +37,7 @@ class EffectList extends Effect<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final List<XmlNode> effectElements = <XmlNode>[];
 
     for (final DocxNode<dynamic> child in child) {
@@ -53,7 +53,7 @@ class EffectList extends Effect<Iterable<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

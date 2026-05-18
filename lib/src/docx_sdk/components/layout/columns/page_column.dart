@@ -52,8 +52,9 @@ class PageColumn extends DocxNode<List<DocxNode>> {
   }
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    if (context.options.columns == null || context.options.columns!.numColumns == null) {
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
+    if (context.options.columns == null ||
+        context.options.columns!.numColumns == null) {
       CompilerLogger.root.warning(
         'Its not recommended the use of "$runtimeType:$id" in none '
         'multi-column documents (ColumnOptions is not defined or numColumns is null). '
@@ -63,15 +64,12 @@ class PageColumn extends DocxNode<List<DocxNode>> {
         'you to not use this with the current configurations ',
       );
     }
-    context.currentContentPart = this;
     final List<XmlElement> elements = <XmlElement>[];
     for (final DocxNode<dynamic> e in child) {
-      final List<XmlElement> element = e
-          .buildXml(
-            context: context,
-          )
-          .cast();
-      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() || element.isEmpty) {
+      final List<XmlElement> element =
+          e.buildXml(context: createdInheritedContext(context)).cast();
+      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() ||
+          element.isEmpty) {
         continue;
       }
       elements.addAll(element);
@@ -86,7 +84,7 @@ class PageColumn extends DocxNode<List<DocxNode>> {
   }
 
   @override
-  List<XmlNode> buildXmlStyle({required DocumentContext context}) {
+  List<XmlNode> buildXmlStyle({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

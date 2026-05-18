@@ -42,8 +42,7 @@ class WPShape extends DocxNode<DocxNode> {
   final ShapeTextBox? textBox;
 
   @override
-  List<XmlElement> buildXml({required DocumentContext context}) {
-    context.currentContentPart = this;
+  List<XmlElement> buildXml({required BuildNodeContext context}) {
     final Anchor? anchor = context.getAncestorOfExactType<Anchor>();
     final Inline? inline = context.getAncestorOfExactType<Inline>();
     final int shapeId = anchor?.elementId?.castOrNull() ?? inline?.elementId?.castOrNull() ?? context.drawingStore.getNextId(id);

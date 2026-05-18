@@ -11,7 +11,7 @@ class XmlCompatComponent extends XmlComponentBase<List<CompatSetting>> {
         );
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       children: value.map((s) => s.buildXml()).toList(),

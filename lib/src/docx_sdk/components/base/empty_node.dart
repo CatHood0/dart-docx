@@ -6,7 +6,7 @@ class EmptyNode extends DocxNode<void> with IgnorableMixin {
   EmptyNode() : super(child: null);
 
   @override
-  List<XmlNode> buildXml({required DocumentContext context}) {
+  List<XmlNode> buildXml({required BuildNodeContext context}) {
     return <XmlNode>[];
   }
 

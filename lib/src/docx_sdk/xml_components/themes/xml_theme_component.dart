@@ -25,7 +25,7 @@ class XmlThemeComponent extends XmlComponentBase<ThemeOptions> {
   String get path => DocxPaths.theme1XmlFilePath;
 
   @override
-  XmlElement buildXml(DocumentContext context) {
+  XmlElement buildXml(BuildNodeContext context) {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
