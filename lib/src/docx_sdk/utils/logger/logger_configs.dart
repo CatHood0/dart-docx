@@ -16,6 +16,7 @@ class CompilerLogger {
   void warning(String message) => _logger.warning(message);
   void info(String message) => _logger.info(message);
   void debug(String message) => _logger.fine(message);
+  void config(String message) => _logger.config(message);
 }
 
 enum LogLevel {
@@ -24,6 +25,7 @@ enum LogLevel {
   warn,
   info,
   debug,
+  config,
   all,
 }
 
@@ -84,6 +86,11 @@ class LoggerConfiguration {
 
   void warn() {
     _level = LogLevel.warn;
+    Logger.root.level = level.toLevel();
+  }
+
+  void config() {
+    _level = LogLevel.config;
     Logger.root.level = level.toLevel();
   }
 

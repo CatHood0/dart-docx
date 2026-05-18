@@ -126,7 +126,13 @@ abstract class DocxNode<T> {
   T child;
 
   int index = -1;
-  int depth = -1;
+  int get depth => path.length;
+
+  @Deprecated(
+    'setting depth value is deprecated. '
+    'It is not a cached value already',
+  )
+  set depth(int depth) {}
 
   /// The xml relations id of this component
   ///
@@ -158,10 +164,29 @@ abstract class DocxNode<T> {
 
   DocxNode<T> copyWith({String? id, DocxNode<T>? parent});
 
+  List<int> get path {
+    if (!mounted || parent == null) {
+      return <int>[];
+    }
+    final List<int> indexes = [index];
+
+    DocxNode? owner = parent;
+    while (owner != null && owner is! DocxRoot) {
+      indexes.add(owner.index);
+      owner = owner.parent;
+    }
+
+    return indexes;
+  }
+
+  void didChangeConfigurations(
+      BuildNodeContext prev, BuildNodeContext current) {}
+
   @mustCallSuper
   bool get mounted => _context != null;
 
   void markAsDirty() {
+    CompilerLogger.root.config('[$runtimeType:$id]: marked as dirty');
     dirty = true;
     _context = null;
   }
@@ -170,8 +195,12 @@ abstract class DocxNode<T> {
   void init(BuildNodeContext context) {
     // Does not requires
     if (mounted && !dirty) {
+      CompilerLogger.root.config(
+          '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: hit diff. Avoiding re-initialization');
       return;
     }
+    CompilerLogger.root.config(
+        '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: initializated correctly');
     _context = createdInheritedContext(context);
     dirty = false;
     perform();
@@ -183,6 +212,12 @@ abstract class DocxNode<T> {
   }
 
   void deactivate() {
+    CompilerLogger.root.config(
+      '[$runtimeType:$id:${path.length}]: deactivated and '
+      'removed of the tree',
+    );
+    //TODO: ensure parent remove this element
+    parent = null;
     dirty = true;
     _context = null;
   }
@@ -191,7 +226,10 @@ abstract class DocxNode<T> {
   /// before the `build` pahase
   @visibleForOverriding
   @experimental
-  void perform() {}
+  void perform() {
+    CompilerLogger.root
+        .config('[$runtimeType:$id:${path.length}]: executing perform');
+  }
 
   List<XmlNode> buildXml();
   List<XmlNode> buildXmlStyle() => <XmlNode>[];

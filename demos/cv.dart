@@ -302,6 +302,8 @@ Future<void> main() async {
       .dynamicFontSearch(true)
       .noTrimRuns()
       .setNormalIfNeeded(true)
+      .logLevel(LogLevel.config)
+      .log(print)
       .defaultNormalStyle(Style.ref('body'))
       .setStandardStores()
       .execute(

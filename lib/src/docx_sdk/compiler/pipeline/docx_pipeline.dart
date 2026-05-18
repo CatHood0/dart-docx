@@ -105,14 +105,9 @@ class DocxPipeline {
   /// Custom stores replace the default stores.
   /// Useful for advanced use cases requiring custom logic.
   DocxPipeline configureStores({required Iterable<Store> newStores}) {
-    _stores.addAll(
-      newStores.toMap(
-        (
-          Store e,
-        ) =>
-            e.runtimeType,
-      ),
-    );
+    for (final Store el in newStores) {
+      _stores[el.runtimeType] = el;
+    }
     return this;
   }
 
@@ -204,6 +199,7 @@ class DocxPipeline {
       logConfig: logConfig,
       stores: _stores,
     );
+    _context = context;
 
     if (DocxElements.instance.needsPreviousInitialization) {
       final Stopwatch watch = Stopwatch()..start();

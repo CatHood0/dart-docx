@@ -3,7 +3,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
-import '../../utils/logger/logger_configs.dart';
 
 class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
   DocxRoot({
@@ -15,8 +14,8 @@ class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
             'root must not be in any other '
             'point than the main build of the tree'),
         super(child: <DocxNode<dynamic>>[...sections]) {
-    this.index = -1;
-    depth = -1;
+    this.index = 0;
+    depth = 0;
     int index = 0;
     for (final DocxNode<dynamic> content in child) {
       content

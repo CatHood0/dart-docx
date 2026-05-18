@@ -27,50 +27,51 @@ class ColumnDiscoveryStage extends PipelineStage {
 
   @override
   void execute(PipelineContext context) {
-    context.emit(DocxEvent.searching(subject: 'Detecting columns'));
+    // context.emit(DocxEvent.searching(subject: 'Detecting columns'));
 
-    final columns = context.document.root
-        .visitAllElement(
-          visitChildrenIfNeeded: false,
-          (DocxNode<dynamic> el) => el is PageColumn,
-        )
-        ?.cast<PageColumn>();
+    // final columns = context.document.root
+    //     .visitAllElement(
+    //       visitChildrenIfNeeded: false,
+    //       (DocxNode<dynamic> el) => el is PageColumn,
+    //     )
+    //     ?.cast<PageColumn>();
 
-    if (columns == null || columns.isEmpty) {
-      CompilerLogger.root.debug('No columns found in document.');
-      context.metadata['columns'] = <PageColumn>[];
-      return;
-    }
+    // if (columns == null || columns.isEmpty) {
+    //   CompilerLogger.root.debug('No columns found in document.');
+    //   context.metadata['columns'] = <PageColumn>[];
+    //   return;
+    // }
 
-    CompilerLogger.root.info('Found ${columns.length} columns. Processing breaks.');
+    // CompilerLogger.root.info('Found ${columns.length} columns. Processing breaks.');
 
-    int index = 0;
-    for (final PageColumn column in columns) {
-      if (index > 0) {
-        final DocxNode<dynamic>? paragraph = column.child.firstOrNull;
-        if (paragraph == null || paragraph is! Paragraph) {
-          CompilerLogger.root.info(
-            'Inserting column break in element at $index '
-            'by non-existent paragraph',
-          );
-          column.addFirst(
-            Paragraph(
-              children: <RunBase<dynamic>>[
-                Run(component: Break.columnBreak()),
-              ],
-            ),
-          );
-          break;
-        }
-        CompilerLogger.root.info(
-          'Inserting column break in first element of column at $index',
-        );
-        paragraph.addRunFirst(Run.columnBreak());
-      }
-      index++;
-    }
+    //NOTE: so... this need to be deprecated. I tested this, and works better if does not exist
+    // int index = 0;
+    // for (final PageColumn column in columns) {
+    //   if (index > 0) {
+    //     final DocxNode<dynamic>? paragraph = column.child.firstOrNull;
+    //     if (paragraph == null || paragraph is! Paragraph) {
+    //       CompilerLogger.root.info(
+    //         'Inserting column break in element at $index '
+    //         'by non-existent paragraph',
+    //       );
+    //       column.addFirst(
+    //         Paragraph(
+    //           children: <RunBase<dynamic>>[
+    //             Run(component: Break.columnBreak()),
+    //           ],
+    //         ),
+    //       );
+    //       break;
+    //     }
+    //     CompilerLogger.root.info(
+    //       'Inserting column break in first element of column at $index',
+    //     );
+    //     paragraph.addRunFirst(Run.columnBreak());
+    //   }
+    //   index++;
+    // }
 
-    context.metadata['columns'] = columns;
-    CompilerLogger.root.debug('Column discovery completed.');
+    // context.metadata['columns'] = columns;
+    // CompilerLogger.root.debug('Column discovery completed.');
   }
 }

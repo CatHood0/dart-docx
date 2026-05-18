@@ -37,14 +37,16 @@ class SdtDiscoveryStage extends PipelineStage {
         )
         ?.cast<Sdt>();
 
-    if (sdts != null) {
+    if (sdts != null &&
+        sdts.isNotEmpty &&
+        context.getStoreOfExactType<SdtStore>() == null) {
       throw Exception(
         'Found SDT elements inserted in tree, '
         'but not found SdtStore provided in configurations',
       );
     }
 
-    if (sdts != null) {
+    if (sdts != null && sdts.isNotEmpty) {
       for (final sdt in sdts) {
         context.getStoreOfExactType<SdtStore>()!.registerId(
               sdt.id,

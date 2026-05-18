@@ -74,11 +74,9 @@ class PageColumn extends DocxNode<List<DocxNode>> {
       elements.addAll(element);
     }
     return <XmlNode>[
-      if (!ignoreBreak)
-        ...Paragraph.run(
-          Break.pageBreak(),
-        ).ensureInitialized(context).buildXml(),
       ...elements,
+      if (!ignoreBreak)
+        ...Run.columnBreak().paragraph().ensureInitialized(context).buildXml(),
     ];
   }
 

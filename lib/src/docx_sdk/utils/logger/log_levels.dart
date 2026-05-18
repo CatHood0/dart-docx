@@ -6,6 +6,8 @@ extension LogToLevel on LogLevel {
     switch (this) {
       case LogLevel.off:
         return Level.OFF;
+      case LogLevel.config:
+        return Level.CONFIG;
       case LogLevel.error:
         return Level.SEVERE;
       case LogLevel.warn:
@@ -23,6 +25,8 @@ extension LogToLevel on LogLevel {
     switch (this) {
       case LogLevel.off:
         return 'OFF';
+      case LogLevel.config:
+        return 'CONFIG';
       case LogLevel.error:
         return 'ERROR';
       case LogLevel.warn:
@@ -41,6 +45,8 @@ extension LevelToLog on Level {
   LogLevel toLogLevel() {
     if (this == Level.SEVERE) {
       return LogLevel.error;
+    } else if (this == Level.CONFIG) {
+      return LogLevel.config;
     } else if (this == Level.WARNING) {
       return LogLevel.warn;
     } else if (this == Level.INFO) {
