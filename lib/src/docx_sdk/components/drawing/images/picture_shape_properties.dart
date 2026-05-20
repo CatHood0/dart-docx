@@ -43,8 +43,8 @@ class PictureShapeProperties extends DocxNode<dynamic> {
         'pic:spPr',
         isSelfClosing: false,
         children: [
-          ...transform2D.ensureInitialized(context).buildXml(),
-          ...presetGeometry.ensureInitialized(context).buildXml(),
+          ...transform2D.buildXml(),
+          ...presetGeometry.buildXml(),
           XmlElement.tag('a:noFill', isSelfClosing: true),
         ],
       ),
@@ -58,10 +58,8 @@ class PictureShapeProperties extends DocxNode<dynamic> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return transform2D.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        presetGeometry.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return transform2D.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        presetGeometry.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -71,9 +69,7 @@ class PictureShapeProperties extends DocxNode<dynamic> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return transform2D.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        presetGeometry.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return transform2D.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        presetGeometry.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

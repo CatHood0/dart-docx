@@ -173,7 +173,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     for (final TableCell cell in child) {
       if (cell.cellConfig.widthType.needsWidth && cell.cellConfig.width <= 0) {
         throw Exception(
-          '${context.getAncestorOfExactType<Table>()?.runtimeType}:${context.getAncestorOfExactType<Table>()?.id} => '
+          '${getAncestorOfExactType<Table>()?.runtimeType}:${getAncestorOfExactType<Table>()?.id} => '
           '$runtimeType:$id => TableWidthType.pct or TableWidthType.dxa '
           'requires a non zero and non negative [width]',
         );
@@ -181,14 +181,14 @@ class TableRow extends DocxNode<List<TableCell>> {
 
       if (cell.cellConfig.widthType.isNilOrAuto && cell.cellConfig.width > 0) {
         throw Exception(
-          '${context.getAncestorOfExactType<Table>()?.runtimeType}:${context.getAncestorOfExactType<Table>()?.id} => '
+          '${getAncestorOfExactType<Table>()?.runtimeType}:${getAncestorOfExactType<Table>()?.id} => '
           '$runtimeType:$id => TableWidthType.auto or '
           'TableWidthType.nil only can be used when '
           '[width] is zero or less',
         );
       }
 
-      final List<XmlNode> cellXml = cell.ensureInitialized(context).buildXml();
+      final List<XmlNode> cellXml = cell.buildXml();
       rowChildren.addAll(cellXml);
     }
 
@@ -204,10 +204,11 @@ class TableRow extends DocxNode<List<TableCell>> {
   @override
   List<XmlNode> buildXmlStyle() {
     final Alignment? align =
-        alignment ?? context.getAncestorOfExactType<Align>()?.alignment;
+        alignment ?? getAncestorOfExactType<Align>()?.alignment;
     assert(
       align == null || align.isCenterLeftOrRight(),
-      'TableRow alignment only supports: left, center and right. Found: "${align.name}"',
+      'TableRow alignment only supports: '
+      'left, center and right. Found: "${align.name}"',
     );
     return <XmlElement>[
       if (canSplit != null)
@@ -217,7 +218,7 @@ class TableRow extends DocxNode<List<TableCell>> {
           'w:cantSplit',
           attributes: XmlAttribute(
             'w:val'.toName(),
-            (!canSplit!).toString(),
+            '${!canSplit!}',
           ).toList(),
         ),
       if (align != null)

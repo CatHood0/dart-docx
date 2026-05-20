@@ -4,9 +4,10 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
+import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../stores/inherited_stores/drawing_counter_provider.dart';
 
-class LazyFloatingImage extends DocxNode<ImageData<File>>
-    with IgnorableMixin {
+class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
   LazyFloatingImage({
     required ImageData<File> data,
     super.parent,
@@ -62,6 +63,41 @@ class LazyFloatingImage extends DocxNode<ImageData<File>>
 
   String get getImageName => child.name ?? '';
 
+  int? _elementId;
+  num? _imgWidthEmu;
+  num? _imgHeightEmu;
+
+  @override
+  void perform() {
+    super.perform();
+    _elementId ??= DrawingCounterProvider.of(this).getNextId(id);
+
+    // relates the id with an index id, so, its more easy
+    // to get it in more another places
+    final CompilerConfigProvider? config = CompilerConfigProvider.of(this);
+
+    _imgWidthEmu = child.width;
+    _imgHeightEmu = child.height;
+
+    //TODO: we will need to create our own decoders for different
+    // image extensions than jpeg, gif, png, webp, bmp.
+    if (_imgWidthEmu == null || _imgHeightEmu == null) {
+      final Size size =
+          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
+      // the result is a size computed in inches
+      final NormalizedSizeResult resultSize =
+          AutoSizeNormalizer.resizeImageBySettings(
+        size,
+        config?.options.pageSize.toInches(),
+        config?.options.margins.toInches(),
+        imageDpi,
+      );
+
+      _imgWidthEmu ??= resultSize.width?.inchesToEmu();
+      _imgHeightEmu ??= resultSize.height?.inchesToEmu();
+    }
+  }
+
   @override
   bool shouldIgnore() {
     // since try to get metadata is not expensive
@@ -84,31 +120,6 @@ class LazyFloatingImage extends DocxNode<ImageData<File>>
       );
     }
 
-    // relates the id with an index id, so, its more easy
-    // to get it in more another places
-    final int elementId = context.drawingStore.getNextId(id);
-
-    num? imgWidthEmu = child.width;
-    num? imgHeightEmu = child.height;
-
-    //TODO: we will need to create our own decoders for different
-    // image extensions than jpeg, gif, png, webp, bmp.
-    if (imgWidthEmu == null || imgHeightEmu == null) {
-      final Size size =
-          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
-      // the result is a size computed in inches
-      final NormalizedSizeResult resultSize =
-          AutoSizeNormalizer.resizeImageBySettings(
-        size,
-        context.options.pageSize.toInches(),
-        context.options.margins.toInches(),
-        imageDpi,
-      );
-
-      imgWidthEmu ??= resultSize.width?.inchesToEmu();
-      imgHeightEmu ??= resultSize.height?.inchesToEmu();
-    }
-
     return <XmlNode>[
       ...Anchor(
         child: LazyImage(
@@ -121,14 +132,15 @@ class LazyFloatingImage extends DocxNode<ImageData<File>>
           data: child,
           transformOffsetX: transformOffsetX,
           transformOffsetY: transformOffsetY,
+          elementId: _elementId,
           asInline: false,
         ),
-        width: imgWidthEmu!,
-        height: imgHeightEmu!,
+        width: _imgWidthEmu!,
+        height: _imgHeightEmu!,
         config: child.anchorConfig,
         name: imageName,
-        elementId: elementId,
-      ).ensureInitialized(context).buildXml(),
+        elementId: _elementId,
+      ).buildXml(),
     ];
   }
 

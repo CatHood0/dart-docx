@@ -3,7 +3,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
-import '../../../utils/logger/logger_configs.dart';
 
 /// A container that groups multiple elements to be rendered in a row layout
 /// using tables internally
@@ -48,19 +47,12 @@ class Column extends DocxNode<List<DocxNode>> {
 
   @override
   List<XmlNode> buildXml() {
-    final Iterable<DocxNode<dynamic>> columns = child.where(
-        (DocxNode<dynamic> e) =>
-            e is! IgnorableMixin ||
-            !e.cast<IgnorableMixin>().shouldIgnore() ||
-            !e.isEmptyNode());
+    final Iterable<DocxNode<dynamic>> columns =
+        child.where((DocxNode<dynamic> e) => e is! IgnorableMixin || !e.cast<IgnorableMixin>().shouldIgnore() || !e.isEmptyNode());
 
     final List<XmlNode> elements = <XmlNode>[];
     for (final DocxNode<dynamic> c in columns) {
-      elements.addAll(c
-          .ensureInitialized(
-            context,
-          )
-          .buildXml());
+      elements.addAll(c.buildXml());
     }
 
     // Detect if this component is a row into another one
@@ -76,8 +68,7 @@ class Column extends DocxNode<List<DocxNode>> {
     //    | TableCell <- (we are here)
     //
     // As you see, we don't get a Row instance here
-    if ((child.lastOrNull is Table || child.lastOrNull is Row) &&
-        getAncestorOfExactType<Table>() != null) {
+    if ((child.lastOrNull is Table || child.lastOrNull is Row) && getAncestorOfExactType<Table>() != null) {
       CompilerLogger.root.warning(
         'Detected ending ${child.last.runtimeType} '
         'child in $runtimeType:$depth:$id. '
@@ -91,7 +82,7 @@ class Column extends DocxNode<List<DocxNode>> {
       // What is this problem? Literally, all the tables break the current flows, and are "moved"
       // internally to behave as independent external tables, that makes look it likes we moved
       // all outsided without nesting the tree
-      elements.addAll(Paragraph.empty().ensureInitialized(context).buildXml());
+      elements.addAll(Paragraph.empty().buildXml());
     }
 
     return <XmlNode>[

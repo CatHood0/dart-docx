@@ -15,6 +15,7 @@ class NonVisualPictureDrawingProperties extends DocxNode<dynamic> {
 
   @override
   List<XmlNode> buildXml() {
+    //TODO: we need to add customizations here
     return <XmlNode>[
       XmlElement.tag(
         'pic:cNvPicPr',

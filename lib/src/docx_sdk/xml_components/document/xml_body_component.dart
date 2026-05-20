@@ -18,7 +18,7 @@ class XmlBodyComponent extends XmlComponentBase<DocxNode> {
     return XmlElement.tag(
       xmlKey,
       children: <XmlNode>[
-        ...value.ensureInitialized(context).buildXml(),
+        ...value.buildXml(),
         XmlDocumentSectionSettingsComponent(
           options: context.options.layoutOptions,
           themeId: themeId,

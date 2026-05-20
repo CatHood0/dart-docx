@@ -471,7 +471,7 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(true)
+      .autoRegisterFonts(true)
       .execute(document, applyCustomTheme: false);
 
   if (bytes != null) {

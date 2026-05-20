@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Date picker SDT component with calendar dropdown.
 ///
@@ -115,12 +116,9 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
     if (value == null) return '';
     // Simple date formatting - in production would use intl package
     final Map<String, String> formatMap = <String, String>{
-      'dd/MM/yyyy':
-          '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}',
-      'yyyy-MM-dd':
-          '${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}',
-      'MM/dd/yyyy':
-          '${value.month.toString().padLeft(2, '0')}/${value.day.toString().padLeft(2, '0')}/${value.year}',
+      'dd/MM/yyyy': '${value.day.toString().padLeft(2, '0')}/${value.month.toString().padLeft(2, '0')}/${value.year}',
+      'yyyy-MM-dd': '${value.year}-${value.month.toString().padLeft(2, '0')}-${value.day.toString().padLeft(2, '0')}',
+      'MM/dd/yyyy': '${value.month.toString().padLeft(2, '0')}/${value.day.toString().padLeft(2, '0')}/${value.year}',
     };
     return formatMap[dateFormat] ?? '${value.day}/${value.month}/${value.year}';
   }
@@ -194,7 +192,7 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
     ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId = context.sdtStore.getNextId(
+    final int actualSdtId = SdtStoreProvider.of(this).getNextId(
       nodeId: id,
       preferredId: sdtId,
     );
@@ -267,7 +265,7 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
   }
 
   XmlElement _buildContentXml() {
-    final List<XmlNode> runs = child.ensureInitialized(context).buildXml();
+    final List<XmlNode> runs = child.buildXml();
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 

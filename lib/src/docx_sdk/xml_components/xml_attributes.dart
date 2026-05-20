@@ -5,6 +5,8 @@ import '../../core/extensions/string_ext.dart';
 class XmlComponentAttributes {
   const XmlComponentAttributes({required this.xmlAttributes});
 
+  XmlComponentAttributes.empty() : xmlAttributes = <String, Object>{};
+
   final Map<String, Object> xmlAttributes;
 
   List<XmlAttribute> buildXml() {

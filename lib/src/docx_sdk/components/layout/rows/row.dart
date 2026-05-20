@@ -5,6 +5,7 @@ import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 import '../../../../core/extensions/num_extensions.dart';
 import '../../../../core/extensions/skippable_iterations_ext.dart';
+import '../../../compiler/inherited/compiler_config_provider.dart';
 
 /// A container that groups multiple elements to be rendered in a row layout
 /// using tables internally
@@ -46,11 +47,12 @@ class Row extends DocxNode<List<DocxNode>> {
     // Some dumb diffing
     if (_table != null) {
       int maxWidth =
-          context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ??
-              width;
+          getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
       if (maxWidth == 0) {
-        maxWidth = context.options.availablePageWidth;
+        maxWidth =
+            CompilerConfigProvider.of(this)?.options.availablePageWidth ??
+                PageSize.a4.width;
       }
 
       maxWidth = maxWidth.nonNegative.toInt();
@@ -61,7 +63,7 @@ class Row extends DocxNode<List<DocxNode>> {
         return;
       }
     }
-    _table = toTable(context);
+    _table = toTable();
   }
 
   @override
@@ -76,15 +78,16 @@ class Row extends DocxNode<List<DocxNode>> {
   }
 
   /// Converts this [Row] in a [Table] equivalent version
-  DocxNode toTable(BuildNodeContext context) {
+  DocxNode toTable() {
     int maxWidth =
-        context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
+        getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
     final EdgeInsets padding =
-        context.getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
+        getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
 
     if (maxWidth == 0) {
-      maxWidth = context.options.availablePageWidth;
+      maxWidth = CompilerConfigProvider.of(this)?.options.availablePageWidth ??
+          PageSize.a4.width;
     }
 
     maxWidth = maxWidth.nonNegative.toInt();

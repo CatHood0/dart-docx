@@ -32,7 +32,7 @@ export 'images/blip.dart';
 export 'images/blip_fill.dart';
 export 'images/picture.dart';
 export 'images/picture_shape_properties.dart';
-export 'inline.dart';
+export 'inline_graphic.dart';
 export 'shapes/outline.dart';
 export 'shapes/shape_properties.dart';
 export 'shapes/shape_text_box.dart';

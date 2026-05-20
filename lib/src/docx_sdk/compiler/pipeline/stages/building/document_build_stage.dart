@@ -4,6 +4,7 @@ import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
 import '../../../../xml_components/document/xml_body_component.dart';
+import '../../../inherited/compiler_config_provider.dart';
 
 class DocumentBuildStage extends PipelineStage {
   const DocumentBuildStage();
@@ -18,8 +19,7 @@ class DocumentBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description =>
-      'Build word/document.xml.';
+  String get description => 'Build word/document.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) => true;
@@ -30,17 +30,30 @@ class DocumentBuildStage extends PipelineStage {
     final themeId = context.metadata['themeId'] as String?;
 
     final bodyComponent = XmlBodyComponent(
-      body: context.document.root,
+      body: CompilerConfigProvider(
+        options: context.options,
+        normalStyleIfNeeded: context.config.normalStyleIfNeeded,
+        normalStyle: context.config.normalStyle,
+        child: DocxApp(
+          docRelsStore:
+              context.getStoreOfExactType<DocumentRelsCounterStore>()!,
+          numberingStore: context.getStoreOfExactType<NumberingStore>()!,
+          mediaStore: context.getStoreOfExactType<MediaStore>()!,
+          drawingStore:
+              context.getStoreOfExactType<DrawingElementCounterStore>()!,
+          fontStore: context.getStoreOfExactType<FontStore>()!,
+          sdtStore: context.getStoreOfExactType<SdtStore>()!,
+          hyperlinkStore: context.getStoreOfExactType<HyperlinkStore>()!,
+          styles: context.document.options.docStyles,
+          child: context.tree,
+        ),
+      ),
       themeId: themeId,
     );
 
     final documentComponent = XmlDocumentComponent(body: bodyComponent);
 
-    final document = documentComponent.buildDocument(
-      context.buildDocumentContext(
-        context.document.root,
-      ),
-    );
+    final document = documentComponent.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.documentFilePath,

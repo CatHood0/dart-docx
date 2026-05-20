@@ -57,7 +57,7 @@ class Graphic extends DocxNode<GraphicData> {
       XmlElement.tag(
         'a:graphic',
         isSelfClosing: false,
-        children: child.ensureInitialized(context).buildXml(),
+        children: child.buildXml(),
       ),
     ];
   }
@@ -69,8 +69,7 @@ class Graphic extends DocxNode<GraphicData> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return child.visitAllElement(shouldGetElement,
-        visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -80,7 +79,6 @@ class Graphic extends DocxNode<GraphicData> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return child.visitElement(shouldGetElement,
-        visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

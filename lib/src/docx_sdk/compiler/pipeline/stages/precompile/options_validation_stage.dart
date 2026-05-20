@@ -30,7 +30,7 @@ class OptionsValidationStage extends PipelineStage {
   @override
   void execute(PipelineContext context) {
     final options = context.options;
-    final defaultNormalStyle = context.config.defaultNormalStyle;
+    final defaultNormalStyle = context.config.normalStyle;
 
     final normalStyle = options.docStyles.getStyleById(defaultNormalStyle.styleId);
     if (normalStyle == null) {

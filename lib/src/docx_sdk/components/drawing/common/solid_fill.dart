@@ -29,7 +29,7 @@ class SolidFill extends Fill<Color> {
     return <XmlNode>[
       XmlElement.tag(
         'a:solidFill',
-        children: child.ensureInitialized(context).buildXml(),
+        children: child.buildXml(),
       ),
     ];
   }

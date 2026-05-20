@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
 import '../../../../../core/extensions/cast_ext.dart';
 import '../../../../../core/extensions/string_ext.dart';
+import '../../../../compiler/inherited/compiler_config_provider.dart';
 import '../../../../utils/logger/logger_configs.dart';
 
 /// Table cell that can contain multiple content elements.
@@ -85,7 +86,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
         super(child: <DocxNode<dynamic>>[]);
 
   TableCell.builder({
-    required DocxNode Function(BuildNodeContext, int) itemBuilder,
+    required DocxNode Function(int) itemBuilder,
     required int itemCount,
     required this.cellConfig,
     bool reversed = false,
@@ -105,13 +106,10 @@ class TableCell extends DocxNode<List<DocxNode>> {
   /// - Background shading
   final TableCellConfig cellConfig;
 
-  DocxNode Function(BuildNodeContext, int)? _itemBuilder;
+  DocxNode Function(int)? _itemBuilder;
   int _length;
   int _start;
   bool _fixed;
-
-  @override
-  void perform() {}
 
   @override
   void updateElement(
@@ -143,6 +141,10 @@ class TableCell extends DocxNode<List<DocxNode>> {
     int? path,
   }) {}
 
+  //TODO: make the cache using this
+  @override
+  void perform() {}
+
   @override
   List<XmlElement> buildXml() {
     final List<XmlNode> cellChildren = <XmlNode>[];
@@ -153,13 +155,13 @@ class TableCell extends DocxNode<List<DocxNode>> {
       for (int i = _start;
           _start > 0 ? i > 0 : i < _length;
           _start > 0 ? i-- : i++) {
-        final DocxNode<dynamic> el = _itemBuilder!(context, i);
+        final DocxNode<dynamic> el = _itemBuilder!(i);
         children.add(el);
       }
     }
 
     // Cell properties (tcPr)
-    final List<XmlNode> tcPrNodes = _buildTcPr(context);
+    final List<XmlNode> tcPrNodes = _buildTcPr();
     if (tcPrNodes.isNotEmpty) {
       cellChildren.add(
         XmlElement.tag(
@@ -172,8 +174,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
 
     // Cell content (can be multiple elements)
     for (final DocxNode child in children) {
-      final List<XmlNode> childXml =
-          child.ensureInitialized(context).buildXml();
+      final List<XmlNode> childXml = child.buildXml();
       cellChildren.addAll(childXml);
     }
 
@@ -191,7 +192,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
     //
     // As you see, we don't get a Row instance here
     if ((child.lastOrNull is Table || child.lastOrNull is Row) &&
-        context.getAncestorOfExactType<Table>() != null) {
+        isChildOf<Table>()) {
       CompilerLogger.root.warning(
         'Detected ending ${child.last.runtimeType} '
         'child in $runtimeType:$depth:$id. '
@@ -202,14 +203,12 @@ class TableCell extends DocxNode<List<DocxNode>> {
       // Well, by some reason, LibreOffice does not render it properly if there is no space
       // between the table and the end of the cell
       //
-      // What is this problem? Literally, all the tables break the current flows, and are "moved"
-      // internally to behave as independent external tables, that makes look it likes we moved
-      // all outsided without nesting the tree
-      cellChildren.addAll(Paragraph.empty()
-          .ensureInitialized(
-            context,
-          )
-          .buildXml());
+      // What is this problem? Literally, all tables breaks itself, being "moved"
+      // internally to behave as independent external tables, that makes look them like the tree 
+      // moved for no reason 
+      //
+      // Just a workaround. It's not problem that we can "fix"
+      cellChildren.addAll(Paragraph.empty().buildXml());
     }
 
     return <XmlElement>[
@@ -221,7 +220,15 @@ class TableCell extends DocxNode<List<DocxNode>> {
     ];
   }
 
-  List<XmlNode> _buildTcPr(BuildNodeContext context) {
+  List<XmlNode> _buildTcPr() {
+    if (cellConfig.widthType.isExpand && isChildOf<CompilerConfigProvider>()) {
+      throw Exception(
+        'Cannot build style '
+        'properties of $runtimeType:$id since was not '
+        'founded CompilerConfigProvider in the tree',
+      );
+    }
+    final CompilerConfigProvider configs = CompilerConfigProvider.of(this)!;
     final List<XmlNode> nodes = <XmlNode>[
       XmlElement.tag(
         'w:tcW',
@@ -234,9 +241,9 @@ class TableCell extends DocxNode<List<DocxNode>> {
           else if (cellConfig.widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              (context.options.pageSize.width -
-                      (context.options.margins.left +
-                          context.options.margins.right))
+              (configs.options.pageSize.width -
+                      (configs.options.margins.left +
+                          configs.options.margins.right))
                   .floor()
                   .toString(),
             ),
@@ -347,7 +354,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
 
     // Cell background/fill
     if (cellConfig.shading != null) {
-      nodes.addAll(cellConfig.shading!.ensureInitialized(context).buildXml());
+      nodes.addAll(cellConfig.shading!.buildXml());
     }
 
     return nodes;
@@ -358,7 +365,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
       CompilerLogger.root.error(
         'Found TableBorder instance '
         'with a non RGB Color definition \'${border.color}\'. We recommend '
-        'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
+        'using Color(0xFFFFFF) or RGB constructor variants.\n\n'
         'This instance will be ignored.\n\n'
         'Object: $id, '
         'Depth: $depth, '

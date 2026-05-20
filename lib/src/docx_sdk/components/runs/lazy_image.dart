@@ -7,6 +7,8 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
+import '../../stores/inherited_stores/drawing_counter_provider.dart';
+import '../../stores/inherited_stores/media_provider.dart';
 
 /// Lazy-loaded image component with file-based data.
 ///
@@ -102,28 +104,59 @@ class LazyImage extends DocxNode<ImageData<File>> {
   String get getImageName =>
       child.name ?? 'image:${Random.secure().nextInt(900) * 10}';
 
+  num? _imgWidthEmu;
+  num? _imgHeightEmu;
+
   @override
-  List<XmlNode> buildXml() {
-    final String imageName = getImageName;
-    if (imageName.isEmpty) {
-      throw Exception(
-        'The image "${child.name}" couldn\'t be '
-        'founded into the DocxComponentContext. Media Store: ${context.mediaStore.media}',
-      );
-    }
+  void perform() {
+    super.perform();
+    final DrawingElementCounterStore drawingProvider =
+        DrawingCounterProvider.of(this);
 
-    final String? relationshipId =
-        context.mediaStore.getRelationshipIdForRef(id) ??
-            context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
-
-    elementId ??= context.drawingStore.getIdFromRef(ref: id) ??
+    elementId ??= drawingProvider.getIdFromRef(ref: id) ??
         // usually, the element id is computed from
         // the anchor or inline parent, so, we prefer
         // using that one value, since was computed exactly for this
         // element
-        context.getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
-        context.getAncestorOfExactType<Inline>()?.elementId?.castOrNull() ??
-        context.drawingStore.getNextId(id);
+        getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+        getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull() ??
+        drawingProvider.getNextId(id);
+
+    _imgWidthEmu = child.width;
+    _imgHeightEmu = child.height;
+
+    //TODO: we will need to create our own decoders for different
+    // image extensions than jpeg, gif, png, webp, bmp.
+    if (child.width != null) {
+      _imgWidthEmu = child.width!.unitToEmu(child.unit);
+    }
+    if (child.height != null) {
+      _imgHeightEmu = child.height!.unitToEmu(child.unit);
+    }
+
+    //TODO: we will need to create our own decoders for different
+    // image extensions than jpeg, gif, png, webp, bmp.
+    if (_imgWidthEmu == null && _imgHeightEmu == null) {
+      final Size size =
+          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
+      _imgWidthEmu = size.width * emuPerInch / imageDpi;
+      _imgHeightEmu = size.height * emuPerInch / imageDpi;
+    }
+  }
+
+  @override
+  List<XmlNode> buildXml() {
+    final MediaStore mediaProvider = MediaProvider.of(this);
+    final String imageName = getImageName;
+    if (imageName.isEmpty) {
+      throw Exception(
+        'The image "${child.name}" couldn\'t be '
+        'founded into the DocxComponentContext. Media Store: ${mediaProvider.media}',
+      );
+    }
+
+    final String? relationshipId = mediaProvider.getRelationshipIdForRef(id) ??
+        mediaProvider.getRelationshipIdForRef(rId!);
 
     if (relationshipId == null) {
       throw Exception(
@@ -133,26 +166,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
       );
     }
 
-    num? imgWidthEmu;
-    num? imgHeightEmu;
-
-    if (child.width != null) {
-      imgWidthEmu = child.width!.unitToEmu(child.unit);
-    }
-    if (child.height != null) {
-      imgHeightEmu = child.height!.unitToEmu(child.unit);
-    }
-
-    //TODO: we will need to create our own decoders for different
-    // image extensions than jpeg, gif, png, webp, bmp.
-    if (imgWidthEmu == null && imgHeightEmu == null) {
-      final Size size =
-          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
-      imgWidthEmu = size.width * emuPerInch / imageDpi;
-      imgHeightEmu = size.height * emuPerInch / imageDpi;
-    }
-
     final Graphic graphic = Graphic.pic(
+      parent: this,
       child: Picture(
         components: <DocxNode<dynamic>>[
           BlipFill.pic(
@@ -169,8 +184,12 @@ class LazyImage extends DocxNode<ImageData<File>> {
                 x: transformOffsetX,
                 y: transformOffsetY,
               ),
-              extents: AnnotationExtents(cx: imgWidthEmu!, cy: imgHeightEmu!),
+              // Both sides where these elements are used
+              // basically is mandatory, since word needs that
+              // them have the same digit value
+              extents: AnnotationExtents(cx: _imgWidthEmu!, cy: _imgHeightEmu!),
             ),
+            // NOTE: should be customizable?
             presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
           ),
           NonVisualPictureProperties(
@@ -188,15 +207,16 @@ class LazyImage extends DocxNode<ImageData<File>> {
 
     return <XmlNode>[
       if (!asInline)
-        ...graphic.ensureInitialized(context).buildXml()
+        ...graphic.buildXml()
       else
-        ...Inline(
+        ...InlineGraphic(
           name: imageName,
-          width: imgWidthEmu,
-          height: imgHeightEmu,
+          width: _imgWidthEmu!,
+          height: _imgHeightEmu!,
           components: <DocxNode<dynamic>>[graphic],
           distance: child.anchorConfig.distanceFromText,
-        ).ensureInitialized(context).buildXml(),
+          elementId: elementId,
+        ).buildXml(),
     ];
   }
 

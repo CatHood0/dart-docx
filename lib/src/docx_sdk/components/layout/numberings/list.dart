@@ -22,7 +22,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
                 e is Text ||
                 e is Paragraph ||
                 e is NumberingList ||
-                e is LazyNode<NumberingList> ||
+                e is Builder<NumberingList> ||
                 e is RunBase && e is! Run),
             'all the '
             'children for NumberingList must '
@@ -169,9 +169,8 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     return _lastNumberingIds[refKey]!;
   }
 
-  //TODO: implement this
   @override
-  void perform([BuildNodeContext? context]) {
+  void perform() {
     String key = refKey;
 
     int level = 0;
@@ -266,16 +265,12 @@ class NumberingList extends DocxNode<List<DocxNode>> {
             ),
           ),
         );
-      } else if (element is LazyNode<NumberingList>) {
-        if (context == null) {
+      } else if (element is Builder<NumberingList>) {
+        if (!mounted) {
           _temp.add(element.copyWith(parent: this));
           continue;
         }
-        _temp.add(element
-            .ensureInitialized(context)
-            .cast<LazyNode>()
-            .build()
-            .copyWith(parent: this));
+        _temp.add(element.cast<Builder>().build().copyWith(parent: this));
       } else {
         _temp.add(element.copyWith(parent: this));
       }
@@ -287,9 +282,9 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     List<XmlNode> nodes = <XmlNode>[];
     for (DocxNode<dynamic> e in _temp) {
       if (!e.mounted) {
-        e.ensureInitialized(context);
+        e;
       }
-      if (e is LazyNode) {
+      if (e is Builder) {
         nodes.addAll(e.build().buildXml());
         continue;
       }
@@ -311,14 +306,14 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     List<DocxNode<dynamic>>? child,
     String? id,
     DocxNode<dynamic>? parent,
-    String? listKey,
+    String? refKey,
     bool? inheritFromParent,
   }) {
     return NumberingList.raw(
       id: id ?? this.id,
       parent: parent ?? this.parent,
       children: child ?? this.child,
-      refKey: listKey ?? this.refKey,
+      refKey: refKey ?? this.refKey,
       inheritFromParent: inheritFromParent ?? this.inheritFromParent,
     );
   }
@@ -365,13 +360,5 @@ class NumberingList extends DocxNode<List<DocxNode>> {
       }
     }
     return elements;
-  }
-
-  void checkAbstractNumberingInstanceExistence(
-    BuildNodeContext context,
-    String ref,
-  ) {
-    // Delegate to NumberingStore for validation
-    context.numberingStore.validateAbstractNumberingExistence(ref);
   }
 }

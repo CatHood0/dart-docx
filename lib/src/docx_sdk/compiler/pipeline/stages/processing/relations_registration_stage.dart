@@ -1,6 +1,4 @@
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
 /// Stage that registers numbering relationships.
 ///
@@ -10,8 +8,8 @@ import '../../pipeline_stage.dart';
 ///
 /// Generated relationships are stored in [context.defaultDocRelations]
 /// for use in [DocumentRelsBuildStage].
-class NumberingRegistrationStage extends PipelineStage {
-  const NumberingRegistrationStage();
+class RelationsRegistrationStage extends PipelineStage {
+  const RelationsRegistrationStage();
 
   @override
   String get name => 'NumberingRegistration';

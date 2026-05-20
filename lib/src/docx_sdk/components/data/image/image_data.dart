@@ -148,3 +148,32 @@ class ImageData<T extends Object> {
         'styles: $styles)';
   }
 }
+
+class MediaData {
+  MediaData({
+    required this.name,
+    required this.id,
+    required this.extension,
+    required this.bytes,
+    required this.relationshipId,
+    this.fileName = '',
+  });
+
+  // this is the rId of the image
+  final String relationshipId;
+  final Uint8List bytes;
+  // the name of the image into DOCX file
+  final String name;
+  // the name of the image into the media folder
+  final String fileName;
+  // this id is auto-generated
+  // to be pasted
+  final int id;
+  // the extension of this media
+  final String extension;
+
+  @override
+  String toString() {
+    return 'MediaData(name: $name.$extension, id: $id)';
+  }
+}

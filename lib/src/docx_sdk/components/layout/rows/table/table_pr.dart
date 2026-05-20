@@ -4,8 +4,10 @@ import '../../../../../../docx.dart';
 import '../../../../../core/extensions/num_extensions.dart';
 import '../../../../../core/extensions/string_ext.dart';
 import '../../../../../core/extensions/style_to_from_node.dart';
+import '../../../../compiler/inherited/compiler_config_provider.dart';
 
-export '../../../../../core/borders.dart' show DocxBorder, DocxBorders, DocxCellBorders;
+export '../../../../../core/borders.dart'
+    show DocxBorder, DocxBorders, DocxCellBorders;
 
 /// Backwards compatibility alias for [TableBorder].
 typedef TableBorder = DocxBorder;
@@ -55,29 +57,19 @@ class TableProperties extends DocxNode<void> {
     super.id,
     super.parent,
   })  : assert(width >= 0, 'width cannot be less than zero'),
-        assert(width != 0 || !widthType.isExpand || width == 0 && widthType.isExpand,
+        assert(
+            width != 0 ||
+                !widthType.isExpand ||
+                width == 0 && widthType.isExpand,
             'widthType of type expand requires that width property be zero or less'),
-        assert(width <= 0 && widthType.isNilOrAuto || width > 0 && widthType.needsWidth,
+        assert(
+            width <= 0 && widthType.isNilOrAuto ||
+                width > 0 && widthType.needsWidth,
             'TableWidthType.auto can only be used when width is zero or less'),
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(20),
-        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
-        super(child: null);
-
-  TableProperties.fromContext({
-    required BuildNodeContext context,
-    Iterable<Style> styles = const <Style>[],
-    this.alignment = Alignment.left,
-    TableBorders? borders,
-    EdgeInsets? padding,
-    super.id,
-    super.parent,
-  })  : width = context.options.availablePageWidth,
-        layout = false,
-        widthType = TableWidthType.dxa,
-        styles = List<Style>.from(styles),
-        cellMargins = padding ?? const EdgeInsets.all(20),
-        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.expand({
@@ -92,7 +84,8 @@ class TableProperties extends DocxNode<void> {
         widthType = TableWidthType.expand,
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
-        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.auto({
@@ -107,7 +100,8 @@ class TableProperties extends DocxNode<void> {
         widthType = TableWidthType.auto,
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
-        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.dxa({
@@ -121,9 +115,11 @@ class TableProperties extends DocxNode<void> {
     super.parent,
   })  : widthType = TableWidthType.dxa,
         styles = List<Style>.from(styles),
-        assert(width != 0, 'widthType of type expand requires that width property be zero or less'),
+        assert(width != 0,
+            'widthType of type expand requires that width property be zero or less'),
         cellMargins = padding ?? const EdgeInsets.all(55),
-        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.pct({
@@ -136,10 +132,12 @@ class TableProperties extends DocxNode<void> {
     super.id,
     super.parent,
   })  : widthType = TableWidthType.pct,
-        assert(width != 0, 'widthType of type expand requires that width property be zero or less'),
+        assert(width != 0,
+            'widthType of type expand requires that width property be zero or less'),
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
-        borders = borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+        borders =
+            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
         super(child: null);
 
   /// Predefined table styles to apply.
@@ -192,12 +190,20 @@ class TableProperties extends DocxNode<void> {
 
   @override
   List<XmlNode> buildXml() {
+    int padding = getAncestorOfExactType<Padding>()?.padding.all().toInt() ?? 0;
 
-    int padding = context.getAncestorOfExactType<Padding>()?.padding.all().toInt() ?? 0;
-
-    if (context.childOfAncestorOfExactType<Padding>()) {
-      CompilerLogger.root.debug('Founded Padding($padding) parent for $id in ${parent.runtimeType}');
+    if (isChildOf<Padding>()) {
+      CompilerLogger.root.debug(
+          'Founded Padding($padding) parent for $id in ${parent.runtimeType}');
     }
+    if (widthType.isExpand && isChildOf<CompilerConfigProvider>()) {
+      throw Exception(
+        'Cannot build style '
+        'properties of $runtimeType:$id since was not '
+        'founded CompilerConfigProvider in the tree',
+      );
+    }
+    final CompilerConfigProvider configs = CompilerConfigProvider.of(this)!;
     final List<XmlNode> nodes = <XmlNode>[
       XmlElement.tag(
         'w:tblW',
@@ -210,7 +216,9 @@ class TableProperties extends DocxNode<void> {
           else if (widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              (context.options.availablePageWidth.floor() - padding).nonNegative.toString(),
+              (configs.options.availablePageWidth.floor() - padding)
+                  .nonNegative
+                  .toString(),
             ),
           XmlAttribute(
             'w:type'.toName(),
@@ -221,8 +229,9 @@ class TableProperties extends DocxNode<void> {
       ),
     ];
 
-    if (alignment != null || context.childOfAncestorOfExactType<Align>()) {
-      final Alignment align = context.getAncestorOfExactType<Align>()?.alignment ?? alignment!;
+    if (alignment != null || isChildOf<Align>()) {
+      final Alignment align =
+          getAncestorOfExactType<Align>()?.alignment ?? alignment!;
       nodes.add(XmlElement.tag(
         'w:jc',
         attributes: <XmlAttribute>[
@@ -302,9 +311,12 @@ class TableProperties extends DocxNode<void> {
         XmlElement.tag(
           'w:tblCellMar',
           children: <XmlNode>[
-            if (cellMargins!.top != null) _buildCellMargin('top', cellMargins!.top!),
-            if (cellMargins!.right != null) _buildCellMargin('right', cellMargins!.right!),
-            if (cellMargins!.bottom != null) _buildCellMargin('bottom', cellMargins!.bottom!),
+            if (cellMargins!.top != null)
+              _buildCellMargin('top', cellMargins!.top!),
+            if (cellMargins!.right != null)
+              _buildCellMargin('right', cellMargins!.right!),
+            if (cellMargins!.bottom != null)
+              _buildCellMargin('bottom', cellMargins!.bottom!),
             // if (cellMargins!.left != null)
             //   _buildCellMargin('left', cellMargins!.left!),
           ],
@@ -322,13 +334,14 @@ class TableProperties extends DocxNode<void> {
   /// style, thickness, spacing, and color.
   XmlElement _buildBorder(String position, TableBorder border) {
     if (border.color != null && !border.color!.isRGB) {
-      CompilerLogger.root.error('Found TableBorder instance in TableProperties configuration '
-          'with non RGB Color definition \'${border.color}\'. We recommend '
-          'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
-          'This instance will be ignored.\n\n'
-          'Object: $id, '
-          'Parent: ${getAncestorOfExactType<Table>()?.runtimeType}\n'
-          'Parent-Id: ${getAncestorOfExactType<Table>()?.id}\n');
+      CompilerLogger.root
+          .error('Found TableBorder instance in TableProperties configuration '
+              'with non RGB Color definition \'${border.color}\'. We recommend '
+              'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
+              'This instance will be ignored.\n\n'
+              'Object: $id, '
+              'Parent: ${getAncestorOfExactType<Table>()?.runtimeType}\n'
+              'Parent-Id: ${getAncestorOfExactType<Table>()?.id}\n');
     }
     return XmlElement.tag(
       'w:$position',

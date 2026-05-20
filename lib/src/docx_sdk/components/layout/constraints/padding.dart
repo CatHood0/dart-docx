@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
+import '../../../compiler/inherited/compiler_config_provider.dart';
 
 class Padding extends DocxNode<DocxNode<dynamic>> {
   Padding({
@@ -20,15 +21,16 @@ class Padding extends DocxNode<DocxNode<dynamic>> {
 
   @override
   List<XmlNode> buildXml() {
-    if (child is! Row &&
-        child is! Table &&
-        child.visitElement(
-                visitChildrenIfNeeded: true,
-                (DocxNode<dynamic> e) => e is Row || e is Table) ==
-            null) {
-      int maxWidth =
-          context.getAncestorOfExactType<LayoutConstraints>()?.maxWidth ??
-              context.options.availablePageWidth;
+    assert(isChildOf<CompilerConfigProvider>(),
+        'CompilerConfigProvider must be a parent of $runtimeType:$id');
+    final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
+    final DocxNode<dynamic>? hasTableOrRowChild = child.visitElement(
+      visitChildrenIfNeeded: true,
+      (DocxNode<dynamic> e) => e is Row || e is Table,
+    );
+    if (child is! Row && child is! Table && hasTableOrRowChild == null) {
+      int maxWidth = getAncestorOfExactType<LayoutConstraints>()?.maxWidth ??
+          configs!.options.availablePageWidth;
 
       return LayoutConstraints(
         maxWidth:
@@ -53,9 +55,9 @@ class Padding extends DocxNode<DocxNode<dynamic>> {
             ).toList(),
           )
         ],
-      ).ensureInitialized(context).buildXml();
+      ).buildXml();
     }
-    return child.ensureInitialized(context).buildXml();
+    return child.buildXml();
   }
 
   @override

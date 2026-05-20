@@ -44,7 +44,7 @@ class GraphicData extends DocxNode<DocxNode> {
         attributes: [
           XmlAttribute(XmlName.fromString('uri'), uri),
         ],
-        children: child.ensureInitialized(context).buildXml(),
+        children: child.buildXml(),
       ),
     ];
   }
@@ -56,8 +56,7 @@ class GraphicData extends DocxNode<DocxNode> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return child.visitAllElement(shouldGetElement,
-        visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -67,7 +66,6 @@ class GraphicData extends DocxNode<DocxNode> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return child.visitElement(shouldGetElement,
-        visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

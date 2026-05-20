@@ -4,6 +4,8 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
+import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../stores/inherited_stores/drawing_counter_provider.dart';
 
 /// Floating image component with advanced positioning options.
 ///
@@ -69,6 +71,43 @@ class FloatingImage extends DocxNode<ImageData<Uint8List>> {
     );
   }
 
+  // relates the id with an index id, so, its more easy
+  // to get it in more another places
+  int? _elementId;
+  num? _imgWidthEmu;
+  num? _imgHeightEmu;
+
+  @override
+  void perform() {
+    super.perform();
+    _elementId ??= DrawingCounterProvider.of(this).getNextId(id);
+
+    // relates the id with an index id, so, its more easy
+    // to get it in more another places
+    final CompilerConfigProvider? config = CompilerConfigProvider.of(this);
+
+    _imgWidthEmu = child.width;
+    _imgHeightEmu = child.height;
+
+    //TODO: we will need to create our own decoders for different
+    // image extensions than jpeg, gif, png, webp, bmp.
+    if (_imgWidthEmu == null || _imgHeightEmu == null) {
+      final Size size =
+          ImageSizeGetter.getSizeResult(MemoryInput(child.buffer)).size;
+      // the result is a size computed in inches
+      final NormalizedSizeResult resultSize =
+          AutoSizeNormalizer.resizeImageBySettings(
+        size,
+        config?.options.pageSize.toInches(),
+        config?.options.margins.toInches(),
+        imageDpi,
+      );
+
+      _imgWidthEmu ??= resultSize.width?.inchesToEmu();
+      _imgHeightEmu ??= resultSize.height?.inchesToEmu();
+    }
+  }
+
   @override
   List<XmlNode> buildXml() {
     final String imageName = getImageName;
@@ -77,31 +116,6 @@ class FloatingImage extends DocxNode<ImageData<Uint8List>> {
         'The image "${child.name}" couldn\'t be '
         'founded into the DocxComponentContext',
       );
-    }
-
-    // relates the id with an index id, so, its more easy
-    // to get it in more another places
-    final int elementId = context.drawingStore.getNextId(id);
-
-    num? imgWidthEmu = child.width;
-    num? imgHeightEmu = child.height;
-
-    //TODO: we will need to create our own decoders for different
-    // image extensions than jpeg, gif, png, webp, bmp.
-    if (imgWidthEmu == null || imgHeightEmu == null) {
-      final Uint8List bytes = child.buffer;
-      final Size size = ImageSizeGetter.getSizeResult(MemoryInput(bytes)).size;
-      // the result is a size computed in inches
-      final NormalizedSizeResult resultSize =
-          AutoSizeNormalizer.resizeImageBySettings(
-        size,
-        context.options.pageSize.toInches(),
-        context.options.margins.toInches(),
-        imageDpi,
-      );
-
-      imgWidthEmu ??= resultSize.width?.inchesToEmu();
-      imgHeightEmu ??= resultSize.height?.inchesToEmu();
     }
 
     return <XmlNode>[
@@ -117,11 +131,11 @@ class FloatingImage extends DocxNode<ImageData<Uint8List>> {
           asInline: false,
         ),
         config: child.anchorConfig,
-        width: imgWidthEmu!,
-        height: imgHeightEmu!,
+        width: _imgWidthEmu!,
+        height: _imgHeightEmu!,
         name: imageName,
-        elementId: elementId,
-      ).ensureInitialized(context).buildXml(),
+        elementId: _elementId,
+      ).buildXml(),
     ];
   }
 

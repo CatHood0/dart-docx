@@ -1,6 +1,7 @@
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
+import '../../../stores/inherited_stores/drawing_counter_provider.dart';
 
 /// Wordprocessing Shape (wps:wsp).
 class WPShape extends DocxNode<DocxNode> {
@@ -46,11 +47,11 @@ class WPShape extends DocxNode<DocxNode> {
 
   @override
   List<XmlNode> buildXml() {
-    final Anchor? anchor = context.getAncestorOfExactType<Anchor>();
-    final Inline? inline = context.getAncestorOfExactType<Inline>();
+    final Anchor? anchor = getAncestorOfExactType<Anchor>();
+    final InlineGraphic? inline = getAncestorOfExactType<InlineGraphic>();
     final int shapeId = anchor?.elementId?.castOrNull() ??
         inline?.elementId?.castOrNull() ??
-        context.drawingStore.getNextId(id);
+        DrawingCounterProvider.of(this).getNextId(id);
 
     final NonVisualShapeProperties nonVisualProperties =
         NonVisualShapeProperties(
@@ -81,12 +82,12 @@ class WPShape extends DocxNode<DocxNode> {
     );
 
     final List<XmlNode> children = <XmlNode>[
-      ...nonVisualProperties.ensureInitialized(context).buildXml(),
-      ...shapeProperties.ensureInitialized(context).buildXml(),
+      ...nonVisualProperties.buildXml(),
+      ...shapeProperties.buildXml(),
     ];
 
     if (textBox != null) {
-      children.addAll(textBox!.ensureInitialized(context).buildXml());
+      children.addAll(textBox!.buildXml());
     }
 
     return <XmlNode>[

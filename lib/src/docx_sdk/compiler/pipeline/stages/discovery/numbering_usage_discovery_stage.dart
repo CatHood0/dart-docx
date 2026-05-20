@@ -5,8 +5,8 @@ import '../../../../../../docx.dart';
 /// Looks for paragraphs with [Paragraph.numbering] not null and [NumberingList] components.
 /// Stores the result in [sharedData['hasNumberingUsage']] for later use
 /// in [NumberingBuildStage].
-class NumberingDiscoveryStage extends PipelineStage {
-  const NumberingDiscoveryStage();
+class NumberingUsageDiscoveryStage extends PipelineStage {
+  const NumberingUsageDiscoveryStage();
 
   @override
   String get name => 'NumberingDiscovery';

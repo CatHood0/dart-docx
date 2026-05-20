@@ -171,9 +171,9 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(true)
+      .autoRegisterFonts(true)
       .noTrimRuns()
-      .setNormalIfNeeded(false)
+      .normalStyleIfNeeded()
       .logPath(DocxPaths.documentFilePath)
       .execute(
         doc,

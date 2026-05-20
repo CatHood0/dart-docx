@@ -90,9 +90,9 @@ class DocxPipeline {
   }) {
     _config = _config.copyWith(
       applyCustomTheme: applyCustomTheme ?? _config.applyCustomTheme,
-      defaultNormalStyle: defaultNormalStyle ?? _config.defaultNormalStyle,
-      applyNormalStyleIfNeeded:
-          applyNormalStyleIfNeeded ?? _config.applyNormalStyleIfNeeded,
+      normalStyle: defaultNormalStyle ?? _config.normalStyle,
+      normalStyleIfNeeded:
+          applyNormalStyleIfNeeded ?? _config.normalStyleIfNeeded,
       noTrim: noTrim ?? _config.noTrim,
       checkStyleRefExistence:
           checkStyleRefExistence ?? _config.checkStyleRefExistence,
@@ -192,6 +192,7 @@ class DocxPipeline {
     _eventController.add(DocxEvent.start());
 
     final PipelineContext context = PipelineContext(
+      tree: document.root,
       document: document,
       options: document.options,
       config: _config.copyWith(applyCustomTheme: applyCustomTheme),
@@ -204,15 +205,9 @@ class DocxPipeline {
     if (DocxElements.instance.needsPreviousInitialization) {
       final Stopwatch watch = Stopwatch()..start();
       CompilerLogger.root.debug('Ensuring initializatin start');
-      final BuildNodeContext treeContext =
-          context.buildDocumentContext(document.root);
-      document.root.visitAllElement(
-        (DocxNode<dynamic> element) {
-          element.init(treeContext);
-          return false;
-        },
-        visitChildrenIfNeeded: true,
-      );
+      // final BuildNodeContext treeContext =
+      //     context.buildDocumentContext(document.root);
+      context.tree.init();
       watch.stop();
       CompilerLogger.root.debug(
         'Ensuring initializatin end '
@@ -321,7 +316,26 @@ class DocxPipeline {
   // and groups them
   static List<PipelineStage> get defaultStages {
     return <PipelineStage>[
-      // pre-compilation
+      ...preCompileDiscoveryAndSetup,
+      ...registerElementsInStoreStages,
+      ...buildStages,
+      ...saveInternalFilesAndMediaStages,
+    ];
+  }
+
+  static List<PipelineStage> get registerElementsInStoreStages {
+    return <PipelineStage>[
+      const StyleValidationStage(),
+      const RelationsRegistrationStage(),
+      const ImageRegistrationStage(),
+      const HyperlinkRegistrationStage(),
+      const FontProcessingStage(),
+      const ThemeResolutionStage(),
+    ];
+  }
+
+  static List<PipelineStage> get preCompileDiscoveryAndSetup {
+    return <PipelineStage>[
       const EnvironmentSetupStage(),
       const OptionsValidationStage(),
       const ConfigInitStage(),
@@ -332,19 +346,16 @@ class DocxPipeline {
       const HyperlinkDiscoveryStage(),
       const FontDiscoveryStage(),
       const SdtDiscoveryStage(),
-      const StyleValidationStage(),
-      // Initializations
-      const NumberingInitializationStage(),
-      const NumberingRegistrationStage(),
-      const ImageRegistrationStage(),
-      const HyperlinkRegistrationStage(),
-      const FontProcessingStage(),
-      const ThemeResolutionStage(),
-      // Files
+      const NumberingDiscoveryStage(),
+    ];
+  }
+
+  static List<PipelineStage> get buildStages {
+    return <PipelineStage>[
       const ContentTypeBuildStage(),
-      const RelsBuildStage(),
-      const CorePropsBuildStage(),
       const AppPropsBuildStage(),
+      const CorePropsBuildStage(),
+      const RelsBuildStage(),
       const DocumentRelsBuildStage(),
       const DocumentBuildStage(),
       const NumberingBuildStage(),
@@ -354,8 +365,11 @@ class DocxPipeline {
       const SettingsBuildStage(),
       const ThemeBuildStage(),
       const WebSettingsBuildStage(),
+    ];
+  }
 
-      // saving data from stores
+  static List<PipelineStage> get saveInternalFilesAndMediaStages {
+    return <PipelineStage>[
       const MediaSaveStage(),
       const EmbeddedFontsSaveStage(),
       const ArchiveFinalizationStage(),

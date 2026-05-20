@@ -4,6 +4,7 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 
+//TODO: ensure that parents really are correctly referenced
 class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
   DocxRoot({
     required Iterable<DocxNode<dynamic>> sections,
@@ -106,6 +107,7 @@ class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
     path == null ? child.add(pr) : child.insert(path, pr);
   }
 
+  //TODO: remove this
   @override
   void addListItem(
     String text, {
@@ -114,17 +116,16 @@ class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
     List<Style>? runStyles,
     int? path,
   }) {
-    final DocxNode<dynamic> lazyElement = DocxNode.lazyBuild<Paragraph>((
-      BuildNodeContext context,
-      String id,
-    ) {
-      return Paragraph.text(
-        text: text,
-        styles: styles ?? <Style>[],
-        runStyles: runStyles ?? <Object>[],
-        numbering: numbering,
-      );
-    });
+    final Builder<Paragraph> lazyElement = Builder<Paragraph>(
+      builder: (String id) {
+        return Paragraph.text(
+          text: text,
+          styles: styles ?? <Style>[],
+          runStyles: runStyles ?? <Object>[],
+          numbering: numbering,
+        );
+      },
+    );
     path == null ? child.add(lazyElement) : child.insert(path, lazyElement);
   }
 
@@ -199,7 +200,7 @@ class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
           (section as IgnorableMixin).shouldIgnore()) {
         continue;
       }
-      content.addAll(section.ensureInitialized(context).buildXml());
+      content.addAll(section.buildXml());
     }
 
     // Detect if this component is a row into another one
@@ -224,7 +225,7 @@ class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
       // What is this problem? Literally, all the tables break the current flows, and are "moved"
       // internally to behave as independent external tables, that makes look it likes we moved
       // all outsided without nesting the tree
-      content.addAll(Paragraph.empty().ensureInitialized(context).buildXml());
+      content.addAll(Paragraph.empty().buildXml());
     }
 
     return content;

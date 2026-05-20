@@ -73,9 +73,9 @@ class CustomGeometryComponent extends Geometry<void> {
   @override
   List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[
-      ...adjustValue.ensureInitialized(context).buildXml(),
-      ...guide.ensureInitialized(context).buildXml(),
-      ...handle.ensureInitialized(context).buildXml(),
+      ...adjustValue.buildXml(),
+      ...guide.buildXml(),
+      ...handle.buildXml(),
     ];
 
     // Connection points (a:cxnLst)

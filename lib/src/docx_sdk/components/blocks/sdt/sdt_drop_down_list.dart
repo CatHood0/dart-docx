@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Drop-down list SDT component for selecting from fixed options.
 ///
@@ -103,8 +104,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
   final bool temporary;
 
   /// Helper to compute display text from items and selected value.
-  static String _computeDisplayText(
-      List<SdtListItem> items, String? selectedValue) {
+  static String _computeDisplayText(List<SdtListItem> items, String? selectedValue) {
     if (selectedValue == null) return '';
     for (final SdtListItem item in items) {
       if (item.value == selectedValue) {
@@ -135,7 +135,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
             .expand((
               SdtListItem item,
             ) =>
-                item.ensureInitialized(context).buildXml())
+                item.buildXml())
             .toList(),
       ),
       XmlElement.tag(
@@ -155,8 +155,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
     ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId =
-        context.sdtStore.getNextId(nodeId: id, preferredId: sdtId);
+    final int actualSdtId = SdtStoreProvider.of(this).getNextId(nodeId: id, preferredId: sdtId);
     children.add(
       XmlElement.tag(
         'w:id',
@@ -226,7 +225,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
   }
 
   XmlElement _buildContentXml() {
-    final List<XmlNode> runs = child.ensureInitialized(context).buildXml();
+    final List<XmlNode> runs = child.buildXml();
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 

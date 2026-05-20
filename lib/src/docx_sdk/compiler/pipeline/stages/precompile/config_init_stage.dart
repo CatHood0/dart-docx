@@ -32,16 +32,16 @@ class ConfigInitStage extends PipelineStage {
 
     CompilerLogger.root.info('Starting Docx compilation process.');
 
-    if (context.isDocumentEmpty) {
-      CompilerLogger.root.error(
-        'Document content is '
-        'empty. Aborting compilation.',
-      );
-      context
-        ..registerError('Document content is empty')
-        ..emit(DocxEvent.end(error: 'Document content is empty'));
-      return;
-    }
+    // if (context.isDocumentEmpty) {
+    //   CompilerLogger.root.error(
+    //     'Document content is '
+    //     'empty. Aborting compilation.',
+    //   );
+    //   context
+    //     ..registerError('Document content is empty')
+    //     ..emit(DocxEvent.end(error: 'Document content is empty'));
+    //   return;
+    // }
 
     context.emit(DocxEvent.start());
 

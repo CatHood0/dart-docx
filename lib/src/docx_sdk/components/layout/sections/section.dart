@@ -78,23 +78,6 @@ class Section extends DocxNode<List<DocxNode>> {
     }
   }
 
-  Section.inheritFromContext({
-    required Iterable<DocxNode> children,
-    required BuildNodeContext context,
-    super.id,
-    super.parent,
-  })  : layout = context.options.layoutOptions,
-        super(child: List.from(children)) {
-    int index = 0;
-    for (final DocxNode<dynamic> content in child) {
-      content
-        ..parent = this
-        ..index = index
-        ..depth = depth + 1;
-      index++;
-    }
-  }
-
   /// The layout configuration to apply to this section.
   ///
   /// This `DocumentLayout` object contains all the page settings that will be
@@ -113,9 +96,8 @@ class Section extends DocxNode<List<DocxNode>> {
   List<XmlNode> buildXml() {
     final List<XmlNode> elements = <XmlNode>[];
     for (final DocxNode<dynamic> e in child) {
-      final List<XmlNode> element = e.ensureInitialized(context).buildXml();
-      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() ||
-          element.isEmpty) {
+      final List<XmlNode> element = e.buildXml();
+      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() || element.isEmpty) {
         continue;
       }
       elements.addAll(element);
@@ -128,7 +110,7 @@ class Section extends DocxNode<List<DocxNode>> {
       XmlElementWithChild(
         xmlKey: xmlParagraphNode,
         value: XmlDocumentSectionSettingsComponent(options: layout),
-      ).buildXml(context),
+      ).buildXml(),
     ];
   }
 

@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Checkbox SDT component for binary on/off selection.
 ///
@@ -159,7 +160,7 @@ class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
       ),
     ];
 
-    final int actualSdtId = context.sdtStore.getNextId(
+    final int actualSdtId = SdtStoreProvider.of(this).getNextId(
       nodeId: id,
       preferredId: sdtId,
     );
@@ -235,7 +236,7 @@ class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
   }
 
   XmlElement _buildContentXml() {
-    final List<XmlNode> runs = child.ensureInitialized(context).buildXml();
+    final List<XmlNode> runs = child.buildXml();
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 

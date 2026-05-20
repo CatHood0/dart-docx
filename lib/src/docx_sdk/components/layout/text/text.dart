@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 import '../../../../core/extensions/style_to_from_node.dart';
+import '../../../compiler/inherited/compiler_config_provider.dart';
 
 /// Fundamental document unit for organizing text content.
 ///
@@ -95,7 +96,7 @@ class Text extends ComponentContainer<String> {
       final List<XmlNode> element = TextRun.inheritFrom(
         text: e,
         element: this,
-      ).ensureInitialized(context).buildXml();
+      ).buildXml();
       paragraphChildren.addAll([
         ...element,
         if (hasNewLines) ...Run.lineBreak().buildXml(),
@@ -133,7 +134,7 @@ class Text extends ComponentContainer<String> {
 
     bool alreadyHasReference = false;
 
-    final Style? directStyle = _buildDirectStyle(context);
+    final Style? directStyle = _buildDirectStyle();
     if (directStyle != null) {
       final List<XmlElement> directStyleXml = directStyle.forParagraphStyle(
         shouldShowStyleRef: false,
@@ -152,23 +153,24 @@ class Text extends ComponentContainer<String> {
     //TODO: we need to register configurators
     final Map<String, Style> appliedStyles = <String, Style>{};
 
-    if (styles.isEmpty && context.setNormalStyleToNotStyledParagraphs) {
+    final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
+    if (styles.isEmpty && configs?.normalStyleIfNeeded == true) {
       assert(
-        context.defaultNormalStyle.isReference,
+        configs!.normalStyle.isReference,
         'defaultNormalStyle in DocumentContext is '
         'not a reference. Please, ensure you are '
         'setting a reference style',
       );
-      Style? st = context.defaultNormalStyle;
-      if (alreadyHasReference || context.checkStyleRefExistence) {
-        final Style? normal = context.options.docStyles
-            .getStyleById(context.defaultNormalStyle.styleId);
+      Style? st = configs!.normalStyle;
+      if (alreadyHasReference || configs.checkStyleRefExistence) {
+        final Style? normal =
+            configs.options.docStyles.getStyleById(configs.normalStyle.styleId);
         if (normal != null && !normal.isInvalid) {
           st = normal;
         } else {
           st = null;
           CompilerLogger.root.warning(
-            'Not found style "${context.defaultNormalStyle.styleId}". '
+            'Not found style "${configs.normalStyle.styleId}". '
             'It will be ignored for '
             '$runtimeType:$id at $index with deep tree level $depth, '
             'child of ${parent?.runtimeType}',
@@ -188,9 +190,9 @@ class Text extends ComponentContainer<String> {
       }
       Style? st = style;
       // Resolve references
-      if (style.isReference && context.checkStyleRefExistence) {
+      if (style.isReference && configs?.checkStyleRefExistence == true) {
         final Style? stemp =
-            context.options.docStyles.getStyleById(style.styleId);
+            configs!.options.docStyles.getStyleById(style.styleId);
         if (stemp != null && !stemp.isInvalid) {
           st = stemp;
         } else {
@@ -219,12 +221,12 @@ class Text extends ComponentContainer<String> {
   /// Builds a Style from direct paragraph properties.
   ///
   /// This allows applying formatting directly without requiring StyleBuilder.
-  Style? _buildDirectStyle(BuildNodeContext context) {
+  Style? _buildDirectStyle() {
     final StyleBuilder builder = StyleBuilder.up();
     if (textAlign != null) builder.alignment(textAlign!.toAlign);
 
-    if (context.childOfAncestorOfExactType<Align>()) {
-      final Alignment al = context.getAncestorOfExactType<Align>()!.alignment;
+    if (textAlign == null && isChildOf<Align>()) {
+      final Alignment al = getAncestorOfExactType<Align>()!.alignment;
       CompilerLogger.root.debug(
           'Replace current align $textAlign to found ancestor ${al.name}');
       builder.alignment(al);

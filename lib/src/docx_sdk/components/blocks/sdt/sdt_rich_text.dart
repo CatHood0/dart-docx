@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Rich text SDT component for multi-paragraph formatted text input.
 ///
@@ -116,7 +117,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
 
     // Add id - use SdtStore to get unique ID
     final int actualSdtId =
-        context.sdtStore.getNextId(nodeId: id, preferredId: sdtId);
+        SdtStoreProvider.of(this).getNextId(nodeId: id, preferredId: sdtId);
     children.add(
       XmlElement.tag(
         'w:id',
@@ -190,12 +191,11 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
 
     if (_content.isEmpty) {
       // Empty content - show placeholder or empty paragraph
-      paragraphs.addAll(
-          Paragraph.text(text: '').ensureInitialized(context).buildXml());
+      paragraphs.addAll(Paragraph.text(text: '').buildXml());
     } else {
       // Build paragraphs from content
       for (final DocxNode node in _content) {
-        paragraphs.addAll(node.ensureInitialized(context).buildXml());
+        paragraphs.addAll(node.buildXml());
       }
     }
 

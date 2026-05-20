@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Picture SDT component for image content controls.
 ///
@@ -117,8 +118,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
     ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId =
-        context.sdtStore.getNextId(nodeId: id, preferredId: sdtId);
+    final int actualSdtId = SdtStoreProvider.of(this).getNextId(nodeId: id, preferredId: sdtId);
     children.add(
       XmlElement.tag(
         'w:id',
@@ -188,7 +188,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
   }
 
   XmlElement _buildContentXml() {
-    final List<XmlNode> runs = child.ensureInitialized(context).buildXml();
+    final List<XmlNode> runs = child.buildXml();
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 
@@ -232,6 +232,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
       parent: parent ?? this.parent,
     );
   }
+
   @override
   DocxNode<dynamic>? visitElement(
     bool Function(DocxNode element) shouldGetElement, {

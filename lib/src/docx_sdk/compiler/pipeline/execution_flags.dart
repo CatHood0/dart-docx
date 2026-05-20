@@ -38,7 +38,11 @@ class ExecutionFlags {
     this.dynamicFontSearch = true,
     this.checkStyleRefExistence = false,
     this.skipStoreReset = false,
+    this.skipErrors = true,
   });
+
+  /// Skips the media discovery phase (images).
+  final bool skipErrors;
 
   /// Skips the media discovery phase (images).
   final bool skipMediaDiscovery;

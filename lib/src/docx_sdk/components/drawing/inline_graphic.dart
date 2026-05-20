@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/string_ext.dart';
+import '../../stores/inherited_stores/drawing_counter_provider.dart';
 
 /// Inline drawing element for images and shapes that flow with text.
 ///
@@ -23,8 +24,8 @@ import '../../../core/extensions/string_ext.dart';
 ///   components: [myGraphic],
 /// );
 /// ```
-class Inline extends DocxNode<Iterable<DocxNode>> {
-  Inline({
+class InlineGraphic extends DocxNode<Iterable<DocxNode>> {
+  InlineGraphic({
     required Iterable<DocxNode> components,
     required this.name,
     required this.width,
@@ -32,6 +33,7 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
     required this.distance,
     super.id,
     super.parent,
+    this.elementId,
   }) : super(child: components) {
     int index = 0;
     for (final DocxNode<dynamic> content in child) {
@@ -60,7 +62,7 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
   final num height;
 
   @override
-  Inline get copy => Inline(
+  InlineGraphic get copy => InlineGraphic(
         id: id,
         height: height,
         name: name,
@@ -71,7 +73,7 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
       );
 
   @override
-  Inline copyWith({
+  InlineGraphic copyWith({
     Iterable<DocxNode>? child,
     String? id,
     DocxNode<dynamic>? parent,
@@ -80,7 +82,7 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
     num? width,
     num? height,
   }) {
-    return Inline(
+    return InlineGraphic(
       distance: distance ?? this.distance,
       name: name ?? this.name,
       width: width ?? this.width,
@@ -95,13 +97,12 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
   List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
-      if (element is IgnorableMixin &&
-          element.cast<IgnorableMixin>().shouldIgnore()) {
+      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      children.addAll(element.ensureInitialized(context).buildXml());
+      children.addAll(element.buildXml());
     }
-    elementId ??= context.drawingStore.getNextId(id);
+    elementId ??= DrawingCounterProvider.of(this).getNextId(id);
     return <XmlNode>[
       XmlElement.tag(
         'wp:inline',
@@ -128,12 +129,12 @@ class Inline extends DocxNode<Iterable<DocxNode>> {
           ...Extent(
             cx: width,
             cy: height,
-          ).ensureInitialized(context).buildXml(),
+          ).buildXml(),
           ...DocProperties(
             docPrId: elementId!.toString(),
             name: name,
             description: name,
-          ).ensureInitialized(context).buildXml(),
+          ).buildXml(),
           ...children,
         ],
       ),

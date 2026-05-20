@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
-import 'package:docx/src/docx_sdk/components/layout/constraints/padding.dart';
 
 Future<void> main() async {
   final File outFile = File('test_resources/row_alignments.docx');
@@ -308,9 +307,9 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(true)
+      .autoRegisterFonts(true)
       .noTrimRuns()
-      .setNormalIfNeeded(true)
+      .normalStyleIfNeeded()
       .logPath(DocxPaths.documentFilePath)
       .execute(doc);
 

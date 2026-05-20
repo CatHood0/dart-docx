@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
+import '../../../compiler/inherited/compiler_config_provider.dart';
 import '../../../utils/logger/logger_configs.dart';
 
 /// A container that groups multiple elements to be rendered in a column layout
@@ -53,8 +54,11 @@ class PageColumn extends DocxNode<List<DocxNode>> {
 
   @override
   List<XmlNode> buildXml() {
-    if (context.options.columns == null ||
-        context.options.columns!.numColumns == null) {
+    final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
+    //TODO: move these to the compilation stages
+    if (configs != null &&
+        (configs.options.columns == null ||
+            configs.options.columns!.numColumns == null)) {
       CompilerLogger.root.warning(
         'Its not recommended the use of "$runtimeType:$id" in none '
         'multi-column documents (ColumnOptions is not defined or numColumns is null). '
@@ -66,7 +70,7 @@ class PageColumn extends DocxNode<List<DocxNode>> {
     }
     final List<XmlNode> elements = <XmlNode>[];
     for (final DocxNode<dynamic> e in child) {
-      final List<XmlNode> element = e.ensureInitialized(context).buildXml();
+      final List<XmlNode> element = e.buildXml();
       if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() ||
           element.isEmpty) {
         continue;
@@ -75,8 +79,7 @@ class PageColumn extends DocxNode<List<DocxNode>> {
     }
     return <XmlNode>[
       ...elements,
-      if (!ignoreBreak)
-        ...Run.columnBreak().paragraph().ensureInitialized(context).buildXml(),
+      if (!ignoreBreak) ...Run.columnBreak().paragraph().buildXml(),
     ];
   }
 

@@ -54,18 +54,14 @@ class Table extends DocxNode<List<TableRow>> {
         super(child: rows) {
     // check the configurations to avoid assertions being ignored
     // when we're not in debug mode
-    if (tableProperties != null &&
-        tableProperties!.widthType.needsWidth &&
-        tableProperties!.width <= 0) {
+    if (tableProperties != null && tableProperties!.widthType.needsWidth && tableProperties!.width <= 0) {
       throw Exception(
         '$runtimeType:$id => TableWidthType.pct or TableWidthType.dxa '
         'requires a non zero and non negative [width]. ',
       );
     }
 
-    if (tableProperties != null &&
-        tableProperties!.widthType.isNilOrAuto &&
-        tableProperties!.width > 0) {
+    if (tableProperties != null && tableProperties!.widthType.isNilOrAuto && tableProperties!.width > 0) {
       throw Exception(
         '$runtimeType:$id => TableWidthType.auto or '
         'TableWidthType.nil only can be used when '
@@ -112,8 +108,7 @@ class Table extends DocxNode<List<TableRow>> {
     final List<XmlNode> tableChildren = <XmlNode>[];
 
     // Build table properties (tblPr) if configuration exists
-    final List<XmlNode> tblPrNodes =
-        tableProperties == null ? <XmlNode>[] : tableProperties!.buildXml();
+    final List<XmlNode> tblPrNodes = tableProperties == null ? <XmlNode>[] : tableProperties!.buildXml();
     if (tblPrNodes.isNotEmpty) {
       tableChildren.add(
         XmlElement.tag(
@@ -157,7 +152,7 @@ class Table extends DocxNode<List<TableRow>> {
           'when needed only ${columns.length} columns. Objects: Columns($columns) |  Rows(${row.child})',
         );
       }
-      final List<XmlNode> rowXml = row.ensureInitialized(context).buildXml();
+      final List<XmlNode> rowXml = row.buildXml();
       tableChildren.addAll(rowXml);
     }
 

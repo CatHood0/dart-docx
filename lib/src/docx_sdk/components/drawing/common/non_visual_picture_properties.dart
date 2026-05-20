@@ -37,8 +37,8 @@ class NonVisualPictureProperties extends DocxNode<dynamic> {
         'pic:nvPicPr',
         isSelfClosing: false,
         children: [
-          ...nonVisualDrawingProperties.ensureInitialized(context).buildXml(),
-          ...nonVisualPictureDrawingProperties.ensureInitialized(context).buildXml(),
+          ...nonVisualDrawingProperties.buildXml(),
+          ...nonVisualPictureDrawingProperties.buildXml(),
         ],
       ),
     ];

@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
+import '../../compiler/inherited/compiler_config_provider.dart';
 import '../../sdk.dart';
 
 /// Basic text run element for inline text content.
@@ -161,7 +162,9 @@ class TextRun extends RunBase<TextPart> {
     if (subscript == true) allStyles.add(SubscriptAttribute());
     if (superscript == true) allStyles.add(SuperscriptAttribute());
 
-    if (backgroundColor != null) allStyles.add(BackgroundTextColorAttribute(backgroundColor.toColorValue()!.toUpperCase()));
+    if (backgroundColor != null)
+      allStyles.add(BackgroundTextColorAttribute(
+          backgroundColor.toColorValue()!.toUpperCase()));
 
     return allStyles;
   }
@@ -304,7 +307,8 @@ class TextRun extends RunBase<TextPart> {
           XmlElement.tag(
             xmlTextNode,
             attributes: <XmlAttribute>[
-              if (requirePreserve || context.noTrim)
+              if (requirePreserve ||
+                  CompilerConfigProvider.of(this)?.noTrim == true)
                 XmlAttribute(
                   'xml:space'.toName(),
                   'preserve',

@@ -34,7 +34,7 @@ class Drawing extends DocxNode<DocxNode> with IgnorableMixin {
         'w:drawing',
         isSelfClosing: false,
         children: <XmlNode>[
-          ...child.ensureInitialized(context).buildXml(),
+          ...child.buildXml(),
         ],
       ),
     ];
@@ -44,7 +44,7 @@ class Drawing extends DocxNode<DocxNode> with IgnorableMixin {
   DocxNode<DocxNode<dynamic>> get copy => Drawing(
         child: child.copy,
         id: id,
-    parent: parent,
+        parent: parent,
       );
 
   @override

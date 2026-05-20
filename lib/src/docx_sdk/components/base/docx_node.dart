@@ -6,31 +6,27 @@ import '../../../../docx.dart'
     show
         AnchorConfig,
         CompilerLogger,
-        BuildNodeContext,
         DocxRoot,
         Effect,
         Fill,
         Geometry,
         ImageData,
-        LazyNode,
         Numbering,
         Paragraph,
         ShapeBorder,
         ShapeTextBox,
         Style,
         Transform2D,
-        nanoid,
-        DocumentOptions;
+        nanoid;
 import 'empty_node.dart';
 
-//TODO: implement child diff for nodes to allow making cache versions of parts of the tree
-// to avoid compiling all the tree every time when it's not required
 abstract class DocxNode<T> {
   DocxNode({
     required this.child,
-    this.parent,
+    DocxNode? parent,
     String? id,
-  }) : id = id ?? nanoid(7);
+  })  : id = id ?? nanoid(7),
+        _parent = parent;
 
   bool isEmptyNode() => this is EmptyNode;
 
@@ -116,7 +112,6 @@ abstract class DocxNode<T> {
   /// [strict] tells to the method that we cannot updated an element
   /// that has a different [id] value, and a different type from the
   /// expected one
-  @visibleForOverriding
   void updateElement(
     DocxNode component, {
     int? index,
@@ -142,24 +137,29 @@ abstract class DocxNode<T> {
   // since we have an store exactly for this
   String? rId;
 
-  BuildNodeContext? _context;
-
-  BuildNodeContext get context {
-    if (_context == null) {
-      // shows the full tree stacktrace
-      // for the exception
-      throw Exception(
-          'init() or ensureInitialized() must be called before any other requirement');
-    }
-    return _context!;
-  }
-
   // Not used yet
   bool dirty = false;
 
   /// The internal random id of this component
   final String id;
-  DocxNode<dynamic>? parent;
+  DocxNode? _parent;
+
+  DocxNode? get parent => _parent;
+
+  @mustCallSuper
+  set parent(DocxNode? parent) {
+    _parent = parent;
+    // When set to null, is more probably than this element is removed from tree
+    if (parent == null) {
+      markAsDirty();
+      deactivate();
+      return;
+    }
+    if (parent.mounted) {
+      init();
+    }
+  }
+
   DocxNode<T> get copy;
 
   DocxNode<T> copyWith({String? id, DocxNode<T>? parent});
@@ -180,19 +180,20 @@ abstract class DocxNode<T> {
   }
 
   void didChangeConfigurations(
-      BuildNodeContext prev, BuildNodeContext current) {}
+    DocxNode<T> prev,
+    DocxNode<T> current,
+  ) {}
 
   @mustCallSuper
-  bool get mounted => _context != null;
+  bool get mounted => parent != null;
 
   void markAsDirty() {
     CompilerLogger.root.config('[$runtimeType:$id]: marked as dirty');
     dirty = true;
-    _context = null;
   }
 
   @mustCallSuper
-  void init(BuildNodeContext context) {
+  void init() {
     // Does not requires
     if (mounted && !dirty) {
       CompilerLogger.root.config(
@@ -200,15 +201,12 @@ abstract class DocxNode<T> {
       return;
     }
     CompilerLogger.root.config(
-        '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: initializated correctly');
-    _context = createdInheritedContext(context);
-    dirty = false;
+        '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: initializated correctly into ${parent?.runtimeType}:${parent?.id}');
     perform();
-  }
-
-  @mustCallSuper
-  DocxNode<T> ensureInitialized(BuildNodeContext context) {
-    return this..init(context);
+    visitElement((e) {
+      e.init();
+      return false;
+    });
   }
 
   void deactivate() {
@@ -219,7 +217,6 @@ abstract class DocxNode<T> {
     //TODO: ensure parent remove this element
     parent = null;
     dirty = true;
-    _context = null;
   }
 
   /// Performs all the required stuff that need to be ready
@@ -227,40 +224,14 @@ abstract class DocxNode<T> {
   @visibleForOverriding
   @experimental
   void perform() {
-    CompilerLogger.root
-        .config('[$runtimeType:$id:${path.length}]: executing perform');
+    CompilerLogger.root.config(
+      '[$runtimeType:$id:${path.length}]: '
+      'executing perform',
+    );
   }
 
   List<XmlNode> buildXml();
   List<XmlNode> buildXmlStyle() => <XmlNode>[];
-
-  @mustCallSuper
-  BuildNodeContext createdInheritedContext(BuildNodeContext context) {
-    return BuildNodeContext.inherited(context, this);
-  }
-
-  @mustCallSuper
-  BuildNodeContext createdContext({DocumentOptions? options}) {
-    return BuildNodeContext.base(options: options, element: this);
-  }
-
-  /// Creates a lazy version of the same node, that waits for the Compilation
-  /// time to build the [DocxNode] type specified
-  ///
-  /// Useful for when you need the context and the stores to build graphics or images
-  /// manually for your unique logic at that situation and you dont want to
-  /// create an specific class for that case.
-  static LazyNode<C> lazyBuild<C extends DocxNode<dynamic>>(
-    C Function(BuildNodeContext, String) callback, {
-    DocxNode<dynamic>? parent,
-    String? id,
-  }) {
-    return LazyNode<C>(
-      child: callback,
-      parent: parent,
-      id: id,
-    );
-  }
 
   List<DocxNode<T>> repeat(
     int times, {
@@ -278,9 +249,11 @@ abstract class DocxNode<T> {
     );
   }
 
+  bool isChildOf<R extends DocxNode>() => getAncestorOfExactType<R>() != null;
+
   R? getAncestorOfExactType<R extends DocxNode<dynamic>>() {
     DocxNode? current = parent;
-    CompilerLogger.root.debug('$runtimeType:$id will try to ');
+    CompilerLogger.root.debug('===$runtimeType:$id will try to ===');
     CompilerLogger.root.debug(
       '${' ' * depth} | search ancestor '
       'of type $R',
@@ -343,10 +316,40 @@ abstract class DocxNode<T> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   });
+
   List<DocxNode>? visitAllElement(
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   });
+
+  String dumpTree() {
+    if (parent == null) {
+      return '$runtimeType:$id';
+    }
+
+    final StringBuffer buffer = StringBuffer();
+    final DocxNode<T> node = this;
+    final List<DocxNode> ancestors = [];
+
+    DocxNode? current = node;
+    while (current != null) {
+      ancestors.add(current);
+      current = current.parent;
+    }
+
+    ancestors.reversed.toList().asMap().forEach((index, ancestor) {
+      final isLast = index == ancestors.length - 1;
+      final prefix = index == 0 ? '' : (isLast ? '└─ ' : '├─ ');
+      buffer.write('$prefix${ancestor.runtimeType}:${ancestor.id}');
+      if (index < ancestors.length - 1) {
+        buffer
+          ..write('\n')
+          ..write(' ' * (index + 1));
+      }
+    });
+
+    return buffer.toString();
+  }
 }
 
 class DocxElements {

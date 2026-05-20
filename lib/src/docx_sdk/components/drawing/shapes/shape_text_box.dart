@@ -18,11 +18,10 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
   List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child.content) {
-      if (element is IgnorableMixin &&
-          element.cast<IgnorableMixin>().shouldIgnore()) {
+      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      children.addAll(element.ensureInitialized(context).buildXml());
+      children.addAll(element.buildXml());
     }
     final XmlElement textBoxElement = XmlElement.tag(
       'wps:txbx',
@@ -53,10 +52,7 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
         ),
       ],
       children: _buildInsets(child.margin),
-      isSelfClosing: child.margin.left == 0 &&
-          child.margin.top == 0 &&
-          child.margin.right == 0 &&
-          child.margin.bottom == 0,
+      isSelfClosing: child.margin.left == 0 && child.margin.top == 0 && child.margin.right == 0 && child.margin.bottom == 0,
     );
 
     return <XmlElement>[
@@ -66,10 +62,7 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
   }
 
   List<XmlNode> _buildInsets(EdgeInsets margin) {
-    if (margin.left == 0 &&
-        margin.top == 0 &&
-        margin.right == 0 &&
-        margin.bottom == 0) {
+    if (margin.left == 0 && margin.top == 0 && margin.right == 0 && margin.bottom == 0) {
       return <XmlNode>[];
     }
 

@@ -8,6 +8,9 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
+import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../stores/inherited_stores/drawing_counter_provider.dart';
+import '../../stores/inherited_stores/media_provider.dart';
 
 /// Standard image component with in-memory byte data.
 ///
@@ -59,6 +62,11 @@ class Image extends DocxNode<ImageData<Uint8List>> {
 
   int? elementId;
 
+  num? _imgWidthEmu;
+  num? _imgHeightEmu;
+
+  String? docRelsRefId;
+
   @override
   Image get copy {
     return Image(
@@ -105,6 +113,7 @@ class Image extends DocxNode<ImageData<Uint8List>> {
 
   String get getImageName => child.name ?? '';
 
+  //TODO: other image implementations should be using this
   static ImageSize getSizeForImage(
     ImageData data, {
     PageSize? pageSize,
@@ -157,22 +166,25 @@ class Image extends DocxNode<ImageData<Uint8List>> {
 
   @override
   void perform() {
-    final String? relationshipId =
-        context.mediaStore.getRelationshipIdForRef(id) ??
-            context.mediaStore.getRelationshipIdForRef(rId ?? '-1');
+    final MediaStore mediaProvider = MediaProvider.of(this);
+    final String? docRelsRefId = mediaProvider.getRelationshipIdForRef(id) ??
+        mediaProvider.getRelationshipIdForRef(rId!);
 
-    elementId ??= context.drawingStore.getIdFromRef(ref: id) ??
+    final DrawingElementCounterStore drawingProvider =
+        DrawingCounterProvider.of(this);
+
+    elementId ??= drawingProvider.getIdFromRef(ref: id) ??
         // usually, the element id is computed from
-        // the anchor or inline parent, so, we prefer
+        // the anchor or inline parent, so we prefer
         // using that one value, since was computed exactly for this
         // element
-        context.getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
-        context.getAncestorOfExactType<Inline>()?.elementId?.castOrNull() ??
-        context.drawingStore.getNextId(id);
+        getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+        getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull() ??
+        drawingProvider.getNextId(id);
 
     // the index of this image. Literally the
     // relationship id but formatted to a digit
-    if (relationshipId == null) {
+    if (docRelsRefId == null) {
       throw Exception(
         'Image(id: $id | level: $depth | parent: ${parent?.runtimeType}) was not founded in the MediaStore registry or in '
         'the ${DocxPaths.documentXmlRelsFilePath}. Please, ensure this current element is being founded by the '
@@ -190,71 +202,75 @@ class Image extends DocxNode<ImageData<Uint8List>> {
         'founded into the DocxComponentContext',
       );
     }
-    final String relationshipId =
-        (context.mediaStore.getRelationshipIdForRef(id) ??
-            context.mediaStore.getRelationshipIdForRef(rId ?? '-1'))!;
+    final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
 
-    final ImageSize imageSize = getSizeForImage(
-      child,
-      pageSize: context.options.pageSize,
-      margins: context.options.margins,
-    );
+    if (_imgWidthEmu == null || _imgHeightEmu == null) {
+      final ImageSize imageSize = Image.getSizeForImage(
+        child,
+        pageSize: configs?.options.pageSize,
+        margins: configs?.options.margins,
+      );
+      _imgWidthEmu = imageSize.width;
+      _imgHeightEmu = imageSize.height;
+    }
 
-    final Graphic graphic = Graphic(
-      child: GraphicData(
-        uri: namespaces['pic']!,
-        child: Picture(
-          components: <DocxNode<dynamic>>[
-            BlipFill.pic(
-              blip: Blip(embedRelId: relationshipId.toString()),
-              stretch: Stretch(
-                child: <DocxNode<dynamic>>[
-                  FillRectangle(),
-                ],
+    final Graphic graphic = Graphic.pic(
+      parent: this,
+      child: Picture(
+        components: <DocxNode<dynamic>>[
+          BlipFill.pic(
+            blip: Blip(embedRelId: docRelsRefId.toString()),
+            stretch: Stretch(
+              child: <DocxNode<dynamic>>[
+                FillRectangle(),
+              ],
+            ),
+          ),
+          PictureShapeProperties(
+            transform2D: Transform2D(
+              offset: Offset(
+                x: transformOffsetX,
+                y: transformOffsetY,
+              ),
+              extents: AnnotationExtents(
+                cx: _imgWidthEmu!,
+                cy: _imgHeightEmu!,
               ),
             ),
-            PictureShapeProperties(
-              transform2D: Transform2D(
-                offset: Offset(
-                  x: transformOffsetX,
-                  y: transformOffsetY,
-                ),
-                extents: AnnotationExtents(
-                    cx: imageSize.width, cy: imageSize.height),
-              ),
-              presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
+            //NOTE: should be customizable?
+            presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),
+          ),
+          NonVisualPictureProperties(
+            nonVisualDrawingProperties: NonVisualDrawingProperties(
+              id: elementId!.toString(),
+              name: imageName,
+              description: child.alt ?? imageName,
             ),
-            NonVisualPictureProperties(
-              nonVisualDrawingProperties: NonVisualDrawingProperties(
-                id: elementId!.toString(),
-                name: imageName,
-                description: child.alt ?? imageName,
-              ),
-              nonVisualPictureDrawingProperties:
-                  NonVisualPictureDrawingProperties(),
-            ),
-          ],
-        ),
+            nonVisualPictureDrawingProperties:
+                NonVisualPictureDrawingProperties(),
+          ),
+        ],
       ),
     );
 
     return <XmlNode>[
-      if (!asInline)
-        ...graphic.ensureInitialized(context).buildXml()
+      if (isChildOf<InlineGraphic>() || !asInline)
+        ...graphic.buildXml()
       else
-        ...Inline(
+        ...InlineGraphic(
           name: imageName,
-          width: imageSize.width,
-          height: imageSize.height,
+          width: _imgWidthEmu!,
+          height: _imgHeightEmu!,
           components: <DocxNode<dynamic>>[graphic],
           distance: child.anchorConfig.distanceFromText,
-        ).ensureInitialized(context).buildXml(),
+          elementId: elementId,
+        ).buildXml(),
     ];
   }
 
   @override
   String toString() {
-    return 'Image(id: $id, data: $child)';
+    return 'Image(id: $id, elementId: $elementId, docRelsRefId: $docRelsRefId, data: $child)';
   }
 
   @override

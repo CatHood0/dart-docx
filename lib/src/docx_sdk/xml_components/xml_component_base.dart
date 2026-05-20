@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 import '../../core/extensions/string_ext.dart';
 import '../sdk.dart';
 
+//TODO: we should probably make attributes parts of an mixin or interface, value idk, and xmlKey a mixin too
 abstract class XmlComponentBase<T> {
   XmlComponentBase({
     required this.xmlKey,
@@ -23,26 +24,15 @@ abstract class XmlComponentBase<T> {
   /// the component specified
   String get name => '';
 
-  XmlElement buildXml(BuildNodeContext context);
+  XmlElement buildXml();
 
-  XmlDocument buildDocument(BuildNodeContext context) {
+  XmlDocument buildDocument() {
     return XmlDocument(
       <XmlNode>[
         XmlDefaults.declaration,
-        buildXml(context),
+        buildXml(),
       ],
     );
-  }
-
-  /// Visit the element that satisfies the predict
-  /// and return the deep path of the element
-  List<int> visitElement(bool Function(XmlComponentBase) component) {
-    throw Exception('Not implemented visitElement');
-  }
-
-  /// Visit all elements that satisfies the conditions
-  List<List<int>> visitElements(bool Function(XmlComponentBase) component) {
-    throw Exception('Not implemented visitElements');
   }
 }
 
@@ -54,7 +44,7 @@ class XmlTextElementComponent<T> extends XmlComponentBase<T> {
   });
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -78,7 +68,7 @@ class XmlEmptyElementComponent<T> extends XmlComponentBase<T> {
   });
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[
@@ -101,7 +91,7 @@ class RawElement extends XmlComponentBase<XmlElement> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return value;
   }
 }
@@ -110,11 +100,11 @@ class XmlElementWithChild extends XmlComponentBase<XmlComponentBase> {
   XmlElementWithChild({required super.xmlKey, required super.value});
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       children: <XmlNode>[
-        value.buildXml(context),
+        value.buildXml(),
       ],
     );
   }

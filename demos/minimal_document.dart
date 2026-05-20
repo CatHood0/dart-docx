@@ -37,10 +37,11 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(false)
+      .autoRegisterFonts(false)
       .noTrimRuns()
-      .setNormalIfNeeded(true)
-      .defaultNormalStyle(Style.ref('body'))
+      .normalStyleIfNeeded()
+      .normalStyle(Style.ref('body'))
+      .flags(ExecutionFlags(skipErrors: false))
       .execute(
         doc,
         applyCustomTheme: true,

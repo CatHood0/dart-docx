@@ -190,12 +190,12 @@ class FontStore extends Store {
   }
 
   /// Builds the [XmlFontTableComponent] for the `fontTable.xml` part.
-  XmlComponentBase buildFontTableXmlComponent(BuildNodeContext context) =>
+  XmlComponentBase buildFontTableXmlComponent() =>
       XmlFontTableComponent(fonts: fonts);
 
   /// Builds rels for `fontTable.xml.rels` part.
   /// This contains relationships for embedded fonts.
-  XmlComponentBase buildFontTableRelsXmlDocument(BuildNodeContext context) =>
+  XmlComponentBase buildFontTableRelsXmlDocument() =>
       XmlDocumentRelsComponent.fontRels(
           relations: _relationshipsByRId.values.toList());
 

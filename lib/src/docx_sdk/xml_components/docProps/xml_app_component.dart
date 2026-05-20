@@ -2,8 +2,9 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 
 class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
-  XmlAppComponent({required EditorMetadata metadata})
-      : super(
+  XmlAppComponent({
+    required EditorMetadata metadata,
+  }) : super(
           xmlKey: 'Properties',
           attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
             'xmlns': namespaces['extendedProperties']!,
@@ -19,7 +20,7 @@ class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
   String get path => DocxPaths.appFilePath;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

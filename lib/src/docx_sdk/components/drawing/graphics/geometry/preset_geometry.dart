@@ -48,15 +48,10 @@ class PresetGeometry extends Geometry<List<DocxNode<dynamic>>> {
   List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[];
     for (final DocxNode<dynamic> element in child) {
-      if (element is IgnorableMixin &&
-          element.cast<IgnorableMixin>().shouldIgnore()) {
+      if (element is IgnorableMixin && element.cast<IgnorableMixin>().shouldIgnore()) {
         continue;
       }
-      children.addAll(element
-          .ensureInitialized(
-            context,
-          )
-          .buildXml());
+      children.addAll(element.buildXml());
     }
     return <XmlNode>[
       XmlElement.tag(

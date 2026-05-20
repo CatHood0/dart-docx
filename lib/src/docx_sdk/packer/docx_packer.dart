@@ -25,17 +25,17 @@ class DocxPacker {
   ///
   /// If not, set to false, and use [fonts] properties from
   /// [DocumentOptions] to skip this step. Will throw Exception
-  /// if [dynamicFontSearch] is false and [fonts] is not setted
-  DocxPacker dynamicFontSearch(bool search) {
-    _compiler.dynamicFontSearch = search;
+  /// if [autoRegisterFonts] is false and [fonts] is not setted
+  DocxPacker autoRegisterFonts([bool search = true]) {
+    _compiler.autoRegisterFonts = search;
     return this;
   }
 
   /// Determines if the paragraph will be created referencing the
   /// "Normal" style when it does not contain a paragraph level
   /// style reference or configuration
-  DocxPacker setNormalIfNeeded(bool setNormal) {
-    _compiler.applyNormalStyleIfNeeded = setNormal;
+  DocxPacker normalStyleIfNeeded([bool setNormal = true]) {
+    _compiler.normalStyleIfNeeded = setNormal;
     return this;
   }
 
@@ -60,9 +60,9 @@ class DocxPacker {
 
   /// Determines the "Normal" style to be applied using
   /// `applyNormalStyleIfNeeded` as the falg
-  DocxPacker defaultNormalStyle(Style style) {
+  DocxPacker normalStyle(Style style) {
     assert(style.isReference, 'the style passed must be a reference instance');
-    _compiler.defaultNormalStyle = style;
+    _compiler.normalStyle = style;
     return this;
   }
 
@@ -103,6 +103,12 @@ class DocxPacker {
       level: level,
       enabled: true,
     );
+    return this;
+  }
+
+  /// Adds a hook that executes before each stage.
+  DocxPacker flags(ExecutionFlags fl) {
+    _compiler.flags = fl;
     return this;
   }
 

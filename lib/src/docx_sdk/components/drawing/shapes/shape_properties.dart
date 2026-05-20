@@ -93,20 +93,20 @@ class ShapeProperties extends DocxNode<void> {
   @override
   List<XmlNode> buildXml() {
     final List<XmlNode> children = <XmlNode>[
-      ...transform.ensureInitialized(context).buildXml(),
-      ...geometryComponent.ensureInitialized(context).buildXml(),
+      ...transform.buildXml(),
+      ...geometryComponent.buildXml(),
     ];
 
     if (fill != null) {
-      children.addAll(fill!.ensureInitialized(context).buildXml());
+      children.addAll(fill!.buildXml());
     }
 
     if (border != null) {
-      children.addAll(border!.ensureInitialized(context).buildXml());
+      children.addAll(border!.buildXml());
     }
 
     if (effects != null) {
-      children.addAll(effects!.ensureInitialized(context).buildXml());
+      children.addAll(effects!.buildXml());
     }
 
     return <XmlNode>[
@@ -164,8 +164,7 @@ class ShapeProperties extends DocxNode<void> {
     );
     if (transformResult != null) results.addAll(transformResult);
 
-    final List<DocxNode<dynamic>>? geometryResult =
-        geometryComponent.visitAllElement(
+    final List<DocxNode<dynamic>>? geometryResult = geometryComponent.visitAllElement(
       shouldGetElement,
       visitChildrenIfNeeded: visitChildrenIfNeeded,
     );

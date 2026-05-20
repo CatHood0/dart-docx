@@ -82,11 +82,18 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(true)
+      .autoRegisterFonts(true)
       .noTrimRuns()
       // .logPath(DocxPaths.numberingXmlFilePath)
-      .logLevel(LogLevel.info)
-      .execute(doc, applyCustomTheme: false);
+      .normalStyleIfNeeded()
+      .logLevel(LogLevel.all)
+      .log(print)
+      .setStandardStores()
+      .execute(
+        doc,
+        applyCustomTheme: false,
+        stages: DocxPipeline.defaultStages,
+      );
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);

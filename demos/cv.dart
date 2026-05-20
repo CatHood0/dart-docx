@@ -299,12 +299,12 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(true)
+      .autoRegisterFonts(true)
       .noTrimRuns()
-      .setNormalIfNeeded(true)
+      .normalStyleIfNeeded()
       .logLevel(LogLevel.config)
       .log(print)
-      .defaultNormalStyle(Style.ref('body'))
+      .normalStyle(Style.ref('body'))
       .setStandardStores()
       .execute(
         doc,

@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/num_extensions.dart';
 import '../../../core/extensions/string_ext.dart';
+import '../../stores/inherited_stores/drawing_counter_provider.dart';
 
 /// Anchor element for floating content positioning.
 ///
@@ -58,7 +59,7 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
 
   @override
   List<XmlElement> buildXml() {
-    elementId ??= context.drawingStore.getNextId(id);
+    elementId ??= DrawingCounterProvider.of(this).getNextId(id);
     return <XmlElement>[
       XmlElement.tag(
         'wp:anchor',
@@ -118,16 +119,15 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
               alignment: config.horizontalPosition?.name,
               relativeFrom: config.horizontalAnchor.name,
               x: true,
-            ).buildXml(context),
+            ).buildXml(),
           if (config.wrapType != WrapType.asCharacter)
             XmlOffsetPosition(
               offset: config.anchorOffsetY.nonNegative,
               alignment: config.verticalPosition?.name,
               relativeFrom: config.verticalAnchor.name,
               x: false,
-            ).buildXml(context),
-          if ((config.wrapType != WrapType.noWrap) &&
-              config.wrapType != WrapType.asCharacter)
+            ).buildXml(),
+          if ((config.wrapType != WrapType.noWrap) && config.wrapType != WrapType.asCharacter)
             XmlElement.tag(
               'wp:wrap${config.wrapType.name.capitalize()}',
               isSelfClosing: true,
@@ -146,13 +146,13 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
           ...Extent(
             cx: width,
             cy: height,
-          ).ensureInitialized(context).buildXml(),
+          ).buildXml(),
           ...DocProperties(
             docPrId: elementId.toString(),
             name: name.toString(),
             relativeHeight: '0',
-          ).ensureInitialized(context).buildXml(),
-          ...child.ensureInitialized(context).buildXml(),
+          ).buildXml(),
+          ...child.buildXml(),
         ],
       ),
     ];
@@ -270,7 +270,7 @@ class XmlOffsetPosition extends XmlComponentBase<void> {
   final String? alignment;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       isSelfClosing: false,

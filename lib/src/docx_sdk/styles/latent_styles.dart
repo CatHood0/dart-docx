@@ -1,7 +1,6 @@
 import 'package:xml/xml.dart';
 
 import '../../../docx.dart' show XmlComponentBase, XmlComponentAttributes;
-import '../docx_component_context.dart';
 
 // ---- SCHEMA ----
 // <complexType name="CT_LatentStyles">
@@ -88,7 +87,7 @@ class LatentStyles extends XmlComponentBase<void> {
   }
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: XmlComponentAttributes(xmlAttributes: <String, String>{
@@ -104,7 +103,7 @@ class LatentStyles extends XmlComponentBase<void> {
           (
             LatentException el,
           ) =>
-              el.buildXml(context),
+              el.buildXml(),
         ),
       ],
       isSelfClosing: false,
@@ -128,7 +127,7 @@ class LatentException extends XmlComponentBase<void> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

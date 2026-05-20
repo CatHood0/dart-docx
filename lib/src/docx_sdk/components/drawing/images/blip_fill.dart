@@ -64,8 +64,8 @@ class BlipFill extends Fill<void> {
         '$name:blipFill',
         isSelfClosing: false,
         children: <XmlNode>[
-          ...blip.ensureInitialized(context).buildXml(),
-          ...stretch.ensureInitialized(context).buildXml(),
+          ...blip.buildXml(),
+          ...stretch.buildXml(),
         ],
       ),
     ];
@@ -78,10 +78,8 @@ class BlipFill extends Fill<void> {
   }) {
     if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     if (!visitChildrenIfNeeded) return null;
-    return blip.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        stretch.visitAllElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return blip.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        stretch.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -91,9 +89,7 @@ class BlipFill extends Fill<void> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return blip.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded) ??
-        stretch.visitElement(shouldGetElement,
-            visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return blip.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded) ??
+        stretch.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

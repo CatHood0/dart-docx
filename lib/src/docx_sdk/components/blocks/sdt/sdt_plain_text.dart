@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Plain text SDT component for single-line text input fields.
 ///
@@ -107,8 +108,7 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
     ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId =
-        context.sdtStore.getNextId(nodeId: id, preferredId: sdtId);
+    final int actualSdtId = SdtStoreProvider.of(this).getNextId(nodeId: id, preferredId: sdtId);
     children.add(
       XmlElement.tag(
         'w:id',
@@ -195,11 +195,11 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
 
     if (_content.isEmpty) {
       // Empty content - show placeholder or empty run
-      runs.addAll(TextRun.empty().ensureInitialized(context).buildXml());
+      runs.addAll(TextRun.empty().buildXml());
     } else {
       // Build runs from content
       for (final RunBase run in _content) {
-        runs.addAll(run.ensureInitialized(context).buildXml());
+        runs.addAll(run.buildXml());
       }
     }
 

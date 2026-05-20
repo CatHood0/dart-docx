@@ -46,10 +46,9 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
     int index = 0;
     for (final DocxNode<dynamic> content in data) {
       if (content is ShapeTextBox) {
-        length +=
-            content.child.content.map((DocxNode<dynamic> e) => e.length).reduce(
-                  (int a, int b) => a + b,
-                );
+        length += content.child.content.map((DocxNode<dynamic> e) => e.length).reduce(
+              (int a, int b) => a + b,
+            );
       }
       content
         ..parent = this
@@ -170,10 +169,8 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
     // Add the content of the TextFrame (e.g., actual paragraphs, text runs)
     // directly as children of the w:p element that forms the frame.
     for (final DocxNode child in child) {
-      final List<XmlNode> element = child.ensureInitialized(context).buildXml();
-      if (child is IgnorableMixin &&
-              child.cast<IgnorableMixin>().shouldIgnore() ||
-          element.isEmpty) {
+      final List<XmlNode> element = child.buildXml();
+      if (child is IgnorableMixin && child.cast<IgnorableMixin>().shouldIgnore() || element.isEmpty) {
         continue;
       }
       paragraphChildren.addAll(element);
@@ -191,8 +188,7 @@ class TextFrame extends ComponentContainer<Iterable<DocxNode>> {
   List<XmlNode> buildXmlStyle() {
     final List<XmlNode> borderConfigs = <XmlNode>[];
     if (border != null) {
-      final StyleConfigurator? pBdrConfig =
-          border!.getConfiguratorOrNull('w:pBdr', fullName: true);
+      final StyleConfigurator? pBdrConfig = border!.getConfiguratorOrNull('w:pBdr', fullName: true);
       if (pBdrConfig != null && pBdrConfig.hasChildren) {
         for (final StyleConfigurator borderChild in pBdrConfig.configurators) {
           final List<XmlAttribute> attrs = borderChild.attributes?.entries.map((

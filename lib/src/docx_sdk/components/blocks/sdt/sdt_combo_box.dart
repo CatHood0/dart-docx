@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Combo-box SDT component for editable drop-down selection.
 ///
@@ -129,7 +130,7 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
         children: () {
           final List<XmlNode> nodes = [];
           for (var item in child) {
-            nodes.addAll(item.ensureInitialized(context).buildXml());
+            nodes.addAll(item.buildXml());
           }
           return nodes;
         }()
@@ -154,7 +155,7 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
         attributes: <XmlAttribute>[
           XmlAttribute(
               'w:val'.toName(),
-              context.sdtStore
+              SdtStoreProvider.of(this)
                   .getNextId(nodeId: id, preferredId: sdtId)
                   .toString()),
         ],
@@ -204,7 +205,7 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
   XmlElement _buildContentXml() {
     final List<XmlNode> runs = TextRun.empty(
       parent: this,
-    ).ensureInitialized(context).buildXml();
+    ).buildXml();
     return XmlElement.tag('w:sdtContent', children: runs);
   }
 

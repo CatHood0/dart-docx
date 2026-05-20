@@ -1,6 +1,4 @@
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
 /// Stage that initializes the [NumberingStore] with options and discovers instances.
 ///
@@ -15,8 +13,8 @@ import '../../pipeline_stage.dart';
 ///
 /// ## Dependencies
 /// - Requires that [NumberingDiscoveryStage] has completed
-class NumberingInitializationStage extends PipelineStage {
-  const NumberingInitializationStage();
+class NumberingDiscoveryStage extends PipelineStage {
+  const NumberingDiscoveryStage();
 
   @override
   String get name => 'NumberingInitialization';

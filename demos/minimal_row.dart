@@ -37,13 +37,13 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(true)
+      .autoRegisterFonts(true)
       // add preserve to the <w:r> to avoid auto trim
       // behavior of Word
       .noTrimRuns()
       // if a paragraph has no default style defined
       // it will force to have one
-      .setNormalIfNeeded(true)
+      .normalStyleIfNeeded()
       .execute(doc);
 
   if (bytes != null) {

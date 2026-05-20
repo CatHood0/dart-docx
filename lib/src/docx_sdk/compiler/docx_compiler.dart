@@ -1,7 +1,9 @@
 import 'package:archive/archive.dart';
 
 import '../../../docx.dart';
+import '../exceptions/docx_compilation_exception.dart';
 
+//TODO: we need to improve stacktraces, since errors are difficult to understand
 //TODO: we will work on configurable outputs now
 /// Core compiler that transforms [DocxDocument] objects into .docx files.
 ///
@@ -41,7 +43,7 @@ class DocxCompiler {
         DocxPipeline(
           config: PipelineConfig(
             defaultNormalStyle: Style.ref('Normal'),
-            applyNormalStyleIfNeeded: true,
+            normalStyleIfNeeded: true,
             noTrim: true,
             checkStyleRefExistence: false,
             dynamicFontSearch: true,
@@ -58,8 +60,8 @@ class DocxCompiler {
   /// When true, the compiler analyzes text runs to automatically register
   /// required fonts. When false, only fonts specified in [DocumentOptions.fonts]
   /// are used.
-  bool get dynamicFontSearch => _pipeline.config.dynamicFontSearch;
-  set dynamicFontSearch(bool value) {
+  bool get autoRegisterFonts => _pipeline.config.dynamicFontSearch;
+  set autoRegisterFonts(bool value) {
     _pipeline.updateConfig(dynamicFontSearch: value);
   }
 
@@ -67,15 +69,14 @@ class DocxCompiler {
   ///
   /// When true, paragraphs without explicit styling will receive the default
   /// "Normal" style reference.
-  bool get applyNormalStyleIfNeeded =>
-      _pipeline.config.applyNormalStyleIfNeeded;
-  set applyNormalStyleIfNeeded(bool value) {
+  bool get normalStyleIfNeeded => _pipeline.config.normalStyleIfNeeded;
+  set normalStyleIfNeeded(bool value) {
     _pipeline.updateConfig(applyNormalStyleIfNeeded: value);
   }
 
-  /// The default "Normal" style to apply when [applyNormalStyleIfNeeded] is true.
-  Style get defaultNormalStyle => _pipeline.config.defaultNormalStyle;
-  set defaultNormalStyle(Style value) {
+  /// The default "Normal" style to apply when [normalStyleIfNeeded] is true.
+  Style get normalStyle => _pipeline.config.normalStyle;
+  set normalStyle(Style value) {
     _pipeline.updateConfig(defaultNormalStyle: value);
   }
 
@@ -85,6 +86,10 @@ class DocxCompiler {
   bool get noTrim => _pipeline.config.noTrim;
   set noTrim(bool value) {
     _pipeline.updateConfig(noTrim: value);
+  }
+
+  set flags(ExecutionFlags fl) {
+    _pipeline.withFlags(fl);
   }
 
   /// Enables checking every Style.ref used in the Document content.
@@ -170,12 +175,12 @@ class DocxCompiler {
     if (archive != null) {
       CompilerLogger.root.info('Docx compilation completed successfully.');
     } else {
-      // Get error from pipeline context if available
-      final context = _pipeline.context;
-      CompilerLogger.root.error(
-        'Docx compilation failed: ${context.lastError}',
-        context.lastError,
-        null,
+      final lastError = _pipeline.context.lastError;
+
+      throw DocxCompilationException(
+        message: lastError != null ? 'Docx compilation failed: $lastError' : 'Docx compilation failed: Unknown error',
+        documentTitle: document.options.title,
+        cause: lastError,
       );
     }
 

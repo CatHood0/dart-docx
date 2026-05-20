@@ -30,8 +30,7 @@ class PatternFillComponent extends Fill<PatternFill> {
       children.add(
         XmlElement.tag(
           'a:fgClr',
-          children:
-              child.foregroundColor!.ensureInitialized(context).buildXml(),
+          children: child.foregroundColor!.buildXml(),
         ),
       );
     }
@@ -40,8 +39,7 @@ class PatternFillComponent extends Fill<PatternFill> {
       children.add(
         XmlElement.tag(
           'a:bgClr',
-          children:
-              child.backgroundColor!.ensureInitialized(context).buildXml(),
+          children: child.backgroundColor!.buildXml(),
         ),
       );
     }

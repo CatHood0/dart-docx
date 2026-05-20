@@ -38,9 +38,9 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(false)
+      .autoRegisterFonts(false)
       .noTrimRuns()
-      .setNormalIfNeeded(true)
+      .normalStyleIfNeeded()
       .checkStylReferences()
       .logPath(DocxPaths.documentFilePath)
       .execute(

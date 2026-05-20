@@ -41,7 +41,7 @@ class EffectList extends Effect<Iterable<DocxNode>> {
     final List<XmlNode> effectElements = <XmlNode>[];
 
     for (final DocxNode<dynamic> child in child) {
-      effectElements.addAll(child.ensureInitialized(context).buildXml());
+      effectElements.addAll(child.buildXml());
     }
 
     return <XmlNode>[

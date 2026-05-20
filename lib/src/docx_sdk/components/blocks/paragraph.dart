@@ -7,6 +7,8 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
+import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../stores/inherited_stores/numbering_store_provider.dart';
 
 /// Fundamental document unit for organizing text content.
 ///
@@ -102,7 +104,7 @@ import '../../../core/extensions/style_to_from_node.dart';
 /// - [ParagraphBorders] for paragraph border configuration
 /// - [WidowOrphanControl] for widow/orphan line control
 //TODO: should we change the name to allow making more similar as Text and Text.rich?
-class Paragraph extends ComponentContainer<List<RunBase>> {
+class Paragraph extends DocxNode<List<RunBase>> {
   Paragraph({
     required Iterable<RunBase> children,
     Iterable<Style> styles = const <Style>[],
@@ -426,7 +428,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     for (final RunBase e in child) {
-      final List<XmlNode> element = e.ensureInitialized(context).buildXml();
+      final List<XmlNode> element = e.buildXml();
       if (e.shouldIgnore() || element.isEmpty || e.isEmptyNode()) {
         continue;
       }
@@ -434,16 +436,16 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     if (pageBreak == ParagraphPageBreak.after) {
-      paragraphChildren
-          .addAll(Run.pageBreak().ensureInitialized(context).buildXml());
+      paragraphChildren.addAll(Run.pageBreak().buildXml());
     }
 
     return <XmlElement>[
-      super.paragraph(
+      XmlElement.tag(
+        xmlParagraphNode,
         attributes: <XmlAttribute>[],
         children: paragraphChildren,
         isSelfClosing: false,
-      ),
+      )
     ];
   }
 
@@ -451,29 +453,33 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   List<XmlElement> buildXmlStyle() {
     final List<XmlElement> pPrChildren = <XmlElement>[];
 
-    if (numbering != null) {
+    final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
+    if (numbering != null && isChildOf<NumberingStoreProvider>()) {
       if (numbering!.level > 9) {
         throw 'Level cannot be greater than 9. Read more here: '
             'https://answers.microsoft.com/en-us/msoffice/forum/'
             'all/does-word-support-more-than-9-list-levels/'
             'd130fdcd-1781-446d-8c84-c6c79124e4d7';
       }
-      if (context.getAncestorOfExactType<NumberingList>() != null) {
-        final bool hasConcreteId = context.numberingStore
-            .hasConcreteInstance(numbering!.concreteRef, id);
+      final NumberingStore provider = NumberingStoreProvider.of(this);
+      if (isChildOf<NumberingList>()) {
+        final bool hasConcreteId =
+            provider.hasConcreteInstance(numbering!.concreteRef, id);
         if (!hasConcreteId) {
-          context.numberingStore.registerConcreteInstance(
+          CompilerLogger.root.debug(
+              'Registering concrete instance: ${numbering!.concreteRef}-$id');
+          provider.registerConcreteInstance(
             numbering!.concreteRef,
             numbering!.refId ?? 0,
             nodeId: id,
           );
         }
       } else {
-        context.numberingStore
-            .validateAbstractNumberingExistence(numbering!.reference);
+        CompilerLogger.root.debug('Checking if abstract reference exist');
+        provider.validateAbstractNumberingExistence(numbering!.reference);
       }
       pPrChildren.add(numbering!.build(
-        context.numberingStore.getConcreteNumId(
+        provider.getConcreteNumId(
           numbering!.concreteRef,
         )!,
       ));
@@ -481,9 +487,9 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
 
     bool alreadyHasReference = false;
 
-    if (context.checkStyleRefExistence && headingLevel != null) {
+    if (configs?.checkStyleRefExistence == true && headingLevel != null) {
       final Style? header =
-          context.options.docStyles.getStyleById('Heading${headingLevel!}');
+          configs!.options.docStyles.getStyleById('Heading${headingLevel!}');
       if (header != null && !header.isInvalid) {
         alreadyHasReference = true;
         pPrChildren.addAll(header.forParagraphStyle(
@@ -502,7 +508,7 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     }
 
     // Build style from direct properties
-    final Style? directStyle = _buildDirectStyle(context);
+    final Style? directStyle = _buildDirectStyle();
     if (directStyle != null) {
       final List<XmlElement> directStyleXml = directStyle.forParagraphStyle(
         shouldShowStyleRef: false,
@@ -521,25 +527,25 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
     //TODO: we need to register configurators
     final Map<String, Style> appliedStyles = <String, Style>{};
 
-    if (styles.isEmpty && context.setNormalStyleToNotStyledParagraphs) {
+    if (styles.isEmpty && configs?.normalStyleIfNeeded == true) {
       assert(
-        context.defaultNormalStyle.isReference,
+        configs == null || configs.normalStyle.isReference,
         'defaultNormalStyle in DocumentContext is '
         'not a reference. Please, ensure you are '
         'setting a reference style',
       );
-      Style? st = context.defaultNormalStyle;
-      if (alreadyHasReference || context.checkStyleRefExistence) {
-        final Style? normal = context.options.docStyles
-            .getStyleById(context.defaultNormalStyle.styleId);
+      Style? st = configs?.normalStyle;
+      if (alreadyHasReference || configs?.checkStyleRefExistence == true) {
+        final Style? normal = configs!.options.docStyles
+            .getStyleById(configs.normalStyle.styleId);
         if (normal != null && !normal.isInvalid) {
           st = normal;
         } else {
           st = null;
           CompilerLogger.root.warning(
-            'Not found style "${context.defaultNormalStyle.styleId}". '
+            'Not found style "${configs.normalStyle.styleId}". '
             'It will be ignored for '
-            '$runtimeType:$id at $index with deep tree level $depth, '
+            '$runtimeType:$id at $depth with deep tree level $depth, '
             'child of ${parent?.runtimeType}',
           );
         }
@@ -562,9 +568,9 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       Style? st = style;
       // Resolve references
       if (alreadyHasReference && st.isReference ||
-          context.checkStyleRefExistence) {
+          configs?.checkStyleRefExistence == true) {
         final Style? stemp =
-            context.options.docStyles.getStyleById(style.styleId);
+            configs!.options.docStyles.getStyleById(style.styleId);
         if (stemp != null && !stemp.isInvalid) {
           st = stemp;
         } else {
@@ -593,13 +599,13 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
   /// Builds a Style from direct paragraph properties.
   ///
   /// This allows applying formatting directly without requiring StyleBuilder.
-  Style? _buildDirectStyle(BuildNodeContext context) {
+  Style? _buildDirectStyle() {
     final StyleBuilder builder = StyleBuilder.up();
     if (pageBreak != ParagraphPageBreak.none) builder.pageBreakBefore();
     if (alignment != null) builder.alignment(alignment!);
 
-    if (context.childOfAncestorOfExactType<Align>()) {
-      final Alignment al = context.getAncestorOfExactType<Align>()!.alignment;
+    if (isChildOf<Align>()) {
+      final Alignment al = getAncestorOfExactType<Align>()!.alignment;
       CompilerLogger.root.debug(
           'Replace current align $alignment to found ancestor ${al.name}');
       builder.alignment(al);
@@ -847,14 +853,6 @@ class Paragraph extends ComponentContainer<List<RunBase>> {
       }
     }
     return elements;
-  }
-
-  void checkAbstractNumberingInstanceExistence(
-    BuildNodeContext context,
-    String ref,
-  ) {
-    // Delegate to NumberingStore for validation
-    context.numberingStore.validateAbstractNumberingExistence(ref);
   }
 
   void addRun(RunBase run) {

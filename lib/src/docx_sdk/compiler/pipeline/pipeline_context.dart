@@ -5,6 +5,7 @@ import '../../sdk.dart';
 
 class PipelineContext {
   PipelineContext({
+    required this.tree,
     required this.document,
     required Map<Type, Store> stores,
     DocumentOptions? options,
@@ -21,6 +22,8 @@ class PipelineContext {
 
   final DocxDocument document;
 
+  DocxNode tree;
+
   final Map<Type, Store> _stores;
 
   final DocumentOptions options;
@@ -36,8 +39,7 @@ class PipelineContext {
   // TODO: add support to partial compilation
   bool get isTemplateCompilation => metadata.containsKey('zipBytes');
 
-  String? get extractedTemplatePath =>
-      metadata['extractedTemplatePath'] as String?;
+  String? get extractedTemplatePath => metadata['extractedTemplatePath'] as String?;
 
   List<RelationShip> defaultDocRelations;
 
@@ -60,43 +62,38 @@ class PipelineContext {
   Object? _lastError;
   Object? get lastError => _lastError;
 
+  bool _hasFatalError = false;
+  bool get hasFatalError => _hasFatalError;
+
   PipelineConfig config;
 
-  void registerError(Object error, [StackTrace? stackTrace]) {
+  void registerError(
+    Object error, [
+    StackTrace? stackTrace,
+    bool isFatal = true, // NUEVO: indica si el error detiene la compilación
+  ]) {
     _lastError = error;
+    if (isFatal) {
+      _hasFatalError = true; // NUEVO: flag para errores fatales
+    }
     CompilerLogger.root.error(
-      'Pipeline error: $error',
+      'Pipeline error${isFatal ? " (fatal)" : ""}: $error',
       error,
       stackTrace ?? StackTrace.current,
     );
   }
 
-  bool get isDocumentEmpty => document.root.isEmpty;
-
   bool get hasNumberingUsage {
     return document.root.visitElement(
           visitChildrenIfNeeded: true,
           (DocxNode<dynamic> el) {
-            return el is Paragraph && el.numbering != null ||
-                el is NumberingList;
+            return el is Paragraph && el.numbering != null || el is NumberingList;
           },
         ) !=
         null;
   }
 
   void emit(DocxEvent event) {}
-
-  BuildNodeContext buildDocumentContext([DocxRoot? root]) {
-    return BuildNodeContext(
-      options: options,
-      element: root,
-      defaultNormalStyle: config.defaultNormalStyle,
-      setNormalStyleToNotStyledParagraphs: flags.forceNormalStyle,
-      noTrim: config.noTrim,
-      stores: _stores,
-      checkStyleRefExistence: flags.checkStyleRefExistence,
-    );
-  }
 
   void resetEventController() {}
 }

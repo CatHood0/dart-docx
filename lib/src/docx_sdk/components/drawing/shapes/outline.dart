@@ -142,7 +142,7 @@ class ShapeBorder extends DocxNode<void> {
         children: <XmlNode>[
           ...SolidFill(
             color: color,
-          ).ensureInitialized(context).buildXml(),
+          ).buildXml(),
           if (style != LineStyle.solid) _buildLineStyle(style, dashPattern),
         ],
       ),
@@ -231,16 +231,7 @@ class ShapeBorder extends DocxNode<void> {
   }
 }
 
-enum LineStyle {
-  solid,
-  dash,
-  dot,
-  dashDot,
-  dashDotDot,
-  longDash,
-  systemDash,
-  systemDot
-}
+enum LineStyle { solid, dash, dot, dashDot, dashDotDot, longDash, systemDash, systemDot }
 
 enum LineCap { flat, round, square }
 

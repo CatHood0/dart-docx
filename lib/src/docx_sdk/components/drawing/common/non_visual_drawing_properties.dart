@@ -40,7 +40,7 @@ class NonVisualDrawingProperties extends DocxNode<dynamic> {
         'pic:cNvPr',
         isSelfClosing: false,
         attributes: [
-          XmlAttribute(XmlName.fromString('id'), id.toString()),
+          XmlAttribute(XmlName.fromString('id'), id),
           XmlAttribute(XmlName.fromString('name'), name),
           if (description != null)
             XmlAttribute(XmlName.fromString('descr'), description!),
