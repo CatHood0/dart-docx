@@ -31,54 +31,28 @@ import '../../../compiler/inherited/compiler_config_provider.dart';
 ///
 /// See also:
 /// - [StyleBuilder] for creating complex styles
-/// - [ParagraphBorders] for paragraph border configuration
+/// - [Borders] for paragraph border configuration
 /// - [WidowOrphanControl] for widow/orphan line control
 class Text extends ComponentContainer<String> {
   Text(
     String text, {
     Iterable<Style> styles = const <Style>[],
     this.textAlign,
-    this.bold = false,
-    this.italic = false,
-    this.underline = false,
-    this.strikethrough = false,
-    this.size,
-    this.family,
-    this.color,
-    this.backgroundColor,
-    this.lineSpacing,
-    this.subscript = false,
-    this.superscript = false,
+    this.textStyle,
     super.id,
     super.parent,
-  })  : assert(!subscript && !superscript || subscript != superscript,
-            'subscript and superscript must be different'),
-        styles = List.from(styles),
+  })  : styles = List.from(styles),
         super(child: text);
 
   /// All the styles applied to the paragraph
   List<Style> styles;
   TextAlign? textAlign;
-
-  final bool bold;
-  final bool italic;
-  final bool underline;
-  final bool strikethrough;
-
-  // Font properties
-  final num? size;
-  final String? family;
-  final Color? color;
-  final Color? backgroundColor;
-
-  final int? lineSpacing;
-  final bool subscript;
-  final bool superscript;
+  TextStyle? textStyle;
 
   @override
   List<XmlNode> buildXml() {
-    // I hate this type assign. I'd prefer just making
-    // a different context per element instead just one
+    //TODO: we need to make definitely rules to avoid styles being paragraph block definitions 
+    // to use only inline ones
     final List<XmlNode> paragraphChildren = <XmlNode>[];
     final List<XmlElement> paragraphStyles = buildXmlStyle();
     if (paragraphStyles.isNotEmpty) {
@@ -93,9 +67,11 @@ class Text extends ComponentContainer<String> {
 
     final bool hasNewLines = child.contains('\n');
     for (final String e in child.split('\n')) {
-      final List<XmlNode> element = TextRun.inheritFrom(
+      final List<XmlNode> element = TextRun.text(
         text: e,
-        element: this,
+        parent: this,
+        styles: styles,
+        textStyle: textStyle,
       ).buildXml();
       paragraphChildren.addAll([
         ...element,
@@ -114,18 +90,10 @@ class Text extends ComponentContainer<String> {
 
   Paragraph toParagraph() => Paragraph.text(
         id: id,
-        bold: bold,
         text: child,
         parent: parent,
-        italic: italic,
-        fontSize: size,
-        fontColor: color,
         runStyles: styles,
-        fontFamily: family,
-        underline: underline,
-        lineSpacing: lineSpacing,
-        strikethrough: strikethrough,
-        backgroundColor: backgroundColor,
+        textStyle: textStyle,
       );
 
   @override
@@ -134,7 +102,7 @@ class Text extends ComponentContainer<String> {
 
     bool alreadyHasReference = false;
 
-    final Style? directStyle = _buildDirectStyle();
+    final Style? directStyle = textStyle?.toStyle();
     if (directStyle != null) {
       final List<XmlElement> directStyleXml = directStyle.forParagraphStyle(
         shouldShowStyleRef: false,
@@ -218,38 +186,6 @@ class Text extends ComponentContainer<String> {
     return <XmlElement>[...pPrChildren];
   }
 
-  /// Builds a Style from direct paragraph properties.
-  ///
-  /// This allows applying formatting directly without requiring StyleBuilder.
-  Style? _buildDirectStyle() {
-    final StyleBuilder builder = StyleBuilder.up();
-    if (textAlign != null) builder.alignment(textAlign!.toAlign);
-
-    if (textAlign == null && isChildOf<Align>()) {
-      final Alignment al = getAncestorOfExactType<Align>()!.alignment;
-      CompilerLogger.root.debug(
-          'Replace current align $textAlign to found ancestor ${al.name}');
-      builder.alignment(al);
-    }
-
-    if (bold) builder.bold();
-    if (italic) builder.italic();
-    if (underline) builder.underline();
-    if (strikethrough) builder.strikethrough();
-    if (size != null) builder.fontSize(size!.ptToHalfPoints());
-    if (family != null) builder.fontFamily(family!);
-    if (color != null) builder.runColor(color!);
-    if (backgroundColor != null) builder.highlight(backgroundColor!);
-
-    if (lineSpacing != null) {
-      builder.spacing(
-        line: lineSpacing!.ptToTwips(),
-        rule: LineRule.atLeast,
-      );
-    }
-    return builder.build();
-  }
-
   @override
   Text get copy => Text(
         child,
@@ -257,17 +193,7 @@ class Text extends ComponentContainer<String> {
         textAlign: textAlign,
         parent: parent,
         styles: styles,
-        bold: bold,
-        italic: italic,
-        underline: underline,
-        strikethrough: strikethrough,
-        size: size,
-        family: family,
-        color: color,
-        subscript: subscript,
-        superscript: superscript,
-        backgroundColor: backgroundColor,
-        lineSpacing: lineSpacing,
+        textStyle: textStyle,
       );
 
   @override
@@ -277,35 +203,15 @@ class Text extends ComponentContainer<String> {
     DocxNode<dynamic>? parent,
     Iterable<Style>? styles,
     TextAlign? textAlign,
-    bool? bold,
-    bool? italic,
-    bool? underline,
-    bool? strikethrough,
-    num? size,
-    String? family,
-    Color? color,
-    Color? backgroundColor,
-    int? lineSpacing,
-    bool? subscript,
-    bool? superscript,
+    TextStyle? textStyle,
   }) {
     return Text(
       child ?? this.child,
       styles: styles ?? this.styles,
       textAlign: textAlign ?? this.textAlign,
-      bold: bold ?? this.bold,
-      italic: italic ?? this.italic,
-      underline: underline ?? this.underline,
-      strikethrough: strikethrough ?? this.strikethrough,
-      size: size ?? this.size,
-      family: family ?? this.family,
-      color: color ?? this.color,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      lineSpacing: lineSpacing ?? this.lineSpacing,
-      subscript: subscript ?? this.subscript,
-      superscript: superscript ?? this.superscript,
       id: id ?? this.id,
       parent: parent ?? this.parent,
+      textStyle: textStyle ?? this.textStyle,
     );
   }
 

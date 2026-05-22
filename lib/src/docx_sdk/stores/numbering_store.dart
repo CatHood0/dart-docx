@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
+import 'package:xml/xml.dart';
 
 import '../../../docx.dart';
+import '../../core/extensions/string_ext.dart';
 import '../xml_components/numbering/abstract_numbering_component.dart';
 import '../xml_components/numbering/concrete_numbering_component.dart';
 
@@ -543,3 +545,64 @@ NumberingOptions(
         ),
       ];
 }
+
+/// Configuration for numbered or bulleted list items.
+///
+/// Defines how a paragraph participates in document numbering (lists).
+/// Each numbering reference corresponds to a list definition in the
+/// document's numbering store.
+class Numbering {
+  Numbering({
+    required this.reference,
+    this.level = 0,
+    this.refId,
+  }) : assert(
+          level >= 0 && level <= 9,
+          'Numbering level must be between 0 and 9. '
+          'Word does not support more than 9 list levels.',
+        );
+
+  /// Reference key to a numbering definition in [NumberingOptions].
+  final String reference;
+
+  /// List nesting level (0-9). Level 0 is the top-level list item.
+  final int level;
+
+  /// The unique reference id of this item
+  ///
+  /// Share the same id when you need a continuous
+  /// count of your items
+  ///
+  /// Change the id between the item when you need
+  /// to reset the list count
+  final int? refId;
+
+  String get concreteRef => '$reference-${refId ?? 0}';
+
+  XmlElement build(int id) {
+    return XmlElement.tag(
+      'w:numPr',
+      children: <XmlNode>[
+        XmlElement.tag(
+          'w:ilvl',
+          attributes: <XmlAttribute>[
+            XmlAttribute(
+              'w:val'.toName(),
+              level.toString(),
+            ),
+          ],
+        ),
+        XmlElement.tag(
+          'w:numId',
+          attributes: <XmlAttribute>[
+            XmlAttribute(
+              'w:val'.toName(),
+              id.toString(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+

@@ -2,9 +2,23 @@ import 'package:xml/xml.dart';
 import '../../sdk.dart';
 import 'xml_columns_settings_component.dart';
 
-//TODO: analyze this
+//TODO: some parts of this section properties need to be defined  
 //
-// <w:sectPr><w:type w:val="nextPage"/><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:left="1440" w:right="1440" w:gutter="0" w:header="0" w:top="1440" w:footer="0" w:bottom="1440"/><w:pgNumType w:fmt="decimal"/><w:cols w:num="2" w:space="0" w:equalWidth="true" w:sep="false"></w:cols><w:formProt w:val="false"/><w:textDirection w:val="lrTb"/><w:docGrid w:type="default" w:linePitch="100" w:charSpace="0"/></w:sectPr>
+// <w:sectPr>
+//   <w:type w:val="nextPage"/>
+//   <w:pgSz w:w="12240" w:h="15840"/>
+//   <w:pgMar w:left="1440" w:right="1440" w:gutter="0" w:header="0" w:top="1440" w:footer="0" w:bottom="1440"/>
+//   <w:pgNumType w:fmt="decimal"/>
+//   <w:cols 
+//      w:num="2" 
+//      w:space="0"
+//      w:equalWidth="true" 
+//      w:sep="false"
+//   >
+//   </w:cols><w:formProt w:val="false"/>
+//   <w:textDirection w:val="lrTb"/>
+//   <w:docGrid w:type="default" w:linePitch="100" w:charSpace="0"/>
+// </w:sectPr>
 //
 /// Represents the `<w:sectPr>` (Section Properties) element in WordML.
 ///
@@ -49,7 +63,7 @@ class XmlDocumentSectionSettingsComponent
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -57,7 +71,7 @@ class XmlDocumentSectionSettingsComponent
           .map((
             XmlComponentBase component,
           ) =>
-              component.buildXml(context))
+              component.buildXml())
           .toList(),
     );
   }
@@ -85,7 +99,7 @@ class XmlPageMarginsComponent extends XmlComponentBase<DocumentMargins> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -111,7 +125,7 @@ class XmlPageSizeComponent extends XmlComponentBase<PageSize> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

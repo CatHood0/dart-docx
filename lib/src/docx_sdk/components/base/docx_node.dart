@@ -322,7 +322,7 @@ abstract class DocxNode<T> {
     bool visitChildrenIfNeeded = true,
   });
 
-  String dumpTree() {
+  String dumpTree({String? suffix}) {
     if (parent == null) {
       return '$runtimeType:$id';
     }
@@ -341,6 +341,9 @@ abstract class DocxNode<T> {
       final isLast = index == ancestors.length - 1;
       final prefix = index == 0 ? '' : (isLast ? '└─ ' : '├─ ');
       buffer.write('$prefix${ancestor.runtimeType}:${ancestor.id}');
+      if (ancestor.id == id && suffix != null) {
+        buffer.write(' $suffix');
+      }
       if (index < ancestors.length - 1) {
         buffer
           ..write('\n')

@@ -29,7 +29,7 @@ class WebSettingsBuildStage extends PipelineStage {
       options: context.options.webSettings,
     );
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.webSettingsXmlFilePath,

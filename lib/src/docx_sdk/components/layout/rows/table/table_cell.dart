@@ -360,10 +360,10 @@ class TableCell extends DocxNode<List<DocxNode>> {
     return nodes;
   }
 
-  XmlElement _buildBorder(String position, TableBorder border) {
+  XmlElement _buildBorder(String position, BorderSide border) {
     if (border.color != null && !border.color!.isRGB) {
       CompilerLogger.root.error(
-        'Found TableBorder instance '
+        'Found BorderSide instance '
         'with a non RGB Color definition \'${border.color}\'. We recommend '
         'using Color(0xFFFFFF) or RGB constructor variants.\n\n'
         'This instance will be ignored.\n\n'

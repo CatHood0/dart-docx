@@ -26,9 +26,10 @@ class AppPropsBuildStage extends PipelineStage {
   void execute(PipelineContext context) {
     final component = XmlAppComponent(
       metadata: context.options.editorSettings.metadata,
+      docOps: context.options,
     );
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.appFilePath,

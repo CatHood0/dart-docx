@@ -1,5 +1,4 @@
 import '../../../docx.dart';
-import '../docx_sdk/utils/component_commons.dart';
 
 export '../../../docx.dart' show Color;
 export '../docx_sdk/utils/component_commons.dart' show BorderStyle;
@@ -13,14 +12,14 @@ export '../docx_sdk/utils/component_commons.dart' show BorderStyle;
 /// Example usage:
 /// ```dart
 /// // Simple border
-/// final border = DocxBorder(
+/// final border = BorderSide(
 ///   style: BorderStyle.single,
 ///   size: 4,
 ///   color: Color.rgb(0x336699),
 /// );
 ///
 /// // Border from pixels
-/// final pixelBorder = DocxBorder.pixels(
+/// final pixelBorder = BorderSide.pixels(
 ///   style: BorderStyle.double,
 ///   size: 2, // 2 pixels
 ///   color: Color.rgb(0xFF0000),
@@ -28,16 +27,16 @@ export '../docx_sdk/utils/component_commons.dart' show BorderStyle;
 /// ```
 ///
 /// See also:
-/// - [DocxBorders] for applying borders to multiple sides
-/// - [DocxCellBorders] for cell-specific border configurations
-class DocxBorder {
+/// - [TableBorders] for applying borders to multiple sides
+/// - [TableCellBorders] for cell-specific border configurations
+class BorderSide {
   /// Creates a new border with the specified properties.
   ///
   /// [style] is the border line style (default: single).
   /// [size] is the border thickness in eighths of a point (default: 4).
   /// [space] is the spacing between border and content in points (default: 0).
   /// [color] is the border color (default: auto/black).
-  const DocxBorder({
+  const BorderSide({
     this.style = BorderStyle.single,
     this.size = 4,
     this.space = 0,
@@ -45,18 +44,37 @@ class DocxBorder {
   });
 
   /// Creates a border with no visible line.
-  const DocxBorder.none({
+  const BorderSide.none({
     this.size = 4,
     this.space = 0,
     this.color,
   }) : style = BorderStyle.none;
 
   /// Creates a border with nil style.
-  const DocxBorder.nil({
+  const BorderSide.nil({
     this.size = 4,
     this.space = 0,
     this.color,
   }) : style = BorderStyle.nil;
+
+  /// Creates a border from inches measurements.
+  ///
+  /// This is useful when you want to specify border size in inches
+  /// rather than points.
+  ///
+  /// [style] is the border line style.
+  /// [size] is the border thickness in pixels (converted to points).
+  /// [space] is the spacing in pixels (converted to points).
+  /// [color] is the border color.
+  ///
+  /// The calculation will be: `yourinches * ptPerInch (72)`
+  BorderSide.inches({
+    this.style = BorderStyle.single,
+    int size = 1,
+    int space = 0,
+    this.color,
+  })  : size = size.inchesToPoints(),
+        space = space.inchesToPoints();
 
   /// Creates a border from pixel measurements.
   ///
@@ -67,7 +85,11 @@ class DocxBorder {
   /// [size] is the border thickness in pixels (converted to points).
   /// [space] is the spacing in pixels (converted to points).
   /// [color] is the border color.
-  DocxBorder.pixels({
+  ///
+  /// The calculation will be: `yourpixels * ptPerPixel (0.75)`
+  ///
+  /// 1 pixel (96 DPI) = 0.75 points
+  BorderSide.pixels({
     this.style = BorderStyle.single,
     int size = 1,
     int space = 0,
@@ -105,8 +127,7 @@ class DocxBorder {
   final Color? color;
 
   /// Returns true if this border should be drawn (not none or nil).
-  bool get isVisible =>
-      style != BorderStyle.none && style != BorderStyle.nil;
+  bool get isVisible => style != BorderStyle.none && style != BorderStyle.nil;
 }
 
 /// Border configuration for table elements.
@@ -138,11 +159,11 @@ class DocxBorder {
 /// ```
 ///
 /// See also:
-/// - [DocxBorder] for individual border properties
-/// - [DocxCellBorders] for cell-specific borders
-class DocxBorders {
+/// - [BorderSide] for individual border properties
+/// - [TableCellBorders] for cell-specific borders
+class TableBorders {
   /// Creates a new borders configuration.
-  const DocxBorders({
+  const TableBorders({
     this.top,
     this.right,
     this.bottom,
@@ -155,8 +176,8 @@ class DocxBorders {
   ///
   /// [all] is the border to apply to all sides.
   /// [insideHorizontal] and [insideVertical] override the inner borders.
-  const DocxBorders.all(
-    DocxBorder? all, {
+  const TableBorders.all(
+    BorderSide? all, {
     this.insideHorizontal,
     this.insideVertical,
   })  : top = all,
@@ -168,9 +189,9 @@ class DocxBorders {
   ///
   /// [vertical] applies to top and bottom.
   /// [horizontal] applies to left and right.
-  const DocxBorders.symmetric({
-    DocxBorder? vertical,
-    DocxBorder? horizontal,
+  const TableBorders.symmetric({
+    BorderSide? vertical,
+    BorderSide? horizontal,
     this.insideHorizontal,
     this.insideVertical,
   })  : top = vertical,
@@ -179,22 +200,22 @@ class DocxBorders {
         left = horizontal;
 
   /// Top border of the table or element.
-  final DocxBorder? top;
+  final BorderSide? top;
 
   /// Right border of the table or element.
-  final DocxBorder? right;
+  final BorderSide? right;
 
   /// Bottom border of the table or element.
-  final DocxBorder? bottom;
+  final BorderSide? bottom;
 
   /// Left border of the table or element.
-  final DocxBorder? left;
+  final BorderSide? left;
 
   /// Horizontal borders between table rows.
-  final DocxBorder? insideHorizontal;
+  final BorderSide? insideHorizontal;
 
   /// Vertical borders between table columns.
-  final DocxBorder? insideVertical;
+  final BorderSide? insideVertical;
 }
 
 /// Border configuration for individual table cells.
@@ -224,11 +245,11 @@ class DocxBorders {
 /// ```
 ///
 /// See also:
-/// - [DocxBorder] for individual border properties
-/// - [DocxBorders] for table-level borders
-class DocxCellBorders {
+/// - [BorderSide] for individual border properties
+/// - [TableBorders] for table-level borders
+class TableCellBorders {
   /// Creates a new cell borders configuration.
-  const DocxCellBorders({
+  const TableCellBorders({
     this.top,
     this.right,
     this.bottom,
@@ -236,46 +257,46 @@ class DocxCellBorders {
   });
 
   /// Creates borders with the same style on all four sides.
-  const DocxCellBorders.all(DocxBorder? all)
+  const TableCellBorders.all(BorderSide? all)
       : top = all,
         right = all,
         bottom = all,
         left = all;
 
   /// Creates borders with no visible lines.
-  const DocxCellBorders.none()
-      : top = const DocxBorder.none(),
-        right = const DocxBorder.none(),
-        bottom = const DocxBorder.none(),
-        left = const DocxBorder.none();
+  const TableCellBorders.none()
+      : top = const BorderSide.none(),
+        right = const BorderSide.none(),
+        bottom = const BorderSide.none(),
+        left = const BorderSide.none();
 
   /// Creates borders with nil style.
-  const DocxCellBorders.nil()
-      : top = const DocxBorder.nil(),
-        right = const DocxBorder.nil(),
-        bottom = const DocxBorder.nil(),
-        left = const DocxBorder.nil();
+  const TableCellBorders.nil()
+      : top = const BorderSide.nil(),
+        right = const BorderSide.nil(),
+        bottom = const BorderSide.nil(),
+        left = const BorderSide.nil();
 
   /// Creates symmetric borders (top/bottom same, left/right same).
-  const DocxCellBorders.symmetric({
-    DocxBorder? vertical,
-    DocxBorder? horizontal,
+  const TableCellBorders.symmetric({
+    BorderSide? vertical,
+    BorderSide? horizontal,
   })  : top = vertical,
         right = horizontal,
         bottom = vertical,
         left = horizontal;
 
   /// Top border of the cell.
-  final DocxBorder? top;
+  final BorderSide? top;
 
   /// Right border of the cell.
-  final DocxBorder? right;
+  final BorderSide? right;
 
   /// Bottom border of the cell.
-  final DocxBorder? bottom;
+  final BorderSide? bottom;
 
   /// Left border of the cell.
-  final DocxBorder? left;
+  final BorderSide? left;
 }
 
 /// Border configuration for paragraph elements.
@@ -285,7 +306,7 @@ class DocxCellBorders {
 ///
 /// Example usage:
 /// ```dart
-/// final paragraphBorders = ParagraphBorders(
+/// final paragraphBorders = Borders(
 ///   top: DocxBorder(style: BorderStyle.single, size: 4),
 ///   bottom: DocxBorder(style: BorderStyle.double, size: 6, space: 4),
 ///   between: DocxBorder(style: BorderStyle.dotted),
@@ -295,21 +316,21 @@ class DocxCellBorders {
 /// Common patterns:
 /// ```dart
 /// // Simple top and bottom border
-/// final simple = ParagraphBorders.topBottom(
+/// final simple = Borders.topBottom(
 ///   DocxBorder(style: BorderStyle.single, size: 4),
 /// );
 ///
 /// // Box around paragraph
-/// final box = ParagraphBorders.all(
+/// final box = Borders.all(
 ///   DocxBorder(style: BorderStyle.single),
 /// );
 /// ```
-class ParagraphBorders {
+class Borders {
   /// Creates a new paragraph borders configuration.
   ///
   /// [top], [bottom], [left], [right] set individual side borders.
   /// [between] sets a border between the paragraph and the next one.
-  const ParagraphBorders({
+  const Borders({
     this.top,
     this.bottom,
     this.left,
@@ -318,7 +339,7 @@ class ParagraphBorders {
   });
 
   /// Creates borders with the same style on all four sides.
-  const ParagraphBorders.all(DocxBorder? all)
+  const Borders.all(BorderSide? all)
       : top = all,
         right = all,
         bottom = all,
@@ -326,7 +347,7 @@ class ParagraphBorders {
         between = null;
 
   /// Creates only top and bottom borders.
-  const ParagraphBorders.topBottom(DocxBorder? border)
+  const Borders.vertical(BorderSide? border)
       : top = border,
         right = null,
         bottom = border,
@@ -334,35 +355,48 @@ class ParagraphBorders {
         between = null;
 
   /// Creates only left border (commonly used for lists/quotes).
-  const ParagraphBorders.leftOnly(DocxBorder? border)
+  const Borders.left(BorderSide? border)
       : top = null,
         right = null,
         bottom = null,
         left = border,
         between = null;
 
-  /// Creates no borders (all null).
-  const ParagraphBorders.none()
+  const Borders.right(BorderSide? border)
       : top = null,
+        right = border,
+        bottom = null,
+        left = null,
+        between = null;
+
+  const Borders.top(BorderSide? border)
+      : top = border,
         right = null,
         bottom = null,
         left = null,
         between = null;
 
+  const Borders.bottom(BorderSide? border)
+      : top = null,
+        right = null,
+        bottom = border,
+        left = null,
+        between = null;
+
   /// Top border of the paragraph.
-  final DocxBorder? top;
+  final BorderSide? top;
 
   /// Right border of the paragraph.
-  final DocxBorder? right;
+  final BorderSide? right;
 
   /// Bottom border of the paragraph.
-  final DocxBorder? bottom;
+  final BorderSide? bottom;
 
   /// Left border of the paragraph.
-  final DocxBorder? left;
+  final BorderSide? left;
 
   /// Border between this paragraph and the next one.
   /// This is commonly used in legal documents or when you want
   /// a border between paragraphs without affecting the paragraph itself.
-  final DocxBorder? between;
+  final BorderSide? between;
 }

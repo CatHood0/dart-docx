@@ -7,16 +7,7 @@ import '../../../../../core/extensions/style_to_from_node.dart';
 import '../../../../compiler/inherited/compiler_config_provider.dart';
 
 export '../../../../../core/borders.dart'
-    show DocxBorder, DocxBorders, DocxCellBorders;
-
-/// Backwards compatibility alias for [TableBorder].
-typedef TableBorder = DocxBorder;
-
-/// Backwards compatibility alias for [TableBorders].
-typedef TableBorders = DocxBorders;
-
-/// Backwards compatibility alias for [TableCellBorders].
-typedef TableCellBorders = DocxCellBorders;
+    show BorderSide, TableBorders, TableCellBorders;
 
 /// Complete table configuration for DOCX documents.
 ///
@@ -69,7 +60,7 @@ class TableProperties extends DocxNode<void> {
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(20),
         borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+            borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.expand({
@@ -85,7 +76,7 @@ class TableProperties extends DocxNode<void> {
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
         borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+            borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.auto({
@@ -101,7 +92,7 @@ class TableProperties extends DocxNode<void> {
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
         borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+            borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.dxa({
@@ -119,7 +110,7 @@ class TableProperties extends DocxNode<void> {
             'widthType of type expand requires that width property be zero or less'),
         cellMargins = padding ?? const EdgeInsets.all(55),
         borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+            borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.pct({
@@ -137,7 +128,7 @@ class TableProperties extends DocxNode<void> {
         styles = List<Style>.from(styles),
         cellMargins = padding ?? const EdgeInsets.all(55),
         borders =
-            borders ?? TableBorders.all(TableBorder(style: BorderStyle.single)),
+            borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
 
   /// Predefined table styles to apply.
@@ -332,10 +323,10 @@ class TableProperties extends DocxNode<void> {
   ///
   /// Creates the XML structure for a single border side with configurable
   /// style, thickness, spacing, and color.
-  XmlElement _buildBorder(String position, TableBorder border) {
+  XmlElement _buildBorder(String position, BorderSide border) {
     if (border.color != null && !border.color!.isRGB) {
       CompilerLogger.root
-          .error('Found TableBorder instance in TableProperties configuration '
+          .error('Found BorderSide instance in TableProperties configuration '
               'with non RGB Color definition \'${border.color}\'. We recommend '
               'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
               'This instance will be ignored.\n\n'

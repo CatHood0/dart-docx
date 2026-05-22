@@ -38,6 +38,16 @@ extension SkippableIterationsExt<T> on Iterable<T> {
     }
     return values;
   }
+
+  Iterable<V> skipNulls<V>() {
+    final List<V> values = [];
+    for (final T value in this) {
+      if (value == null || value is! V) continue;
+      values.add(value as V);
+    }
+    return values;
+  }
+
 }
 
 extension SkippableMapExt<K, V> on Map<K, V> {

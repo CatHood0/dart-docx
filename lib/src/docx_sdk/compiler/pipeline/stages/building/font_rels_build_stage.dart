@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
+
 class FontRelsBuildStage extends PipelineStage {
   const FontRelsBuildStage();
 
@@ -29,11 +30,11 @@ class FontRelsBuildStage extends PipelineStage {
 
   @override
   void execute(PipelineContext context) {
-    final component = context.getStoreOfExactType<FontStore>()!.buildFontTableRelsXmlDocument(
-      context.buildDocumentContext(),
-    );
+    final component = context
+        .getStoreOfExactType<FontStore>()!
+        .buildFontTableRelsXmlDocument();
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.fontTableXmlRelsFilePath,

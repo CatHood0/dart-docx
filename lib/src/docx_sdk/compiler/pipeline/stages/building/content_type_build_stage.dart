@@ -33,7 +33,7 @@ class ContentTypeBuildStage extends PipelineStage {
       ],
     );
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.contentTypesPath,

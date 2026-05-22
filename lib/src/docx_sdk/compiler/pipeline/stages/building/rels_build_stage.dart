@@ -25,7 +25,7 @@ class RelsBuildStage extends PipelineStage {
   void execute(PipelineContext context) {
     final component = XmlRelsComponent();
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.relsFilePath,

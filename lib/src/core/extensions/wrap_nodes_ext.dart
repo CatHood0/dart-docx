@@ -1,9 +1,9 @@
+import '../../docx_sdk/exceptions/docx_compilation_exception.dart';
 import '../../docx_sdk/sdk.dart'
     show
         Align,
         Alignment,
         CrossAxisAlignment,
-        BuildNodeContext,
         DocxNode,
         Drawing,
         GridColumn,
@@ -15,9 +15,9 @@ import '../../docx_sdk/sdk.dart'
         Row,
         Run,
         RunBase,
+        BorderSide,
         Style,
         Table,
-        TableBorder,
         TableBorders,
         TableCell,
         TableCellConfig,
@@ -25,8 +25,108 @@ import '../../docx_sdk/sdk.dart'
         TableProperties,
         TableRow,
         TableWidthType,
-        NumberingList;
+        NumberingList,
+        Builder,
+        TextStyle,
+        TextAlign,
+        TextRun,
+        HyperlinkRun,
+        Text;
 import 'cast_ext.dart';
+
+extension WrapText on String {
+  Paragraph paragraph({
+    Iterable<Style> styles = const <Style>[],
+    ParagraphPageBreak pageBreak = ParagraphPageBreak.none,
+    Numbering? numbering,
+    Alignment? align,
+    String? id,
+    DocxNode? parent,
+    TextStyle? textStyle,
+  }) {
+    if (contains('\n')) {
+      throw DocxCompilationException(
+        message: 'paragraph must not contain any \'\\n\' text',
+        cause: '\\n founded during construction of a Paragraph node',
+      );
+    }
+    return Paragraph.text(
+      id: id,
+      text: this,
+      styles: styles,
+      pageBreak: pageBreak,
+      numbering: numbering,
+      align: align,
+      parent: parent,
+      textStyle: textStyle,
+    );
+  }
+
+  TextRun textRun({
+    String? id,
+    DocxNode? parent,
+    Iterable<Style> styles = const <Style>[],
+    TextStyle? textStyle,
+  }) {
+    if (contains('\n')) {
+      throw DocxCompilationException(
+        message: 'runs must not contain any \'\\n\' text',
+        cause: '\\n founded during construction of a TextRun node',
+      );
+    }
+    return TextRun.text(
+      id: id,
+      text: this,
+      styles: [...styles],
+      parent: parent,
+      textStyle: textStyle,
+    );
+  }
+
+  HyperlinkRun linkRun({
+    String? id,
+    DocxNode? parent,
+    Iterable<Style> styles = const <Style>[],
+    TextStyle? textStyle,
+  }) {
+    if (contains('\n')) {
+      throw DocxCompilationException(
+        message: 'link runs must not contain any \'\\n\' text',
+        cause: '\\n founded during construction of a HyperlinkRun node',
+      );
+    }
+    return HyperlinkRun.pure(
+      id: id,
+      text: this,
+      link: this,
+      styles: [...styles],
+      parent: parent,
+    );
+  }
+
+  Text text({
+    String? id,
+    DocxNode? parent,
+    Iterable<Style> styles = const <Style>[],
+    TextStyle? textStyle,
+    TextAlign? textAlign,
+  }) {
+    if (contains('\n')) {
+      throw DocxCompilationException(
+        message: 'link runs must not contain any \'\\n\' text',
+        cause: '\\n founded during construction of a HyperlinkRun node',
+      );
+    }
+    return Text(
+      this,
+      id: id,
+      parent: parent,
+      textStyle: textStyle,
+      textAlign: textAlign,
+      styles: [...styles],
+    );
+  }
+}
 
 extension WrapNode on DocxNode {
   Paragraph paragraph({
@@ -36,16 +136,18 @@ extension WrapNode on DocxNode {
     Alignment? align,
     String? id,
     DocxNode? parent,
+    TextStyle? textStyle,
   }) {
     if (this is RunBase) {
       return Paragraph(
-        children: <RunBase<dynamic>>[cast()],
         id: id,
+        children: <RunBase<dynamic>>[cast()],
         styles: styles,
         pageBreak: pageBreak,
         numbering: numbering,
         alignment: align,
         parent: parent,
+        textStyle: textStyle,
       );
     }
 
@@ -57,17 +159,19 @@ extension WrapNode on DocxNode {
       numbering: numbering,
       align: align,
       parent: parent,
+      textStyle: textStyle,
     );
   }
 
   NumberingList numbering([String? key]) {
     if (key == null) {
-      final NumberingList? owner = getAncestorOfExactType<NumberingList>();
-      if (owner == null) {
-        throw Exception(
-          'key must be provided if '
-          'node $runtimeType:$id at $depth is not '
-          'wrapped by a NumberingList node',
+      if (!isChildOf<NumberingList>()) {
+        throw DocxCompilationException(
+          message: 'key must be provided if '
+              'node $runtimeType:$id at $depth is not '
+              'wrapped by a NumberingList node',
+          node: this,
+          cause: 'Key was not provided when required',
         );
       }
       return NumberingList.inheritOne(child: this);
@@ -118,14 +222,16 @@ extension WrapNode on DocxNode {
     )..parent = parent;
   }
 
-  DocxNode lazy({
+  DocxNode builder({
     String? id,
     DocxNode? parent,
   }) {
-    return DocxNode.lazyBuild((BuildNodeContext context, String id) {
-      return this..parent = parent;
-    })
-      ..parent = this;
+    return Builder(builder: (
+      DocxNode<dynamic> context,
+      String id,
+    ) {
+      return this;
+    });
   }
 
   PageColumn column({
@@ -179,7 +285,7 @@ extension WrapNode on DocxNode {
             layout: !variableWidth,
             widthType: variableWidth ? TableWidthType.auto : TableWidthType.nil,
             alignment: align ?? Alignment.center,
-            borders: TableBorders.all(TableBorder.none()),
+            borders: TableBorders.all(BorderSide.none()),
           ),
     );
   }
@@ -216,11 +322,13 @@ extension WrapNode on DocxNode {
     String? id,
     TableCellConfig? cellConfig,
     DocxNode? parent,
+    bool reversed = false,
   }) {
     return TableCell.one(
       id: id,
       child: this,
       cellConfig: cellConfig ?? TableCellConfig.nil(),
+      reversed: reversed,
       parent: parent,
     );
   }
@@ -236,7 +344,7 @@ extension WrapNodes on Iterable<DocxNode> {
   }) {
     return Paragraph(
       children: this is Iterable<RunBase<dynamic>>
-          ? this.cast<RunBase<dynamic>>()
+          ? cast<RunBase<dynamic>>()
           : map((DocxNode<dynamic> e) => e.run()).cast<RunBase<dynamic>>(),
       id: id,
       styles: styles,
@@ -308,7 +416,7 @@ extension WrapNodes on Iterable<DocxNode> {
             layout: !variableWidth,
             widthType: variableWidth ? TableWidthType.auto : TableWidthType.nil,
             alignment: align ?? Alignment.center,
-            borders: TableBorders.all(TableBorder.none()),
+            borders: TableBorders.all(BorderSide.none()),
           ),
     );
   }

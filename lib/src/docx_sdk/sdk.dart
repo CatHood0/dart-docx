@@ -19,6 +19,7 @@ export 'components/data/anchor_configs/anchor_configs.dart';
 export 'components/data/image/image_data.dart';
 export 'components/data/table/table_cell_config.dart';
 export 'components/data/table/table_enums.dart';
+export 'components/data/text_style/text_style.dart';
 export 'components/docx_document.dart';
 export 'components/drawing/drawing.dart';
 export 'components/drawing/images/picture_shape_properties.dart';
@@ -80,6 +81,7 @@ export 'utils/generators/hexadecimal_generator.dart';
 export 'utils/generators/media_creator.dart';
 export 'utils/language_codes.dart';
 export 'utils/sizing_utils.dart';
+export 'widgets/widget.dart';
 export 'xml_components/document/configs/column_options.dart';
 //TODO: insert rest of the xml components in order
 // to add capabilities for incremental changes

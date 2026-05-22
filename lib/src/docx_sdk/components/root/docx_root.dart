@@ -117,7 +117,7 @@ class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
     int? path,
   }) {
     final Builder<Paragraph> lazyElement = Builder<Paragraph>(
-      builder: (String id) {
+      builder: (DocxNode<dynamic> context, String id) {
         return Paragraph.text(
           text: text,
           styles: styles ?? <Style>[],

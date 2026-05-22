@@ -24,7 +24,7 @@ class SettingsBuildStage extends PipelineStage {
   void execute(PipelineContext context) {
     final component = XmlSettingsComponent(options: context.options.settings);
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.settingsXmlFilePath,

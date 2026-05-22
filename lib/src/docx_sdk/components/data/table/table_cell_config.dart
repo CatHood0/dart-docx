@@ -86,19 +86,19 @@ class TableCellConfig {
         borders = borders ?? singleBorders;
 
   static const TableCellBorders singleBorders = TableCellBorders.all(
-    TableBorder(style: BorderStyle.single),
+    BorderSide(style: BorderStyle.single),
   );
 
   static final TableCellBorders noneBorders = TableCellBorders.all(
-    TableBorder(style: BorderStyle.none),
+    BorderSide(style: BorderStyle.none),
   );
 
   static final TableCellBorders dotBorders = TableCellBorders.all(
-    TableBorder(style: BorderStyle.dotted),
+    BorderSide(style: BorderStyle.dotted),
   );
 
   static final TableCellBorders waveBorders = TableCellBorders.all(
-    TableBorder(style: BorderStyle.wave),
+    BorderSide(style: BorderStyle.wave),
   );
 
   /// Cell width specification.

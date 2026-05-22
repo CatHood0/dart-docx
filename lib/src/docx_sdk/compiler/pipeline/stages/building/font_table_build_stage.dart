@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
+
 class FontTableBuildStage extends PipelineStage {
   const FontTableBuildStage();
 
@@ -16,8 +17,7 @@ class FontTableBuildStage extends PipelineStage {
   StageCategory get category => StageCategory.build;
 
   @override
-  String get description =>
-      'Build word/fontTable.xml.';
+  String get description => 'Build word/fontTable.xml.';
 
   @override
   bool shouldExecute(PipelineContext context) {
@@ -29,11 +29,9 @@ class FontTableBuildStage extends PipelineStage {
   @override
   void execute(PipelineContext context) {
     final component =
-        context.getStoreOfExactType<FontStore>()!.buildFontTableXmlComponent(
-              context.buildDocumentContext(),
-            );
+        context.getStoreOfExactType<FontStore>()!.buildFontTableXmlComponent();
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.fontTableXmlFilePath,

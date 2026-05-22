@@ -27,7 +27,7 @@ class StylesBuildStage extends PipelineStage {
   void execute(PipelineContext context) {
     final component = XmlStylesComponent();
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.stylesXmlFilePath,

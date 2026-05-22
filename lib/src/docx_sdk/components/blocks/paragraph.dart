@@ -5,7 +5,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
-import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../compiler/inherited/compiler_config_provider.dart';
 import '../../stores/inherited_stores/numbering_store_provider.dart';
@@ -27,12 +26,14 @@ import '../../stores/inherited_stores/numbering_store_provider.dart';
 /// ```dart
 /// Paragraph.text(
 ///   text: 'Formatted text',
-///   bold: true,
-///   italic: true,
-///   underline: true,
-///   strikethrough: true,
-///   smallCaps: true,
-///   caps: true,
+///   textStyle: TextStyle(
+///     bold: true,
+///     italic: true,
+///     underline: true,
+///     strikethrough: true,
+///     smallCaps: true,
+///     caps: true,
+///   ),
 /// );
 /// ```
 ///
@@ -40,10 +41,12 @@ import '../../stores/inherited_stores/numbering_store_provider.dart';
 /// ```dart
 /// Paragraph.text(
 ///   text: 'Custom font',
-///   fontSize: 12,  // In Points units
-///   fontFamily: 'Arial',   // Font name
-///   fontColor: Color(0xFF0000FF),   // Blue text
-///   highlightColor: Color(0xFFFFFF00), // Yellow highlight
+///   textStyle: TextStyle(
+///     fontSize: 12,  // In Points units
+///     fontFamily: 'Arial',   // Font name
+///     fontColor: Color(0xFF0000FF),   // Blue text
+///     highlightColor: Color(0xFFFFFF00), // Yellow highlight
+///   ),
 /// );
 /// ```
 ///
@@ -51,11 +54,13 @@ import '../../stores/inherited_stores/numbering_store_provider.dart';
 /// ```dart
 /// Paragraph.text(
 ///   text: 'Indented text',
-///   spacingBefore: 12,     // 240 twips
-///   spacingAfter: 6,       // 120 twips
-///   indentLeft: 0.5,       // 720 twips
-///   indentRight: 0.25,     // 360 twips
-///   firstLineIndent: 0.5,  // 720 twips
+///   textStyle: TextStyle(
+///     spacingBefore: 12,     // 240 twips
+///     spacingAfter: 6,       // 120 twips
+///     indentLeft: 0.5,       // 720 twips
+///     indentRight: 0.25,     // 360 twips
+///     firstLineIndent: 0.5,  // 720 twips
+///   ),
 /// );
 /// ```
 ///
@@ -63,15 +68,17 @@ import '../../stores/inherited_stores/numbering_store_provider.dart';
 /// ```dart
 /// Paragraph.text(
 ///   text: 'With border',
-///   borders: ParagraphBorders(
-///     bottom: BorderDefinition(
-///       style: BorderStyle.single,
-///       size: 6,
-///       color: Color(0xFF000000),
+///   textStyle: TextStyle(
+///     borders: Borders(
+///       bottom: Border(
+///         style: BorderStyle.single,
+///         size: 6,
+///         color: Color(0xFF000000),
+///       ),
 ///     ),
+///     shadingColor: Color(0xFFFFFFF0),
+///     shadingPattern: ShadingPattern.clear,
 ///   ),
-///   shadingColor: Color(0xFFFFFFF0),
-///   shadingPattern: ShadingPattern.clear,
 /// );
 /// ```
 ///
@@ -101,7 +108,7 @@ import '../../stores/inherited_stores/numbering_store_provider.dart';
 ///
 /// See also:
 /// - [StyleBuilder] for creating complex styles
-/// - [ParagraphBorders] for paragraph border configuration
+/// - [Borders] for paragraph border configuration
 /// - [WidowOrphanControl] for widow/orphan line control
 //TODO: should we change the name to allow making more similar as Text and Text.rich?
 class Paragraph extends DocxNode<List<RunBase>> {
@@ -111,45 +118,10 @@ class Paragraph extends DocxNode<List<RunBase>> {
     this.pageBreak = ParagraphPageBreak.none,
     this.numbering,
     this.alignment,
-    // Text formatting properties
-    this.bold = false,
-    this.italic = false,
-    this.underline = false,
-    this.strikethrough = false,
-    this.smallCaps = false,
-    this.caps = false,
-    // Font properties
-    this.fontSize,
-    this.fontFamily,
-    this.fontColor,
-    this.backgroundColor,
-    // Spacing properties
-    this.spacingBefore,
-    this.spacingAfter,
-    this.lineSpacing,
-    this.lineSpacingRule,
-    // Indent properties
-    this.indentLeft,
-    this.indentRight,
-    this.firstLineIndent,
-    this.hangingIndent,
-    // Border properties
-    this.borders,
-    // Widow/Orphan control
-    this.widowControl,
-    // Keep settings
-    this.keepNext,
-    this.keepLines,
-    // Outline level
-    this.outlineLevel,
-    // Shading
-    this.shadingColor,
-    this.shadingPattern,
-    int? level,
+    this.textStyle,
     super.id,
     super.parent,
-  })  : headingLevel = level,
-        styles = List.from(styles),
+  })  : styles = List.from(styles),
         super(child: <RunBase<dynamic>>[...children]) {
     int index = 0;
     for (final RunBase content in children) {
@@ -169,77 +141,18 @@ class Paragraph extends DocxNode<List<RunBase>> {
     Iterable<Style> styles = const <Style>[],
     Iterable<Object> runStyles = const <Object>[],
     ParagraphPageBreak pageBreak = ParagraphPageBreak.none,
-    int? level,
     Numbering? numbering,
     Alignment? align,
-    // Text formatting properties
-    bool bold = false,
-    bool italic = false,
-    bool underline = false,
-    bool strikethrough = false,
-    bool smallCaps = false,
-    bool caps = false,
-    // Font properties
-    num? fontSize,
-    String? fontFamily,
-    Color? fontColor,
-    Color? backgroundColor,
-    // Spacing properties
-    int? spacingBefore,
-    int? spacingAfter,
-    int? lineSpacing,
-    LineRule? lineSpacingRule,
-    // Indent properties
-    int? indentLeft,
-    int? indentRight,
-    int? firstLineIndent,
-    int? hangingIndent,
-    // Border properties
-    ParagraphBorders? borders,
-    // Widow/Orphan control
-    WidowOrphanControl? widowControl,
-    // Keep settings
-    bool? keepNext,
-    bool? keepLines,
-    // Outline level
-    int? outlineLevel,
-    // Shading
-    Color? shadingColor,
-    ShadingPattern? shadingPattern,
+    TextStyle? textStyle,
   }) =>
       Paragraph(
         id: id,
         parent: parent,
         styles: styles,
         numbering: numbering,
-        level: level,
         alignment: align,
         pageBreak: pageBreak,
-        bold: bold,
-        italic: italic,
-        underline: underline,
-        strikethrough: strikethrough,
-        smallCaps: smallCaps,
-        caps: caps,
-        fontSize: fontSize,
-        fontFamily: fontFamily,
-        fontColor: fontColor,
-        backgroundColor: backgroundColor,
-        spacingBefore: spacingBefore,
-        spacingAfter: spacingAfter,
-        lineSpacing: lineSpacing,
-        lineSpacingRule: lineSpacingRule,
-        indentLeft: indentLeft,
-        indentRight: indentRight,
-        firstLineIndent: firstLineIndent,
-        hangingIndent: hangingIndent,
-        borders: borders,
-        widowControl: widowControl,
-        keepNext: keepNext,
-        keepLines: keepLines,
-        outlineLevel: outlineLevel,
-        shadingColor: shadingColor,
-        shadingPattern: shadingPattern,
+        textStyle: textStyle,
         children: <RunBase<dynamic>>[
           TextRun.text(
             text: text,
@@ -262,40 +175,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
     Alignment? align,
     String? id,
     DocxNode? parent,
-    // Text formatting properties
-    bool bold = false,
-    bool italic = false,
-    bool underline = false,
-    bool strikethrough = false,
-    bool smallCaps = false,
-    bool caps = false,
-    // Font properties
-    num? fontSize,
-    String? fontFamily,
-    Color? fontColor,
-    Color? highlightColor,
-    // Spacing properties
-    int? spacingBefore,
-    int? spacingAfter,
-    int? lineSpacing,
-    LineRule? lineSpacingRule,
-    // Indent properties
-    int? indentLeft,
-    int? indentRight,
-    int? firstLineIndent,
-    int? hangingIndent,
-    // Border properties
-    ParagraphBorders? borders,
-    // Widow/Orphan control
-    WidowOrphanControl? widowControl,
-    // Keep settings
-    bool? keepNext,
-    bool? keepLines,
-    // Outline level
-    int? outlineLevel,
-    // Shading
-    Color? shadingColor,
-    ShadingPattern? shadingPattern,
+    TextStyle? textStyle,
   }) =>
       Paragraph(
         id: id,
@@ -304,31 +184,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
         numbering: numbering,
         alignment: align,
         pageBreak: pageBreak,
-        bold: bold,
-        italic: italic,
-        underline: underline,
-        strikethrough: strikethrough,
-        smallCaps: smallCaps,
-        caps: caps,
-        fontSize: fontSize,
-        fontFamily: fontFamily,
-        fontColor: fontColor,
-        backgroundColor: highlightColor,
-        spacingBefore: spacingBefore,
-        spacingAfter: spacingAfter,
-        lineSpacing: lineSpacing,
-        lineSpacingRule: lineSpacingRule,
-        indentLeft: indentLeft,
-        indentRight: indentRight,
-        firstLineIndent: firstLineIndent,
-        hangingIndent: hangingIndent,
-        borders: borders,
-        widowControl: widowControl,
-        keepNext: keepNext,
-        keepLines: keepLines,
-        outlineLevel: outlineLevel,
-        shadingColor: shadingColor,
-        shadingPattern: shadingPattern,
+        textStyle: textStyle,
         children: <RunBase<dynamic>>[
           Run(
             component: node,
@@ -344,74 +200,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
 
   ParagraphPageBreak pageBreak;
   Alignment? alignment;
-
-  // Text formatting properties (run properties)
-  final bool bold;
-  final bool italic;
-  final bool underline;
-  final bool strikethrough;
-  final bool smallCaps;
-  final bool caps;
-
-  // Font properties
-  final num? fontSize;
-  final String? fontFamily;
-  final Color? fontColor;
-  final Color? backgroundColor;
-
-  // Spacing properties
-  final int? spacingBefore;
-  final int? spacingAfter;
-  final int? lineSpacing;
-  final LineRule? lineSpacingRule;
-
-  // Indent properties
-  final int? indentLeft;
-  final int? indentRight;
-  final int? firstLineIndent;
-  final int? hangingIndent;
-  final int? headingLevel;
-
-  // Border properties
-  final ParagraphBorders? borders;
-
-  /// Activates Widow/Orphan control for the paragraph.
-  ///
-  /// Widow/Orphan control prevents single lines of a paragraph from being left
-  /// alone at the top or bottom of a page.
-  ///
-  /// Example:
-  /// Without widowControl (problem):
-  /// ```
-  /// ┌─────────────────┐ ┌─────────────────┐
-  /// │ PAGE 1          │ │ PAGE 2          │
-  /// │ ...paragraph    │ │                 │
-  /// │ text that       │ │ Chapter 1:      │ ← Orphan
-  /// │ continues on    │ │ Introduction    │
-  /// └─────────────────┘ └─────────────────┘
-  /// ```
-  /// With widowControl (corrected):
-  /// ```
-  /// ┌─────────────────┐ ┌─────────────────┐
-  /// │ PAGE 1          │ │ PAGE 2          │
-  /// │ ...paragraph    │ │ Chapter 1:      │
-  /// │ text that       │ │ Introduction    │
-  /// └─────────────────┘ └─────────────────┘
-  /// ```
-  /// Useful when creating a writing application to improve readability.
-  /// This setting is applicable only to paragraph styles.
-  final WidowOrphanControl? widowControl;
-
-  // Keep settings
-  final bool? keepNext;
-  final bool? keepLines;
-
-  // Outline level
-  final int? outlineLevel;
-
-  // Shading
-  final Color? shadingColor;
-  final ShadingPattern? shadingPattern;
+  TextStyle? textStyle;
 
   @override
   List<XmlElement> buildXml() {
@@ -487,9 +276,10 @@ class Paragraph extends DocxNode<List<RunBase>> {
 
     bool alreadyHasReference = false;
 
-    if (configs?.checkStyleRefExistence == true && headingLevel != null) {
-      final Style? header =
-          configs!.options.docStyles.getStyleById('Heading${headingLevel!}');
+    if (configs?.checkStyleRefExistence == true &&
+        textStyle?.headingLevel != null) {
+      final Style? header = configs!.options.docStyles
+          .getStyleById('Heading${textStyle?.headingLevel!}');
       if (header != null && !header.isInvalid) {
         alreadyHasReference = true;
         pPrChildren.addAll(header.forParagraphStyle(
@@ -499,7 +289,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
       } else {
         CompilerLogger.root.warning(
           'Not found heading '
-          'level style for $headingLevel. '
+          'level style for ${textStyle?.headingLevel}. '
           'Heading will be ignored for '
           '$runtimeType:$id at $index with deep tree level $depth, '
           'child of ${parent?.runtimeType}',
@@ -604,104 +394,21 @@ class Paragraph extends DocxNode<List<RunBase>> {
     if (pageBreak != ParagraphPageBreak.none) builder.pageBreakBefore();
     if (alignment != null) builder.alignment(alignment!);
 
-    if (isChildOf<Align>()) {
+    if (isChildOf<Align>() && alignment == null) {
       final Alignment al = getAncestorOfExactType<Align>()!.alignment;
       CompilerLogger.root.debug(
           'Replace current align $alignment to found ancestor ${al.name}');
       builder.alignment(al);
     }
 
-    if (bold) builder.bold();
-    if (italic) builder.italic();
-    if (underline) builder.underline();
-    if (strikethrough) builder.strikethrough();
-    if (smallCaps) builder.smallCaps();
-    if (caps) builder.caps();
-
-    if (fontSize != null) builder.fontSize(fontSize!.ptToHalfPoints());
-    if (fontFamily != null) builder.fontFamily(fontFamily!);
-    if (fontColor != null) builder.runColor(fontColor!);
-    if (backgroundColor != null) builder.highlight(backgroundColor!);
-
-    if (spacingBefore != null || spacingAfter != null || lineSpacing != null) {
-      builder.spacing(
-        before: spacingBefore!.ptToTwips(),
-        after: spacingAfter!.ptToTwips(),
-        line: lineSpacing!.ptToTwips(),
-        rule: lineSpacingRule ?? LineRule.auto,
-      );
-    }
-
-    if (indentLeft != null ||
-        indentRight != null ||
-        firstLineIndent != null ||
-        hangingIndent != null) {
-      builder.indent(
-        left: indentLeft!.inchesToTwips(),
-        right: indentRight!.inchesToTwips(),
-        firstLine: firstLineIndent!.inchesToTwips(),
-        hanging: hangingIndent,
-      );
-    }
-
-    // Borders
-    if (borders != null) {
-      _applyBorders(builder, borders!);
-    }
-
-    // Widow/Orphan control
-    if (widowControl != null) {
-      builder.activateWindowControl();
-    }
-
-    // Keep settings
-    if (keepNext == true) builder.keepNext(true);
-    if (keepLines == true) builder.keepLines(true);
-
-    // Outline level
-    if (outlineLevel != null) builder.outlineLevel(outlineLevel!);
-
-    // Shading
-    if (shadingColor != null || shadingPattern != null) {
-      builder.shading(
-        color: shadingColor,
-        pattern: shadingPattern,
-      );
+    if (textStyle != null) {
+      return textStyle!.toStyle()!
+        ..addAll(
+          builder.build().configurators,
+        );
     }
 
     return builder.build();
-  }
-
-  /// Applies paragraph borders from ParagraphBorders object.
-  void _applyBorders(StyleBuilder builder, ParagraphBorders borders) {
-    if (borders.top != null) {
-      builder.borders(
-        top: borders.top!.style,
-        topSize: borders.top!.size,
-        topColor: borders.top!.color?.toColorValue()!.toUpperCase(),
-      );
-    }
-    if (borders.bottom != null) {
-      builder.borders(
-        bottom: borders.bottom!.style,
-        bottomSize: borders.bottom!.size,
-        bottomColor: borders.bottom!.color?.toColorValue()!.toUpperCase(),
-      );
-    }
-    if (borders.left != null) {
-      builder.borders(
-        left: borders.left!.style,
-        leftSize: borders.left!.size,
-        leftColor: borders.left!.color?.toColorValue()!.toUpperCase(),
-      );
-    }
-    if (borders.right != null) {
-      builder.borders(
-        right: borders.right!.style,
-        rightSize: borders.right!.size,
-        rightColor: borders.right!.color?.toColorValue()!.toUpperCase(),
-      );
-    }
   }
 
   @override
@@ -712,31 +419,8 @@ class Paragraph extends DocxNode<List<RunBase>> {
         pageBreak: pageBreak,
         numbering: numbering,
         styles: styles,
-        bold: bold,
-        italic: italic,
-        underline: underline,
-        strikethrough: strikethrough,
-        smallCaps: smallCaps,
-        caps: caps,
-        fontSize: fontSize,
-        fontFamily: fontFamily,
-        fontColor: fontColor,
-        backgroundColor: backgroundColor,
-        spacingBefore: spacingBefore,
-        spacingAfter: spacingAfter,
-        lineSpacing: lineSpacing,
-        lineSpacingRule: lineSpacingRule,
-        indentLeft: indentLeft,
-        indentRight: indentRight,
-        firstLineIndent: firstLineIndent,
-        hangingIndent: hangingIndent,
-        borders: borders,
-        widowControl: widowControl,
-        keepNext: keepNext,
-        keepLines: keepLines,
-        outlineLevel: outlineLevel,
-        shadingColor: shadingColor,
-        shadingPattern: shadingPattern,
+        textStyle: textStyle,
+        parent: parent,
       );
 
   @override
@@ -748,32 +432,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
     Numbering? numbering,
     ParagraphPageBreak? pageBreak,
     Alignment? alignment,
-    bool? bold,
-    bool? italic,
-    bool? underline,
-    bool? strikethrough,
-    bool? smallCaps,
-    bool? caps,
-    num? fontSize,
-    String? fontFamily,
-    Color? fontColor,
-    Color? backgroundColor,
-    int? spacingBefore,
-    int? spacingAfter,
-    int? lineSpacing,
-    LineRule? lineSpacingRule,
-    int? indentLeft,
-    int? indentRight,
-    int? firstLineIndent,
-    int? hangingIndent,
-    ParagraphBorders? borders,
-    WidowOrphanControl? widowControl,
-    bool? keepNext,
-    bool? keepLines,
-    int? outlineLevel,
-    Color? shadingColor,
-    ShadingPattern? shadingPattern,
-    int? level,
+    TextStyle? textStyle,
   }) {
     return Paragraph(
       id: id ?? this.id,
@@ -782,32 +441,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
       alignment: alignment ?? this.alignment,
       pageBreak: pageBreak ?? this.pageBreak,
       numbering: numbering ?? this.numbering,
-      bold: bold ?? this.bold,
-      italic: italic ?? this.italic,
-      underline: underline ?? this.underline,
-      strikethrough: strikethrough ?? this.strikethrough,
-      smallCaps: smallCaps ?? this.smallCaps,
-      caps: caps ?? this.caps,
-      fontSize: fontSize ?? this.fontSize,
-      fontFamily: fontFamily ?? this.fontFamily,
-      fontColor: fontColor ?? this.fontColor,
-      backgroundColor: backgroundColor ?? this.backgroundColor,
-      spacingBefore: spacingBefore ?? this.spacingBefore,
-      spacingAfter: spacingAfter ?? this.spacingAfter,
-      lineSpacing: lineSpacing ?? this.lineSpacing,
-      lineSpacingRule: lineSpacingRule ?? this.lineSpacingRule,
-      indentLeft: indentLeft ?? this.indentLeft,
-      indentRight: indentRight ?? this.indentRight,
-      firstLineIndent: firstLineIndent ?? this.firstLineIndent,
-      hangingIndent: hangingIndent ?? this.hangingIndent,
-      borders: borders ?? this.borders,
-      widowControl: widowControl ?? this.widowControl,
-      keepNext: keepNext ?? this.keepNext,
-      keepLines: keepLines ?? this.keepLines,
-      outlineLevel: outlineLevel ?? this.outlineLevel,
-      shadingColor: shadingColor ?? this.shadingColor,
-      shadingPattern: shadingPattern ?? this.shadingPattern,
-      level: level ?? headingLevel,
+      textStyle: textStyle ?? this.textStyle,
     );
   }
 
@@ -1087,97 +721,4 @@ enum ParagraphPageBreak {
 
   /// No page break (default).
   none,
-}
-
-/// Configuration for numbered or bulleted list items.
-///
-/// Defines how a paragraph participates in document numbering (lists).
-/// Each numbering reference corresponds to a list definition in the
-/// document's numbering store.
-class Numbering {
-  Numbering({
-    required this.reference,
-    this.level = 0,
-    this.refId,
-  }) : assert(
-          level >= 0 && level <= 9,
-          'Numbering level must be between 0 and 9. '
-          'Word does not support more than 9 list levels.',
-        );
-
-  /// Reference key to a numbering definition in [NumberingOptions].
-  final String reference;
-
-  /// List nesting level (0-9). Level 0 is the top-level list item.
-  final int level;
-
-  /// The unique reference id of this item
-  ///
-  /// Share the same id when you need a continuous
-  /// count of your items
-  ///
-  /// Change the id between the item when you need
-  /// to reset the list count
-  final int? refId;
-
-  String get concreteRef => '$reference-${refId ?? 0}';
-
-  XmlElement build(int id) {
-    return XmlElement.tag(
-      'w:numPr',
-      children: <XmlNode>[
-        XmlElement.tag(
-          'w:ilvl',
-          attributes: <XmlAttribute>[
-            XmlAttribute(
-              'w:val'.toName(),
-              level.toString(),
-            ),
-          ],
-        ),
-        XmlElement.tag(
-          'w:numId',
-          attributes: <XmlAttribute>[
-            XmlAttribute(
-              'w:val'.toName(),
-              id.toString(),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-/// Controls widow and orphan line handling for paragraphs.
-///
-/// Widow/orphan control prevents single lines of a paragraph from appearing
-/// alone at the top or bottom of a page.
-///
-/// - **Widow**: The last line of a paragraph appearing alone at the top of a page
-/// - **Orphan**: The first line of a paragraph appearing alone at the bottom of a page
-///
-/// Example usage:
-/// ```dart
-/// final pr = Paragraph.text(
-///   text: 'Important paragraph',
-///   widowOrphanControl: const WidowOrphanControl(),
-/// );
-/// ```
-class WidowOrphanControl {
-  /// Creates a [WidowOrphanControl] instance.
-  ///
-  /// [controlLines] enables or disables widow/orphan control.
-  /// [lines] sets the number of lines to keep together (default: 2).
-  const WidowOrphanControl({
-    this.controlLines = true,
-    this.lines = 2,
-  });
-
-  /// Whether widow/orphan control is enabled.
-  final bool controlLines;
-
-  /// Number of lines to keep with next paragraph (widow)
-  /// or on current page (orphan). Default is 2.
-  final int lines;
 }

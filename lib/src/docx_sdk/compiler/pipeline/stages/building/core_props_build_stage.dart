@@ -29,7 +29,7 @@ class CorePropsBuildStage extends PipelineStage {
       options: context.options,
     );
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.coreFilePath,

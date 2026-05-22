@@ -40,7 +40,7 @@ class DocumentRelsBuildStage extends PipelineStage {
       context.metadata['themeId'] = themeId;
     }
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.documentXmlRelsFilePath,

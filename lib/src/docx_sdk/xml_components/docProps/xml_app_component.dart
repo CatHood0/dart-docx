@@ -4,14 +4,13 @@ import '../../../../docx.dart';
 class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
   XmlAppComponent({
     required EditorMetadata metadata,
+    required this.docOps,
   }) : super(
           xmlKey: 'Properties',
-          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
-            'xmlns': namespaces['extendedProperties']!,
-            'xmlns:vt': namespaces['vt']!,
-          }),
           value: metadata,
         );
+
+  final DocumentOptions docOps; 
 
   @override
   String get name => 'App';
@@ -23,7 +22,10 @@ class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
   XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
-      attributes: attributes.buildXml(),
+      attributes: XmlComponentAttributes(xmlAttributes: <String, Object>{
+        'xmlns': namespaces['extendedProperties']!,
+        'xmlns:vt': namespaces['vt']!,
+      }).buildXml(),
       children: <XmlNode>[
         XmlElement.tag(
           'Pages',
@@ -79,7 +81,7 @@ class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
         ),
         XmlElement.tag(
           'Company',
-          children: <XmlNode>[XmlText(context.options.company)],
+          children: <XmlNode>[XmlText(docOps.company)],
           isSelfClosing: false,
         ),
         XmlElement.tag(
@@ -99,10 +101,12 @@ class XmlAppComponent extends XmlComponentBase<EditorMetadata> {
         XmlElement.tag(
           'SharedDoc',
           children: <XmlNode>[
-            XmlDefaults.text('${context.options.sharedDoc}'),
+            XmlDefaults.text('${docOps.sharedDoc}'),
           ],
           isSelfClosing: false,
         ),
+        //TODO: need to be true when incremental changes and partial compilation
+        // will working
         XmlElement.tag(
           'HyperlinksChanged',
           children: <XmlNode>[

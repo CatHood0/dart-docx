@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
+import '../../../core/extensions/cast_ext.dart';
+import '../../../core/extensions/skippable_iterations_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../sdk.dart';
 
@@ -95,24 +97,23 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     String? fontFamily,
     Color? color,
     Color? backgroundColor,
-    bool? subscript,
-    bool? superscript,
   }) : super(
           child: HyperlinkTextPart(
             text: text ?? link,
             hyperlink: link,
-            styles: _buildStyles(
-              baseStyles: styles,
-              bold: bold,
-              italic: italic,
-              underline: underline,
-              strikethrough: strikethrough,
-              fontSize: fontSize,
-              fontFamily: fontFamily,
-              color: color,
-              subscript: subscript,
-              superscript: superscript,
-            ),
+            styles: <Object>[
+              ...styles,
+              ...TextStyle(
+                bold: bold,
+                italic: italic,
+                underline: underline,
+                strikethrough: strikethrough,
+                fontSize: fontSize,
+                fontFamily: fontFamily,
+                fontColor: color,
+                backgroundColor: backgroundColor,
+              ).toStyle().toList().skipNulls<Style>(),
+            ],
           ),
         ) {
     length = child.text.length;
@@ -131,60 +132,14 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
           child: HyperlinkTextPart(
             text: text,
             hyperlink: text,
-            styles: _buildStyles(
-              baseStyles: element.styles,
-              bold: element.bold,
-              italic: element.italic,
-              underline: element.underline,
-              strikethrough: element.strikethrough,
-              fontSize: element.size,
-              fontFamily: element.family,
-              color: element.color,
-              backgroundColor: element.backgroundColor,
-              subscript: element.subscript,
-              superscript: element.superscript,
-            ),
+            styles: [
+              ...element.styles,
+              if (element.textStyle != null)
+                element.textStyle!.toStyle().toList().skipNulls<Style>(),
+            ],
           ),
         ) {
     length += child.text.length;
-  }
-
-  /// Builds the list of styles from direct properties.
-  static List<Object> _buildStyles({
-    required List<Object> baseStyles,
-    bool bold = false,
-    bool italic = false,
-    bool underline = false,
-    bool strikethrough = false,
-    num? fontSize,
-    String? fontFamily,
-    Color? color,
-    Color? backgroundColor,
-    bool? subscript,
-    bool? superscript,
-  }) {
-    final List<Object> allStyles = List<Object>.from(baseStyles);
-
-    // Text formatting
-    if (bold) allStyles.add(BoldAttribute());
-    if (italic) allStyles.add(ItalicAttribute());
-    if (underline) allStyles.add(UnderlineAttribute());
-    if (strikethrough) allStyles.add(StrikeAttribute());
-
-    // Font properties
-    if (fontSize != null) allStyles.add(FontSizeAttribute(fontSize.toInt()));
-    if (fontFamily != null) allStyles.add(FontFamilyAttribute(fontFamily));
-    if (color != null) allStyles.add(ForegroundTextColorAttribute(color));
-
-    // Scripts
-    if (subscript == true) allStyles.add(SubscriptAttribute());
-    if (superscript == true) allStyles.add(SuperscriptAttribute());
-
-    if (backgroundColor != null)
-      allStyles.add(BackgroundTextColorAttribute(
-          backgroundColor.toColorValue()!.toUpperCase()));
-
-    return allStyles;
   }
 
   @override

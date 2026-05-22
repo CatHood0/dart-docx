@@ -41,7 +41,7 @@ class NumberingBuildStage extends PipelineStage {
         .getStoreOfExactType<NumberingStore>()!
         .buildNumberingXmlComponent();
 
-    final document = component.buildDocument(context.buildDocumentContext());
+    final document = component.buildDocument();
     context.archive.add(
       ArchiveFile.bytes(
         DocxPaths.numberingXmlFilePath,

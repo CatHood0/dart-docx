@@ -226,6 +226,113 @@ Future<void> main() async {
 }
 ```
 
+### "Widgets" 
+
+> [!NOTE]
+> This feature is still **evolving**. We are working to ensure the widget system is useful for most of cases.
+
+The `docx` library introduces a **Flutter-inspired component model** (a simple and small version of it) that allows you to build reusable, composable document elements. This architecture helps you create complex documents with clean, maintainable code by encapsulating document sections into reusable components.
+
+#### Why Widgets?
+
+Without widgets, you often end up repeating the same document structure multiple times:
+
+```dart
+// Without widgets - repetitive and hard to maintain
+final root = DocxRoot(
+  sections: [
+    Paragraph.text(text: 'Section 1 Title', styles: [Style.ref('heading')]),
+    Paragraph.text(text: 'Content for section 1...'),
+    Paragraph.text(text: 'Section 2 Title', styles: [Style.ref('heading')]),
+    Paragraph.text(text: 'Content for section 2...'),
+    Paragraph.text(text: 'Section 3 Title', styles: [Style.ref('heading')]),
+    Paragraph.text(text: 'Content for section 3...'),
+  ],
+);
+```
+
+With widgets, you encapsulate once and reuse everywhere:
+
+```dart
+// Define your reusable component once
+class DocumentSection extends StatelessWidget {
+  final String title;
+  final String content;
+  
+  DocumentSection({super.key, required this.title, required this.content});
+  
+  @override
+  DocxNode build() {
+    return Column(
+      children: [
+        Paragraph.text(text: title, styles: [Style.ref('heading')]),
+        Paragraph.text(text: content),
+      ],
+    );
+  }
+}
+
+// Then use it declaratively - clean and clear
+final root = DocxRoot(
+  sections: [
+    DocumentSection(title: 'Introduction', content: 'Welcome...'),
+    DocumentSection(title: 'Methodology', content: 'We used...'),
+    DocumentSection(title: 'Results', content: 'The findings...'),
+  ],
+);
+```
+
+#### Practical Example: Smart List Item with Context
+
+This example shows how a widget can automatically adapt its indentation based on nesting depth:
+
+```dart
+class SmartListItem extends StatelessWidget {
+  final String text;
+  final int depth;
+  
+  SmartListItem({required this.text, required this.depth});
+  
+  @override
+  DocxNode build() {
+    final indent = depth * 20.ptToTwips();
+    
+    return Paragraph.text(
+      text: text,
+      numbering: Numbering(
+        reference: 'ordered',
+        level: depth,
+      ),
+      styles: [
+        Style.ref('ListParagraph'),
+        StyleBuilder.up().indent(left: indent).build(),
+      ],
+    );
+  }
+}
+
+// Usage - each widget manages its own indentation automatically
+Root(
+  children: [
+    SmartListItem(text: 'Level 1 item', depth: 0),
+    SmartListItem(text: 'Level 2 nested', depth: 1),
+    SmartListItem(text: 'Level 3 deeper', depth: 2),
+  ],
+)
+```
+
+#### Best Practices
+
+1. **Keep widgets focused** - Each widget should represent a single document concept or UI pattern
+2. **Use parameters** - Make widgets configurable through constructor parameters rather than hardcoding values
+3. **Leverage context** - Use `context.getAncestorOfExactType<T>()` for adaptive rendering based on parent position
+4. **Compose over inherit** - Prefer composition (widgets containing widgets) over deep inheritance chains
+
+#### Limitations
+
+- `StatefulWidget` probably its imposible since we're not aiming to use it 
+- Widget context could be null at some points. Ensure to use `mounted` property into your `build` implementations to avoid any unexpected issue. 
+
 ### Paragraph 
 
 Paragraphs support rich text formatting including bold, italic, underline, strikethrough, font size, font family, and text color. Multiple formatting styles can be combined within a single paragraph or applied to specific text runs.
@@ -380,6 +487,29 @@ final list = NumberingList(
 ```
 
 See more about in [Numbering definition](./docs/numbering_internals.md) and an example of this in [Numbering Demo](./demos/numbering.dart)
+
+### The `Builder` Component
+
+For advanced cases where you need access to the document tree during compilation or need to lazy-build content, the `Builder` component provides a convenient way to defer construction:
+
+```dart
+Builder(
+  builder: (DocxNode context, String id) {
+    // Access parent context
+    final shouldHighlight = context.isChildOf<NumberingList>();
+    
+    return Paragraph.text(
+      text: shouldHighlight ? '★ Important item' : 'Regular item',
+      styles: shouldHighlight ? [Style.ref('highlight')] : [],
+    );
+  },
+)
+```
+
+The `Builder` component is useful for:
+- **Context-aware rendering** - Adapt content based on parent widgets in the tree
+- **ID-based references** - Access the unique identifier assigned by the compiler
+- **Lazy evaluation** - Defer expensive computations until compilation time
 
 ### Images anchoring
 

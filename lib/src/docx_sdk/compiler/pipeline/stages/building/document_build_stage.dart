@@ -30,6 +30,8 @@ class DocumentBuildStage extends PipelineStage {
     final themeId = context.metadata['themeId'] as String?;
 
     final bodyComponent = XmlBodyComponent(
+      options: context.options,
+      // Should we wrap in a ThemeData?
       body: CompilerConfigProvider(
         options: context.options,
         normalStyleIfNeeded: context.config.normalStyleIfNeeded,

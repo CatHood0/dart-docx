@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 
-import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../exceptions/docx_compilation_exception.dart';
 import '../../sdk.dart';
 
 /// Basic text run element for inline text content.
@@ -48,6 +48,7 @@ import '../../sdk.dart';
 class TextRun extends RunBase<TextPart> {
   TextRun({
     required TextPart textPart,
+    this.textStyle,
     super.parent,
     super.id,
   }) : super(child: textPart) {
@@ -57,60 +58,13 @@ class TextRun extends RunBase<TextPart> {
   TextRun.text({
     required String text,
     List<Object> styles = const <Object>[],
+    this.textStyle,
     super.parent,
     super.id,
-    bool bold = false,
-    bool italic = false,
-    bool underline = false,
-    bool strikethrough = false,
-    num? fontSize,
-    String? fontFamily,
-    Color? color,
-    Color? backgroundColor,
-    bool? subscript,
-    bool? superscript,
   }) : super(
           child: TextPart(
             text: text,
-            styles: _buildStyles(
-              baseStyles: styles,
-              bold: bold,
-              italic: italic,
-              underline: underline,
-              strikethrough: strikethrough,
-              fontSize: fontSize,
-              fontFamily: fontFamily,
-              color: color,
-              backgroundColor: backgroundColor,
-              subscript: subscript,
-              superscript: superscript,
-            ),
-          ),
-        ) {
-    length += child.text.length;
-  }
-
-  @protected
-  @internal
-  TextRun.inheritFrom({
-    required String text,
-    required Text element,
-  }) : super(
-          child: TextPart(
-            text: text,
-            styles: _buildStyles(
-              baseStyles: element.styles,
-              bold: element.bold,
-              italic: element.italic,
-              underline: element.underline,
-              strikethrough: element.strikethrough,
-              fontSize: element.size,
-              fontFamily: element.family,
-              color: element.color,
-              backgroundColor: element.backgroundColor,
-              subscript: element.subscript,
-              superscript: element.superscript,
-            ),
+            styles: styles,
           ),
         ) {
     length += child.text.length;
@@ -119,6 +73,7 @@ class TextRun extends RunBase<TextPart> {
   TextRun.empty({
     super.parent,
     super.id,
+    this.textStyle,
   }) : super(
           child: TextPart(
             text: '',
@@ -126,48 +81,10 @@ class TextRun extends RunBase<TextPart> {
           ),
         );
 
+  final TextStyle? textStyle;
+
   /// Regular expression to detect consecutive whitespace characters.
   static final RegExp _consecutiveWhitespacesRegExp = RegExp(r'\s{2,}');
-
-  /// Builds the list of styles from direct properties.
-  ///
-  /// This allows applying formatting directly without requiring Attributes.
-  static List<Object> _buildStyles({
-    required List<Object> baseStyles,
-    bool bold = false,
-    bool italic = false,
-    bool underline = false,
-    bool strikethrough = false,
-    num? fontSize,
-    String? fontFamily,
-    Color? color,
-    Color? backgroundColor,
-    bool? subscript,
-    bool? superscript,
-  }) {
-    final List<Object> allStyles = List<Object>.from(baseStyles);
-
-    // Text formatting
-    if (bold) allStyles.add(BoldAttribute());
-    if (italic) allStyles.add(ItalicAttribute());
-    if (underline) allStyles.add(UnderlineAttribute());
-    if (strikethrough) allStyles.add(StrikeAttribute());
-
-    // Font properties
-    if (fontSize != null) allStyles.add(FontSizeAttribute(fontSize.toInt()));
-    if (fontFamily != null) allStyles.add(FontFamilyAttribute(fontFamily));
-    if (color != null) allStyles.add(ForegroundTextColorAttribute(color));
-
-    // Scripts
-    if (subscript == true) allStyles.add(SubscriptAttribute());
-    if (superscript == true) allStyles.add(SuperscriptAttribute());
-
-    if (backgroundColor != null)
-      allStyles.add(BackgroundTextColorAttribute(
-          backgroundColor.toColorValue()!.toUpperCase()));
-
-    return allStyles;
-  }
 
   @override
   TextRun cut(int offset, int offsetEnd) {
@@ -180,6 +97,7 @@ class TextRun extends RunBase<TextPart> {
         length,
       ),
       styles: child.styles.toList(),
+      textStyle: textStyle,
       parent: parent,
     );
   }
@@ -196,6 +114,7 @@ class TextRun extends RunBase<TextPart> {
           start,
         ),
         styles: child.styles.toList(),
+        textStyle: textStyle,
         parent: parent,
       ),
       TextRun.text(
@@ -204,6 +123,7 @@ class TextRun extends RunBase<TextPart> {
           length,
         ),
         styles: child.styles.toList(),
+        textStyle: textStyle,
         parent: parent,
       )
     );
@@ -221,6 +141,7 @@ class TextRun extends RunBase<TextPart> {
           start,
         ),
         styles: child.styles.toList(),
+        textStyle: textStyle,
         parent: parent,
       ),
       TextRun.text(
@@ -229,6 +150,7 @@ class TextRun extends RunBase<TextPart> {
           length,
         ),
         styles: child.styles.toList(),
+        textStyle: textStyle,
         parent: parent,
       ),
       TextRun.text(
@@ -236,6 +158,7 @@ class TextRun extends RunBase<TextPart> {
           length,
         ),
         styles: child.styles.toList(),
+        textStyle: textStyle,
         parent: parent,
       ),
     );
@@ -258,7 +181,11 @@ class TextRun extends RunBase<TextPart> {
     bool mergeStyles = true,
   }) {
     offset ??= dataLength - 1;
-    child._text = child.text.replaceRange(offset, offset, text);
+    child._text = child.text.replaceRange(
+      offset,
+      offset,
+      text,
+    );
   }
 
   @override
@@ -267,7 +194,11 @@ class TextRun extends RunBase<TextPart> {
     required int length,
     int? path,
   }) {
-    child._text = child.text.replaceRange(start, length, '');
+    child._text = child.text.replaceRange(
+      start,
+      length,
+      '',
+    );
   }
 
   @override
@@ -277,6 +208,7 @@ class TextRun extends RunBase<TextPart> {
           text: child.text,
           styles: child.styles,
         ),
+        textStyle: textStyle,
         parent: parent,
       );
 
@@ -285,11 +217,13 @@ class TextRun extends RunBase<TextPart> {
     TextPart? child,
     String? id,
     DocxNode<dynamic>? parent,
+    TextStyle? textStyle,
   }) {
     return TextRun(
       id: id ?? this.id,
       textPart: child ?? this.child,
       parent: parent ?? this.parent,
+      textStyle: textStyle ?? this.textStyle,
     );
   }
 
@@ -330,8 +264,22 @@ class TextRun extends RunBase<TextPart> {
     if (styles.any(
       (Object e) => e is TextRunAttribution && e.scope != Scope.portion,
     )) {
-      throw Exception('The styles passed in $runtimeType are invalid. '
-          'All of them must implement "Scope.portion" value');
+      throw DocxCompilationException(
+        message: 'The styles passed in $runtimeType are invalid. '
+            'All of them '
+            'must implement "Scope.portion" value',
+        cause: 'There is 1 or more elements with the '
+            '"scope" property with no "Scope.portion" value',
+        node: copy,
+        stackTrace: StackTrace.fromString(''),
+      );
+    }
+
+    //TODO: we need to apply rules that avoid runs or non block parts to have only
+    // inline properties defined and show that errors as stacktraces using exceptions
+    if (textStyle != null) {
+      final Style? style = textStyle?.toStyle();
+      if (style != null) styles.add(style);
     }
     final List<XmlElement> xmlStyles = <XmlElement>[];
     for (final Object style in styles) {

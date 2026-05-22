@@ -2,8 +2,9 @@ import 'package:xml/xml.dart' show XmlNode;
 
 import '../../../../docx.dart';
 
-typedef BuildNodeCallback<T> = T Function(String);
+typedef BuildNodeCallback<T> = T Function(DocxNode context, String);
 
+/// Used commonly when you need to access to some part of the tree during compilation
 class Builder<T extends DocxNode> extends DocxNode<BuildNodeCallback<T>> {
   Builder({
     required BuildNodeCallback<T> builder,
@@ -14,7 +15,7 @@ class Builder<T extends DocxNode> extends DocxNode<BuildNodeCallback<T>> {
   T? _element;
 
   T build() {
-    return child(id);
+    return child(this, nanoid(7));
   }
 
   @override
