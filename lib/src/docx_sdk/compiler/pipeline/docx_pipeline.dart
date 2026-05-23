@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 
 import '../../../core/extensions/cast_ext.dart';
+import '../../registry/docx_registry.dart';
 import '../../sdk.dart';
 
 /// DOCX document compilation pipeline.
@@ -206,6 +207,7 @@ class DocxPipeline {
     if (DocxElements.instance.needsPreviousInitialization) {
       final Stopwatch watch = Stopwatch()..start();
       CompilerLogger.root.debug('Ensuring initializatin start');
+      context.document.options.docStyles.index();
       context.tree.init();
       watch.stop();
       CompilerLogger.root.debug(
@@ -394,6 +396,7 @@ class DocxElements {
 
   void ensureInitialized() {
     _metadata['ensureInitialize'] = true;
+    DocxRegistry.setDefaultRegistries();
   }
 
   void initializeCompilation(bool compiling) {

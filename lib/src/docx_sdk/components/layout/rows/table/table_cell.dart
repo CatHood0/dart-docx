@@ -4,7 +4,6 @@ import '../../../../../../docx.dart';
 import '../../../../../core/extensions/cast_ext.dart';
 import '../../../../../core/extensions/string_ext.dart';
 import '../../../../compiler/inherited/compiler_config_provider.dart';
-import '../../../../utils/logger/logger_configs.dart';
 
 /// Table cell that can contain multiple content elements.
 ///
@@ -24,7 +23,7 @@ import '../../../../utils/logger/logger_configs.dart';
 ///     rowSpan: 3,   // rowspan
 ///     verticalAlignment: VerticalAlignment.center,
 ///     borders: TableCellBorders(
-///       top: TableBorder(style: BorderStyle.single, size: 8),
+///       top: TableBorder(style: BorderStyle.single, size: Point(8)),
 ///     ),
 ///     shading: Shading(fill: Color.rgb(0xFFCCCC)),
 ///   ),
@@ -381,8 +380,8 @@ class TableCell extends DocxNode<List<DocxNode>> {
       'w:$position',
       attributes: <XmlAttribute>[
         XmlAttribute('w:val'.toName(), border.style.value),
-        XmlAttribute('w:sz'.toName(), border.size.toString()),
-        XmlAttribute('w:space'.toName(), border.space.toString()),
+        XmlAttribute('w:sz'.toName(), border.size.toEightOfPt().toString()),
+        XmlAttribute('w:space'.toName(), border.space.toEightOfPt().toString()),
         if (border.color != null && border.color!.isRGB)
           XmlAttribute('w:color'.toName(), border.color!.toColorValue()!),
       ],

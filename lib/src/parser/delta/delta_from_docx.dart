@@ -126,7 +126,7 @@ class DeltaFromDocxParser extends Parser<Uint8List, Delta?, DeltaParserOptions> 
       if (style != null) {
         final String? basedOn = style.basedOn?.value as String?;
         if (basedOn != null && basedOn != 'Normal') {
-          final Style parent = docStyles.getParentOf(style);
+          final Style parent = docStyles.getOriginalBasedStyle(style);
           blockAttributes.addAll(<String, dynamic>{
             ...?style.buildBlockAttributesMap(
               computeIndents: false,

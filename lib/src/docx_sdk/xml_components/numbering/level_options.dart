@@ -1,5 +1,4 @@
 import '../../../../docx.dart';
-import 'formats.dart';
 
 class LevelOptions {
   LevelOptions({

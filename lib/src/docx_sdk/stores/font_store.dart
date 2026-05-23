@@ -55,6 +55,7 @@ class FontStore extends Store {
   }
 
   /// Resets the font store to its initial state.
+  @override
   void reset() {
     _fontsByName.clear();
     _embeddedBinariesByKey.clear();
@@ -117,7 +118,7 @@ class FontStore extends Store {
 
         for (final Style style in styles) {
           final Style deepStyle =
-              style.getDeepStyleRelation(document.options.docStyles);
+              style.resolveStyle(document.options.docStyles);
           final StyleConfigurator? rPr =
               deepStyle.getConfiguratorOrNull('w:rPr', fullName: true);
           if (rPr != null) {
@@ -135,18 +136,15 @@ class FontStore extends Store {
       }
     }
 
-    for (final Style style in document.options.docStyles.styles) {
-      final Style deepStyle = !style.isReference
-          ? style
-          : style.getDeepStyleRelation(document.options.docStyles);
-      final StyleConfigurator? rPr =
-          deepStyle.getConfiguratorOrNull('w:rPr', fullName: true);
-      if (rPr != null) {
-        final StyleConfigurator? rFonts =
-            rPr.getConfiguratorOrNull('w:rFonts', fullName: true);
-        if (rFonts != null) {
-          final String? fontFamily = rFonts.attributes?['w:ascii'] as String?;
-          //TODO: we need to implement logger to notify about issues like these
+    for (final Style style in document.options.docStyles.styles.values) {
+      final Style deepStyle = style.resolveStyle(document.options.docStyles);
+      final StyleConfigurator? runProperties = deepStyle.runProperties;
+      if (runProperties != null) {
+        final StyleConfigurator? fontFamilyProperties =
+            runProperties.fontFamily;
+        if (fontFamilyProperties != null) {
+          final String? fontFamily =
+              fontFamilyProperties.attributes?['w:ascii'].cast<String?>();
           if (fontFamily != null && fontFamily.isNotEmpty) {
             discoveredFontNames.add(fontFamily);
           }
@@ -245,7 +243,7 @@ class FontStore extends Store {
     );
   }
 
-  //TODO: this is not good 
+  //TODO: this is not good
   String _obfuscatedFileName(String name, String extension) {
     return '${name.replaceAll(
       ' ',

@@ -1,6 +1,7 @@
 import 'package:xml/xml.dart' as xml;
 
 import '../../../../docx.dart';
+import '../../core/extensions/cast_ext.dart';
 import '../../core/extensions/node_to_configurator.dart';
 import '../../core/extensions/xml_values_to_dart.dart';
 import '../../util/predicate.dart';
@@ -51,8 +52,7 @@ class XmlToDocxObjects {
       runDefaultStyles.addAll(
         _buildConfigurators(runStyles).map(
           (StyleConfigurator n) {
-            return StyleBuilder.uc()
-                .withConfigurators(<StyleConfigurator>[
+            return StyleBuilder.uc().withConfigurators(<StyleConfigurator>[
               n,
             ]).build();
           },
@@ -102,10 +102,16 @@ class XmlToDocxObjects {
     // final LatentStyles latent = LatentStyles.base();
 
     return DocumentStyles(
-      styles: List<Style>.from(styles),
+      styles: Map<String, Style>.from(
+        styles.toMap((e) => e.styleId),
+      ),
       latentStyles: LatentStyles.base(),
-      docDefaultParagraphStyles: List<Style>.from(paragraphDefaultStyles),
-      docDefaultRunStyles: List<Style>.from(runDefaultStyles),
+      docDefaultParagraphStyles: Map<String, Style>.from(
+        paragraphDefaultStyles.toMap((e) => e.styleId),
+      ),
+      docDefaultRunStyles: Map<String, Style>.from(
+        runDefaultStyles.toMap((e) => e.styleId),
+      ),
     );
   }
 

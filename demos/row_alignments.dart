@@ -24,87 +24,87 @@ Future<void> main() async {
           StyleBuilder.paragraph('Title')
               .name('Title')
               .bold()
-              .fontSize(24.ptToHalfPoints())
+              .fontSize(Point(24))
               .fontFamily('Georgia')
               .alignment(Alignment.center)
-              .spacing(after: 200)
-              .qFormat(true)
+              .spacing(after: Twip(200))
+              .qFormat()
               .build(),
           StyleBuilder.paragraph('Subtitle')
               .name('Subtitle')
-              .fontSize(12.ptToHalfPoints())
+              .fontSize(Point(12))
               .fontFamily('Georgia')
               .alignment(Alignment.center)
               .runColor(Color(0xFF666666))
-              .spacing(after: 400)
-              .qFormat(true)
+              .spacing(after: Twip(400))
+              .qFormat()
               .build(),
           StyleBuilder.paragraph('Section')
               .name('Section')
               .bold()
-              .fontSize(16.ptToHalfPoints())
+              .fontSize(Point(16))
               .fontFamily('Georgia')
-              .spacing(before: 200, after: 150)
-              .qFormat(true)
+              .spacing(before: Twip(200), after: Twip(150))
+              .qFormat()
               .build(),
           StyleBuilder.paragraph('UseCase')
               .name('Use Case')
               .bold()
-              .fontSize(12.ptToHalfPoints())
+              .fontSize(Point(12))
               .fontFamily('Georgia')
-              .spacing(before: 100, after: 50)
-              .qFormat(true)
+              .spacing(before: Twip(100), after: Twip(50))
+              .qFormat()
               .build(),
           StyleBuilder.paragraph('Box')
               .name('Box')
-              .fontSize(10.ptToHalfPoints())
+              .fontSize(Point(10))
               .fontFamily('Georgia')
               .alignment(Alignment.center)
-              .qFormat(true)
+              .qFormat()
               .build(),
           StyleBuilder.paragraph('CardTitle')
               .name('Card Title')
               .bold()
-              .fontSize(11.ptToHalfPoints())
+              .fontSize(Point(11))
               .fontFamily('Georgia')
               .alignment(Alignment.center)
-              .qFormat(true)
+              .qFormat()
               .build(),
           StyleBuilder.paragraph('CardBody')
               .name('Card Body')
-              .fontSize(9.ptToHalfPoints())
+              .fontSize(Point(9))
               .fontFamily('Georgia')
               .alignment(Alignment.center)
-              .qFormat(true)
+              .qFormat()
               .build(),
           StyleBuilder.paragraph('Nav')
               .name('Navigation')
-              .fontSize(10.ptToHalfPoints())
+              .fontSize(Point(10))
               .fontFamily('Georgia')
               .qFormat(true)
               .build(),
           StyleBuilder.paragraph('Label')
               .name('Label')
               .bold()
-              .fontSize(10.ptToHalfPoints())
+              .fontSize(Point(10))
               .fontFamily('Georgia')
               .qFormat(true)
               .build(),
           StyleBuilder.paragraph('Input')
               .name('Input')
-              .fontSize(10.ptToHalfPoints())
+              .fontSize(Point(10))
               .fontFamily('Georgia')
               .qFormat(true)
               .build(),
           StyleBuilder.paragraph('SigLine')
               .name('Signature Line')
-              .fontSize(10.ptToHalfPoints())
+              .fontSize(Point(10))
               .fontFamily('Georgia')
               .qFormat(true)
               .build(),
           StyleBuilder.paragraph('SigLabel')
               .name('Signature Label')
-              .fontSize(9.ptToHalfPoints())
+              .fontSize(Point(9))
               .fontFamily('Georgia')
               .runColor(Color(0xFF888888))
               .qFormat(true)
@@ -199,18 +199,18 @@ Future<void> main() async {
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 3.toTwips(),
-            horizontal: 6.toTwips(),
+            vertical: Twip(3),
+            horizontal: Twip(6),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
-            minHeight: 100.toPt(),
+            minHeight: Point(100),
             children: <DocxNode<dynamic>>[
               LazyImage(
                 data: ImageData.fileSized(
                   file: './assets/curriculum_libreoffice.png',
-                  size: 50.toPixels(),
+                  size: Pixel(50),
                 ),
               ).drawing().run().paragraph(),
               Row(
@@ -276,7 +276,11 @@ Future<void> main() async {
               minHeight: Point(30),
               children: <DocxNode<dynamic>>[
                 Paragraph.text(
-                    text: 'Email:', styles: <Style>[Style.ref('Label')]),
+                  text: 'Email:',
+                  styles: <Style>[
+                    Style.ref('Label'),
+                  ],
+                ),
                 Paragraph.text(
                     text: '___________________________',
                     styles: <Style>[Style.ref('Input')]),

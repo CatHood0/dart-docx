@@ -19,6 +19,11 @@ abstract class UnitValue {
   num? get max => null;
 
   num toPt();
+
+  num toEightOfPt() {
+    return (toPt() / 8).round();
+  }
+
   num toInches();
   num toDxa();
   num toCm();

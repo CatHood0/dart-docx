@@ -328,7 +328,7 @@ class TableProperties extends DocxNode<void> {
       CompilerLogger.root
           .error('Found BorderSide instance in TableProperties configuration '
               'with non RGB Color definition \'${border.color}\'. We recommend '
-              'using Color(0x<COLOR>) or RGB constructor variants.\n\n'
+              'using Color(0xFFFFFF) or RGB constructor variants.\n\n'
               'This instance will be ignored.\n\n'
               'Object: $id, '
               'Parent: ${getAncestorOfExactType<Table>()?.runtimeType}\n'
@@ -338,8 +338,8 @@ class TableProperties extends DocxNode<void> {
       'w:$position',
       attributes: <XmlAttribute>[
         XmlAttribute('w:val'.toName(), border.style.value),
-        XmlAttribute('w:sz'.toName(), border.size.toString()),
-        XmlAttribute('w:space'.toName(), border.space.toString()),
+        XmlAttribute('w:sz'.toName(), border.size.toEightOfPt().toString()),
+        XmlAttribute('w:space'.toName(), border.space.toEightOfPt().toString()),
         if (border.color != null && border.color!.isRGB)
           XmlAttribute('w:color'.toName(), border.color!.toColorValue()!)
         else

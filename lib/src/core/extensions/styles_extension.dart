@@ -100,7 +100,7 @@ extension StylesExtension on Style {
         final double? rawLine =
             double.tryParse(spacingConfigurator.attributes?['w:line'] ?? '');
         if (rawLine != null) {
-          final double effectiveSpacing = rawLine / kDefaultSpacing1;
+          final double effectiveSpacing = rawLine / kDefaultSpacing1.value;
           if (effectiveSpacing > 0) {
             blocks['line-height'] = effectiveSpacing;
           }

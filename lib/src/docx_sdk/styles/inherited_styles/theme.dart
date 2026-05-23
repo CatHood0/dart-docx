@@ -1,8 +1,8 @@
 import '../../components/inheriteds/inherited_node.dart';
 import '../../sdk.dart';
 
-class ThemeData extends InheritedNode {
-  ThemeData({
+class Theme extends InheritedNode {
+  Theme({
     required super.child,
     required this.styles,
     super.id,
@@ -32,8 +32,8 @@ class ThemeData extends InheritedNode {
   TextStyle? list;
   TextStyle? table;
 
-  static ThemeData of(DocxNode node) {
-    final ThemeData? el = node.getAncestorOfExactType<ThemeData>();
+  static Theme of(DocxNode node) {
+    final Theme? el = node.getAncestorOfExactType<Theme>();
 
     //TODO: improve error
     if (el == null) {
@@ -44,7 +44,7 @@ class ThemeData extends InheritedNode {
   }
 
   @override
-  ThemeData get copy => ThemeData(
+  Theme get copy => Theme(
         id: id,
         child: child,
         styles: styles,
@@ -58,7 +58,7 @@ class ThemeData extends InheritedNode {
     String? id,
     DocxNode<dynamic>? parent,
   }) {
-    return ThemeData(
+    return Theme(
       child: child ?? this.child,
       styles: styles ?? this.styles,
       id: id ?? this.id,

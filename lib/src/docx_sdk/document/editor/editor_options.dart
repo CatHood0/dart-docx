@@ -62,8 +62,8 @@ class EditorOptions {
   String defaultOrderedListStyleType;
   bool showHeader;
   bool showFooter;
-  int fontSize;
-  int complexScriptFontSize;
+  UnitValue fontSize;
+  UnitValue complexScriptFontSize;
   EditorMetadata metadata;
   bool showPageNumber;
   bool showLineNumber;

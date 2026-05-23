@@ -3,18 +3,18 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 
-class XmlDefaultDocStylesComponent
-    extends XmlComponentBase<DocumentStyles> {
+class XmlDefaultDocStylesComponent extends XmlComponentBase<DocumentStyles> {
   XmlDefaultDocStylesComponent({required super.value})
       : components = <XmlComponentBase<dynamic>>[
           XmlDefaultParagraphStylesComponent(
-            value: value.docDefaultParagraphStyles,
+            value: value.docDefaultParagraphStyles.values.toList(),
           ),
-          XmlDefaultRunStylesComponent(value: value.docDefaultRunStyles),
+          XmlDefaultRunStylesComponent(
+            value: value.docDefaultRunStyles.values.toList(),
+          ),
         ],
         super(xmlKey: 'w:docDefaults');
   final List<XmlComponentBase> components;
-
 
   @override
   XmlElement buildXml() {

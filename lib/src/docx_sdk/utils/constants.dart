@@ -6,6 +6,7 @@ import '../sdk.dart';
 const UuidV4 uuidV4 = UuidV4();
 
 final Color noColor = Colors.black;
+const String kDefaultFontFamily = 'Times new roman';
 const String noVal = 'none';
 const String kDefaultBorderColor = 'bf4f15';
 const int commonBorderSize = 4;
@@ -115,7 +116,7 @@ final RegExp linkDetectorMatcher = RegExp(
 typedef UniqueNumericIdCreator = int Function();
 
 const String defaultFont = 'Times New Roman';
-const int defaultFontSize = 22;
+const UnitValue defaultFontSize = Point(11);
 const String defaultLang = LanguageCodes.englishUS;
 
 final String defaultOrderedListStyleType = LevelFormat.decimal.name;
@@ -134,7 +135,7 @@ const Orientation defaultOrientation = Orientation.portrait;
 ///```
 /// lineSpacing = n / 240
 ///```
-const double kDefaultSpacing1 = 240;
+const UnitValue kDefaultSpacing1 = Twip(240);
 //const double kDefaultSpacing15 = 360;
 //const double kDefaultSpacing2 = 400;
 const DocumentMargins kDefaultLandscapeMargins = DocumentMargins(

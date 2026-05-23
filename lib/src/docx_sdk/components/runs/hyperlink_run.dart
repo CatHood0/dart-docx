@@ -93,7 +93,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     bool italic = false,
     bool underline = false,
     bool strikethrough = false,
-    num? fontSize,
+    UnitValue? fontSize,
     String? fontFamily,
     Color? color,
     Color? backgroundColor,

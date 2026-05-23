@@ -2,22 +2,6 @@ import 'package:meta/meta.dart'
     show experimental, visibleForOverriding, protected, mustCallSuper;
 import 'package:xml/xml.dart' show XmlNode;
 
-import '../../../../docx.dart'
-    show
-        AnchorConfig,
-        CompilerLogger,
-        DocxRoot,
-        Effect,
-        Fill,
-        Geometry,
-        ImageData,
-        Numbering,
-        Paragraph,
-        ShapeBorder,
-        ShapeTextBox,
-        Style,
-        Transform2D,
-        nanoid;
 import '../../sdk.dart';
 import 'empty_node.dart';
 
@@ -36,19 +20,6 @@ abstract class DocxNode<T> {
   int length = 0;
 
   @visibleForOverriding
-  void addImage(
-    ImageData data, {
-    required bool anchored,
-    String? id,
-  }) {}
-
-  @visibleForOverriding
-  void addParagraph(
-    Paragraph pr, {
-    int? path,
-  }) {}
-
-  @visibleForOverriding
   void insertText(
     String text, {
     int? offset,
@@ -64,31 +35,6 @@ abstract class DocxNode<T> {
     int? path,
   }) {}
 
-  @visibleForOverriding
-  void addListItem(
-    String text, {
-    required Numbering numbering,
-    List<Style>? styles,
-    int? path,
-  }) {}
-
-  @visibleForOverriding
-  void addShape({
-    required AnchorConfig config,
-    required int width,
-    required int height,
-    required Geometry<dynamic> shape,
-    String name = 'shape',
-    String description = 'shape desc',
-    Transform2D? transform,
-    bool shapeLocks = true,
-    @experimental Fill<dynamic>? fill,
-    @experimental ShapeBorder? border,
-    @experimental Effect<dynamic>? effect,
-    @experimental ShapeTextBox? textBox,
-    @experimental String? shapeId,
-  }) {}
-
   /// Remove all the elements with the [id] specified
   ///
   /// If [path] is provided, will access directly to the element
@@ -97,6 +43,9 @@ abstract class DocxNode<T> {
   /// element that needs to be remove
   @visibleForOverriding
   void removeById(String id, {List<int> path = const <int>[]}) {}
+
+  @visibleForOverriding
+  void remove(DocxNode element, {List<int> path = const <int>[]}) {}
 
   /// Adds all the elements
   ///

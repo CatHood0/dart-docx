@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:xml/xml.dart';
 
@@ -205,7 +204,40 @@ class Paragraph extends DocxNode<List<RunBase>> {
   TextStyle? textStyle;
 
   void setAlign(Alignment? align) {
+    final temp = copy;
     alignment = align;
+    didChangeConfigurations(temp, this);
+  }
+
+  void setPageBreak(ParagraphPageBreak pageBreak) {
+    final temp = copy;
+    this.pageBreak = pageBreak;
+    didChangeConfigurations(temp, this);
+  }
+
+  void setStyle(Style style) {
+    final Paragraph temp = copy;
+
+    if (style.isReference) {
+      final int refIndex = styles.indexWhere((e) => e.isReference);
+      if (refIndex != -1) {
+        styles[refIndex] = style;
+      } else {
+        styles.insert(0, style);
+      }
+      didChangeConfigurations(temp, this);
+      return;
+    }
+
+    styles.add(style);
+    didChangeConfigurations(temp, this);
+  }
+
+  void setTextStyle(TextStyle style) {
+    final Paragraph temp = copy;
+
+    textStyle = style;
+    didChangeConfigurations(temp, this);
   }
 
   @override
@@ -501,19 +533,26 @@ class Paragraph extends DocxNode<List<RunBase>> {
   }
 
   void addRun(RunBase run) {
+    final Paragraph prev = copy;
     child.add(run);
+    didChangeConfigurations(prev, this);
   }
 
   void addRunFirst(RunBase run) {
+    final Paragraph prev = copy;
     child.insert(0, run);
+    didChangeConfigurations(prev, this);
   }
 
   void addRunAt(int index, RunBase run) {
+    final Paragraph prev = copy;
     child.insert(index, run);
+    didChangeConfigurations(prev, this);
   }
 
   @override
   void addAll(List<DocxNode<dynamic>> components) {
+    final Paragraph prev = copy;
     for (final DocxNode<dynamic> v in components) {
       length += v.length;
       if (v is RunBase) {
@@ -523,6 +562,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
 
       child.add(Run(component: v));
     }
+    didChangeConfigurations(prev, this);
   }
 
   @override
@@ -637,48 +677,81 @@ class Paragraph extends DocxNode<List<RunBase>> {
     return Paragraph(children: runs, styles: styles.toList());
   }
 
+  // @override
+  // void addImage(
+  //   ImageData<Object> data, {
+  //   required bool anchored,
+  //   String? id,
+  // }) {
+  //   if (anchored) {
+  //     super.child.add(
+  //           Run(
+  //             component: Drawing(
+  //               child: data is ImageData<Uint8List>
+  //                   ? FloatingImage(
+  //                       id: id,
+  //                       data: data.cast(),
+  //                     )
+  //                   : LazyFloatingImage(
+  //                       id: id,
+  //                       data: data.cast(),
+  //                     ),
+  //             ),
+  //           ),
+  //         );
+  //     return;
+  //   }
+
+  //   super.child.add(
+  //         Run(
+  //           component: Drawing(
+  //             child: data is ImageData<Uint8List>
+  //                 ? Image(
+  //                     id: id,
+  //                     data: data.cast(),
+  //                     asInline: true,
+  //                   )
+  //                 : LazyImage(
+  //                     id: id,
+  //                     data: data.cast(),
+  //                     asInline: true,
+  //                   ),
+  //           ),
+  //         ),
+  //       );
+  // }
+
   @override
-  void addImage(
-    ImageData<Object> data, {
-    required bool anchored,
-    String? id,
-  }) {
-    if (anchored) {
-      super.child.add(
-            Run(
-              component: Drawing(
-                child: data is ImageData<Uint8List>
-                    ? FloatingImage(
-                        id: id,
-                        data: data.cast(),
-                      )
-                    : LazyFloatingImage(
-                        id: id,
-                        data: data.cast(),
-                      ),
-              ),
-            ),
-          );
+  void removeById(String id, {List<int> path = const <int>[]}) {
+    final prev = copy;
+
+    final int index = child.indexWhere((e) => e.id == id);
+
+    if (index == -1) return;
+    child.removeAt(index).deactivate();
+    didChangeConfigurations(prev, this);
+  }
+
+  @override
+  void remove(DocxNode element, {List<int> path = const <int>[]}) {
+    if (element.parent != this || element is! RunBase) {
+      return;
+    }
+    final Paragraph prev = copy;
+
+    final RunBase<dynamic> prevElement = child.elementAt(element.index);
+
+    if (prevElement.id != element.id) {
+      CompilerLogger.root.debug(
+        'Ignoring remove by not matching '
+        'id: prev=${prevElement.id}, target=${element.id}',
+      );
       return;
     }
 
-    super.child.add(
-          Run(
-            component: Drawing(
-              child: data is ImageData<Uint8List>
-                  ? Image(
-                      id: id,
-                      data: data.cast(),
-                      asInline: true,
-                    )
-                  : LazyImage(
-                      id: id,
-                      data: data.cast(),
-                      asInline: true,
-                    ),
-            ),
-          ),
-        );
+    child.removeAt(element.index).deactivate();
+
+    didChangeConfigurations(prev, this);
   }
 
   @override
@@ -697,12 +770,18 @@ class Paragraph extends DocxNode<List<RunBase>> {
     }
 
     final RunBase<dynamic> element = child[i];
-    if (strict && component.child.runtimeType != element.child.runtimeType ||
-        component.id != element.id) {
+    if (strict &&
+        (component.child.runtimeType != element.child.runtimeType ||
+            component.id != element.id)) {
+      CompilerLogger.root.warning(
+        'Tried to updated an '
+        'element using: $component, '
+        'but strict mode found that there is no match for it',
+      );
       return;
     }
 
-    element.markAsDirty();
+    element.deactivate();
 
     length -= element.length;
 
@@ -718,7 +797,11 @@ class Paragraph extends DocxNode<List<RunBase>> {
 
     final RunBase<dynamic> t = child[i];
 
-    if (t.mounted) t.markAsDirty();
+    if (t.mounted) {
+      t
+        ..markAsDirty()
+        ..init();
+    }
   }
 }
 

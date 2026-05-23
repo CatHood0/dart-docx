@@ -1316,7 +1316,6 @@ class TableStyleBuilder {
       );
     }
 
-    // ========== (w:tblStylePr) ==========
     for (final ConditionalTableStyle condStyle in _conditionalStyles) {
       configurators.add(condStyle.toStyleConfigurator());
     }
@@ -1716,17 +1715,17 @@ class TableStyleBuilder {
       .build();
 
   /// Returns a list of all standard table styles.
-  static List<Style> get standardTableStyles => <Style>[
-        tableGrid,
-        lightShading,
-        mediumShading1,
-        mediumShading2,
-        lightList,
-        lightGrid,
-        plainTable1,
-        gridTable4,
-        gridTable5Dark,
-      ];
+  static Map<String, Style> get standardTableStyles => <String, Style>{
+        'TableGrid': tableGrid,
+        'LightShading': lightShading,
+        'MediumShading1': mediumShading1,
+        'MediumShading2': mediumShading2,
+        'LightList': lightList,
+        'LightGrid': lightGrid,
+        'PlainTable1': plainTable1,
+        'GridTable4': gridTable4,
+        'GridTable5Dark': gridTable5Dark,
+      };
 }
 
 /// Represents a conditional table style for specific table parts.

@@ -40,22 +40,23 @@ class TextStyle {
   final bool caps;
 
   // Font properties
-  final num? fontSize;
+  final UnitValue? fontSize;
   final String? fontFamily;
   final Color? fontColor;
   final Color? backgroundColor;
 
   // Spacing properties
-  final int? spacingBefore;
-  final int? spacingAfter;
-  final int? lineSpacing;
+  final UnitValue? spacingBefore;
+  final UnitValue? spacingAfter;
+  final UnitValue? lineSpacing;
   final LineRule? lineSpacingRule;
 
   // Indent properties
-  final int? indentLeft;
-  final int? indentRight;
-  final int? firstLineIndent;
-  final int? hangingIndent;
+  final UnitValue? indentLeft;
+  final UnitValue? indentRight;
+  final UnitValue? firstLineIndent;
+  final UnitValue? hangingIndent;
+  // heading
   final int? headingLevel;
 
   // Border properties
@@ -108,18 +109,18 @@ class TextStyle {
     bool? strikethrough,
     bool? smallCaps,
     bool? caps,
-    num? fontSize,
+    UnitValue? fontSize,
     String? fontFamily,
     Color? fontColor,
     Color? backgroundColor,
-    int? spacingBefore,
-    int? spacingAfter,
-    int? lineSpacing,
+    UnitValue? spacingBefore,
+    UnitValue? spacingAfter,
+    UnitValue? lineSpacing,
     LineRule? lineSpacingRule,
-    int? indentLeft,
-    int? indentRight,
-    int? firstLineIndent,
-    int? hangingIndent,
+    UnitValue? indentLeft,
+    UnitValue? indentRight,
+    UnitValue? firstLineIndent,
+    UnitValue? hangingIndent,
     Borders? borders,
     WidowOrphanControl? widowControl,
     bool? keepNext,
@@ -178,16 +179,16 @@ class TextStyle {
     if (smallCaps) builder.smallCaps();
     if (caps) builder.caps();
 
-    if (fontSize != null) builder.fontSize(fontSize!.ptToHalfPoints());
+    if (fontSize != null) builder.fontSize(fontSize!);
     if (fontFamily != null) builder.fontFamily(fontFamily!);
     if (fontColor != null) builder.runColor(fontColor!);
     if (backgroundColor != null) builder.highlight(backgroundColor!);
 
     if (spacingBefore != null || spacingAfter != null || lineSpacing != null) {
       builder.spacing(
-        before: spacingBefore!.ptToTwips(),
-        after: spacingAfter!.ptToTwips(),
-        line: lineSpacing!.ptToTwips(),
+        before: spacingBefore!,
+        after: spacingAfter!,
+        line: lineSpacing!,
         rule: lineSpacingRule ?? LineRule.auto,
       );
     }
@@ -197,9 +198,9 @@ class TextStyle {
         firstLineIndent != null ||
         hangingIndent != null) {
       builder.indent(
-        left: indentLeft!.inchesToTwips(),
-        right: indentRight!.inchesToTwips(),
-        firstLine: firstLineIndent!.inchesToTwips(),
+        left: indentLeft!,
+        right: indentRight!,
+        firstLine: firstLineIndent!,
         hanging: hangingIndent,
       );
     }
@@ -237,28 +238,28 @@ class TextStyle {
     if (borders.top != null) {
       builder.borders(
         top: borders.top!.style,
-        topSize: borders.top!.size.toPt(),
+        topSize: borders.top!.size,
         topColor: borders.top!.color?.toColorValue()!.toUpperCase(),
       );
     }
     if (borders.bottom != null) {
       builder.borders(
         bottom: borders.bottom!.style,
-        bottomSize: borders.bottom!.size.toPt(),
+        bottomSize: borders.bottom!.size,
         bottomColor: borders.bottom!.color?.toColorValue()!.toUpperCase(),
       );
     }
     if (borders.left != null) {
       builder.borders(
         left: borders.left!.style,
-        leftSize: borders.left!.size.toPt(),
+        leftSize: borders.left!.size,
         leftColor: borders.left!.color?.toColorValue()!.toUpperCase(),
       );
     }
     if (borders.right != null) {
       builder.borders(
         right: borders.right!.style,
-        rightSize: borders.right!.size.toPt(),
+        rightSize: borders.right!.size,
         rightColor: borders.right!.color?.toColorValue()!.toUpperCase(),
       );
     }

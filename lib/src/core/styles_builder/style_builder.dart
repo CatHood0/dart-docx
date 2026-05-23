@@ -179,11 +179,11 @@ class StyleBuilder {
   // Run properties (character formatting)
   /// Usually used for w:sz that settings the size of
   /// most of the common characters
-  num? _fontSize;
+  UnitValue? _fontSize;
 
   /// Usually used for w:szCs that settings the size of
   /// chinese, japanase and Korean characters
-  num? _fontEastAsiaSize;
+  UnitValue? _fontEastAsiaSize;
   String? _fontFamily;
   Color? _color;
   Color? _highlightColor;
@@ -198,18 +198,18 @@ class StyleBuilder {
 
   // Paragraph properties (continued)
   Alignment? _alignment;
-  int? _spacingBefore;
-  int? _spacingAfter;
+  UnitValue? _spacingBefore;
+  UnitValue? _spacingAfter;
   LineRule? _lineRule;
-  int? _lineSpacing;
-  int? _firstLineIndent;
-  int? _leftIndent;
-  int? _rightIndent;
-  int? _hangingIndent;
+  UnitValue? _lineSpacing;
+  UnitValue? _firstLineIndent;
+  UnitValue? _leftIndent;
+  UnitValue? _rightIndent;
+  UnitValue? _hangingIndent;
   // Useful for RTL languages
-  int? _startIndent;
+  UnitValue? _startIndent;
   // Useful for RTL languages
-  int? _endIndent;
+  UnitValue? _endIndent;
   bool _keepNext = false;
   bool _keepLines = false;
   int? _outlineLevel;
@@ -313,7 +313,7 @@ class StyleBuilder {
   ///   .contextualSpacing(true)
   ///   .build();
   /// ```
-  StyleBuilder contextualSpacing(bool shouldUse) {
+  StyleBuilder contextualSpacing([bool shouldUse = true]) {
     _contextualSpacing = shouldUse;
     return this;
   }
@@ -328,7 +328,7 @@ class StyleBuilder {
   }
 
   /// Sets whether this style is a default style for the document.
-  StyleBuilder defaultValue(bool value) {
+  StyleBuilder asDefaultStyle([bool value = true]) {
     _defaultValue = value.toInt();
     return this;
   }
@@ -343,7 +343,7 @@ class StyleBuilder {
   }
 
   /// Specifies whether this style should be locked.
-  StyleBuilder locked(bool locked) {
+  StyleBuilder locked([bool locked = true]) {
     _locked = locked;
     return this;
   }
@@ -351,7 +351,7 @@ class StyleBuilder {
   /// Specifies whether this style should be included in the Quick Style gallery.
   ///
   /// [enabled] true to include in Quick Styles, false otherwise.
-  StyleBuilder qFormat(bool enabled) {
+  StyleBuilder qFormat([bool enabled = true]) {
     _qFormat = enabled;
     return this;
   }
@@ -375,7 +375,7 @@ class StyleBuilder {
   /// Sets the font size for the style.
   ///
   /// [size] is the font size in points (e.g., 12.0).
-  StyleBuilder fontSize(num size, [num? eastAsiaSize]) {
+  StyleBuilder fontSize(UnitValue size, [UnitValue? eastAsiaSize]) {
     _fontSize = size;
     _fontEastAsiaSize = eastAsiaSize ?? size;
     return this;
@@ -497,6 +497,7 @@ class StyleBuilder {
   /// [align] specifies the horizontal alignment (e.g., [Alignment.left]).
   /// This setting is applicable only to paragraph styles.
   StyleBuilder alignment(Alignment align) {
+    if (type != Style.paragraphType) return this;
     _alignment = align;
     return this;
   }
@@ -508,11 +509,12 @@ class StyleBuilder {
   /// [line] is the line spacing of the element in twips.
   /// This setting is applicable only to paragraph styles.
   StyleBuilder spacing({
-    int? before,
-    int? after,
-    int? line,
+    UnitValue? before,
+    UnitValue? after,
+    UnitValue? line,
     LineRule rule = LineRule.auto,
   }) {
+    if (type != Style.paragraphType) return this;
     if (before != null) _spacingBefore = before;
     if (after != null) _spacingAfter = after;
     if (line != null) _lineSpacing = line;
@@ -524,7 +526,8 @@ class StyleBuilder {
   ///
   /// [value] is the line spacing in twips.
   /// This setting is applicable only to paragraph styles.
-  StyleBuilder lineSpacing(int value) {
+  StyleBuilder lineSpacing(UnitValue? value) {
+    if (type != Style.paragraphType) return this;
     _lineSpacing = value;
     return this;
   }
@@ -534,16 +537,19 @@ class StyleBuilder {
   /// [firstLine] is the indentation for the first line of the paragraph in twips.
   /// [left] is the left indentation for the paragraph in twips.
   /// [right] is the right indentation for the paragraph in twips.
+  /// [start] same as `left` but for RTL languages.
+  /// [end] same as `right` but for RTL languages.
   /// [hanging] is the hanging indentation for the paragraph in twips.
   /// This setting is applicable only to paragraph styles.
   StyleBuilder indent({
-    int? firstLine,
-    int? left,
-    int? right,
-    int? start,
-    int? end,
-    int? hanging,
+    UnitValue? firstLine,
+    UnitValue? left,
+    UnitValue? right,
+    UnitValue? start,
+    UnitValue? end,
+    UnitValue? hanging,
   }) {
+    if (type != Style.paragraphType) return this;
     if (firstLine != null) _firstLineIndent = firstLine;
     if (left != null) _leftIndent = left;
     if (right != null) _rightIndent = right;
@@ -558,7 +564,8 @@ class StyleBuilder {
   ///
   /// [keep] true to keep with next, false otherwise.
   /// This setting is applicable only to paragraph styles.
-  StyleBuilder keepNext(bool keep) {
+  StyleBuilder keepNext([bool keep = true]) {
+    if (type != Style.paragraphType) return this;
     _keepNext = keep;
     return this;
   }
@@ -568,7 +575,8 @@ class StyleBuilder {
   ///
   /// [keep] true to keep lines together, false otherwise.
   /// This setting is applicable only to paragraph styles.
-  StyleBuilder keepLines(bool keep) {
+  StyleBuilder keepLines([bool keep = true]) {
+    if (type != Style.paragraphType) return this;
     _keepLines = keep;
     return this;
   }
@@ -578,6 +586,7 @@ class StyleBuilder {
   /// [level] is an integer from 0 to 8 (0 for Body Text, 1-8 for heading levels).
   /// This setting is applicable only to paragraph styles.
   StyleBuilder outlineLevel(int level) {
+    if (type != Style.paragraphType) return this;
     _outlineLevel = level;
     return this;
   }
@@ -586,6 +595,7 @@ class StyleBuilder {
   ///
   /// This setting is applicable only to paragraph styles.
   StyleBuilder pageBreakBefore() {
+    if (type != Style.paragraphType) return this;
     _pageBreakBefore = true;
     return this;
   }
@@ -596,9 +606,7 @@ class StyleBuilder {
   /// [pattern] is the shading pattern (e.g., [ShadingPattern.solid]).
   /// This setting is applicable only to paragraph styles.
   StyleBuilder shading({Color? color, ShadingPattern? pattern}) {
-    if (type == Style.paragraphType) {
-      return this;
-    }
+    if (type != Style.paragraphType) return this;
     if (color != null) _shadingColor = color.toColorValue()!.toUpperCase();
     if (pattern != null) _shadingPattern = pattern;
     return this;
@@ -623,48 +631,45 @@ class StyleBuilder {
   ///   as a hexadecimal string (e.g., '000000' for black). Default is 'auto'.
   StyleBuilder borders({
     BorderStyle? top,
-    num? topSize,
+    UnitValue? topSize,
     String? topColor,
     BorderStyle? bottom,
-    num? bottomSize,
+    UnitValue? bottomSize,
     String? bottomColor,
     BorderStyle? left,
-    num? leftSize,
+    UnitValue? leftSize,
     String? leftColor,
     BorderStyle? right,
-    num? rightSize,
+    UnitValue? rightSize,
     String? rightColor,
   }) {
-    // Borders apply to paragraph blocks, not characters.
-    if (type != Style.paragraphType) {
-      return this;
-    }
+    if (type != Style.paragraphType) return this;
 
     if (top != null) {
       _borders['top'] = <String, String>{
         'w:val': top.value,
-        'w:sz': (topSize ?? 4).toString(), // Default 0.5pt
+        'w:sz': (topSize ?? Point(4)).toEightOfPt().toString(),
         'w:color': topColor ?? 'auto',
       };
     }
     if (bottom != null) {
       _borders['bottom'] = <String, String>{
         'w:val': bottom.value,
-        'w:sz': (bottomSize ?? 4).toString(),
+        'w:sz': (bottomSize ?? Point(4)).toEightOfPt().toString(),
         'w:color': bottomColor ?? 'auto',
       };
     }
     if (left != null) {
       _borders['left'] = <String, String>{
         'w:val': left.value,
-        'w:sz': (leftSize ?? 4).toString(),
+        'w:sz': (leftSize ?? Point(4)).toEightOfPt().toString(),
         'w:color': leftColor ?? 'auto',
       };
     }
     if (right != null) {
       _borders['right'] = <String, String>{
         'w:val': right.value,
-        'w:sz': (rightSize ?? 4).toString(),
+        'w:sz': (rightSize ?? Point(4)).toEightOfPt().toString(),
         'w:color': rightColor ?? 'auto',
       };
     }
@@ -734,15 +739,15 @@ class StyleBuilder {
         };
 
         if (_spacingBefore != null) {
-          spacingConfigs['w:before'] = _spacingBefore.toString();
+          spacingConfigs['w:before'] = _spacingBefore!.toTwips().toString();
         }
 
         if (_spacingAfter != null) {
-          spacingConfigs['w:after'] = _spacingAfter.toString();
+          spacingConfigs['w:after'] = _spacingAfter!.toTwips().toString();
         }
 
         if (_lineSpacing != null) {
-          spacingConfigs['w:line'] = _lineSpacing.toString();
+          spacingConfigs['w:line'] = _lineSpacing!.toTwips().toString();
           spacingConfigs['w:lineRule'] = _lineRule!.name.toString();
         }
 
@@ -810,28 +815,30 @@ class StyleBuilder {
           _hangingIndent != null) {
         final Map<String, dynamic> indentConfigs = <String, dynamic>{};
 
+        //NOTE: should we auto replace start and
+        // end automatically if not provided to make more compatible with RTL?
         if (_leftIndent != null) {
-          indentConfigs['w:left'] = _leftIndent.toString();
+          indentConfigs['w:left'] = _leftIndent!.toTwips().toString();
         }
 
         if (_rightIndent != null) {
-          indentConfigs['w:right'] = _rightIndent.toString();
+          indentConfigs['w:right'] = _rightIndent!.toTwips().toString();
         }
 
         if (_firstLineIndent != null) {
-          indentConfigs['w:firstLine'] = _firstLineIndent.toString();
+          indentConfigs['w:firstLine'] = _firstLineIndent!.toTwips().toString();
         }
 
         if (_hangingIndent != null) {
-          indentConfigs['w:hanging'] = _hangingIndent.toString();
+          indentConfigs['w:hanging'] = _hangingIndent!.toTwips().toString();
         }
 
         if (_startIndent != null) {
-          indentConfigs['w:start'] = _startIndent.toString();
+          indentConfigs['w:start'] = _startIndent!.toTwips().toString();
         }
 
         if (_endIndent != null) {
-          indentConfigs['w:end'] = _endIndent.toString();
+          indentConfigs['w:end'] = _endIndent!.toTwips().toString();
         }
 
         if (indentConfigs.isNotEmpty) {
@@ -941,7 +948,7 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'sz',
-          value: _fontSize!.toInt().toString(),
+          value: (_fontSize!.toPt() * 2).toInt().toString(),
         ),
       );
     }
@@ -950,7 +957,7 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'szCs',
-          value: _fontEastAsiaSize!.toInt().toString(),
+          value: (_fontEastAsiaSize!.toPt() * 2).toInt().toString(),
         ),
       );
     }
@@ -1127,27 +1134,27 @@ class StyleBuilder {
 
   static Style get normal => StyleBuilder.paragraph('Normal')
       .name('Normal')
-      .fontSize(12.ptToHalfPoints())
+      .fontSize(Point(12))
       .alignment(Alignment.left)
-      .spacing(before: 0, after: 160)
+      .spacing(before: Twip(0), after: Twip(160))
       .lang(DocxLanguage(language: LanguageCodes.englishUS))
-      .qFormat(true)
+      .qFormat()
       .build();
 
   static Style get listParagraph => StyleBuilder.paragraph('ListParagraph')
       .name('List Paragraph')
       .basedOn('Normal')
-      .keepNext(true)
-      .keepLines(true)
+      .keepNext()
+      .keepLines()
       .activateWindowControl()
-      .contextualSpacing(true)
-      .qFormat(true)
+      .contextualSpacing()
+      .qFormat()
       .build();
 
   static Style get defaultParagraphFont =>
       StyleBuilder.character('DefaultParagraphFont')
           .name('Default Paragraph Font')
-          .defaultValue(true)
+          .asDefaultStyle(true)
           .build();
 
   static Style get hyperlink => StyleBuilder.character('Hyperlink')
@@ -1161,14 +1168,14 @@ class StyleBuilder {
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
-      .fontSize(24.ptToHalfPoints())
+      .fontSize(Point(24))
       .bold()
-      .spacing(before: 480)
-      .keepNext(true)
-      .keepLines(true)
-      .outlineLevel(0)
+      .spacing(before: Twip(480))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(1)
       .uiPriority(9)
-      .qFormat(true)
+      .qFormat()
       .build();
 
   static Style get heading2 => StyleBuilder.paragraph('Heading2')
@@ -1176,15 +1183,15 @@ class StyleBuilder {
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
-      .fontSize(18.ptToHalfPoints())
+      .fontSize(Point(18))
       .bold()
-      .spacing(before: 360, after: 80)
-      .keepNext(true)
-      .keepLines(true)
-      .outlineLevel(1)
+      .spacing(before: Twip(360), after: Twip(80))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(2)
       .uiPriority(9)
       .unhideWhenUsed(true)
-      .qFormat(true)
+      .qFormat()
       .build();
 
   static Style get heading3 => StyleBuilder.paragraph('Heading3')
@@ -1192,16 +1199,16 @@ class StyleBuilder {
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
-      .fontSize(14.ptToHalfPoints())
+      .fontSize(Point(14))
       .bold()
-      .spacing(before: 280, after: 80)
-      .keepNext(true)
-      .keepLines(true)
-      .outlineLevel(2)
+      .spacing(before: Twip(280), after: Twip(80))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(3)
       .uiPriority(9)
       .semiHidden(true)
       .unhideWhenUsed(true)
-      .qFormat(true)
+      .qFormat()
       .build();
 
   static Style get heading4 => StyleBuilder.paragraph('Heading4')
@@ -1209,16 +1216,16 @@ class StyleBuilder {
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
-      .fontSize(12.ptToHalfPoints())
+      .fontSize(Point(12))
       .bold()
-      .spacing(before: 240, after: 40)
-      .keepNext(true)
-      .keepLines(true)
-      .outlineLevel(3)
+      .spacing(before: Twip(240), after: Twip(40))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(4)
       .uiPriority(9)
       .semiHidden(true)
       .unhideWhenUsed(true)
-      .qFormat(true)
+      .qFormat()
       .build();
 
   static Style get heading5 => StyleBuilder.paragraph('Heading5')
@@ -1226,16 +1233,16 @@ class StyleBuilder {
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
-      .fontSize(12.ptToHalfPoints())
+      .fontSize(Point(12))
       .bold()
-      .spacing(before: 220, after: 40)
-      .keepNext(true)
-      .keepLines(true)
-      .outlineLevel(4)
+      .spacing(before: Twip(220), after: Twip(40))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(5)
       .uiPriority(9)
       .semiHidden(true)
       .unhideWhenUsed(true)
-      .qFormat(true)
+      .qFormat()
       .build();
 
   static Style get heading6 => StyleBuilder.paragraph('Heading6')
@@ -1243,33 +1250,33 @@ class StyleBuilder {
       .basedOn('Normal')
       .next('Normal')
       .fontFamily('Times New Roman')
-      .fontSize(10.ptToHalfPoints())
+      .fontSize(Point(10))
       .bold()
-      .spacing(before: 200, after: 40)
-      .keepNext(true)
-      .keepLines(true)
-      .outlineLevel(5)
+      .spacing(before: Twip(200), after: Twip(40))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(6)
       .uiPriority(9)
       .semiHidden(true)
       .unhideWhenUsed(true)
-      .qFormat(true)
+      .qFormat()
       .build();
 
-  static List<Style> get standardDocumentStyles => <Style>[
-        normal,
-        listParagraph,
-        defaultParagraphFont,
+  static Map<String, Style> get standardDocumentStyles => <String, Style>{
+        'Normal': normal,
+        'ListParagraph': listParagraph,
+        'DefaultParagraphFont': defaultParagraphFont,
         ...TableStyleBuilder.standardTableStyles,
-        hyperlink,
-        heading1,
-        heading2,
-        heading3,
-        heading4,
-        heading5,
-        heading6,
-      ];
+        'Hyperlink': hyperlink,
+        'Heading1': heading1,
+        'Heading2': heading2,
+        'Heading3': heading3,
+        'Heading4': heading4,
+        'Heading5': heading5,
+        'Heading6': heading6,
+      };
 
-  static List<Style> styles({
+  static Map<String, Style> styles({
     bool shouldNormal = true,
     bool shouldListParagraph = true,
     bool shouldDefaultParagraphFont = true,
@@ -1282,19 +1289,20 @@ class StyleBuilder {
     bool shouldHeading6 = true,
     bool shouldTables = true,
   }) =>
-      <Style>[
-        if (shouldNormal) normal,
-        if (shouldListParagraph) listParagraph,
-        if (shouldDefaultParagraphFont) defaultParagraphFont,
+      <String, Style>{
+        if (shouldNormal) 'Normal': normal,
+        if (shouldListParagraph) 'ListParagraph': listParagraph,
+        if (shouldDefaultParagraphFont)
+          'DefaultParagraphFont': defaultParagraphFont,
         if (shouldTables) ...TableStyleBuilder.standardTableStyles,
-        if (shouldHyperlink) hyperlink,
-        if (shouldHeading1) heading1,
-        if (shouldHeading2) heading2,
-        if (shouldHeading3) heading3,
-        if (shouldHeading4) heading4,
-        if (shouldHeading5) heading5,
-        if (shouldHeading6) heading6,
-      ];
+        if (shouldHyperlink) 'Hyperlink': hyperlink,
+        if (shouldHeading1) 'Heading1': heading1,
+        if (shouldHeading2) 'Heading2': heading2,
+        if (shouldHeading3) 'Heading3': heading3,
+        if (shouldHeading4) 'Heading4': heading4,
+        if (shouldHeading5) 'Heading5': heading5,
+        if (shouldHeading6) 'Heading6': heading6,
+      };
 
   //TODO: implement this or remove it
   // as far as i know, this directly

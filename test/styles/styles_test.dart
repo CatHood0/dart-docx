@@ -35,12 +35,12 @@ void main() {
       final Style style = createStyle(styleId: 'Normal');
       final DocumentStyles stylesSheet = DocumentStyles(
         latentStyles: LatentStyles.base(),
-        styles: <Style>[
-          style,
-        ],
+        styles: <String, Style>{
+          style.styleId: style,
+        },
       );
 
-      final Style deepStyle = style.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = style.resolveStyle(stylesSheet);
 
       expect(deepStyle.styleId, 'Normal');
       expect(deepStyle.configurators, isEmpty);
@@ -100,12 +100,12 @@ void main() {
 
       final DocumentStyles stylesSheet = DocumentStyles(
         latentStyles: LatentStyles.base(),
-        styles: <Style>[
-          parentStyle,
-          childStyle,
-        ],
+        styles: <String, Style>{
+          parentStyle.styleId: parentStyle,
+          childStyle.styleId: childStyle,
+        },
       );
-      final Style deepStyle = childStyle.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = childStyle.resolveStyle(stylesSheet);
 
       expect(deepStyle.styleId, 'Child');
 
@@ -244,13 +244,13 @@ void main() {
 
       final DocumentStyles stylesSheet = DocumentStyles(
         latentStyles: LatentStyles.base(),
-        styles: <Style>[
-          styleA,
-          styleB,
-          styleC,
-        ],
+        styles: <String, Style>{
+          styleA.styleId: styleA,
+          styleB.styleId: styleB,
+          styleC.styleId: styleC,
+        },
       );
-      final Style deepStyle = styleC.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = styleC.resolveStyle(stylesSheet);
 
       expect(deepStyle.styleId, 'StyleC');
 
@@ -295,12 +295,12 @@ void main() {
       );
       final DocumentStyles stylesSheet = DocumentStyles(
         latentStyles: LatentStyles.base(),
-        styles: <Style>[
-          style,
-        ],
+        styles: <String, Style>{
+          style.styleId: style,
+        },
       );
 
-      final Style deepStyle = style.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = style.resolveStyle(stylesSheet);
 
       expect(
         deepStyle.configurators.length,
@@ -375,12 +375,12 @@ void main() {
 
       final DocumentStyles stylesSheet = DocumentStyles(
         latentStyles: LatentStyles.base(),
-        styles: <Style>[
-          baseStyle,
-          derivedStyle,
-        ],
+        styles: <String, Style>{
+          baseStyle.styleId: baseStyle,
+          derivedStyle.styleId: derivedStyle,
+        },
       );
-      final Style deepStyle = derivedStyle.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = derivedStyle.resolveStyle(stylesSheet);
 
       final StyleConfigurator? pPr = deepStyle.getConfiguratorOrNull('w:pPr');
       expect(pPr, isNotNull);
@@ -430,14 +430,14 @@ void main() {
       // A styles sheet with the circular styles
       final DocumentStyles stylesSheet = DocumentStyles(
         latentStyles: LatentStyles.base(),
-        styles: <Style>[
-          styleA,
-          styleB,
-        ],
+        styles: <String, Style>{
+          styleA.styleId: styleA,
+          styleB.styleId: styleB,
+        },
       );
 
       // When calling getDeepStyleRelation on styleA, it should not loop infinitely
-      final Style deepStyle = styleA.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = styleA.resolveStyle(stylesSheet);
 
       expect(deepStyle.styleId, 'StyleA');
       // Should contain styleA's initial configurators and styleB's if it was added before detection
@@ -478,12 +478,12 @@ void main() {
 
       final DocumentStyles stylesSheet = DocumentStyles(
         latentStyles: LatentStyles.base(),
-        styles: <Style>[
-          baseStyle,
-          childStyle,
-        ],
+        styles: <String, Style>{
+          baseStyle.styleId: baseStyle,
+          childStyle.styleId: childStyle,
+        },
       );
-      final Style deepStyle = childStyle.getDeepStyleRelation(stylesSheet);
+      final Style deepStyle = childStyle.resolveStyle(stylesSheet);
 
       expect(deepStyle.styleId, 'Child');
       expect(deepStyle.styleName()!.value!, 'Child Name');

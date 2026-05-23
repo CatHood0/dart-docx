@@ -9,7 +9,7 @@ class NoToggleAttributesRule extends Rule {
   RuleException? validate(DocxDocument document) {
     final DocumentStyles docStyles = document.options.docStyles;
 
-    for (final Style style in docStyles.styles) {
+    for (final Style style in docStyles.styles.values) {
       final StyleConfigurator? pPr = style.paragraphProperties;
       final StyleConfigurator? rPr = style.runProperties;
       if (pPr == null && rPr == null) continue;

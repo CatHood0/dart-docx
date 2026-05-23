@@ -1,13 +1,6 @@
 import 'package:xml/xml.dart';
 
 import '../../sdk.dart';
-import '../../stores/inherited_stores/document_rels_provider.dart';
-import '../../stores/inherited_stores/drawing_counter_provider.dart';
-import '../../stores/inherited_stores/fonts_provider.dart';
-import '../../stores/inherited_stores/hyperlinks_provider.dart';
-import '../../stores/inherited_stores/numbering_store_provider.dart';
-import '../../stores/inherited_stores/sdt_store_provider.dart';
-import '../../styles/inherited_styles/theme_data.dart';
 
 class DocxApp extends DocxNode<DocxNode> {
   DocxApp({
@@ -30,7 +23,7 @@ class DocxApp extends DocxNode<DocxNode> {
         super(
           id: 'docx_app_node',
           child: () {
-            DocxNode c = ThemeData(
+            DocxNode c = Theme(
               child: child,
               styles: styles ?? DocumentStyles.base(),
             );

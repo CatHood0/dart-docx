@@ -12,11 +12,11 @@ class LatentAnalyzer {
   /// Analyze all the styles and return the updated versions applying
   /// default metadata where required, and making the count expected
   static (List<Style>, LatentStyles) analyze(
-    List<Style> styles,
+    Map<String, Style> styles,
     LatentStyles latent, {
     String language = LanguageCodes.englishUS,
   }) {
-    final List<Style> temp = <Style>[...styles];
+    final List<Style> temp = <Style>[...styles.values];
     int count = 0;
     final List<LatentException> exceptions = <LatentException>[];
 

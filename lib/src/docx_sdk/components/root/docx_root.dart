@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
@@ -84,99 +83,54 @@ class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
       child[i].markAsDirty();
     }
   }
-
-  @override
-  void addImage(
-    ImageData<Object> data, {
-    required bool anchored,
-    String? id,
-  }) {
-    child.add(Paragraph.empty()
-      ..addImage(
-        data,
-        anchored: anchored,
-        id: id,
-      ));
-  }
-
-  @override
-  void addParagraph(
-    Paragraph pr, {
-    int? path,
-  }) {
-    path == null ? child.add(pr) : child.insert(path, pr);
-  }
-
-  //TODO: remove this
-  @override
-  void addListItem(
-    String text, {
-    required Numbering numbering,
-    List<Style>? styles,
-    List<Style>? runStyles,
-    int? path,
-  }) {
-    final Builder<Paragraph> lazyElement = Builder<Paragraph>(
-      builder: (DocxNode<dynamic> context, String id) {
-        return Paragraph.text(
-          text: text,
-          styles: styles ?? <Style>[],
-          runStyles: runStyles ?? <Object>[],
-          numbering: numbering,
-        );
-      },
-    );
-    path == null ? child.add(lazyElement) : child.insert(path, lazyElement);
-  }
-
-  @override
-  void addShape({
-    required AnchorConfig config,
-    required int width,
-    required int height,
-    required Geometry<dynamic> shape,
-    String name = 'shape',
-    String description = 'shape desc',
-    Transform2D? transform,
-    bool shapeLocks = true,
-    @experimental Fill<dynamic>? fill,
-    @experimental ShapeBorder? border,
-    @experimental Effect<dynamic>? effect,
-    @experimental ShapeTextBox? textBox,
-    @experimental String? shapeId,
-  }) =>
-      addParagraph(
-        Paragraph.run(
-          Drawing(
-            child: Anchor(
-              width: width,
-              height: height,
-              name: name,
-              config: config,
-              child: Graphic.pic(
-                child: WPShape(
-                  id: shapeId,
-                  name: name,
-                  description: description,
-                  textBox: textBox,
-                  shapeLocks: shapeLocks,
-                  shapeProperties: ShapeProperties(
-                    geometryComponent: shape,
-                    fill: fill,
-                    border: border,
-                    effects: effect,
-                    transform: transform ??
-                        Transform2D(
-                          offset: Offset.zero(),
-                          extents: AnnotationExtents.zero(),
-                        ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
+  // @override
+  // void addShape({
+  //   required AnchorConfig config,
+  //   required int width,
+  //   required int height,
+  //   required Geometry<dynamic> shape,
+  //   String name = 'shape',
+  //   String description = 'shape desc',
+  //   Transform2D? transform,
+  //   bool shapeLocks = true,
+  //   @experimental Fill<dynamic>? fill,
+  //   @experimental ShapeBorder? border,
+  //   @experimental Effect<dynamic>? effect,
+  //   @experimental ShapeTextBox? textBox,
+  //   @experimental String? shapeId,
+  // }) =>
+  //     addParagraph(
+  //       Paragraph.run(
+  //         Drawing(
+  //           child: Anchor(
+  //             width: width,
+  //             height: height,
+  //             name: name,
+  //             config: config,
+  //             child: Graphic.pic(
+  //               child: WPShape(
+  //                 id: shapeId,
+  //                 name: name,
+  //                 description: description,
+  //                 textBox: textBox,
+  //                 shapeLocks: shapeLocks,
+  //                 shapeProperties: ShapeProperties(
+  //                   geometryComponent: shape,
+  //                   fill: fill,
+  //                   border: border,
+  //                   effects: effect,
+  //                   transform: transform ??
+  //                       Transform2D(
+  //                         offset: Offset.zero(),
+  //                         extents: AnnotationExtents.zero(),
+  //                       ),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     );
 
   Iterable<DocxNode<dynamic>> where(
     bool Function(DocxNode<dynamic>) predicate,

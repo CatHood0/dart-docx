@@ -1,4 +1,10 @@
+//TODO: we need to make this more easy to understand, since
+// most of these are not explicit with what they make or are
 
+
+class Keys {
+  const Keys._();
+}
 const String xmlDocDefaultsNode = 'w:docDefaults';
 const String xmlStyleNode = 'w:style';
 const String xmlStyleName = 'w:name';
@@ -75,10 +81,8 @@ const String xmlParagraphKeepLines = 'w:keepLines';
 
 /// represents the indentation of the list
 const String xmlListIndentLevelNode = 'w:ilvl'; // w:val="number" = default "0"
-/// represents the type of the list using a code num value
-///  - 2 => bullet list
-///  - 3 => ordered list
-///  - ?
+/// represents the id that references to the abstract num instance in numbering.xml 
+/// and its concrete one
 const String xmlListTypeNode = 'w:numId'; // w.val="number"
 const String xmlParagraphStyleNode = 'w:pStyle'; // w:val="any_type_value"
 // internals of <w:rPr> and <w:pPr>

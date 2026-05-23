@@ -227,8 +227,8 @@ class Style extends IterableConfigurators {
   /// ```
   ///
   /// Returns a new Style instance with all inherited properties merged.
-  Style getDeepStyleRelation(DocumentStyles styles) {
-    if (basedOn == null) {
+  Style resolveStyle(DocumentStyles styles) {
+    if (isReference || basedOn == null) {
       return this;
     }
     const int maxAttempts = 200;
@@ -820,8 +820,8 @@ abstract class IterableConfigurators {
       (StyleConfigurator e) {
         final dynamic lang = (e.attributes ?? <String, dynamic>{})['w:lang'];
         return language != null
-          ? e.qualifiedName == 'w:name' && lang == language
-          : e.qualifiedName == 'w:name' || e.propertyName == 'name';
+            ? e.qualifiedName == 'w:name' && lang == language
+            : e.qualifiedName == 'w:name' || e.propertyName == 'name';
       },
       orElse: StyleConfigurator.invalid,
     ));

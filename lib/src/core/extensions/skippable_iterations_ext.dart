@@ -47,7 +47,6 @@ extension SkippableIterationsExt<T> on Iterable<T> {
     }
     return values;
   }
-
 }
 
 extension SkippableMapExt<K, V> on Map<K, V> {
@@ -66,6 +65,20 @@ extension SkippableMapExt<K, V> on Map<K, V> {
         ),
       );
       if (el == null) continue;
+      values.add(el);
+    }
+    return values;
+  }
+
+  /// Returns a new lazy [Iterable] with elements that are created by
+  /// calling `builder` on each element of this `Map`
+  ///
+  /// If the `builder` call returns null
+  /// then that element is ignored
+  Iterable<T> mapToList<T>(T Function(K key, V value) builder) {
+    final List<T> values = [];
+    for (final K key in keys) {
+      final T el = builder(key, this[key] as V);
       values.add(el);
     }
     return values;
