@@ -1,4 +1,3 @@
-
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
@@ -12,7 +11,7 @@ class XmlTrackRevisionsComponent extends XmlComponentBase {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

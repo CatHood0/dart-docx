@@ -20,6 +20,7 @@ Future<void> main() async {
       title: 'Row Alignments Showcase',
       styles: DocumentStyles.base().withNewStyles(
         <Style>[
+          //TODO: i think we can use ThemeData to improve this
           StyleBuilder.paragraph('Title')
               .name('Title')
               .bold()
@@ -130,27 +131,36 @@ Future<void> main() async {
           text: 'MainAxisAlignment Variants',
           styles: <Style>[Style.ref('Section')],
         ),
-        _buildAlignmentDemo(
-          title: '1. MainAxisAlignment.start',
-          description: 'Children are aligned to the start (left in LTR). '
-              'This is the default alignment.',
-          alignment: MainAxisAlignment.start,
-        ),
-        _buildAlignmentDemo(
-          title: '2. MainAxisAlignment.center',
-          description: 'Children are centered within the row.',
-          alignment: MainAxisAlignment.center,
-        ),
-        _buildAlignmentDemo(
-          title: '3. MainAxisAlignment.spaceBetween',
-          description: 'Children are distributed with maximum space between '
-              'them. First and last items are at the edges.',
-          alignment: MainAxisAlignment.spaceBetween,
-        ),
-        _buildAlignmentDemo(
-          title: '4. MainAxisAlignment.end',
-          description: 'Children are aligned to the end (right in LTR).',
-          alignment: MainAxisAlignment.end,
+        Column(
+          children: [
+            TitleElement(
+              title: '1. MainAxisAlignment.start',
+              description: 'Children are aligned to the start (left in LTR). '
+                  'This is the default alignment.',
+              padding: 10,
+              mainAxisAlignment: MainAxisAlignment.start,
+            ),
+            TitleElement(
+              title: '2. MainAxisAlignment.center',
+              description: 'Children are centered within the row.',
+              padding: 10,
+              mainAxisAlignment: MainAxisAlignment.center,
+            ),
+            TitleElement(
+              title: '3. MainAxisAlignment.spaceBetween',
+              description:
+                  'Children are distributed with maximum space between '
+                  'them. First and last items are at the edges.',
+              padding: 10,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+            TitleElement(
+              title: '4. MainAxisAlignment.end',
+              description: 'Children are aligned to the end (right in LTR).',
+              padding: 10,
+              mainAxisAlignment: MainAxisAlignment.end,
+            ),
+          ],
         ),
         Paragraph.text(
           text: 'CrossAxisAlignment Variants',
@@ -161,20 +171,23 @@ Future<void> main() async {
               'when children have different heights.',
           styles: <Style>[Style.ref('Normal')],
         ),
-        _buildCrossAlignmentDemo(
+        TitleElement(
           title: '1. CrossAxisAlignment.start (Top)',
           description: 'Children are aligned to the top of the row.',
-          crossAlignment: CrossAxisAlignment.start,
+          padding: 3,
+          crossAxisAlignment: CrossAxisAlignment.start,
         ),
-        _buildCrossAlignmentDemo(
+        TitleElement(
           title: '2. CrossAxisAlignment.center (Center)',
           description: 'Children are vertically centered within the row.',
-          crossAlignment: CrossAxisAlignment.center,
+          padding: 3,
+          crossAxisAlignment: CrossAxisAlignment.center,
         ),
-        _buildCrossAlignmentDemo(
+        TitleElement(
           title: '3. CrossAxisAlignment.end (Bottom)',
           description: 'Children are aligned to the bottom of the row.',
-          crossAlignment: CrossAxisAlignment.end,
+          padding: 3,
+          crossAxisAlignment: CrossAxisAlignment.end,
         ),
         Paragraph.text(
           text: 'Practical Use Cases',
@@ -186,32 +199,27 @@ Future<void> main() async {
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 3.ptToTwips(),
-            horizontal: 6.ptToTwips(),
+            vertical: 3.toTwips(),
+            horizontal: 6.toTwips(),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
-            minHeight: 100.ptToDxa(),
+            minHeight: 100.toPt(),
             children: <DocxNode<dynamic>>[
               LazyImage(
-                asInline: true,
                 data: ImageData.fileSized(
                   file: './assets/curriculum_libreoffice.png',
-                  unit: Unit.pixels96,
-                  size: 50,
+                  size: 50.toPixels(),
                 ),
               ).drawing().run().paragraph(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                minHeight: 50.ptToDxa(),
+                minHeight: Point(50),
                 children: <DocxNode<dynamic>>[
-                  Paragraph.text(
-                      text: 'Home  ', styles: <Style>[Style.ref('Nav')]),
-                  Paragraph.text(
-                      text: 'About  ', styles: <Style>[Style.ref('Nav')]),
-                  Paragraph.text(
-                      text: 'Contact', styles: <Style>[Style.ref('Nav')]),
+                  Text('Home  ', styles: <Style>[Style.ref('Nav')]),
+                  Text('About  ', styles: <Style>[Style.ref('Nav')]),
+                  Text('Contact', styles: <Style>[Style.ref('Nav')]),
                 ],
               ),
             ],
@@ -223,17 +231,20 @@ Future<void> main() async {
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 3.ptToTwips(),
-            horizontal: 8.ptToTwips(),
+            vertical: Point(3),
+            horizontal: Point(8),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
-            minHeight: 50.ptToDxa(),
+            minHeight: Point(50),
             children: <DocxNode<dynamic>>[
-              _buildCard('Card 1', 'Description for card 1'),
-              _buildCard('Card 2', 'Description for card 2'),
-              _buildCard('Card 3', 'Description for card 3'),
+              TitledCard(
+                  title: 'Card 1', description: 'Description for card 1'),
+              TitledCard(
+                  title: 'Card 2', description: 'Description for card 2'),
+              TitledCard(
+                  title: 'Card 3', description: 'Description for card 3'),
             ],
           ),
         ),
@@ -243,14 +254,14 @@ Future<void> main() async {
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 3.ptToTwips(),
-            horizontal: 8.ptToTwips(),
+            vertical: Point(3),
+            horizontal: Point(8),
           ),
           child: Column(children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
-              minHeight: 30.ptToDxa(),
+              minHeight: Point(30),
               children: <DocxNode<dynamic>>[
                 Paragraph.text(
                     text: 'Name:', styles: <Style>[Style.ref('Label')]),
@@ -262,7 +273,7 @@ Future<void> main() async {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
-              minHeight: 30.ptToDxa(),
+              minHeight: Point(30),
               children: <DocxNode<dynamic>>[
                 Paragraph.text(
                     text: 'Email:', styles: <Style>[Style.ref('Label')]),
@@ -279,12 +290,12 @@ Future<void> main() async {
         ),
         Padding(
           padding: EdgeInsets.symmetric(
-            vertical: 3.ptToTwips(),
-            horizontal: 8.ptToTwips(),
+            vertical: Twip(3),
+            horizontal: Twip(8),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
-            minHeight: 10.ptToDxa(),
+            minHeight: Point(10),
             children: <DocxNode<dynamic>>[
               Column(
                 children: <DocxNode<dynamic>>[
@@ -320,66 +331,74 @@ Future<void> main() async {
   }
 }
 
-Paragraph _buildBox(String label) {
-  return Paragraph.text(text: label, styles: <Style>[Style.ref('Box')]);
-}
+class Box extends StatelessWidget {
+  Box({
+    required this.label,
+    super.key,
+  });
 
-Paragraph _buildTallBox(String label) {
-  return Paragraph.text(
-      text: '$label\n\n\n', styles: <Style>[Style.ref('Box')]);
-}
-
-Paragraph _buildShortBox(String label) {
-  return Paragraph.text(text: label, styles: <Style>[Style.ref('Box')]);
-}
-
-Paragraph _buildMediumBox(String label) {
-  return Paragraph.text(text: '$label\n', styles: <Style>[Style.ref('Box')]);
-}
-
-DocxNode _buildAlignmentDemo({
-  required String title,
-  required String description,
-  required MainAxisAlignment alignment,
-}) {
-  return Padding(
-    padding: EdgeInsets.all(10.ptToTwips()),
-    child: Row(
-      mainAxisAlignment: alignment,
-      children: <DocxNode<dynamic>>[
-        _buildBox('Item 1'),
-        _buildBox('Item 2'),
-        _buildBox('Item 3'),
+  final String label;
+  @override
+  DocxNode<dynamic> build() {
+    return Paragraph.text(
+      text: label,
+      styles: <Style>[
+        Style.ref('Box'),
       ],
-    ),
-  );
+    );
+  }
 }
 
-DocxNode _buildCrossAlignmentDemo({
-  required String title,
-  required String description,
-  required CrossAxisAlignment crossAlignment,
-}) {
-  return Padding(
-    padding: EdgeInsets.all(3.ptToTwips()),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: crossAlignment,
-      minHeight: 40.ptToDxa(),
+class TitleElement extends StatelessWidget {
+  TitleElement({
+    required this.title,
+    required this.padding,
+    required this.description,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.crossAxisAlignment = CrossAxisAlignment.start,
+    super.key,
+  });
+
+  final String title;
+  final String description;
+  final MainAxisAlignment mainAxisAlignment;
+  final CrossAxisAlignment crossAxisAlignment;
+  final int padding;
+
+  @override
+  DocxNode build() {
+    return Padding(
+      padding: EdgeInsets.all(Point(padding)),
+      child: Row(
+        mainAxisAlignment: mainAxisAlignment,
+        crossAxisAlignment: crossAxisAlignment,
+        children: <DocxNode<dynamic>>[
+          Box(label: 'Item 1'),
+          Box(label: 'Item 2'),
+          Box(label: 'Item 3'),
+        ],
+      ),
+    );
+  }
+}
+
+class TitledCard extends StatelessWidget {
+  TitledCard({
+    required this.title,
+    required this.description,
+    super.key,
+  });
+
+  final String title;
+  final String description;
+
+  @override
+  DocxNode build() {
+    return Column(
       children: <DocxNode<dynamic>>[
-        _buildTallBox('Tall'),
-        _buildShortBox('Short'),
-        _buildMediumBox('Medium'),
+        Text(title, styles: <Style>[Style.ref('CardTitle')]),
+        Text(description, styles: <Style>[Style.ref('CardBody')]),
       ],
-    ),
-  );
-}
-
-Column _buildCard(String title, String description) {
-  return Column(
-    children: <DocxNode<dynamic>>[
-      Paragraph.text(text: title, styles: <Style>[Style.ref('CardTitle')]),
-      Paragraph.text(text: description, styles: <Style>[Style.ref('CardBody')]),
-    ],
-  );
+    );
+  }
 }

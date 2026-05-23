@@ -2,7 +2,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/style_to_from_node.dart';
-import '../../utils/values.dart';
 
 class NumberFormatComponent extends XmlComponentBase<LevelFormat> {
   NumberFormatComponent(
@@ -14,7 +13,7 @@ class NumberFormatComponent extends XmlComponentBase<LevelFormat> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: [
@@ -35,7 +34,7 @@ class LevelTextComponent extends XmlComponentBase<void> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[
@@ -56,7 +55,7 @@ class LevelAlignmentComponent extends XmlComponentBase<void> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[
@@ -99,7 +98,7 @@ class LevelComponent extends XmlComponentBase<List<XmlComponentBase<dynamic>>> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: [
@@ -107,9 +106,7 @@ class LevelComponent extends XmlComponentBase<List<XmlComponentBase<dynamic>>> {
       ],
       children: [
         ...value.map<XmlElement>(
-          (XmlComponentBase<dynamic> n) => n.buildXml(
-            context,
-          ),
+          (XmlComponentBase<dynamic> n) => n.buildXml(),
         ),
       ],
     );

@@ -31,7 +31,9 @@ import '../../docx_sdk/sdk.dart'
         TextAlign,
         TextRun,
         HyperlinkRun,
-        Text;
+        Text,
+        UnitValue,
+        Dxa;
 import 'cast_ext.dart';
 
 extension WrapText on String {
@@ -255,8 +257,8 @@ extension WrapNode on DocxNode {
     Iterable<GridColumn>? columns,
     TableCellConfig? cellConfig,
     TableProperties? tableProperties,
-    int? height,
-    int spacing = 0,
+    UnitValue? height,
+    UnitValue spacing = const Dxa(0),
     Alignment? alignment,
     TableHeightRule? heightRule,
     bool? canSplit,
@@ -294,12 +296,12 @@ extension WrapNode on DocxNode {
     String? id,
     bool? canSplit,
     bool? hidden,
-    int? height,
+    UnitValue? height,
     DocxNode? parent,
     TableHeightRule? heightRule,
     Alignment? alignment,
     bool isHeader = false,
-    int spacing = 0,
+    UnitValue spacing = const Dxa(0),
     TableCellConfig? cellConfig,
   }) {
     return TableRow(
@@ -388,8 +390,8 @@ extension WrapNodes on Iterable<DocxNode> {
     Iterable<GridColumn>? columns,
     TableCellConfig? cellConfig,
     TableProperties? tableProperties,
-    int? height,
-    int spacing = 0,
+    UnitValue? height,
+    UnitValue spacing = const Dxa(0),
     Alignment? alignment,
     TableHeightRule? heightRule,
     bool? canSplit,
@@ -425,13 +427,13 @@ extension WrapNodes on Iterable<DocxNode> {
     String? id,
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
-    int? width,
+    UnitValue width = const Dxa(0),
   }) {
     return Row(
       id: id,
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
-      width: width ?? 0,
+      width: width,
       children: List<DocxNode<dynamic>>.from(this),
     );
   }

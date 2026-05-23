@@ -111,7 +111,7 @@ class XmlContentTypeComponent
       mimetypes[ext.toLowerCase()] ?? 'application/octet-stream';
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -119,7 +119,7 @@ class XmlContentTypeComponent
         ...value.map<XmlElement>((
           e,
         ) =>
-            e.buildXml(context)),
+            e.buildXml()),
       ],
     );
   }
@@ -141,7 +141,7 @@ class XmlDefaultElementTypeComponent extends XmlComponentBase {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -166,7 +166,7 @@ class XmlOverrideElementTypeComponent extends XmlComponentBase {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

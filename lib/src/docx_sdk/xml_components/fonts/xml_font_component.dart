@@ -44,35 +44,35 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
   }
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     final List<XmlNode> children = [];
 
     if (value.panose1 != null) {
       children.add(XmlEmptyElementComponent(
         xmlKey: 'w:panose1',
         value: value.panose1!,
-      ).buildXml(context));
+      ).buildXml());
     }
 
     if (value.charset != null) {
       children.add(XmlEmptyElementComponent(
         xmlKey: 'w:charset',
         value: value.charset!.value,
-      ).buildXml(context));
+      ).buildXml());
     }
 
     if (value.family != null) {
       children.add(XmlEmptyElementComponent(
         xmlKey: 'w:family',
         value: value.family!,
-      ).buildXml(context));
+      ).buildXml());
     }
 
     if (value.pitch != null) {
       children.add(XmlEmptyElementComponent(
         xmlKey: 'w:pitch',
         value: value.pitch!,
-      ).buildXml(context));
+      ).buildXml());
     }
 
     if (value.sigUsb0 != null ||
@@ -85,18 +85,12 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
         XmlElement.tag(
           'w:sig',
           attributes: [
-            if (value.sigUsb0 != null)
-              XmlAttribute('w:usb0'.toName(), value.sigUsb0!),
-            if (value.sigUsb1 != null)
-              XmlAttribute('w:usb1'.toName(), value.sigUsb1!),
-            if (value.sigUsb2 != null)
-              XmlAttribute('w:usb2'.toName(), value.sigUsb2!),
-            if (value.sigUsb3 != null)
-              XmlAttribute('w:usb3'.toName(), value.sigUsb3!),
-            if (value.sigCsb0 != null)
-              XmlAttribute('w:csb0'.toName(), value.sigCsb0!),
-            if (value.sigCsb1 != null)
-              XmlAttribute('w:csb1'.toName(), value.sigCsb1!),
+            if (value.sigUsb0 != null) XmlAttribute('w:usb0'.toName(), value.sigUsb0!),
+            if (value.sigUsb1 != null) XmlAttribute('w:usb1'.toName(), value.sigUsb1!),
+            if (value.sigUsb2 != null) XmlAttribute('w:usb2'.toName(), value.sigUsb2!),
+            if (value.sigUsb3 != null) XmlAttribute('w:usb3'.toName(), value.sigUsb3!),
+            if (value.sigCsb0 != null) XmlAttribute('w:csb0'.toName(), value.sigCsb0!),
+            if (value.sigCsb1 != null) XmlAttribute('w:csb1'.toName(), value.sigCsb1!),
           ],
           isSelfClosing: true,
         ),
@@ -107,7 +101,7 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
       children.add(XmlEmptyElementComponent(
         xmlKey: 'w:altName',
         value: value.altName!,
-      ).buildXml(context));
+      ).buildXml());
     }
 
     final XmlElement? embedRegular = _buildEmbeddedFontRef(
@@ -142,15 +136,13 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
   ///
   /// Returns an [XmlFontTableComponent] instance containing parsed [FontProperties].
   static XmlFontTableComponent fromXmlDocument(XmlDocument document) {
-    final XmlElement? fontsElement =
-        document.findAllElements('w:fonts').firstOrNull;
+    final XmlElement? fontsElement = document.findAllElements('w:fonts').firstOrNull;
     if (fontsElement == null) {
       return XmlFontTableComponent(fonts: []);
     }
 
     final List<FontProperties> parsedFonts = [];
-    for (final XmlElement fontElement
-        in fontsElement.findAllElements('w:font')) {
+    for (final XmlElement fontElement in fontsElement.findAllElements('w:font')) {
       final String? fontName = fontElement.getAttribute('w:name');
       if (fontName == null) continue;
 
@@ -184,8 +176,7 @@ class XmlFontComponent extends XmlComponentBase<FontProperties> {
               family = child.getAttribute('w:val');
               break;
             case 'w:notTrueType':
-              notTrueType = child.getAttribute('w:val') ==
-                  '1'; // '1' for true, '0' for false
+              notTrueType = child.getAttribute('w:val') == '1'; // '1' for true, '0' for false
               break;
             case 'w:pitch':
               pitch = child.getAttribute('w:val');

@@ -4,17 +4,6 @@ import 'dart:typed_data';
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 
-enum Unit {
-  twip,
-  cm,
-  mm,
-  inch,
-  emu,
-  pt,
-  pixels96,
-  dpi,
-}
-
 class ImageData<T extends Object> {
   ImageData({
     required this.buffer,
@@ -23,7 +12,6 @@ class ImageData<T extends Object> {
     this.width,
     this.height,
     this.alt,
-    this.unit = Unit.pixels96,
     this.styles = const <Style>[],
     this.name,
   })  : assert(
@@ -40,10 +28,9 @@ class ImageData<T extends Object> {
   ImageData.size({
     required this.buffer,
     required this.extension,
-    required double size,
+    required UnitValue size,
     AnchorConfig? anchorConfig,
     this.alt,
-    this.unit = Unit.pixels96,
     this.styles = const <Style>[],
     this.name,
   })  : assert(
@@ -62,10 +49,9 @@ class ImageData<T extends Object> {
   static ImageData<File> file({
     required String file,
     AnchorConfig? anchorConfig,
-    num? width,
-    num? height,
+    UnitValue? width,
+    UnitValue? height,
     String? alt,
-    Unit unit = Unit.pixels96,
     List<Style> styles = const <Style>[],
     String? name,
   }) {
@@ -81,7 +67,6 @@ class ImageData<T extends Object> {
       height: height,
       name: name,
       alt: alt,
-      unit: unit,
       styles: styles,
       anchorConfig: anchorConfig,
     );
@@ -89,10 +74,9 @@ class ImageData<T extends Object> {
 
   static ImageData<File> fileSized({
     required String file,
-    required num size,
+    required UnitValue size,
     AnchorConfig? anchorConfig,
     String? alt,
-    Unit unit = Unit.pixels96,
     List<Style> styles = const <Style>[],
     String? name,
   }) {
@@ -107,7 +91,6 @@ class ImageData<T extends Object> {
       extension: ext,
       name: name,
       alt: alt,
-      unit: unit,
       width: size,
       height: size,
       styles: styles,
@@ -121,29 +104,20 @@ class ImageData<T extends Object> {
   final String extension;
 
   /// The width of this image in the Docx document
-  final num? width;
+  final UnitValue? width;
 
   /// The width of this image in the Docx document
-  final num? height;
+  final UnitValue? height;
 
   final List<Style> styles;
 
   /// Anchor configuration for positioning in DOCX.
   final AnchorConfig anchorConfig;
 
-  /// The unit that the width and height have
-  ///
-  /// Useful to know the type unit to convert it
-  /// to EMU equivalent
-  ///
-  /// Default to Unit.pixels96
-  final Unit unit;
-
   @override
   String toString() {
     return 'ImageData(extension: ${buffer is File ? buffer.cast<File>().path : '${name ?? 'N/A'}.$extension'}, '
         'config: $anchorConfig'
-        'unit: ${unit.name}, '
         'options: [width: $width, height: $height], '
         'styles: $styles)';
   }

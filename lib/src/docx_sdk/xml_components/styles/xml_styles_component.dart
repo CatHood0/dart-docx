@@ -5,7 +5,7 @@ import '../../utils/logger/logger_configs.dart';
 import 'xml_default_doc_styles_component.dart';
 
 class XmlStylesComponent extends XmlComponentBase<void> {
-  XmlStylesComponent()
+  XmlStylesComponent({required this.docStyles})
       : super(
           xmlKey: 'w:styles',
           value: null,
@@ -17,6 +17,8 @@ class XmlStylesComponent extends XmlComponentBase<void> {
           ),
         );
 
+  final DocumentStyles docStyles;
+
   @override
   String get name => 'Styles';
 
@@ -24,11 +26,11 @@ class XmlStylesComponent extends XmlComponentBase<void> {
   String get path => DocxPaths.stylesXmlFilePath;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     CompilerLogger.root.info('Analyzing styles to build LatentStyles');
     final (List<Style> styles, LatentStyles latent) = LatentAnalyzer.analyze(
-      context.docStyleSheet.styles,
-      context.docStyleSheet.latentStyles,
+      docStyles.styles,
+      docStyles.latentStyles,
     );
     CompilerLogger.root.info(
       'Building styles.xml component. '
@@ -42,9 +44,9 @@ class XmlStylesComponent extends XmlComponentBase<void> {
       isSelfClosing: false,
       children: <XmlNode>[
         XmlDefaultDocStylesComponent(
-          value: context.docStyleSheet,
-        ).buildXml(context),
-        latent.buildXml(context),
+          value: docStyles,
+        ).buildXml(),
+        latent.buildXml(),
         ...styles
             .where(_avoidInvalidStyles)
             .map<XmlElement>((Style e) => e.toXmlNode()!),

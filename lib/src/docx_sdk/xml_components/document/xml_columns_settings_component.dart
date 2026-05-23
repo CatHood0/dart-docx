@@ -16,7 +16,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnOptions> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     final List<XmlAttribute> attributes = [];
 
     // w:num attribute
@@ -75,8 +75,7 @@ class XmlColumnsSettingsComponent extends XmlComponentBase<ColumnOptions> {
             colSetting.width.toString(),
           ),
         ];
-        if (index + 1 < value.columnWidths!.length &&
-            colSetting.spaceAfter != null) {
+        if (index + 1 < value.columnWidths!.length && colSetting.spaceAfter != null) {
           colAttrs.add(
             XmlAttribute(
               'w:space'.toName(),

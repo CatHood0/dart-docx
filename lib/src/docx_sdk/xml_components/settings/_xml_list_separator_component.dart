@@ -11,7 +11,7 @@ class XmlListSeparatorComponent extends XmlComponentBase {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

@@ -536,15 +536,15 @@ Table _buildWeatherBox() {
       width: 2700,
       widthType: TableWidthType.dxa,
       borders: TableBorders.symmetric(
-        vertical: TableBorder(
+        vertical: BorderSide(
           style: BorderStyle.single,
-          size: 8,
-          color: Color(0xFF000000),
+          size: Point(8),
+          color: Colors.black,
         ),
-        horizontal: TableBorder(
+        horizontal: BorderSide(
           style: BorderStyle.single,
-          size: 8,
-          color: Color(0xFF000000),
+          size: Point(8),
+          color: Colors.black,
         ),
       ),
     ),
@@ -556,9 +556,11 @@ Table _buildWeatherBox() {
             cellConfig: TableCellConfig.dxa(width: 800),
             child: Paragraph.text(
               text: 'WEATHER',
-              bold: true,
-              fontSize: 10,
-              fontFamily: 'Georgia',
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: 10,
+                fontFamily: 'Georgia',
+              ),
               align: Alignment.center,
             ),
           ),
@@ -566,9 +568,11 @@ Table _buildWeatherBox() {
             cellConfig: TableCellConfig.dxa(width: 800),
             child: Paragraph.text(
               text: '5-DAY FORECAST',
-              bold: true,
-              fontSize: 10,
-              fontFamily: 'Georgia',
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: 10,
+                fontFamily: 'Georgia',
+              ),
               align: Alignment.center,
             ),
           ),
@@ -578,20 +582,48 @@ Table _buildWeatherBox() {
         cells: <TableCell>[
           TableCell.one(
             cellConfig: TableCellConfig.dxa(width: 800),
-            child: Paragraph.text(
-              text: 'Sunny\n72F',
-              fontSize: 9,
-              fontFamily: 'Georgia',
-              align: Alignment.center,
+            child: Column(
+              children: [
+                Text(
+                  'Sunny',
+                  textAlign: TextAlign.center,
+                  textStyle: TextStyle(
+                    fontSize: 9,
+                    fontFamily: 'Georgia',
+                  ),
+                ),
+                Text(
+                  '72F',
+                  textAlign: TextAlign.center,
+                  textStyle: TextStyle(
+                    fontSize: 9,
+                    fontFamily: 'Georgia',
+                  ),
+                ),
+              ],
             ),
           ),
           TableCell.one(
             cellConfig: TableCellConfig.dxa(width: 800),
-            child: Paragraph.text(
-              text: 'Mon: 72F\nTue: 68F',
-              fontSize: 9,
-              fontFamily: 'Georgia',
-              align: Alignment.center,
+            child: Column(
+              children: [
+                Text(
+                  'Mon: 72F',
+                  textAlign: TextAlign.center,
+                  textStyle: TextStyle(
+                    fontSize: 9,
+                    fontFamily: 'Georgia',
+                  ),
+                ),
+                Text(
+                  'Tue: 68F',
+                  textAlign: TextAlign.center,
+                  textStyle: TextStyle(
+                    fontSize: 9,
+                    fontFamily: 'Georgia',
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -607,9 +639,9 @@ Table _buildQuoteBox() {
       width: 2000,
       widthType: TableWidthType.dxa,
       borders: TableBorders.all(
-        TableBorder(
+        BorderSide(
           style: BorderStyle.single,
-          size: 2,
+          size: Point(2),
           color: Color(0xFF000080),
         ),
       ),
@@ -706,4 +738,3 @@ const String _classifiedsText =
     'FOR SALE: Antique oak desk, excellent condition. \$250. Call 555-0123.\n\n'
     'FOR RENT: Charming 2BR apartment downtown. \$1,200/month. 555-0456.\n\n'
     'SERVICES: Professional lawn care. Free estimates. 555-0789.';
-

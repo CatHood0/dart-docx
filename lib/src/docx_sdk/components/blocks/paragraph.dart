@@ -144,22 +144,25 @@ class Paragraph extends DocxNode<List<RunBase>> {
     Numbering? numbering,
     Alignment? align,
     TextStyle? textStyle,
-  }) =>
-      Paragraph(
-        id: id,
-        parent: parent,
-        styles: styles,
-        numbering: numbering,
-        alignment: align,
-        pageBreak: pageBreak,
-        textStyle: textStyle,
-        children: <RunBase<dynamic>>[
-          TextRun.text(
-            text: text,
-            styles: List.from(runStyles),
-          ),
-        ],
-      );
+  }) {
+    assert(
+        text.contains('\n'), 'text property cannot contains new lines (\\n)');
+    return Paragraph(
+      id: id,
+      parent: parent,
+      styles: styles,
+      numbering: numbering,
+      alignment: align,
+      pageBreak: pageBreak,
+      textStyle: textStyle,
+      children: <RunBase<dynamic>>[
+        TextRun.text(
+          text: text,
+          styles: List.from(runStyles),
+        ),
+      ],
+    );
+  }
 
   factory Paragraph.empty() => Paragraph(
         children: <RunBase<dynamic>>[
@@ -195,12 +198,15 @@ class Paragraph extends DocxNode<List<RunBase>> {
 
   /// All the styles applied to the paragraph
   List<Style> styles;
-  List<Numbering> references = <Numbering>[];
   Numbering? numbering;
 
   ParagraphPageBreak pageBreak;
   Alignment? alignment;
   TextStyle? textStyle;
+
+  void setAlign(Alignment? align) {
+    alignment = align;
+  }
 
   @override
   List<XmlElement> buildXml() {
@@ -381,6 +387,11 @@ class Paragraph extends DocxNode<List<RunBase>> {
         shouldShowStyleRef: alreadyHasReference ? false : st.isReference,
         useConfigurators: !st.isReference,
       );
+      // Set always the style ref at first index
+      if (st.isReference) {
+        pPrChildren.insertAll(0, xml);
+        continue;
+      }
       pPrChildren.addAll(xml);
     }
     return <XmlElement>[...pPrChildren];

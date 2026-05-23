@@ -9,6 +9,7 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
 import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../exceptions/docx_compilation_exception.dart';
 import '../../stores/inherited_stores/drawing_counter_provider.dart';
 import '../../stores/inherited_stores/media_provider.dart';
 
@@ -80,7 +81,6 @@ class Image extends DocxNode<ImageData<Uint8List>> {
         height: child.height,
         name: child.name,
         alt: child.alt,
-        unit: child.unit,
       ),
       transformOffsetX: transformOffsetX,
       transformOffsetY: transformOffsetY,
@@ -125,8 +125,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
       'Uint8List to get '
       'image size',
     );
-    num? width = data.width;
-    num? height = data.height;
+    num? width = data.width?.toEmu();
+    num? height = data.height?.toEmu();
 
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
@@ -144,19 +144,16 @@ class Image extends DocxNode<ImageData<Uint8List>> {
         size,
         pageSize?.toInches(),
         margins?.toInches(),
-        imageDpi,
+        DocxElements.instance.dpi,
       );
 
-      width ??= resultSize.width?.inchesToEmu();
-      height ??= resultSize.height?.inchesToEmu();
+      width ??= resultSize.width;
+      height ??= resultSize.height;
     } else {
       // Avoid having a null reference
       // on both of them
       height ??= width;
       width ??= height;
-
-      width = width!.unitToEmu(data.unit);
-      height = height!.unitToEmu(data.unit);
     }
     return ImageSize(
       width: width!,
@@ -166,30 +163,43 @@ class Image extends DocxNode<ImageData<Uint8List>> {
 
   @override
   void perform() {
-    final MediaStore mediaProvider = MediaProvider.of(this);
-    final String? docRelsRefId = mediaProvider.getRelationshipIdForRef(id) ??
-        mediaProvider.getRelationshipIdForRef(rId!);
+    if (isChildOf<DrawingCounterProvider>()) {
+      final DrawingElementCounterStore drawingProvider =
+          DrawingCounterProvider.of(this);
 
-    final DrawingElementCounterStore drawingProvider =
-        DrawingCounterProvider.of(this);
+      elementId ??= drawingProvider.getIdFromRef(ref: id) ??
+          // usually, the element id is computed from
+          // the anchor or inline parent, so, we prefer
+          // using that one value, since was computed exactly for this
+          // element
+          getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+          getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull() ??
+          drawingProvider.getNextId(id);
+    } else {
+      // usually, the element id is computed from
+      // the anchor or inline parent, so, we prefer
+      // using that one value, since was computed exactly for this
+      // element
+      elementId ??= getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+          getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull();
+    }
 
-    elementId ??= drawingProvider.getIdFromRef(ref: id) ??
-        // usually, the element id is computed from
-        // the anchor or inline parent, so we prefer
-        // using that one value, since was computed exactly for this
-        // element
-        getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
-        getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull() ??
-        drawingProvider.getNextId(id);
+    _imgWidthEmu = child.width?.toEmu();
+    _imgHeightEmu = child.height?.toEmu();
 
-    // the index of this image. Literally the
-    // relationship id but formatted to a digit
-    if (docRelsRefId == null) {
-      throw Exception(
-        'Image(id: $id | level: $depth | parent: ${parent?.runtimeType}) was not founded in the MediaStore registry or in '
-        'the ${DocxPaths.documentXmlRelsFilePath}. Please, ensure this current element is being founded by the '
-        'MediaStore registry during start of the compilation',
+    if (isChildOf<CompilerConfigProvider>()) {
+      final DocumentOptions opt = CompilerConfigProvider.of(this)!.options;
+      final DocumentMargins margins = opt.margins;
+      final PageSize pageSize = opt.pageSize;
+
+      final ImageSize size = Image.getSizeForImage(
+        child,
+        margins: margins,
+        pageSize: pageSize,
       );
+
+      _imgWidthEmu = size.width;
+      _imgHeightEmu = size.height;
     }
   }
 
@@ -202,16 +212,25 @@ class Image extends DocxNode<ImageData<Uint8List>> {
         'founded into the DocxComponentContext',
       );
     }
-    final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
 
-    if (_imgWidthEmu == null || _imgHeightEmu == null) {
-      final ImageSize imageSize = Image.getSizeForImage(
-        child,
-        pageSize: configs?.options.pageSize,
-        margins: configs?.options.margins,
-      );
-      _imgWidthEmu = imageSize.width;
-      _imgHeightEmu = imageSize.height;
+    if (isChildOf<MediaProvider>()) {
+      final MediaStore mediaProvider = MediaProvider.of(this);
+      final String? docRelsRefId = mediaProvider.getRelationshipIdForRef(id) ??
+          mediaProvider.getRelationshipIdForRef(rId!);
+
+      // the index of this image. Literally the
+      // relationship id but formatted to a digit
+      if (docRelsRefId == null) {
+        throw DocxCompilationException(
+          message:
+              'Image(id: $id | level: $depth | parent: ${parent?.runtimeType}) was not founded in the MediaStore registry or in '
+              'the ${DocxPaths.documentXmlRelsFilePath}. Please, ensure this current element is being founded by the '
+              'MediaStore registry during start of the compilation',
+          cause:
+              'Not found relationship id into document.xml.rels that references this element',
+          node: this,
+        );
+      }
     }
 
     final Graphic graphic = Graphic.pic(
@@ -259,8 +278,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
       else
         ...InlineGraphic(
           name: imageName,
-          width: _imgWidthEmu!,
-          height: _imgHeightEmu!,
+          width: _imgWidthEmu ?? emuPerPt,
+          height: _imgHeightEmu ?? 0,
           components: <DocxNode<dynamic>>[graphic],
           distance: child.anchorConfig.distanceFromText,
           elementId: elementId,

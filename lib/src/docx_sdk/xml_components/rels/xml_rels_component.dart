@@ -40,7 +40,7 @@ class XmlRelsComponent extends XmlComponentBase<List<RelationShip>> {
   String get path => DocxPaths.relsFilePath;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),

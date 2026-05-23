@@ -5,7 +5,7 @@ import '../sdk.dart';
 
 const UuidV4 uuidV4 = UuidV4();
 
-const String noColor = '000000';
+final Color noColor = Colors.black;
 const String noVal = 'none';
 const String kDefaultBorderColor = 'bf4f15';
 const int commonBorderSize = 4;
@@ -15,50 +15,64 @@ const int maxLineWidth = 20116800;
 
 const int maxGeometryPathSize = 1000000;
 
-/// 1 point = 6350 EMU
+// ============ BASE CONVERSION CONSTANTS ============
+const double mmPerCm = 10.0;
+const double cmPerMm = 0.1;
+const double mmPerInch = 25.4;
+const double cmPerInch = 2.54;
+
+// Points (1 point = 1/72 inch)
+const double mmPerPt = 25.4 / 72; // = 0.3527777777777778 mm
+const double cmPerPt = 2.54 / 72; // = 0.03527777777777778 cm
+
+// Twips (1 twip = 1/1440 inch)
+const double mmPerTwip = 25.4 / 1440; // = 0.01763888888888889 mm ✅ CORREGIDO
+const double cmPerTwip = 2.54 / 1440; // = 0.001763888888888889 cm ✅ CORREGIDO
+
+// EMU (English Metric Unit)
 const int lineWidthEmuPerPoint = 6350;
 const int lineSpacingPerInch = 240;
 const int maxAlphaEmu = 100000;
 const int degressTh = 60000;
-const int emu = 9525; // 1 inch = 914400 EMUs
 const int emuPerInch = 914400; // 1 inch = 914400 EMUs
-const int emuPerCm = 360000; // 1 cm = 360000 EMUs
-const int emuPerMm = 36000; // 1 mm = 36000 EMUs
-const int emuPerPt = 12700; // 1 point = 12700 EMUs
-const int emuPerTwip = 635; // 1 TWIP = 635 EMUs
-// Constants for Twips (1/20th of a point, or 1/1440th of an inch)
+const int emuPerCm = 360000;    // 1 cm = 360000 EMUs
+const int emuPerMm = 36000;     // 1 mm = 36000 EMUs
+const int emuPerPt = 12700;     // 1 point = 12700 EMUs
+const int emuPerTwip = 635;     // 1 TWIP = 635 EMUs
+
+// EMU inverse constants
+const double mmPerEmu = 1 / emuPerMm;     // = 0.00002777777777777778 mm
+const double cmPerEmu = 1 / emuPerCm;     // = 0.000002777777777777778 cm
+const double inchPerEmu = 1 / emuPerInch; // = 0.0000010936132983377078 inches
+const double ptPerEmu = 1 / emuPerPt;     // = 0.00007874015748031496 points
+const double twipPerEmu = 1 / emuPerTwip; // = 0.0015748031496062992 twips
+
+// Twips constants
 const int twipsPerInch = 1440;
-const int twipsPerCm = 567; // 2.54 cm per inch
-const int twipsPerMm = 56; // 25.4 mm per inch
+final int twipsPerCm = (1440 / 2.54).round(); // = 567 (rounded from 566.929)
+final int twipsPerMm = (1440 / 25.4).round(); // = 57 (rounded from 56.693) ✅ CORREGIDO
 const int twipsPerPt = 20; // 1 point = 20 twips
 
-/// Conversion factor: 1 cm = 567 dxa (should be)
-// 1 inch = 72 points * 20 dxa/point
+// DXA constants (1 DXA = 1/1440 inch, same as twip)
 const int dxaPerInch = 1440;
+const double dxaPerCm = 1440 / 2.54; // = 566.9291338582677 ✅ MORE PRECISE
+const double dxaPerMm = dxaPerCm / 10; // = 56.69291338582677 ✅ MORE PRECISE
+const int dxaPerPt = 20; // 1 point = 20 DXA
 
-/// example: 1 cm = 28.3465 pt = 28.3465 * 20 dxa = 566.93 dxa
-const double dxaPerCm = 567;
-const double dxaPerMm = dxaPerCm / 10;
+// Points constants
 const int ptPerInch = 72;
-const double ptPerCm = 28.3465;
-const double ptPerMm = 2.83465;
-// 1 pixel (96 DPI) = 0.75 points
-const double ptPerPixel = 0.75;
+const double ptPerCm = 72 / 2.54; // = 28.346456692913385 ✅ MORE PRECISE
+const double ptPerMm = 72 / 25.4; // = 2.8346456692913386 ✅ MORE PRECISE
 
+// Pixels constants (at 96 DPI)
 const int pixelsPerInch = 96;
-const double pixelsPerCm = 37.7953;
-const double pixelsPerMm = 3.77953;
-// 1 point = 1.33333 pixels (96 DPI)
-const double pixelsPerPt = 1.33333;
-// (72 points/inch / 2.54 cm/inch) * 20 dxa/point
-const int dxaPerPt = 20;
-// users can change the dpi as they want
-// so, they are responsible for their own
-// errors
-//NOTE: probably we can just put this as a constant
-// and pass to DocumentOptions a dpi property to
-// allow customization
-int imageDpi = 96;
+const double pixelsPerCm = 96 / 2.54; // = 37.79527559055118 ✅ MORE PRECISE
+const double pixelsPerMm = 96 / 25.4; // = 3.779527559055118 ✅ MORE PRECISE
+const double ptPerPixel = 72 / 96; // = 0.75 ✅ EXACT
+const double pixelsPerPt = 96 / 72; // = 1.3333333333333333 ✅ EXACT
+
+// Image DPI (can be modified by users)
+// int imageDpi = 96;
 
 /// These are the default supported image file extensions in Word
 ///
@@ -99,24 +113,6 @@ final RegExp linkDetectorMatcher = RegExp(
 );
 
 typedef UniqueNumericIdCreator = int Function();
-
-//TODO: change these global vars to be part
-// of the store pattern
-int _uniqueNumId = 0;
-int _abstractUniqueNumId = 0;
-int _concreteUniqueNumId = 0;
-
-void reloadIds() {
-  _uniqueNumId = 0;
-  _abstractUniqueNumId = 0;
-  _concreteUniqueNumId = 0;
-}
-
-int abstractNumUniqueNumericIdGen() => ++_abstractUniqueNumId;
-
-int concreteNumUniqueNumericIdGen() => ++_concreteUniqueNumId;
-
-int docPropertiesUniqueNumericIdGen() => ++_uniqueNumId;
 
 const String defaultFont = 'Times New Roman';
 const int defaultFontSize = 22;

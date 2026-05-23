@@ -1,7 +1,6 @@
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
-import '../../utils/values.dart';
 import 'level_component.dart';
 import 'multi_level_component.dart';
 
@@ -32,16 +31,16 @@ class XmlAbstractNumComponent extends XmlComponentBase<List<XmlComponentBase>> {
   final num id;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: [
         ...attributes.buildXml(),
       ],
       children: [
-        ...value.map((XmlComponentBase<dynamic> e) => e.buildXml(
-              context,
-            )),
+        ...value.map(
+          (XmlComponentBase<dynamic> e) => e.buildXml(),
+        ),
       ],
     );
   }

@@ -7,6 +7,7 @@ import '../../../docx.dart';
 import '../../core/extensions/cast_ext.dart';
 import '../../core/extensions/string_ext.dart';
 
+//TODO: reuse existing images when the file path stored is the same
 /// Manages all media-related operations for a Docx document,
 /// including discovering, registering, and creating relationships for images.
 ///
@@ -30,7 +31,7 @@ class MediaStore implements Store {
   final Map<String, MediaData> media = <String, MediaData>{};
 
   //TODO: instead of using direct instances
-  // we should use paths, and suscribe to changes to get precise positioning 
+  // we should use paths, and suscribe to changes to get precise positioning
   // after changes
   /// Stores discovered media components ([FloatingImage], [LazyFloatingImage]), keyed by their internal ID.
   final Map<String, DocxNode<ImageData<dynamic>>> mediaComponents =
@@ -78,6 +79,8 @@ class MediaStore implements Store {
       );
       // since we can have multiple images in one element,
       // we need to get all of them
+      //TODO: we probably can index children to make queries more fast
+      // should we do something like XPath but for us?
       final List<DocxNode<dynamic>> images = parent.visitAllElement(
             visitChildrenIfNeeded: true,
             (DocxNode<dynamic> el) {
@@ -101,10 +104,21 @@ class MediaStore implements Store {
                   ) =>
                       el.child is ImageData<Object>)!
               .cast<DocxNode<ImageData<Object>>>();
+          String id = imageComponent.id;
+
+          if (imageComponent is FloatingImage) {
+            id = imageComponent.childId;
+          }
+
+          if (imageComponent is LazyFloatingImage) {
+            id = imageComponent.childId;
+          }
           CompilerLogger.root.debug(
-            'Registering ${imageComponent.id} of path ${imageComponent.child.buffer.castOrNull<File>() ?? 'Unknown'}',
+            'Registering ${id != imageComponent.id ? '${imageComponent.runtimeType}:${imageComponent.id} element using child id: ' : ''}$id of path '
+            '${imageComponent.child.buffer.castOrNull<File>() ?? 'Unknown'}',
           );
-          mediaComponents[imageComponent.id] = imageComponent;
+
+          mediaComponents[id] = imageComponent;
           extensions.add(imageComponent.child.extension);
         });
       }
@@ -134,46 +148,52 @@ class MediaStore implements Store {
   }) async {
     final List<RelationShip> imageRelationships = <RelationShip>[];
 
-    for (int index = 0; index < mediaComponents.values.length; index++) {
+    for (int index = 0; index < mediaComponents.length; index++) {
+      final String id = mediaComponents.keys.elementAt(index);
       final DocxNode<ImageData<dynamic>> imgComponent =
           mediaComponents.values.elementAt(index);
       onProgress?.call(index + 1, mediaComponents.values.length);
 
       CompilerLogger.root.debug(
-        'Building image relation for $index ${imgComponent.id}',
+        'Building image relation for $index $id',
       );
 
       // Skip when required
       if (imgComponent is IgnorableMixin &&
           (imgComponent as IgnorableMixin).shouldIgnore()) {
         CompilerLogger.root.debug(
-          'Ignored ${imgComponent.id}',
+          'Ignored $id',
         );
         continue;
       }
 
       // Increment RId for each new image relationship
-      final int currentRId = docRelsStore.getNextId(imgComponent.id);
+      final int currentRId = docRelsStore.getNextId(id);
       // Assign unique rId to the component
       CompilerLogger.root.debug(
-        'Generated Relation ID for ${imgComponent.id}: $currentRId',
+        'Generated Relation ID for $id: $currentRId',
       );
 
       final String generatedMediaName = generateMediaName(
         // Increment internal ID for filename generation
         _lastMediaNameId++,
+        //TODO: probably we can make a comparations of the bytes and know if that image already exist
+        // and can be reused
+        // suffix: imgComponent.child is ImageData<File> ? :null,
         trim: true,
         isImage: true,
       );
 
       CompilerLogger.root.debug(
-        'Generated Media Name for ${imgComponent.id}: $generatedMediaName',
+        'Generated Media Name for $id: $generatedMediaName',
       );
 
+      //TODO: we need to make in a different way this type of update
       imgComponent.rId = 'rId$currentRId';
       final ImageData<dynamic> imageData = imgComponent.child
         ..name = generatedMediaName;
 
+      // Search for media that matches with the current media name and the file media name
       final MediaData mediaData = MediaData(
         name: generatedMediaName,
         fileName: generatedMediaName.trim().replaceAll(' ', ''),

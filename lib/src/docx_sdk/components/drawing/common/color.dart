@@ -74,7 +74,8 @@ class Color extends DocxNode<void> {
   /// Constructor para crear color desde un string hexadecimal (#RRGGBB o #AARRGGBB)
   Color.fromHex(String hexString, [int? alpha])
       : type = ColorType.rgb,
-        alpha = alpha ?? _parseAlphaFromHex(int.parse('0x${(hexString.substring(1))}')),
+        alpha = alpha ??
+            _parseAlphaFromHex(int.parse('0x${(hexString.substring(1))}')),
         rgbValue = _parseRgbFromHex(int.parse('0x${(hexString.substring(1))}')),
         themeColor = null,
         systemColor = null,
@@ -129,16 +130,18 @@ class Color extends DocxNode<void> {
   /// Obtiene el valor RGB como string hexadecimal (#RRGGBB)
   String toHexString() {
     if (rgbValue != null) {
-      return '#${rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase()}';
+      return rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase();
     }
-    return '#000000';
+    return '000000';
   }
 
   /// Obtiene el valor RGB con alpha como string hexadecimal (#AARRGGBB)
   String toHexStringWithAlpha() {
     if (rgbValue != null && alpha != -1) {
-      final String alphaHex = alpha.toRadixString(16).padLeft(2, '0').toUpperCase();
-      final String rgbHex = rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase();
+      final String alphaHex =
+          alpha.toRadixString(16).padLeft(2, '0').toUpperCase();
+      final String rgbHex =
+          rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase();
       return '#$alphaHex$rgbHex';
     }
     return toHexString();
@@ -175,10 +178,13 @@ class Color extends DocxNode<void> {
   }) {
     final ColorType currentType = type ?? this.type;
     return switch (currentType) {
-      ColorType.rgb => Color.raw(rgbValue ?? this.rgbValue ?? 0, alpha ?? this.alpha),
-      ColorType.bgr => Color.bgr(rgbValue ?? this.rgbValue ?? 0, alpha ?? this.alpha),
+      ColorType.rgb =>
+        Color.raw(rgbValue ?? this.rgbValue ?? 0, alpha ?? this.alpha),
+      ColorType.bgr =>
+        Color.bgr(rgbValue ?? this.rgbValue ?? 0, alpha ?? this.alpha),
       ColorType.theme => Color.theme(themeColor ?? this.themeColor ?? ''),
-      ColorType.system => Color.system(systemColor ?? this.systemColor ?? SystemColor.window),
+      ColorType.system =>
+        Color.system(systemColor ?? this.systemColor ?? SystemColor.window),
     };
   }
 
@@ -248,7 +254,8 @@ class Color extends DocxNode<void> {
           XmlElement.tag(
             'a:sysClr',
             attributes: <XmlAttribute>[
-              XmlAttribute(XmlName.fromString('val'), _systemColorToXml(systemColor!)),
+              XmlAttribute(
+                  XmlName.fromString('val'), _systemColorToXml(systemColor!)),
             ],
             isSelfClosing: true,
           ),

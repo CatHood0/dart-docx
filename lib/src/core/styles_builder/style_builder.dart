@@ -74,6 +74,7 @@ import '../extensions/num_extensions.dart';
 /// - `singularC()` - Single-use character style
 /// - `singularL()` - Single-use list style
 /// - `singularN()` - Single-use numbering style
+//TODO: need to be updated to use UnitValue instead harcoded and rough numeral values
 class StyleBuilder {
   /// Internal constructor for [StyleBuilder].
   ///
@@ -622,16 +623,16 @@ class StyleBuilder {
   ///   as a hexadecimal string (e.g., '000000' for black). Default is 'auto'.
   StyleBuilder borders({
     BorderStyle? top,
-    int? topSize,
+    num? topSize,
     String? topColor,
     BorderStyle? bottom,
-    int? bottomSize,
+    num? bottomSize,
     String? bottomColor,
     BorderStyle? left,
-    int? leftSize,
+    num? leftSize,
     String? leftColor,
     BorderStyle? right,
-    int? rightSize,
+    num? rightSize,
     String? rightColor,
   }) {
     // Borders apply to paragraph blocks, not characters.

@@ -118,8 +118,8 @@ class XmlPageSizeComponent extends XmlComponentBase<PageSize> {
           xmlKey: 'w:pgSz',
           attrs: XmlComponentAttributes(
             xmlAttributes: <String, Object>{
-              'w:w': size.width.toInt().toString(),
-              'w:h': size.height.toInt().toString(),
+              'w:w': size.width.toDxa().toInt().toString(),
+              'w:h': size.height.toDxa().toInt().toString(),
             },
           ),
         );

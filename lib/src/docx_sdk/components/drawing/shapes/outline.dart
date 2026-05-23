@@ -9,7 +9,7 @@ import '../../../../core/extensions/string_ext.dart';
 class ShapeBorder extends DocxNode<void> {
   ShapeBorder({
     required this.color,
-    this.width = emu,
+    this.width = const Emu(1),
     this.style = LineStyle.solid,
     this.cap = LineCap.flat,
     this.join = LineJoin.round,
@@ -18,66 +18,10 @@ class ShapeBorder extends DocxNode<void> {
     super.parent,
   }) : super(child: null);
 
-  /// Constructor designed to transform your width in pixel units
-  /// to EMU
-  ShapeBorder.pixels({
-    required this.color,
-    int width = 10,
-    this.style = LineStyle.solid,
-    this.cap = LineCap.flat,
-    this.join = LineJoin.round,
-    this.dashPattern,
-    super.id,
-    super.parent,
-  })  : width = width.pixelsToEmu(dpi: 96).toInt(),
-        super(child: null);
-
-  /// Constructor designed to transform your width in point units
-  /// to EMU
-  ShapeBorder.pt({
-    required this.color,
-    int width = 20,
-    this.style = LineStyle.solid,
-    this.cap = LineCap.flat,
-    this.join = LineJoin.round,
-    this.dashPattern,
-    super.id,
-    super.parent,
-  })  : width = width.ptToEmu().toInt(),
-        super(child: null);
-
-  /// Constructor designed to transform your width in centimeters units
-  /// to EMU
-  ShapeBorder.cm({
-    required this.color,
-    int width = 10,
-    this.style = LineStyle.solid,
-    this.cap = LineCap.flat,
-    this.join = LineJoin.round,
-    this.dashPattern,
-    super.id,
-    super.parent,
-  })  : width = width.centimetersToEmu().toInt(),
-        super(child: null);
-
-  /// Constructor designed to transform your width in centimeters units
-  /// to EMU
-  ShapeBorder.mm({
-    required this.color,
-    int width = 1000,
-    this.style = LineStyle.solid,
-    this.cap = LineCap.flat,
-    this.join = LineJoin.round,
-    this.dashPattern,
-    super.id,
-    super.parent,
-  })  : width = width.millimetersToEmu().toInt(),
-        super(child: null);
-
   final Color color;
 
   /// The width of this component in EMU units
-  final int width;
+  final UnitValue width;
   final LineStyle style;
   final LineCap cap;
   final LineJoin join;
@@ -100,7 +44,7 @@ class ShapeBorder extends DocxNode<void> {
     String? id,
     DocxNode<void>? parent,
     Color? color,
-    int? width,
+    UnitValue? width,
     LineStyle? style,
     LineCap? cap,
     LineJoin? join,
@@ -126,7 +70,7 @@ class ShapeBorder extends DocxNode<void> {
         attributes: <XmlAttribute>[
           XmlAttribute(
             'w'.toName(),
-            width.toString(),
+            width.toEmu().toString(),
           ),
           if (cap != LineCap.flat)
             XmlAttribute(

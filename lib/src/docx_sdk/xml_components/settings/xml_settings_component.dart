@@ -48,13 +48,10 @@ class XmlSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
             XmlCharacterSpacingControlComponent(
               val: options.characterSpacingControl,
             ),
-            if (options.footnoteProperties != null)
-              XmlFootnotePrComponent(options: options.footnoteProperties!),
-            if (options.endnoteProperties != null)
-              XmlEndnotePrComponent(options: options.endnoteProperties!),
+            if (options.footnoteProperties != null) XmlFootnotePrComponent(options: options.footnoteProperties!),
+            if (options.endnoteProperties != null) XmlEndnotePrComponent(options: options.endnoteProperties!),
             XmlCompatComponent(compatSettings: options.compatSettings),
-            if (options.mathProperties != null)
-              XmlMathPrComponent(options: options.mathProperties!),
+            if (options.mathProperties != null) XmlMathPrComponent(options: options.mathProperties!),
             XmlThemeFontLangComponent(
               val: options.themeFontLanguage,
               eastAsia: options.themeFontLanguageEastAsia,
@@ -78,7 +75,7 @@ class XmlSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
   String get path => DocxPaths.settingsXmlFilePath;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -86,7 +83,7 @@ class XmlSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
         ...value.map<XmlElement>((
           XmlComponentBase<dynamic> e,
         ) =>
-            e.buildXml(context)),
+            e.buildXml()),
       ],
     );
   }

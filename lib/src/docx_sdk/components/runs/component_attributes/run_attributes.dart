@@ -16,7 +16,7 @@ class BackgroundTextColorAttribute extends TextRunAttribution<String?>
     return XmlElement.tag(
       'w:shd',
       attributes: [
-        XmlAttribute(XmlName.fromString('w:fill'), value ?? noColor),
+        XmlAttribute(XmlName.fromString('w:fill'), value ?? noColor.toHexString()),
       ],
     );
   }

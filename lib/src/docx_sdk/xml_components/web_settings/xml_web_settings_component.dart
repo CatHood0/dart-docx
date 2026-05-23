@@ -50,12 +50,14 @@ class XmlWebSettingsComponent extends XmlComponentBase<List<XmlComponentBase>> {
   String get path => DocxPaths.webSettingsXmlFilePath;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
       children: <XmlNode>[
-        ...value.map<XmlElement>((e) => e.buildXml(context)),
+        ...value.map<XmlElement>(
+          (e) => e.buildXml(),
+        ),
       ],
       isSelfClosing: value.isEmpty, // Self-closing if no children components
     );

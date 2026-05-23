@@ -347,7 +347,7 @@ DocxNode<dynamic> _buildShapeExample({
     geometry: geometry,
     fill: SolidFill(color: fillColor),
     border: ShapeBorder(
-      width: borderWidth.ptToEmu(),
+      width: Point(borderWidth),
       color: borderColor,
     ),
   );

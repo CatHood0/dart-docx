@@ -33,7 +33,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.height,
     TableHeightRule? heightRule,
     this.alignment,
-    this.spacing = 0,
+    this.spacing = const Dxa(0),
     this.isHeader = false,
     super.id,
     super.parent,
@@ -58,7 +58,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.height,
     TableHeightRule? heightRule,
     this.alignment,
-    this.spacing = 0,
+    this.spacing = const Dxa(0),
     super.id,
     super.parent,
   })  : isHeader = true,
@@ -82,7 +82,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.height,
     this.canSplit,
     this.alignment,
-    this.spacing = 0,
+    this.spacing = const Dxa(0),
     this.isHeader = false,
     super.id,
     super.parent,
@@ -97,7 +97,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.hidden,
     this.height,
     this.alignment,
-    this.spacing = 0,
+    this.spacing = const Dxa(0),
     this.isHeader = false,
     TableHeightRule? heightRule,
     super.id,
@@ -114,7 +114,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.hidden,
     this.height,
     this.alignment,
-    this.spacing = 0,
+    this.spacing = const Dxa(0),
     this.isHeader = false,
     TableHeightRule? heightRule,
     super.id,
@@ -132,7 +132,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.hidden,
     this.height,
     this.alignment,
-    this.spacing = 0,
+    this.spacing = const Dxa(0),
     this.isHeader = false,
     TableHeightRule? heightRule,
     super.id,
@@ -144,7 +144,7 @@ class TableRow extends DocxNode<List<TableCell>> {
 
   final bool? canSplit;
   final bool? hidden;
-  final int? height;
+  final UnitValue? height;
   final TableHeightRule? heightRule;
   final Alignment? alignment;
 
@@ -154,7 +154,7 @@ class TableRow extends DocxNode<List<TableCell>> {
 
   /// The spacing between all the cells
   /// in dxa units
-  final int spacing;
+  final UnitValue spacing;
 
   @override
   List<XmlElement> buildXml() {
@@ -244,13 +244,13 @@ class TableRow extends DocxNode<List<TableCell>> {
             (!hidden!).toString(),
           ).toList(),
         ),
-      if (spacing > 0)
+      if (spacing > Dxa(0))
         XmlElement.tag(
           'w:tblCellSpacing',
           attributes: <XmlAttribute>[
             XmlAttribute(
               'w:w'.toName(),
-              (spacing).toString(),
+              spacing.toDxa().toString(),
             ),
             XmlAttribute(
               'w:type'.toName(),
@@ -262,7 +262,7 @@ class TableRow extends DocxNode<List<TableCell>> {
         XmlElement.tag(
           'w:trHeight',
           attributes: <XmlAttribute>[
-            XmlAttribute('w:val'.toName(), (height!).toString()),
+            XmlAttribute('w:val'.toName(), height!.toDxa().toString()),
             XmlAttribute('w:hRule'.toName(), (heightRule!).toString()),
           ],
         ),
@@ -287,11 +287,11 @@ class TableRow extends DocxNode<List<TableCell>> {
     DocxNode<dynamic>? parent,
     bool? canSplit,
     bool? hidden,
-    int? height,
+    UnitValue? height,
     TableHeightRule? heightRule,
     Alignment? alignment,
     bool? isHeader,
-    int? spacing,
+    UnitValue? spacing,
   }) {
     return TableRow(
       cells: cells ?? this.child,

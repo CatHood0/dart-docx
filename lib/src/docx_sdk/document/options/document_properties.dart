@@ -19,12 +19,6 @@ import '../../xml_components/settings/entities/settings.dart';
 /// );
 /// ```
 class DocumentLayout {
-  static final Set<String> _supportedSectionTypes = {
-    'nextPage',
-    'continuous',
-    'evenPage',
-    'oddPage'
-  };
   DocumentLayout({
     this.columns,
     this.sectionType = 'continuous',
@@ -39,9 +33,16 @@ class DocumentLayout {
         (isPortraitOrientation
             ? kDefaultPortraitMargins
             : kDefaultLandscapeMargins);
-    availableDocumentSpace =
-        pageSize.width - this.margins.left - this.margins.right;
+    availableDocumentSpace = pageSize.width.toDxa() -
+        (this.margins.left.toDxa() + this.margins.right.toDxa());
   }
+
+  static final Set<String> _supportedSectionTypes = {
+    'nextPage',
+    'continuous',
+    'evenPage',
+    'oddPage'
+  };
 
   /// Column configuration for multi-column layouts.
   final ColumnOptions? columns;
@@ -215,7 +216,7 @@ class DocumentOptions {
             columns: ColumnOptions(equalWidth: true),
             margins: margins,
             orientation: defaultOrientation,
-            sectionType: sectionType, 
+            sectionType: sectionType,
             size: pageSize ?? PageSize.a4,
           ),
       title: title ?? 'Unnamed',
@@ -235,10 +236,12 @@ class DocumentOptions {
   }
 
   int get availablePageWidth =>
-      pageSize.width - (margins.left + margins.right).toInt();
+      (pageSize.width.toDxa() - (margins.left.toDxa() + margins.right.toDxa()))
+          .toInt();
 
   int get availablePageHeight =>
-      pageSize.height - (margins.top + margins.bottom).toInt();
+      (pageSize.height.toDxa() - (margins.top.toDxa() + margins.bottom.toDxa()))
+          .toInt();
 
   /// Current page size from layout options.
   PageSize get pageSize => layoutOptions.pageSize;

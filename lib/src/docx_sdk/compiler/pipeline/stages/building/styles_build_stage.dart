@@ -25,7 +25,7 @@ class StylesBuildStage extends PipelineStage {
 
   @override
   void execute(PipelineContext context) {
-    final component = XmlStylesComponent();
+    final component = XmlStylesComponent(docStyles: context.options.docStyles);
 
     final document = component.buildDocument();
     context.archive.add(

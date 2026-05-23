@@ -88,7 +88,7 @@ class XmlDocumentRelsComponent extends XmlComponentBase<List<RelationShip>> {
   String get path => _path;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     final Map<String, dynamic> rels = <String, dynamic>{};
     return XmlElement.tag(
       xmlKey,

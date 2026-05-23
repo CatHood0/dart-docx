@@ -52,7 +52,7 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
         ),
       ],
       children: _buildInsets(child.margin),
-      isSelfClosing: child.margin.left == 0 && child.margin.top == 0 && child.margin.right == 0 && child.margin.bottom == 0,
+      isSelfClosing: child.margin.all() == 0,
     );
 
     return <XmlElement>[
@@ -62,7 +62,7 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
   }
 
   List<XmlNode> _buildInsets(EdgeInsets margin) {
-    if (margin.left == 0 && margin.top == 0 && margin.right == 0 && margin.bottom == 0) {
+    if (margin.all() == 0) {
       return <XmlNode>[];
     }
 
@@ -157,7 +157,7 @@ class ShapeTextBox extends DocxNode<ShapeTextBoxData> {
 class ShapeTextBoxData {
   ShapeTextBoxData({
     required this.content,
-    this.margin = const EdgeInsets.all(0),
+    this.margin = const EdgeInsets.all(Twip(0)),
     this.wrapping = WrapType.square,
     this.verticalAlignment = VerticalAlignment.top,
     this.horizontalAlignment = Alignment.left,
@@ -169,7 +169,7 @@ class ShapeTextBoxData {
         );
 
   ShapeTextBoxData.empty({
-    this.margin = const EdgeInsets.all(0),
+    this.margin = const EdgeInsets.all(Twip(0)),
     this.wrapping = WrapType.square,
     this.verticalAlignment = VerticalAlignment.top,
     this.horizontalAlignment = Alignment.left,

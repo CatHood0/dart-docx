@@ -38,64 +38,24 @@ class BorderSide {
   /// [color] is the border color (default: auto/black).
   const BorderSide({
     this.style = BorderStyle.single,
-    this.size = 4,
-    this.space = 0,
+    this.size = const Point(4),
+    this.space = const Point(0),
     this.color,
   });
 
   /// Creates a border with no visible line.
   const BorderSide.none({
-    this.size = 4,
-    this.space = 0,
+    this.size = const Point(4),
+    this.space = const Point(0),
     this.color,
   }) : style = BorderStyle.none;
 
   /// Creates a border with nil style.
   const BorderSide.nil({
-    this.size = 4,
-    this.space = 0,
+    this.size = const Point(4),
+    this.space = const Point(0),
     this.color,
   }) : style = BorderStyle.nil;
-
-  /// Creates a border from inches measurements.
-  ///
-  /// This is useful when you want to specify border size in inches
-  /// rather than points.
-  ///
-  /// [style] is the border line style.
-  /// [size] is the border thickness in pixels (converted to points).
-  /// [space] is the spacing in pixels (converted to points).
-  /// [color] is the border color.
-  ///
-  /// The calculation will be: `yourinches * ptPerInch (72)`
-  BorderSide.inches({
-    this.style = BorderStyle.single,
-    int size = 1,
-    int space = 0,
-    this.color,
-  })  : size = size.inchesToPoints(),
-        space = space.inchesToPoints();
-
-  /// Creates a border from pixel measurements.
-  ///
-  /// This is useful when you want to specify border size in pixels
-  /// rather than points.
-  ///
-  /// [style] is the border line style.
-  /// [size] is the border thickness in pixels (converted to points).
-  /// [space] is the spacing in pixels (converted to points).
-  /// [color] is the border color.
-  ///
-  /// The calculation will be: `yourpixels * ptPerPixel (0.75)`
-  ///
-  /// 1 pixel (96 DPI) = 0.75 points
-  BorderSide.pixels({
-    this.style = BorderStyle.single,
-    int size = 1,
-    int space = 0,
-    this.color,
-  })  : size = size.pixelsToPt(),
-        space = space.pixelsToPt();
 
   /// Border line style.
   ///
@@ -112,13 +72,13 @@ class BorderSide {
   /// - `12` = 1.5 points
   /// - `16` = 2 points
   /// - `24` = 3 points (thick border)
-  final int size;
+  final UnitValue size;
 
   /// Space between border and content in point units.
   ///
   /// This creates space between the border line and the content.
   /// Useful for creating visual separation between border and text.
-  final int space;
+  final UnitValue space;
 
   /// Border color in ARGB format.
   ///

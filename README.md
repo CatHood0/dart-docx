@@ -1,6 +1,6 @@
 ## Dart-DOCX: Easily generate .docx files with Dart
 
-`docx` is a high-level, declarative API for generating Microsoft Word (.docx) documents using Dart.
+`dart-docx` is a high-level, declarative API for generating Microsoft Word (.docx) documents using Dart.
 
 
 > [!NOTE]
@@ -8,16 +8,15 @@
 > At this moment, the current implementation is just to create Dart to .docx documents. 
 > I'm working hard to implement most common (and profesional) required features to be reliable as a toolkit.
 >
-> Not Implemented yet:
-> 1. Dynamic Fields
-> 2. Placeholders (auto-replace values with no efforts using `${{<key>}}` sintax)
-> 3. Testing more complex tables
-> 4. Charts
-> 5. Partial compilation (only compiles elements that are not passed. This feature let you compile first 
->    things like parts of the .docx, and then you can later compile the dynamic parts without making the whole file and 
->    passing just the created one) 
-> 6. SDT Content Controls (7 types implemented)
-> 7. Bookmarks
+> Working on:
+> 1. **Placeholders**: auto-replace values with no efforts using `${{<key>}}` sintax
+> 2. **Testing**: simple components, and more complex ones like shapes, charts and tables
+> 3. **Charts**: embedded using referenced xlsx files or just the abstraction without creating anything
+> 4. **Dynamic Fields**: Custom implementation that let you replace complex elements using callbacks
+> 5. **Bookmarks**
+> 6. **XPath**: alternative for fast search during compilations
+> 7. **Partial compilation**: Set a pre-compiled `.docx` file (like a template), and let to the compiler take the decision on what need to be created or updated. 
+> 8. **Dynamic outputs**: to let configuring what are the files that we will get after compilation. 
 >
 > About parsers and future features
 > * HTML, Markdown, plain text, and Quill Delta, are being planned. At this point, is useless since we're still working on the bidirectional parsing.
@@ -92,7 +91,7 @@ Add `docx` to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  docx: ^latest_version
+  dart-docx: ^latest_version
 ```
 
 ## Basic Usage
@@ -162,7 +161,8 @@ Future<void> main() async {
 
 For larger document operations or to display progress to the user, you can use `stream` which returns a `Stream<DocxEvent>`:
 
-_Experimental yet_
+> [!NOTE]
+> This section need to be updated with the most recent way to use `stream`
 
 ```dart
 import 'dart:io';
@@ -228,10 +228,7 @@ Future<void> main() async {
 
 ### "Widgets" 
 
-> [!NOTE]
-> This feature is still **evolving**. We are working to ensure the widget system is useful for most of cases.
-
-The `docx` library introduces a **Flutter-inspired component model** (a simple and small version of it) that allows you to build reusable, composable document elements. This architecture helps you create complex documents with clean, maintainable code by encapsulating document sections into reusable components.
+`dart-docx` introduces a **Flutter-inspired component model** (a simple and small version of it) that allows you to build reusable, composable document elements. This architecture helps you create complex documents with clean, maintainable code by encapsulating document sections into reusable components.
 
 #### Why Widgets?
 
@@ -376,9 +373,11 @@ final pr2 = Paragraph.text(
   alignment: Alignment.center,
   // internally it transform your point units
   // to native twips units
-  spacingBefore: 12,      // 240 twips 
-  spacingAfter: 6,        // 120 twips 
-  lineSpacing: 18,        // 360 twips 
+  textStyle: TextStyle(
+    spacingBefore: 12,      // 240 twips 
+    spacingAfter: 6,        // 120 twips 
+    lineSpacing: 18,        // 360 twips 
+  ),
 );
 ```
 
@@ -399,9 +398,11 @@ final pr2 = Paragraph.text(
   text: 'Indented paragraph content',
   // internally it transform your point units
   // to native twips units
-  indentLeft: 0.5,        // 720 twips 
-  indentRight: 0.25,      // 360 twips 
-  firstLineIndent: 0.5,   // 720 twips
+  textStyle: TextStyle(
+    indentLeft: 0.5,        // 720 twips 
+    indentRight: 0.25,      // 360 twips 
+    firstLineIndent: 0.5,   // 720 twips
+  ),
 );
 ```
 
@@ -421,8 +422,10 @@ final pr = Paragraph.text(
 //or
 final pr2 = Paragraph.text(
   text: 'Important paragraph that should not break',
-  keepLines: true,
-  keepNext: true,
+  textStyle: TextStyle(
+    keepLines: true,
+    keepNext: true,
+  ),
 );
 ```
 
@@ -525,8 +528,7 @@ This is a common usage for most of the editors maded in Flutter}:.
 final Paragraph pr =  LazyFloatingImage(
   data: ImageData.fileSized(
     file: File('assets/image.png'),
-    size: 1.5,
-    unit: Unit.inch,
+    size: Inch(1.5),
     // Configure anchoring relative to the paragraph
     anchorConfig: AnchorConfig(
       wrapType: WrapType.noWrap,
@@ -555,8 +557,7 @@ final paragraph = Paragraph(
     LazyFloatingImage(
       data: ImageData.fileSized(
         file: File('assets/image.png'),
-        size: 1.5,
-        unit: Unit.inch,
+        size: Inch(1.5),
         anchorConfig: AnchorConfig(
           wrapType: WrapType.square,
           wrapSide: WrapSide.bothSides,
@@ -609,8 +610,7 @@ final paragraph = Paragraph(
     LazyFloatingImage(
       data: ImageData.fileSized(
         file: File('assets/image.png'),
-        size: 0.85,
-        unit: Unit.inch,
+        size: Inch(0.85),
         anchorConfig: AnchorConfig(
           wrapType: WrapType.square,
           wrapSide: WrapSide.bothSides,
@@ -679,24 +679,24 @@ Tables and individual cells support comprehensive border styling with configurab
 ```dart
 final config = TableProperties(
   borders: TableBorders(
-    top: TableBorder(style: BorderStyle.double, size: 8, color: Colors.red),
-    bottom: TableBorder(style: BorderStyle.dashed, size: 4),
-    insideHorizontal: TableBorder(style: BorderStyle.dotted),
+    top: BorderSide(style: BorderStyle.double, size: Point(8), color: Colors.red),
+    bottom: BorderSide(style: BorderStyle.dashed, size: Point(4)),
+    insideHorizontal: BorderSide(style: BorderStyle.dotted),
   ),
 )
 
 // Or use
 final config2 = TableProperties(
   borders: TableBorders.symmetric(
-    vertical: TableBorder(style: BorderStyle.double, size: 8, color: Colors.red),
-    insideHorizontal: TableBorder(style: BorderStyle.dotted),
+    vertical: BorderSide(style: BorderStyle.double, size: Point(8), color: Colors.red),
+    insideHorizontal: BorderSide(style: BorderStyle.dotted),
   ),
 );
 
 // Or
 final config3 = TableProperties(
   borders: TableBorders.all(
-    TableBorder(style: BorderStyle.double, size: 8, color: Colors.red),
+    BorderSide(style: BorderStyle.double, size: Point(8), color: Colors.red),
   ),
 );
 ```
@@ -723,14 +723,15 @@ final cellConfig = TableCellConfig(
   //
   // You can use TableHeightRule.atLeast to allow
   // resizing if the cell requires it
-  height: 1000,
+  height: Dxa(1000),
 )
 ```
 
 `TableRow` supports configurable height with 3 different height rules: 
-    - automatic: based on content.
-    - at-least: take the height specified, and expands itself just when required. 
-    - exact: fixed height regardless of content. 
+
+1. automatic: based on content.
+2. at-least: take the height specified, and expands itself just when required. 
+3. exact: fixed height regardless of content. 
 
 
 #### Example: Row with fixed height and page break protection
@@ -740,7 +741,7 @@ Rows can be prevented from splitting across page boundaries and can be designate
 ```dart
 final row = TableRow(
   heightRule: TableHeightRule.exact,
-  height: 1008,
+  height: Dxa(1008),
   canSplit: false,
   cells: [/* cell definitions */],
 )
@@ -794,16 +795,15 @@ final r = Row(
       asInline: true,
       data: ImageData.fileSized(
         file: './assets/logo.png',
-        unit: Unit.pixels96,
-        size: 50,
+        size: Pixel(50),
       ),
     ).drawing().run().paragraph(),
     Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <DocxNode<dynamic>>[
-        Paragraph.text(text: 'Home  '),
-        Paragraph.text(text: 'About  '),
-        Paragraph.text(text: 'Contact'),
+        Text('Home  '),
+        Text('About  '),
+        Text('Contact'),
       ],
     ),
   ],
@@ -838,10 +838,8 @@ final row = Row(
   mainAxisAlignment: MainAxisAlignment.start,
   crossAxisAlignment: CrossAxisAlignment.center,
   children: <DocxNode<dynamic>>[
-    LazyImage(...).drawing().run().paragraph(),
-    Paragraph.text(
-      text: 'This text is vertically centered with the image.',
-    ),
+    LazyImage(/*...*/).drawing().run().paragraph(),
+    Text('This text is vertically centered with the image.'),
   ],
 );
 ```
@@ -852,13 +850,13 @@ Using fixed width gives precise control over the total row width. Each child get
 
 ```dart
 final row = Row(
-  width: 200.ptToDxa(),
+  width: Point(200),
   mainAxisAlignment: MainAxisAlignment.start,
   crossAxisAlignment: CrossAxisAlignment.start,
   children: <DocxNode<dynamic>>[
-    Column(children: [Paragraph.text(text: 'Column 1')]),
-    Column(children: [Paragraph.text(text: 'Column 2')]),
-    Column(children: [Paragraph.text(text: 'Column 3')]),
+    Column(children: [Text(text: 'Column 1')]),
+    Column(children: [Text(text: 'Column 2')]),
+    Column(children: [Text(text: 'Column 3')]),
   ],
 );
 ```
@@ -877,7 +875,7 @@ final row = Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <DocxNode<dynamic>>[
-            LazyImage(...).drawing().run().paragraph(),
+            LazyImage(/*...*/).drawing().run().paragraph(),
             Paragraph.text(text: 'Feature 1'),
           ],
         ),
@@ -890,7 +888,7 @@ final row = Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <DocxNode<dynamic>>[
-            LazyImage(...).drawing().run().paragraph(),
+            LazyImage(/*...*/).drawing().run().paragraph(),
             Paragraph.text(text: 'Feature 2'),
           ],
         ),
@@ -961,11 +959,13 @@ final text = Text('Simple text content');
 ```dart
 final text = Text(
   'Formatted text',
-  bold: true,
-  italic: true,
-  underline: true,
-  strikethrough: true,
-)
+  style: TextStyle(
+    bold: true,
+    italic: true,
+    underline: true,
+    strikethrough: true,
+  ),
+);
 ```
 
 #### Font Properties
@@ -973,28 +973,30 @@ final text = Text(
 ```dart
 final text = Text(
   'Custom font text',
-  size: 12,  // In points
-  family: 'Arial',
-  color: Colors.blue,
-  backgroundColor: Colors.yellow,
+  style: TextStyle(
+    size: 12,  // In points
+    family: 'Arial',
+    color: Colors.blue,
+    backgroundColor: Colors.yellow,
+  ),
 );
 ```
 
-#### Special Text Features
+<!-- #### Special Text Features -->
 
-Subscript and superscript text are supported:
+<!-- Subscript and superscript text are supported: -->
 
-```dart
-final text = Text(
-  text: 'x',
-  superscript: true,
-);
+<!-- ```dart -->
+<!-- final text = Text( -->
+<!--   text: 'x', -->
+<!--   superscript: true, -->
+<!-- ); -->
 
-final text2 =Text.text(
-  text: 'H2O',
-  subscript: true,
-);
-```
+<!-- final text2 =Text.text( -->
+<!--   text: 'H2O', -->
+<!--   subscript: true, -->
+<!-- ); -->
+<!-- ``` -->
 
 #### Text Alignment
 
@@ -1012,13 +1014,13 @@ The `Text` component works seamlessly with `Row` for simple horizontal layouts:
 ```dart
 final row = Row(
   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  minHeight: 5.ptToDxa(),
+  minHeight: Point(5),
   children: <DocxNode<dynamic>>[
     Text('Left'),
     Text('Center'),
     Text('Right'),
   ],
-)
+);
 ```
 
 ![minimal row](./assets/minimal_row.png)
@@ -1033,17 +1035,6 @@ _SDT (Structured Document Tags) are Word's Content Controls - interactive elemen
 
 SDT components enable forms, data binding to Custom XML Parts, and dynamic content in Word documents. This library supports the following SDT types:
 
-#### Available SDT Types
-
-| Type | Description | Status |
-|------|-------------|--------|
-| `SdtPlainText` | Single-line text input fields | ✅ Implemented |
-| `SdtRichText` | Multi-paragraph rich text | ✅ Implemented |
-| `SdtDropDownList` | Fixed dropdown selection | ✅ Implemented |
-| `SdtComboBox` | Editable dropdown | ✅ Implemented |
-| `SdtDate` | Date picker control | ✅ Implemented |
-| `SdtCheckbox` | Checkbox control | ✅ Implemented |
-| `SdtPicture` | Image container | ✅ Implemented |
 
 #### SdtPlainText
 
@@ -1135,12 +1126,12 @@ final formRow = Row(
 );
 ```
 
-For technical details on SDT XML structure, see [docs/sdt_elements.md](docs/sdt_elements.md).
+<!-- For technical details on SDT XML structure, see [docs/sdt_elements.md](docs/sdt_elements.md). -->
 
 ## Style Customization
 
 > [!IMPORTANT]
-> This section is outdated. I'm working to update this part with the recent API changes.
+> This section have some properties outdated. I'm working to update this part with the recent API changes.
 
 `docx` provides a flexible system for defining custom Word styles that are reflected in `word/styles.xml`. This is achieved through the `Style` and `StyleConfigurator` classes.
 

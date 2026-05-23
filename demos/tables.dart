@@ -197,7 +197,7 @@ Table _buildSimpleTable() {
     columns: GridColumn(width: 2500).repeat(2),
     rows: <TableRow>[
       TableRow.header(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell.one(
@@ -222,7 +222,7 @@ Table _buildSimpleTable() {
         ],
       ),
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell.one(
@@ -259,7 +259,7 @@ Table _buildMergedCellsTable() {
     columns: GridColumn(width: 2000).repeat(3),
     rows: <TableRow>[
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell.one(
@@ -286,7 +286,7 @@ Table _buildMergedCellsTable() {
         ],
       ),
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell.one(
@@ -325,7 +325,7 @@ Table _buildMergedCellsTable() {
         ],
       ),
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           // Empty cell because it's merged from the previous row
@@ -365,7 +365,7 @@ Table _buildComplexContentTable() {
     columns: GridColumn(width: 4000).repeat(2),
     rows: <TableRow>[
       TableRow(
-        height: 800,
+        height: Dxa(800),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell(
@@ -471,24 +471,24 @@ Table _buildCustomBordersTable() {
       width: 6000,
       widthType: TableWidthType.dxa,
       borders: TableBorders.symmetric(
-        vertical: TableBorder(
+        vertical: BorderSide(
           style: BorderStyle.double,
-          size: 4,
+          size: Point(4),
           color: Color(0xFF0000),
         ),
-        horizontal: TableBorder(
+        horizontal: BorderSide(
           style: BorderStyle.dashed,
-          size: 8,
+          size: Point(8),
           color: Color(0x0000FF),
         ),
-        insideHorizontal: TableBorder(style: BorderStyle.dotted, size: 2),
-        insideVertical: TableBorder(style: BorderStyle.dotted, size: 2),
+        insideHorizontal: BorderSide(style: BorderStyle.dotted, size: Point(2)),
+        insideVertical: BorderSide(style: BorderStyle.dotted, size: Point(2)),
       ),
     ),
     columns: GridColumn(width: 3000).repeat(2),
     rows: <TableRow>[
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell(
@@ -496,9 +496,9 @@ Table _buildCustomBordersTable() {
               width: 3000,
               widthType: TableWidthType.dxa,
               borders: TableCellBorders.symmetric(
-                vertical: TableBorder(
+                vertical: BorderSide(
                   style: BorderStyle.single,
-                  size: 12,
+                  size: Point(12),
                   color: Color(0x00FF00),
                 ),
               ),
@@ -515,9 +515,9 @@ Table _buildCustomBordersTable() {
               width: 3000,
               widthType: TableWidthType.dxa,
               borders: TableCellBorders.symmetric(
-                horizontal: TableBorder(
+                horizontal: BorderSide(
                   style: BorderStyle.wave,
-                  size: 6,
+                  size: Point(6),
                   color: Color(0xFF00FF),
                 ),
               ),
@@ -532,16 +532,16 @@ Table _buildCustomBordersTable() {
         ],
       ),
       TableRow(
-        height: 504,
+        height: Point(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell(
             cellConfig: TableCellConfig.dxa(
               width: 3000,
               borders: TableCellBorders.all(
-                TableBorder(
+                BorderSide(
                   style: BorderStyle.dashDot,
-                  size: 4,
+                  size: Point(4),
                   color: Color(0xFFA500),
                 ),
               ),
@@ -557,7 +557,7 @@ Table _buildCustomBordersTable() {
             cellConfig: TableCellConfig(
               width: 3000,
               widthType: TableWidthType.dxa,
-              borders: TableCellBorders.all(TableBorder.none()),
+              borders: TableCellBorders.all(BorderSide.none()),
             ),
             children: <DocxNode<dynamic>>[
               Paragraph.text(text: 'No borders', align: Alignment.center),
@@ -580,7 +580,7 @@ Table _buildShadedTable() {
     columns: GridColumn(width: 3000).repeat(2),
     rows: <TableRow>[
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell.one(
@@ -609,7 +609,7 @@ Table _buildShadedTable() {
         ],
       ),
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell(
@@ -652,7 +652,7 @@ Table _buildVerticalAlignmentTable() {
     columns: GridColumn.cm(width: 200).repeat(3),
     rows: <TableRow>[
       TableRow(
-        height: 780,
+        height: Dxa(780),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell.one(
@@ -707,7 +707,7 @@ Table _buildCustomWidthTable() {
     ],
     rows: <TableRow>[
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.atLeast,
         cells: <TableCell>[
           TableCell(
@@ -800,7 +800,7 @@ Table _buildHeaderTable() {
       ),
       for (int i = 1; i <= 5; i++)
         TableRow(
-          height: 504,
+          height: Dxa(504),
           heightRule: TableHeightRule.atLeast,
           cells: <TableCell>[
             TableCell.one(
@@ -840,7 +840,7 @@ Table _buildAutoFitTable() {
     columns: GridColumn.intrintric().repeat(3),
     rows: <TableRow>[
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.auto,
         cells: <TableCell>[
           TableCell.one(
@@ -881,7 +881,7 @@ Table _buildNestedTable() {
     columns: GridColumn(width: 3500).repeat(2),
     rows: <TableRow>[
       TableRow(
-        height: 504,
+        height: Dxa(504),
         heightRule: TableHeightRule.auto,
         cells: <TableCell>[
           TableCell(
@@ -899,7 +899,7 @@ Table _buildNestedTable() {
                 columns: GridColumn(width: 1500).repeat(2),
                 rows: <TableRow>[
                   TableRow(
-                    height: 300,
+                    height: Dxa(300),
                     heightRule: TableHeightRule.atLeast,
                     cells: <TableCell>[
                       TableCell.one(
@@ -927,7 +927,7 @@ Table _buildNestedTable() {
                     ],
                   ),
                   TableRow(
-                    height: 300,
+                    height: Dxa(300),
                     heightRule: TableHeightRule.auto,
                     cells: <TableCell>[
                       TableCell.one(

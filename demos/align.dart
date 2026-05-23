@@ -30,7 +30,7 @@ Future<void> main() async {
           alignment: Alignment.center,
           child: Paragraph.text(
             text: 'Hello World',
-            level: 1,
+            textStyle: TextStyle(headingLevel: 1),
           ),
         ),
       ],

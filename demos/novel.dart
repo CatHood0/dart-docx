@@ -247,7 +247,7 @@ Future<void> main() async {
         ),
 
         // Prólogo
-        Paragraph.text(text: 'PROLOGUE', level: 1),
+        Paragraph.text(text: 'PROLOGUE', textStyle: TextStyle(headingLevel: 1)),
 
         Paragraph(
           children: _textWithBreaks(prologue),

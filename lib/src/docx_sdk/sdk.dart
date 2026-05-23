@@ -81,6 +81,7 @@ export 'utils/generators/hexadecimal_generator.dart';
 export 'utils/generators/media_creator.dart';
 export 'utils/language_codes.dart';
 export 'utils/sizing_utils.dart';
+export 'utils/values.dart';
 export 'widgets/widget.dart';
 export 'xml_components/document/configs/column_options.dart';
 //TODO: insert rest of the xml components in order

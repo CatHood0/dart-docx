@@ -72,12 +72,12 @@ class XmlConcreteNumberingComponent
           }),
         );
 
-  final int numId;
   final String reference;
+  final int numId;
   final int instance;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -85,7 +85,7 @@ class XmlConcreteNumberingComponent
         (
           XmlComponentBase<dynamic> e,
         ) =>
-            e.buildXml(context),
+            e.buildXml(),
       ),
     );
   }
@@ -111,7 +111,7 @@ class ConcreteLevelOverrideComponent
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -119,7 +119,7 @@ class ConcreteLevelOverrideComponent
         (
           XmlComponentBase<dynamic> e,
         ) =>
-            e.buildXml(context),
+            e.buildXml(),
       ),
     );
   }

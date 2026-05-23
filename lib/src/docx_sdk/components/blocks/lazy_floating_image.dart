@@ -3,9 +3,11 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
-import '../../../core/normalizer/auto_size_normalizer.dart';
+import '../../../core/extensions/cast_ext.dart';
 import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../exceptions/docx_compilation_exception.dart';
 import '../../stores/inherited_stores/drawing_counter_provider.dart';
+import '../../stores/inherited_stores/media_provider.dart';
 
 class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
   LazyFloatingImage({
@@ -57,7 +59,6 @@ class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
           height: child.height,
           name: child.name,
           alt: child.alt,
-          unit: child.unit,
         ),
       );
 
@@ -66,35 +67,49 @@ class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
   int? _elementId;
   num? _imgWidthEmu;
   num? _imgHeightEmu;
+  late final String childId = DocxElements.instance.createId();
 
   @override
   void perform() {
     super.perform();
-    _elementId ??= DrawingCounterProvider.of(this).getNextId(id);
+    if (isChildOf<DrawingCounterProvider>()) {
+      final DrawingElementCounterStore drawingProvider =
+          DrawingCounterProvider.of(this);
 
-    // relates the id with an index id, so, its more easy
-    // to get it in more another places
-    final CompilerConfigProvider? config = CompilerConfigProvider.of(this);
+      _elementId ??= drawingProvider.getIdFromRef(ref: id) ??
+          // usually, the element id is computed from
+          // the anchor or inline parent, so, we prefer
+          // using that one value, since was computed exactly for this
+          // element
+          getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+          getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull() ??
+          drawingProvider.getNextId(id);
+    } else {
+      // usually, the element id is computed from
+      // the anchor or inline parent, so, we prefer
+      // using that one value, since was computed exactly for this
+      // element
+      _elementId ??=
+          getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+              getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull();
+    }
 
-    _imgWidthEmu = child.width;
-    _imgHeightEmu = child.height;
+    _imgWidthEmu = child.width?.toEmu();
+    _imgHeightEmu = child.height?.toEmu();
 
-    //TODO: we will need to create our own decoders for different
-    // image extensions than jpeg, gif, png, webp, bmp.
-    if (_imgWidthEmu == null || _imgHeightEmu == null) {
-      final Size size =
-          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
-      // the result is a size computed in inches
-      final NormalizedSizeResult resultSize =
-          AutoSizeNormalizer.resizeImageBySettings(
-        size,
-        config?.options.pageSize.toInches(),
-        config?.options.margins.toInches(),
-        imageDpi,
+    if (isChildOf<CompilerConfigProvider>()) {
+      final DocumentOptions opt = CompilerConfigProvider.of(this)!.options;
+      final DocumentMargins margins = opt.margins;
+      final PageSize pageSize = opt.pageSize;
+
+      final ImageSize size = Image.getSizeForImage(
+        child,
+        margins: margins,
+        pageSize: pageSize,
       );
 
-      _imgWidthEmu ??= resultSize.width?.inchesToEmu();
-      _imgHeightEmu ??= resultSize.height?.inchesToEmu();
+      _imgWidthEmu = size.width;
+      _imgHeightEmu = size.height;
     }
   }
 
@@ -120,6 +135,29 @@ class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
       );
     }
 
+    if (isChildOf<MediaProvider>()) {
+      final MediaStore mediaProvider = MediaProvider.of(this);
+      final String? relationshipId = mediaProvider.getRelationshipIdForRef(childId) ??
+          mediaProvider.getRelationshipIdForRef(rId!);
+
+      // TODO: should we register these elements automatically during building?
+      //
+      // the index of this image. Literally the
+      // relationship id but formatted to a digit
+      if (relationshipId == null) {
+        throw DocxCompilationException(
+          message:
+              '$runtimeType:$id was not founded in the MediaStore registry or in '
+              'the ${DocxPaths.documentXmlRelsFilePath}. '
+              'Please, ensure your element has ben discovered by the store before building'
+              'MediaStore registry during start of the compilation',
+          cause:
+              'Not found relationship id into document.xml.rels that references this element',
+          node: this,
+        );
+      }
+    }
+
     return <XmlNode>[
       ...Anchor(
         child: LazyImage(
@@ -128,7 +166,7 @@ class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
           // wrappers of granular components
           // we assign to them the same id
           // to avoid sync issues with stores
-          id: id,
+          id: childId,
           data: child,
           transformOffsetX: transformOffsetX,
           transformOffsetY: transformOffsetY,

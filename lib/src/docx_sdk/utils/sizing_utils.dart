@@ -1,8 +1,22 @@
+import 'package:meta/meta.dart';
+
 import '../../../docx.dart';
+
+extension NumToUnit on num {
+  Point toPt() => Point(this);
+  Twip toTwips() => Twip(this);
+  Pixel toPixels() => Pixel(this);
+  Inch toInch() => Inch(this);
+  Centimeter toCentimenters() => Centimeter(this);
+  Millimeter toMillimeter() => Millimeter(this);
+  Dxa toDxa() => Dxa(this);
+  Emu toEmu() => Emu(this);
+}
 
 /// Provides a comprehensive set of unit conversion methods as extensions on [num].
 /// This allows converting between various sizing units like DXA, EMU, Twips,
 /// inches, centimeters, millimeters, points, and pixels.
+@internal
 extension SizingConversions on num {
   /// Converts inches to line spacing units.
   int inchesToLineSpacing() => (this * lineSpacingPerInch).round();
@@ -15,9 +29,7 @@ extension SizingConversions on num {
   int ptToHalfPoints() => (this * 2).round();
 
   /// Converts half-points to points.
-  double ealfPointsToPt() => this / 2;
-
-  // MARK: - DXA Conversions
+  double halfPointsToPt() => this / 2;
 
   /// Converts inches to DXA.
   int inchesToDxa() => (this * dxaPerInch).round();
@@ -41,7 +53,6 @@ extension SizingConversions on num {
   int ptToDxa() => (this * dxaPerPt).round();
 
   /// Converts DXA to points.
-  /// Returns an [int] representing rounded points, as per previous implementation logic.
   int dxaToPt() => (this / dxaPerPt).round();
 
   /// Converts pixels (at a specified DPI) to DXA.
@@ -52,6 +63,7 @@ extension SizingConversions on num {
   /// Default DPI is 96.
   double dxaToPixels({num dpi = 96}) => this / dxaPerInch * dpi;
 
+  // MARK: - Pixel Conversions
   double pixelsToInches() => this / pixelsPerInch;
 
   double pixelsToCm() => this / pixelsPerCm;
@@ -60,7 +72,7 @@ extension SizingConversions on num {
 
   int pixelsToPt() => (this * ptPerPixel).round();
 
-  double inchesToPixels() => (this * pixelsPerInch).toDouble();
+  double inchesToPixels() => (this * pixelsPerInch).roundToDouble();
 
   double cmToPixels() => this * pixelsPerCm;
 
@@ -68,6 +80,7 @@ extension SizingConversions on num {
 
   double pointsToPixels() => this / ptPerPixel;
 
+  // MARK: - Point Conversions
   int inchesToPoints() => (this * ptPerInch).round();
 
   double cmToPoints() => this * ptPerCm;
@@ -80,7 +93,9 @@ extension SizingConversions on num {
 
   double pointsToMm() => this / ptPerMm;
 
-  int pointsToTwipsFromPoints() => (this * twipsPerPt).round();
+  int pointsToTwips() => (this * twipsPerPt).round(); // ✅ CLEANED UP
+
+  // MARK: - EMU Conversions
 
   /// Converts EMU to inches.
   double emuToInches() => this / emuPerInch;
@@ -120,19 +135,10 @@ extension SizingConversions on num {
     return inches.toStringAsFixed(decimalPlaces);
   }
 
-  /// Converts a [num] value from a specified [Unit] to EMU.
-  num unitToEmu(Unit unit) {
-    if (unit == Unit.inch) return inchesToEmu();
-    if (unit == Unit.cm) return centimetersToEmu();
-    if (unit == Unit.mm) return millimetersToEmu();
-    if (unit == Unit.pt) return ptToEmu();
-    if (unit == Unit.pixels96) return pixelsToEmu(dpi: 96);
-    if (unit == Unit.twip) return ptToTwips();
-    throw ArgumentError('No supported unit of type: ${unit.name}');
-  }
+  /// Converts DXA to EMU.
+  num dxaToEmu() => this * (emuPerInch / dxaPerInch); // = this * 635
 
-  /// Converts DXA to EMU via points.
-  num dxaToEmu() => this * (emuPerPt / dxaPerPt);
+  // MARK: - Twip Conversions
 
   /// Converts inches to twips.
   int inchesToTwips() => (this * twipsPerInch).round();
@@ -155,9 +161,8 @@ extension SizingConversions on num {
   /// Converts points to twips.
   int ptToTwips() => (this * twipsPerPt).round();
 
-  /// Converts points to twips.
-  int ptToLineEmu() =>
-      (this * lineWidthEmuPerPoint).round().clamp(0, maxLineWidth);
+  /// Converts points to line EMU.
+  int ptToLineEmu() => (this * lineWidthEmuPerPoint).round().clamp(0, maxLineWidth);
 
   /// Converts line emu to points.
   double lineEmuToPt() => this / lineWidthEmuPerPoint;
@@ -173,19 +178,6 @@ extension SizingConversions on num {
   /// Default DPI is 96.
   num twipsToPixels({num dpi = 96}) => this / twipsPerInch * dpi;
 
-  /// Converts Twips to EMUs (approximate, as they are different base units,
-  /// but useful if you need to go from one to the other indirectly via inches).
-  int twipsToEmu() => twipsToInches().inchesToEmu();
-
-  /// Converts a [num] value from a specified [Unit] to Twips.
-  num unitToTwips(Unit unit) {
-    if (unit == Unit.inch) return inchesToTwips();
-    if (unit == Unit.cm) return centimetersToTwips();
-    if (unit == Unit.mm) return millimetersToTwips();
-    if (unit == Unit.pt) return ptToTwips();
-    if (unit == Unit.pixels96) return pixelsToTwips(dpi: 96);
-
-    throw ArgumentError(
-        'The provided unit is not supported for Twips conversion.');
-  }
+  /// Converts Twips to EMUs.
+  int twipsToEmu() => (this * emuPerTwip).round(); // ✅ SIMPLIFIED AND CORRECT
 }

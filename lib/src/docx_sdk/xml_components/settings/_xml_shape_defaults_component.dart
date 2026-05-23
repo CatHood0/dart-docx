@@ -14,10 +14,10 @@ class XmlShapeDefaultsComponent
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
-      children: value.map((e) => e.buildXml(context)).toList(),
+      children: value.map((e) => e.buildXml()).toList(),
     );
   }
 }
@@ -38,7 +38,7 @@ class _XmlOShapeDefaultsComponent extends XmlComponentBase {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -62,7 +62,7 @@ class _XmlOIdMapComponent extends XmlComponentBase {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
@@ -88,11 +88,15 @@ class _XmlOShapeLayoutComponent
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
-      children: value.map((e) => e.buildXml(context)).toList(),
+      children: value
+          .map(
+            (XmlComponentBase<dynamic> e) => e.buildXml(),
+          )
+          .toList(),
     );
   }
 }

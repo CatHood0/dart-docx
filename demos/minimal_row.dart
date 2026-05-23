@@ -26,7 +26,7 @@ Future<void> main() async {
     root: DocxRoot(
       sections: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        minHeight: 5.ptToDxa(),
+        minHeight: Point(5),
         children: <DocxNode<dynamic>>[
           Text('👈 LEFT'),
           Text('🎯 CENTER'),
@@ -44,7 +44,12 @@ Future<void> main() async {
       // if a paragraph has no default style defined
       // it will force to have one
       .normalStyleIfNeeded()
-      .execute(doc);
+      .setStandardStores()
+      .execute(
+        doc,
+        stages: DocxPipeline.defaultStages,
+        flags: ExecutionFlags(skipStyleValidation: true),
+      );
 
   if (bytes != null) {
     await outFile.writeAsBytes(bytes);

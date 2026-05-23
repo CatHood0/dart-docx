@@ -27,9 +27,9 @@ class DocumentBuildStage extends PipelineStage {
   @override
   void execute(PipelineContext context) {
     // Obtener theme ID resuelto en DocumentRelsBuildStage
-    final themeId = context.metadata['themeId'] as String?;
+    final String? themeId = context.metadata['themeId'] as String?;
 
-    final bodyComponent = XmlBodyComponent(
+    final XmlBodyComponent bodyComponent = XmlBodyComponent(
       options: context.options,
       // Should we wrap in a ThemeData?
       body: CompilerConfigProvider(

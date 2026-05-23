@@ -89,13 +89,13 @@ class XmlNumberingComponent extends XmlComponentBase<void> {
 
   /// Builds the XML element for the numbering component.
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[...attributes.buildXml()],
       children: <XmlNode>[
-        ..._abstracts.map((XmlAbstractNumComponent el) => el.buildXml(context)),
-        ..._concretes.map((XmlConcreteNumberingComponent el) => el.buildXml(context)),
+        ..._abstracts.map((XmlAbstractNumComponent el) => el.buildXml()),
+        ..._concretes.map((XmlConcreteNumberingComponent el) => el.buildXml()),
       ],
     );
   }

@@ -13,13 +13,8 @@ void main() {
         'should correctly '
         'parse styles.xml into DocumentStylesSheet', () {
       final XmlDocument xmlDocument = XmlDocument.parse(
-        XmlStylesComponent()
-            .buildDocument(
-              BuildNodeContext.base(
-                  options: DocumentOptions.standard(
-                styles: DocumentStyles.base(),
-              )),
-            )
+        XmlStylesComponent(docStyles: DocumentStyles.base())
+            .buildDocument()
             .toXmlString(),
       );
       final DocumentStyles stylesSheet =
@@ -74,7 +69,8 @@ void main() {
         headingInlineProperties!.fontFamily?.attributes?['w:ascii'],
         equals('Times New Roman'),
       );
-      expect(headingInlineProperties.fontSize?.value, equals(24.ptToHalfPoints()));
+      expect(
+          headingInlineProperties.fontSize?.value, equals(24.ptToHalfPoints()));
       expect(headingInlineProperties.bold, isNotNull);
     });
   });

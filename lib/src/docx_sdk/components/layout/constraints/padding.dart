@@ -29,28 +29,31 @@ class Padding extends DocxNode<DocxNode<dynamic>> {
       (DocxNode<dynamic> e) => e is Row || e is Table,
     );
     if (child is! Row && child is! Table && hasTableOrRowChild == null) {
-      int maxWidth = getAncestorOfExactType<LayoutConstraints>()?.maxWidth ??
-          configs!.options.availablePageWidth;
+      UnitValue maxWidth =
+          getAncestorOfExactType<LayoutConstraints>()?.maxWidth ??
+              Dxa(configs!.options.availablePageWidth);
 
       return LayoutConstraints(
         maxWidth:
-            maxWidth > 0 ? maxWidth - padding.all().twipsToPt().ptToDxa() : 0,
+            maxWidth.value > 0 ? Dxa(maxWidth - padding.allDxa()) : Dxa(0),
         children: <DocxNode<dynamic>>[
           Table(
             id: id,
             parent: this,
             tableProperties: TableProperties(
-              width: maxWidth,
+              width: maxWidth.value.toInt(),
               widthType: TableWidthType.dxa,
               layout: true,
               padding: padding,
             ),
-            columns: maxWidth > 0
-                ? GridColumn(width: maxWidth.toInt()).toList()
+            columns: maxWidth.value > 0
+                ? GridColumn(width: maxWidth.value.toInt()).toList()
                 : GridColumn.intrintric().toList(),
             rows: TableRow.one(
               cell: child.tableCell(
-                cellConfig: TableCellConfig.dxa(width: maxWidth),
+                cellConfig: TableCellConfig.dxa(
+                  width: maxWidth.value.toInt(),
+                ),
               ),
             ).toList(),
           )
@@ -150,20 +153,20 @@ class EdgeInsets {
   });
 
   const EdgeInsets.zero()
-      : top = 0,
-        right = 0,
-        bottom = 0,
-        left = 0;
+      : top = const Twip(0),
+        right = const Twip(0),
+        bottom = const Twip(0),
+        left = const Twip(0);
 
-  const EdgeInsets.all(num value)
+  const EdgeInsets.all(UnitValue value)
       : top = value,
         right = value,
         bottom = value,
         left = value;
 
   const EdgeInsets.symmetric({
-    num? vertical,
-    num? horizontal,
+    UnitValue? vertical,
+    UnitValue? horizontal,
   })  : top = vertical,
         right = horizontal,
         bottom = vertical,
@@ -173,28 +176,62 @@ class EdgeInsets {
   ///
   /// Spacing between the cell's top border and its content.
   /// Use `null` to inherit from table-level margins.
-  final num? top;
+  final UnitValue? top;
 
   /// Right margin (padding) inside the cell in twip units.
   ///
   /// Spacing between the cell's right border and its content.
   /// Use `null` to inherit from table-level margins.
-  final num? right;
+  final UnitValue? right;
 
   /// Bottom margin (padding) inside the cell in twip units.
   ///
   /// Spacing between the cell's bottom border and its content.
   /// Use `null` to inherit from table-level margins.
-  final num? bottom;
+  final UnitValue? bottom;
 
   /// Left margin (padding) inside the cell in twip units.
   ///
   /// Spacing between the cell's left border and its content.
   /// Use `null` to inherit from table-level margins.
-  final num? left;
+  final UnitValue? left;
+
+  static const Twip zeroTwip = Twip(0);
+
+  Dxa allDxa() {
+    Dxa n = Dxa(0);
+
+    if (top != null) {
+      n = Dxa(n + Dxa(top!.toDxa()));
+    }
+    if (bottom != null) {
+      n = Dxa(n + Dxa(bottom!.toDxa()));
+    }
+    if (left != null) {
+      n = Dxa(n + Dxa(left!.toDxa()));
+    }
+    if (right != null) {
+      n = Dxa(n + Dxa(right!.toDxa()));
+    }
+    return n;
+  }
 
   num all() {
-    return (top ?? 0) + (left ?? 0) + (bottom ?? 0) + (right ?? 0);
+    num n = 0;
+
+    if (top != null) {
+      n += top!.toTwips();
+    }
+    if (bottom != null) {
+      n += bottom!.toTwips();
+    }
+    if (left != null) {
+      n += left!.toTwips();
+    }
+    if (right != null) {
+      n += right!.toTwips();
+    }
+    return n;
   }
 
   @override

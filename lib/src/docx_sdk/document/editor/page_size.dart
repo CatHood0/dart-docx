@@ -23,41 +23,40 @@ import '../../../../docx.dart';
 /// final landscape = custom.toLandscape();
 /// ```
 class PageSize {
-  /// Creates a page size with raw centimeter values.
-  PageSize.raw(int widthCm, int heightCm)
-      : width = widthCm,
-        height = heightCm {
-    assert(heightCm > 0, 'Height must be greater than 0');
-    assert(widthCm > 0, 'Width must be greater than 0');
-  }
-
   /// Creates a page size from centimeter values, converting to DXA units.
-  PageSize.fromCm(double widthCm, double heightCm)
-      : width = (widthCm * dxaPerCm).round(),
-        height = (heightCm * dxaPerCm).round() {
-    assert(heightCm > 0, 'Height must be greater than 0');
-    assert(widthCm > 0, 'Width must be greater than 0');
+  PageSize.fromCm(double width, double height)
+      : width = Dxa(width.toCentimenters().toDxa()),
+        height = Dxa(height.toCentimenters().toDxa()) {
+    assert(height > 0, 'Height must be greater than 0');
+    assert(width > 0, 'Width must be greater than 0');
   }
 
   /// Creates a page size from millimeter values.
-  PageSize.fromMm(double widthMm, double heightMm)
-      : this.fromCm(widthMm / 10.0, heightMm / 10.0);
+  PageSize.fromMm(double width, double height)
+      : width = Dxa(width.toMillimeter().toDxa()),
+        height = Dxa(height.toMillimeter().toDxa()) {
+    assert(height > 0, 'Height must be greater than 0');
+    assert(width > 0, 'Width must be greater than 0');
+  }
+
+  PageSize.fromPixels(double width, double height)
+      : width = Dxa(width.toPixels().toDxa()),
+        height = Dxa(height.toPixels().toDxa()) {
+    assert(height > 0, 'Height must be greater than 0');
+    assert(width > 0, 'Width must be greater than 0');
+  }
 
   /// Creates a page size from inch values.
   PageSize.fromInches(double widthIn, double heightIn)
       : this.fromCm(widthIn * 2.54, heightIn * 2.54);
 
-  /// Creates a page size directly from DXA units.
-  PageSize.fromDxa(this.width, this.height) {
-    assert(width > 0, 'Width in DXA must be greater than 0');
-    assert(height > 0, 'Height in DXA must be greater than 0');
-  }
+  PageSize.fromUnitValue(this.width, this.height);
 
   /// The width of the page in DXA units (twentieths of a point).
-  final int width;
+  final UnitValue width;
 
   /// The height of the page in DXA units (twentieths of a point).
-  final int height;
+  final UnitValue height;
 
   /// Standard A4 page size: 21.0 cm × 29.7 cm.
   static PageSize get a4 => PageSize.fromCm(21.0, 29.7);
@@ -79,7 +78,10 @@ class PageSize {
   /// Returns: A new [PageSize] instance with raw centimeter values.
   PageSize toCm() {
     final (double, double) values = inCm;
-    return PageSize.raw(values.$1.toInt(), values.$2.toInt());
+    return PageSize.fromUnitValue(
+      values.$1.toInt().toCentimenters(),
+      values.$2.toInt().toCentimenters(),
+    );
   }
 
   /// Converts the page size to inch-based values.
@@ -87,28 +89,27 @@ class PageSize {
   /// Returns: A new [PageSize] instance with raw inch values.
   PageSize toInches() {
     final (double, double) values = inInches;
-    return PageSize.raw(values.$1.toInt(), values.$2.toInt());
+    return PageSize.fromUnitValue(values.$1.toInt().toInch(), values.$2.toInt().toInch());
   }
 
   /// Gets the page dimensions in centimeters as a tuple.
   ///
   /// Returns: A tuple (width, height) in centimeters.
-  (double, double) get inCm => (width / dxaPerCm, height / dxaPerCm);
+  (double, double) get inCm =>
+      (width.toCm().toDouble(), height.toCm().toDouble());
 
   /// Gets the page dimensions in millimeters as a tuple.
   ///
   /// Returns: A tuple (width, height) in millimeters.
   (double, double) get inMm {
-    final (double widthCm, double heightCm) = inCm;
-    return (widthCm * 10, heightCm * 10);
+    return (width.toMm().toDouble(), height.toMm().toDouble());
   }
 
   /// Gets the page dimensions in inches as a tuple.
   ///
   /// Returns: A tuple (width, height) in inches.
   (double, double) get inInches {
-    final (double widthCm, double heightCm) = inCm;
-    return (widthCm / 2.54, heightCm / 2.54);
+    return (width.toInches().toDouble(), height.toInches().toDouble());
   }
 
   /// Converts the page to landscape orientation.
@@ -117,7 +118,7 @@ class PageSize {
   /// If the page is already in landscape (width > height), returns a copy.
   ///
   /// Returns: A new [PageSize] in landscape orientation.
-  PageSize toLandscape() => PageSize.fromDxa(height, width);
+  PageSize toLandscape() => PageSize.fromUnitValue(height, width);
 
   /// Converts the page to portrait orientation.
   ///
@@ -125,12 +126,16 @@ class PageSize {
   /// If the page is already in portrait (height >= width), returns a copy.
   ///
   /// Returns: A new [PageSize] in portrait orientation.
-  PageSize toPortrait() => PageSize.fromDxa(
-      width < height ? width : height, width > height ? width : height);
+  PageSize toPortrait() => PageSize.fromUnitValue(
+        width < height ? width : height,
+        width > height ? width : height,
+      );
 
   @override
   String toString() {
-    return 'PageSettings(${width.toStringAsFixed(1)}×${height.toStringAsFixed(1)})';
+    return 'PageSettings(${width.toPixels().toStringAsFixed(1)}'
+        '×'
+        '${height.toPixels().toStringAsFixed(1)})';
   }
 
   @override

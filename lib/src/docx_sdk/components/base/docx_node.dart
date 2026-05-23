@@ -18,6 +18,7 @@ import '../../../../docx.dart'
         Style,
         Transform2D,
         nanoid;
+import '../../sdk.dart';
 import 'empty_node.dart';
 
 abstract class DocxNode<T> {
@@ -150,12 +151,12 @@ abstract class DocxNode<T> {
   set parent(DocxNode? parent) {
     _parent = parent;
     // When set to null, is more probably than this element is removed from tree
-    if (parent == null) {
+    if (DocxElements.instance.initializeByCompile && parent == null) {
       markAsDirty();
       deactivate();
       return;
-    }
-    if (parent.mounted) {
+    } else if (DocxElements.instance.initializeByCompile &&
+        parent?.mounted == true) {
       init();
     }
   }
@@ -179,13 +180,16 @@ abstract class DocxNode<T> {
     return indexes;
   }
 
+  @experimental
+  dynamic query(String xpath) {}
+
   void didChangeConfigurations(
     DocxNode<T> prev,
     DocxNode<T> current,
   ) {}
 
   @mustCallSuper
-  bool get mounted => parent != null;
+  bool get mounted => parent != null && isChildOf<DocxRoot>();
 
   void markAsDirty() {
     CompilerLogger.root.config('[$runtimeType:$id]: marked as dirty');
@@ -201,8 +205,9 @@ abstract class DocxNode<T> {
       return;
     }
     CompilerLogger.root.config(
-        '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: initializated correctly into ${parent?.runtimeType}:${parent?.id}');
-    perform();
+      '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: initializated correctly into ${parent!.runtimeType}:${parent!.id}',
+    );
+
     visitElement((e) {
       e.init();
       return false;
@@ -252,6 +257,9 @@ abstract class DocxNode<T> {
   bool isChildOf<R extends DocxNode>() => getAncestorOfExactType<R>() != null;
 
   R? getAncestorOfExactType<R extends DocxNode<dynamic>>() {
+    if (!mounted) {
+      return null;
+    }
     DocxNode? current = parent;
     CompilerLogger.root.debug('===$runtimeType:$id will try to ===');
     CompilerLogger.root.debug(
@@ -352,19 +360,5 @@ abstract class DocxNode<T> {
     });
 
     return buffer.toString();
-  }
-}
-
-class DocxElements {
-  DocxElements._();
-
-  static final DocxElements instance = DocxElements._();
-
-  Map<String, dynamic> metadata = <String, dynamic>{};
-
-  bool get needsPreviousInitialization => metadata['ensureInitialize'] == true;
-
-  void ensureInitialized() {
-    metadata['ensureInitialize'] = true;
   }
 }

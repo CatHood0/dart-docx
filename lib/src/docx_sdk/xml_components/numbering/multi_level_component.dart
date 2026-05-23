@@ -1,4 +1,3 @@
-
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
@@ -14,7 +13,7 @@ class MultiLevelType extends XmlComponentBase<void> {
         );
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: <XmlAttribute>[

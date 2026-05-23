@@ -188,10 +188,12 @@ class DocxPipeline {
     if (!_eventController.isClosed) {
       _eventController.close();
     }
+
+    DocxElements.instance.initializeCompilation(true);
     _eventController = StreamController<DocxEvent>.broadcast();
     _eventController.add(DocxEvent.start());
 
-    final PipelineContext context = PipelineContext(
+    _context = PipelineContext(
       tree: document.root,
       document: document,
       options: document.options,
@@ -200,13 +202,10 @@ class DocxPipeline {
       logConfig: logConfig,
       stores: _stores,
     );
-    _context = context;
 
     if (DocxElements.instance.needsPreviousInitialization) {
       final Stopwatch watch = Stopwatch()..start();
       CompilerLogger.root.debug('Ensuring initializatin start');
-      // final BuildNodeContext treeContext =
-      //     context.buildDocumentContext(document.root);
       context.tree.init();
       watch.stop();
       CompilerLogger.root.debug(
@@ -256,6 +255,8 @@ class DocxPipeline {
         ..isCompiled = false;
       _eventController.add(DocxEvent.end(error: e));
       return null;
+    } finally {
+      DocxElements.instance.initializeCompilation(false);
     }
   }
 
@@ -376,4 +377,31 @@ class DocxPipeline {
       const EventEmissionStage(),
     ];
   }
+}
+
+class DocxElements {
+  DocxElements._();
+
+  static final DocxElements instance = DocxElements._();
+
+  final Map<String, dynamic> _metadata = <String, dynamic>{'dpi': _imageDpi};
+
+  static const int _imageDpi = 96;
+
+  bool get needsPreviousInitialization => _metadata['ensureInitialize'] == true;
+
+  bool get initializeByCompile => _metadata['isCompiling'] == true;
+
+  void ensureInitialized() {
+    _metadata['ensureInitialize'] = true;
+  }
+
+  void initializeCompilation(bool compiling) {
+    _metadata['isCompiling'] = compiling;
+  }
+
+  int get dpi => _metadata['dpi'].cast();
+  set dpi(int dpi) => _metadata['dpi'] = dpi;
+
+  String createId() => nanoid(7);
 }

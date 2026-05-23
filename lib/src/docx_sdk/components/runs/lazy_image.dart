@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:image_size_getter/file_input.dart';
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
+import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../exceptions/docx_compilation_exception.dart';
 import '../../stores/inherited_stores/drawing_counter_provider.dart';
 import '../../stores/inherited_stores/media_provider.dart';
 
@@ -71,7 +71,6 @@ class LazyImage extends DocxNode<ImageData<File>> {
           height: child.height,
           name: child.name,
           alt: child.alt,
-          unit: child.unit,
         ),
         transformOffsetY: transformOffsetY,
         transformOffsetX: transformOffsetX,
@@ -106,64 +105,76 @@ class LazyImage extends DocxNode<ImageData<File>> {
 
   num? _imgWidthEmu;
   num? _imgHeightEmu;
+  String? relationshipId = '1';
 
   @override
   void perform() {
     super.perform();
-    final DrawingElementCounterStore drawingProvider =
-        DrawingCounterProvider.of(this);
+    if (isChildOf<DrawingCounterProvider>()) {
+      final DrawingElementCounterStore drawingProvider =
+          DrawingCounterProvider.of(this);
 
-    elementId ??= drawingProvider.getIdFromRef(ref: id) ??
-        // usually, the element id is computed from
-        // the anchor or inline parent, so, we prefer
-        // using that one value, since was computed exactly for this
-        // element
-        getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
-        getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull() ??
-        drawingProvider.getNextId(id);
-
-    _imgWidthEmu = child.width;
-    _imgHeightEmu = child.height;
-
-    //TODO: we will need to create our own decoders for different
-    // image extensions than jpeg, gif, png, webp, bmp.
-    if (child.width != null) {
-      _imgWidthEmu = child.width!.unitToEmu(child.unit);
-    }
-    if (child.height != null) {
-      _imgHeightEmu = child.height!.unitToEmu(child.unit);
+      elementId ??= drawingProvider.getIdFromRef(ref: id) ??
+          // usually, the element id is computed from
+          // the anchor or inline parent, so, we prefer
+          // using that one value, since was computed exactly for this
+          // element
+          getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+          getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull() ??
+          drawingProvider.getNextId(id);
+    } else {
+      // usually, the element id is computed from
+      // the anchor or inline parent, so, we prefer
+      // using that one value, since was computed exactly for this
+      // element
+      elementId ??= getAncestorOfExactType<Anchor>()?.elementId?.castOrNull() ??
+          getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull();
     }
 
-    //TODO: we will need to create our own decoders for different
-    // image extensions than jpeg, gif, png, webp, bmp.
-    if (_imgWidthEmu == null && _imgHeightEmu == null) {
-      final Size size =
-          ImageSizeGetter.getSizeResult(FileInput(child.buffer)).size;
-      _imgWidthEmu = size.width * emuPerInch / imageDpi;
-      _imgHeightEmu = size.height * emuPerInch / imageDpi;
+    _imgWidthEmu = child.width?.toEmu();
+    _imgHeightEmu = child.height?.toEmu();
+
+    if (isChildOf<CompilerConfigProvider>()) {
+      final DocumentOptions opt = CompilerConfigProvider.of(this)!.options;
+      final DocumentMargins margins = opt.margins;
+      final PageSize pageSize = opt.pageSize;
+
+      final ImageSize size = Image.getSizeForImage(
+        child,
+        margins: margins,
+        pageSize: pageSize,
+      );
+
+      _imgWidthEmu = size.width;
+      _imgHeightEmu = size.height;
     }
   }
 
   @override
   List<XmlNode> buildXml() {
-    final MediaStore mediaProvider = MediaProvider.of(this);
     final String imageName = getImageName;
-    if (imageName.isEmpty) {
-      throw Exception(
-        'The image "${child.name}" couldn\'t be '
-        'founded into the DocxComponentContext. Media Store: ${mediaProvider.media}',
-      );
-    }
 
-    final String? relationshipId = mediaProvider.getRelationshipIdForRef(id) ??
-        mediaProvider.getRelationshipIdForRef(rId!);
+    if (isChildOf<MediaProvider>()) {
+      final MediaStore mediaProvider = MediaProvider.of(this);
+      relationshipId = mediaProvider.getRelationshipIdForRef(id) ??
+          mediaProvider.getRelationshipIdForRef(rId!);
 
-    if (relationshipId == null) {
-      throw Exception(
-        'Image(id: $id | level: $depth | parent: ${parent?.runtimeType}) was not founded in the MediaStore registry or in '
-        'the ${DocxPaths.documentXmlRelsFilePath}. Please, ensure this current element is being founded by the '
-        'MediaStore registry during start of the compilation',
-      );
+      // TODO: should we register these elements automatically during building?
+      //
+      // the index of this image. Literally the
+      // relationship id but formatted to a digit
+      if (relationshipId == null) {
+        throw DocxCompilationException(
+          message:
+              '$runtimeType:$id was not founded in the MediaStore registry or in '
+              'the ${DocxPaths.documentXmlRelsFilePath}. '
+              'Please, ensure your element has ben discovered by the store before building'
+              'MediaStore registry during start of the compilation',
+          cause:
+              'Not found relationship id into document.xml.rels that references this element',
+          node: this,
+        );
+      }
     }
 
     final Graphic graphic = Graphic.pic(

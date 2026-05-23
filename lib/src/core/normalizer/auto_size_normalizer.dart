@@ -12,74 +12,73 @@ class AutoSizeNormalizer {
     DocumentMargins? margins,
     int? cDpi,
   ) {
-    final int dpi = cDpi ?? imageDpi;
-    double widthInches = size.width / dpi;
-    double heightInches = size.height / dpi;
+    UnitValue widthInches = Pixel(size.width);
+    UnitValue heightInches = Pixel(size.height);
     if (pageSize == null || margins == null) {
       return NormalizedSizeResult(
-        width: widthInches,
-        height: heightInches,
+        width: widthInches.toEmu(),
+        height: heightInches.toEmu(),
         error: null,
       );
     }
 
-    final double aspectRatio = widthInches / heightInches;
+    final double aspectRatio = (widthInches / heightInches).roundToDouble();
 
     // 3. Too vertical or horizontal
     if (aspectRatio < 0.1 || aspectRatio > 10.0) {
       return _handleExtremeAspect(
         widthInches,
         heightInches,
-        pageSize.width.toDouble(),
+        pageSize.width.value.toDouble(),
       );
     }
 
     // 0.5" margins
-    final double availableWidth = pageSize.width - margins.left.emuToInches();
+    final UnitValue availableWidth = Inch(pageSize.width.toInches() - (Inch(margins.left) + Inch(margins.right)));
     if (widthInches > availableWidth) {
-      final double scale = availableWidth / widthInches;
+      final UnitValue scale = Inch(availableWidth / widthInches);
       widthInches = availableWidth;
-      heightInches = heightInches * scale;
+      heightInches = Inch(heightInches * scale);
     }
 
     // 5. limit image height to the 80% of the page
-    final double maxHeight = pageSize.height * 0.8;
+    final UnitValue maxHeight = Inch((pageSize.height.toInches() - (Inch(margins.top)+Inch(margins.bottom))) * 0.8);
     if (heightInches > maxHeight) {
-      final double scale = maxHeight / heightInches;
+      final UnitValue scale = Inch(maxHeight / heightInches);
       heightInches = maxHeight;
-      widthInches = widthInches * scale;
+      widthInches = Inch(widthInches * scale);
     }
 
     return NormalizedSizeResult(
-      width: widthInches,
-      height: heightInches,
+      width: widthInches.toEmu(),
+      height: heightInches.toEmu(),
       error: null,
     );
   }
 
   static NormalizedSizeResult _handleExtremeAspect(
-    double widthInches,
-    double heightInches,
+    UnitValue width,
+    UnitValue height,
     double pageWidthInches,
   ) {
     // For vertical images
     // We try to limit them adjusting the width
 
-    final double maxHeight = pageWidthInches * 2;
-    if (heightInches > maxHeight) {
-      final double scale = maxHeight / heightInches;
-      heightInches = maxHeight;
-      widthInches = widthInches * scale;
+    final UnitValue maxHeight = Inch(pageWidthInches * 2);
+    if (height > maxHeight) {
+      final num scale = (maxHeight / height);
+      height = maxHeight;
+      width = Inch(width * Inch(scale));
     }
 
     // minimun reasonable width
-    if (widthInches < 0.5) {
-      widthInches = 0.5;
+    if (width < Inch(0.5)) {
+      width = Inch(0.5);
     }
 
     return NormalizedSizeResult(
-      width: widthInches,
-      height: heightInches,
+      width: width.toEmu(),
+      height: height.toEmu(),
       error: null,
     );
   }
@@ -92,7 +91,7 @@ class NormalizedSizeResult {
     this.error,
   });
 
-  final double? width;
-  final double? height;
+  final num? width;
+  final num? height;
   final Object? error;
 }

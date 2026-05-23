@@ -58,7 +58,7 @@ class TableProperties extends DocxNode<void> {
                 width > 0 && widthType.needsWidth,
             'TableWidthType.auto can only be used when width is zero or less'),
         styles = List<Style>.from(styles),
-        cellMargins = padding ?? const EdgeInsets.all(20),
+        cellMargins = padding ?? const EdgeInsets.all(Point(20)),
         borders =
             borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
@@ -74,7 +74,7 @@ class TableProperties extends DocxNode<void> {
   })  : width = 0,
         widthType = TableWidthType.expand,
         styles = List<Style>.from(styles),
-        cellMargins = padding ?? const EdgeInsets.all(55),
+        cellMargins = padding ?? const EdgeInsets.all(Point(55)),
         borders =
             borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
@@ -90,25 +90,24 @@ class TableProperties extends DocxNode<void> {
   })  : width = 0,
         widthType = TableWidthType.auto,
         styles = List<Style>.from(styles),
-        cellMargins = padding ?? const EdgeInsets.all(55),
+        cellMargins = padding ?? const EdgeInsets.all(Point(55)),
         borders =
             borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
 
   TableProperties.dxa({
     Iterable<Style> styles = const <Style>[],
-    this.width = 0,
+    Dxa width = const Dxa(0),
     this.alignment = Alignment.left,
     TableBorders? borders,
     EdgeInsets? padding,
     this.layout = false,
     super.id,
     super.parent,
-  })  : widthType = TableWidthType.dxa,
+  })  : width = width.value.nonNegative.toInt(),
+        widthType = TableWidthType.dxa,
         styles = List<Style>.from(styles),
-        assert(width != 0,
-            'widthType of type expand requires that width property be zero or less'),
-        cellMargins = padding ?? const EdgeInsets.all(55),
+        cellMargins = padding ?? const EdgeInsets.all(Point(55)),
         borders =
             borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
@@ -126,7 +125,7 @@ class TableProperties extends DocxNode<void> {
         assert(width != 0,
             'widthType of type expand requires that width property be zero or less'),
         styles = List<Style>.from(styles),
-        cellMargins = padding ?? const EdgeInsets.all(55),
+        cellMargins = padding ?? const EdgeInsets.all(Point(55)),
         borders =
             borders ?? TableBorders.all(BorderSide(style: BorderStyle.single)),
         super(child: null);
@@ -303,11 +302,12 @@ class TableProperties extends DocxNode<void> {
           'w:tblCellMar',
           children: <XmlNode>[
             if (cellMargins!.top != null)
-              _buildCellMargin('top', cellMargins!.top!),
+              _buildCellMargin('top', cellMargins!.top!.toDxa()),
             if (cellMargins!.right != null)
-              _buildCellMargin('right', cellMargins!.right!),
+              _buildCellMargin('right', cellMargins!.right!.toDxa()),
             if (cellMargins!.bottom != null)
-              _buildCellMargin('bottom', cellMargins!.bottom!),
+              _buildCellMargin('bottom', cellMargins!.bottom!.toDxa()),
+            //NOTE: why?
             // if (cellMargins!.left != null)
             //   _buildCellMargin('left', cellMargins!.left!),
           ],

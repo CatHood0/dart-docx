@@ -237,28 +237,28 @@ class TextStyle {
     if (borders.top != null) {
       builder.borders(
         top: borders.top!.style,
-        topSize: borders.top!.size,
+        topSize: borders.top!.size.toPt(),
         topColor: borders.top!.color?.toColorValue()!.toUpperCase(),
       );
     }
     if (borders.bottom != null) {
       builder.borders(
         bottom: borders.bottom!.style,
-        bottomSize: borders.bottom!.size,
+        bottomSize: borders.bottom!.size.toPt(),
         bottomColor: borders.bottom!.color?.toColorValue()!.toUpperCase(),
       );
     }
     if (borders.left != null) {
       builder.borders(
         left: borders.left!.style,
-        leftSize: borders.left!.size,
+        leftSize: borders.left!.size.toPt(),
         leftColor: borders.left!.color?.toColorValue()!.toUpperCase(),
       );
     }
     if (borders.right != null) {
       builder.borders(
         right: borders.right!.style,
-        rightSize: borders.right!.size,
+        rightSize: borders.right!.size.toPt(),
         rightColor: borders.right!.color?.toColorValue()!.toUpperCase(),
       );
     }

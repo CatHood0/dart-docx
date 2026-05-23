@@ -23,10 +23,10 @@ class LayoutConstraints extends DocxNode<List<DocxNode>> {
   }
 
   /// The max width of the box in DXA units
-  final int? maxWidth;
+  final UnitValue? maxWidth;
 
   /// The min height of the box in DXA units
-  final int? minWidth;
+  final UnitValue? minWidth;
 
   @override
   List<XmlNode> buildXml() {
@@ -47,8 +47,8 @@ class LayoutConstraints extends DocxNode<List<DocxNode>> {
     Iterable<DocxNode>? child,
     String? id,
     DocxNode<dynamic>? parent,
-    int? minWidth,
-    int? maxWidth,
+    UnitValue? minWidth,
+    UnitValue? maxWidth,
   }) {
     return LayoutConstraints(
       children: child ?? this.child,

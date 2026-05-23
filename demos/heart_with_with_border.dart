@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
-import 'package:docx/src/core/extensions/wrap_nodes_ext.dart';
 
 Future<void> main() async {
   final File outFile = File('test_resources/heart_shape_with_border.docx');
@@ -31,7 +30,7 @@ Future<void> main() async {
                 preset: PresetShapeType.heart,
                 fill: SolidFill(color: Color(0xFF0000)),
                 border: ShapeBorder(
-                  width: 2.ptToEmu(),
+                  width: Point(2),
                   color: Color(0x660000),
                 ),
                 transform: Transform2D.zero(),

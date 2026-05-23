@@ -1,11 +1,9 @@
 import 'package:archive/archive.dart';
 
 import '../../../docx.dart';
-import '../utils/values.dart';
 import '../xml_components/fonts/xml_font_table_component.dart';
 
-//TODO: add listeners to events
-//TODO add log capabilities
+//TODO: we dont know 100% that this works as expected. We need to make some test
 /// Manages font definitions and embedded font files for a Docx document.
 ///
 /// This store is responsible for:
@@ -247,6 +245,7 @@ class FontStore extends Store {
     );
   }
 
+  //TODO: this is not good 
   String _obfuscatedFileName(String name, String extension) {
     return '${name.replaceAll(
       ' ',
@@ -279,7 +278,9 @@ class FontStore extends Store {
     }
   }
 
+  //TODO: this is too bad. We need to obfuscate the font in another way
+  // most of the library implementations have a robust algorithm to make this
   String generateObfuscationKey() {
-    return generateFontGuid();
+    return '{${uuidV4.generate().toUpperCase()}}';
   }
 }

@@ -54,8 +54,7 @@ Future<void> main() async {
               asInline: true,
               data: ImageData.fileSized(
                 file: './assets/curriculum_libreoffice.png',
-                unit: Unit.pixels96,
-                size: 80,
+                size: Pixel(80),
               ),
             ).drawing().run().paragraph(),
             Column(
@@ -110,8 +109,7 @@ Future<void> main() async {
               asInline: true,
               data: ImageData.fileSized(
                 file: './assets/curriculum_libreoffice.png',
-                unit: Unit.pixels96,
-                size: 100,
+                size: Pixel(100),
               ),
             ).drawing().run().paragraph(),
             Column(
@@ -166,8 +164,7 @@ Future<void> main() async {
               asInline: true,
               data: ImageData.fileSized(
                 file: './assets/curriculum_libreoffice.png',
-                unit: Unit.pixels96,
-                size: 60,
+                size: Pixel(60),
               ),
             ).drawing().run().paragraph(),
             Paragraph.text(
@@ -184,8 +181,7 @@ Future<void> main() async {
               asInline: true,
               data: ImageData.fileSized(
                 file: './assets/curriculum_libreoffice.png',
-                unit: Unit.pixels96,
-                size: 60,
+                size: Pixel(60),
               ),
             ).drawing().run().paragraph(),
           ],
@@ -264,7 +260,7 @@ Future<void> main() async {
           ],
         ),
         Row(
-          width: 200.ptToDxa(),
+          width: Point(200),
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <DocxNode<dynamic>>[
@@ -366,8 +362,7 @@ Future<void> main() async {
                       asInline: true,
                       data: ImageData.fileSized(
                         file: './assets/curriculum_libreoffice.png',
-                        unit: Unit.pixels96,
-                        size: 40,
+                        size: Pixel(40),
                       ),
                     ).drawing().run().paragraph(),
                     Paragraph.text(
@@ -401,8 +396,7 @@ Future<void> main() async {
                       asInline: true,
                       data: ImageData.fileSized(
                         file: './assets/curriculum_libreoffice.png',
-                        unit: Unit.pixels96,
-                        size: 40,
+                        size: Pixel(40),
                       ),
                     ).drawing().run().paragraph(),
                     Paragraph.text(
@@ -456,8 +450,7 @@ Future<void> main() async {
               asInline: true,
               data: ImageData.fileSized(
                 file: './assets/curriculum_libreoffice.png',
-                unit: Unit.pixels96,
-                size: 80,
+                size: Pixel(80),
               ),
             ).drawing().run().paragraph(),
             Paragraph.text(
@@ -479,8 +472,7 @@ Future<void> main() async {
               asInline: true,
               data: ImageData.fileSized(
                 file: './assets/curriculum_libreoffice.png',
-                unit: Unit.pixels96,
-                size: 80,
+                size: Pixel(80),
               ),
             ).drawing().run().paragraph(),
             Paragraph.text(
@@ -502,8 +494,7 @@ Future<void> main() async {
               asInline: true,
               data: ImageData.fileSized(
                 file: './assets/curriculum_libreoffice.png',
-                unit: Unit.pixels96,
-                size: 80,
+                size: Pixel(80),
               ),
             ).drawing().run().paragraph(),
             Paragraph.text(

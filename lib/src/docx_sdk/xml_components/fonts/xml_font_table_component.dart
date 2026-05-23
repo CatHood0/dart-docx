@@ -33,14 +33,14 @@ class XmlFontTableComponent extends XmlComponentBase<List<XmlFontComponent>> {
   String get path => DocxPaths.fontTableXmlRelsFilePath;
 
   @override
-  XmlElement buildXml(BuildNodeContext context) {
+  XmlElement buildXml() {
     return XmlElement.tag(
       xmlKey,
       attributes: attributes.buildXml(),
       children: value.map((
         XmlFontComponent n,
       ) {
-        return n.buildXml(context);
+        return n.buildXml();
       }),
     );
   }
@@ -52,8 +52,7 @@ class XmlFontTableComponent extends XmlComponentBase<List<XmlFontComponent>> {
   static XmlFontTableComponent fromXmlDocument(
     XmlDocument document,
   ) {
-    final XmlElement? fontsElement =
-        document.findAllElements('w:fonts').firstOrNull;
+    final XmlElement? fontsElement = document.findAllElements('w:fonts').firstOrNull;
     if (fontsElement == null) {
       return XmlFontTableComponent(fonts: []);
     }
@@ -115,10 +114,7 @@ class XmlFontTableComponent extends XmlComponentBase<List<XmlFontComponent>> {
             case 'w:embedRegular':
               embedRegular = EmbeddedFontRefOptions(
                 rId: child.getAttribute('r:id') ?? '',
-                fontKey: child
-                    .getAttribute('w:fontKey')
-                    ?.replaceAll('{', '')
-                    .replaceAll('}', ''),
+                fontKey: child.getAttribute('w:fontKey')?.replaceAll('{', '').replaceAll('}', ''),
                 subsetted: child.getAttribute('w:subsetted') == '1',
               );
               break;

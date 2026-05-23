@@ -204,8 +204,8 @@ class TableCell extends DocxNode<List<DocxNode>> {
       // between the table and the end of the cell
       //
       // What is this problem? Literally, all tables breaks itself, being "moved"
-      // internally to behave as independent external tables, that makes look them like the tree 
-      // moved for no reason 
+      // internally to behave as independent external tables, that makes look them like the tree
+      // moved for no reason
       //
       // Just a workaround. It's not problem that we can "fix"
       cellChildren.addAll(Paragraph.empty().buildXml());
@@ -241,7 +241,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
           else if (cellConfig.widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              (configs.options.pageSize.width -
+              (configs.options.pageSize.width.toDxa() -
                       (configs.options.margins.left +
                           configs.options.margins.right))
                   .floor()

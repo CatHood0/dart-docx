@@ -3,7 +3,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
-import '../../../../core/extensions/num_extensions.dart';
 import '../../../../core/extensions/skippable_iterations_ext.dart';
 import '../../../compiler/inherited/compiler_config_provider.dart';
 
@@ -15,9 +14,9 @@ class Row extends DocxNode<List<DocxNode>> {
     required Iterable<DocxNode> children,
     this.mainAxisAlignment,
     this.crossAxisAlignment,
-    this.width = 0,
-    this.minHeight = -1,
-    this.spacing = 0,
+    this.width = const Dxa(0),
+    this.minHeight = const Dxa(-1),
+    this.spacing = const Dxa(0),
     super.id,
     super.parent,
   }) : super(child: List.from(children)) {
@@ -32,11 +31,11 @@ class Row extends DocxNode<List<DocxNode>> {
   }
 
   /// The width in DXA units
-  final int width;
-  final int minHeight;
+  final UnitValue width;
+  final UnitValue minHeight;
 
   /// The spacing between the elements in DXA units
-  final int spacing;
+  final UnitValue spacing;
   final MainAxisAlignment? mainAxisAlignment;
   final CrossAxisAlignment? crossAxisAlignment;
 
@@ -46,16 +45,15 @@ class Row extends DocxNode<List<DocxNode>> {
   void perform() {
     // Some dumb diffing
     if (_table != null) {
-      int maxWidth =
+      UnitValue maxWidth =
           getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
-      if (maxWidth == 0) {
-        maxWidth =
-            CompilerConfigProvider.of(this)?.options.availablePageWidth ??
-                PageSize.a4.width;
+      if (maxWidth == Dxa(0)) {
+        maxWidth = Dxa(
+          CompilerConfigProvider.of(this)?.options.availablePageWidth ??
+              PageSize.a4.width.value,
+        );
       }
-
-      maxWidth = maxWidth.nonNegative.toInt();
 
       final LayoutConstraints constraint = _table!.cast<LayoutConstraints>();
 
@@ -79,18 +77,18 @@ class Row extends DocxNode<List<DocxNode>> {
 
   /// Converts this [Row] in a [Table] equivalent version
   DocxNode toTable() {
-    int maxWidth =
+    UnitValue maxWidth =
         getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
     final EdgeInsets padding =
         getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
 
-    if (maxWidth == 0) {
-      maxWidth = CompilerConfigProvider.of(this)?.options.availablePageWidth ??
-          PageSize.a4.width;
+    if (maxWidth == Dxa(0)) {
+      maxWidth = Dxa(
+        CompilerConfigProvider.of(this)?.options.availablePageWidth ??
+            PageSize.a4.width.value,
+      );
     }
-
-    maxWidth = maxWidth.nonNegative.toInt();
 
     final List<DocxNode<dynamic>> temp = List<DocxNode>.from(child);
 
@@ -175,20 +173,21 @@ class Row extends DocxNode<List<DocxNode>> {
       parent: this,
       tableProperties: TableProperties(
         layout: true,
-        width: maxWidth,
+        width: maxWidth.value.toInt(),
         alignment: mainAxisAlignment?.align(),
-        widthType: maxWidth == 0 ? TableWidthType.auto : TableWidthType.dxa,
+        widthType:
+            maxWidth.value == 0 ? TableWidthType.auto : TableWidthType.dxa,
         padding: padding,
       ),
-      columns: maxWidth > 0
-          ? GridColumn(width: (maxWidth / cells.length).toInt())
+      columns: maxWidth > Dxa(0)
+          ? GridColumn(width: (maxWidth.value / cells.length).toInt())
               .repeat(cells.length)
           : GridColumn.intrintric().repeat(cells.length),
       rows: TableRow(
         canSplit: true,
         hidden: false,
         isHeader: false,
-        height: minHeight > 0 ? minHeight : null,
+        height: minHeight.value > 0 ? minHeight : null,
         heightRule: TableHeightRule.atLeast,
         spacing: spacing,
         cells: cells,
@@ -197,7 +196,7 @@ class Row extends DocxNode<List<DocxNode>> {
 
     // This fixes the issue where the nested rows, break all the layout
     return LayoutConstraints(
-      maxWidth: (maxWidth / cells.length).toInt(),
+      maxWidth: Dxa((maxWidth.value / cells.length)),
       children: table.toList(),
     );
   }
@@ -221,9 +220,9 @@ class Row extends DocxNode<List<DocxNode>> {
     DocxNode<dynamic>? parent,
     MainAxisAlignment? mainAxisAlignment,
     CrossAxisAlignment? crossAxisAlignment,
-    int? width,
-    int? minHeight,
-    int? spacing,
+    UnitValue? width,
+    UnitValue? minHeight,
+    UnitValue? spacing,
   }) {
     return Row(
       children: child ?? this.child,
