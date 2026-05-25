@@ -10,8 +10,7 @@ int ensureInteger(num number) {
 }
 
 abstract class UnitValue {
-  const UnitValue(this.value)
-      : assert(value >= -1, 'value property cannot be less than 0');
+  const UnitValue(this.value);
 
   final num value;
 

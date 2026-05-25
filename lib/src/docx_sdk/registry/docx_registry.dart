@@ -984,10 +984,11 @@ class DocxRegistry {
         return <String, dynamic>{
           'id': node.id,
           'child': DocxRegistry().toJson(node.child),
-          'width': node.width,
-          'height': node.height,
+          'width': node.width.toEmu(),
+          'height': node.height.toEmu(),
           'name': node.name,
           'elementId': node.elementId,
+          'anchor_config': DocxRegistry().toJson(node.config),
         };
       },
     );
@@ -999,11 +1000,85 @@ class DocxRegistry {
         return Anchor(
           id: body['id'],
           child: DocxRegistry().fromJson(body['child']) as DocxNode<dynamic>,
-          width: body['width'] ?? 0,
-          height: body['height'] ?? 0,
+          config:
+              DocxRegistry().fromJson(body['anchor_config']) as AnchorConfig,
+          width: Emu(body['width'] ?? 0),
+          height: Emu(body['height'] ?? 0),
           name: body['name'] ?? '',
-          config: AnchorConfig.inline(),
           elementId: body['elementId'],
+        );
+      },
+    );
+
+    DocxRegistry().setToJson<AnchorConfig>((node) {
+      return {
+        'wrapType': node.wrapType.index,
+        'wrapSide': node.wrapSide?.index,
+        'anchorLock': node.anchorLock,
+        'behindDoc': node.behindDoc,
+        'layoutInCell': node.layoutInCell,
+        'allowOverlap': node.allowOverlap,
+        'zOrder': node.zOrder,
+        'simplePosX': node.simplePosX.toEmu(),
+        'simplePosY': node.simplePosY.toEmu(),
+        'anchorOffsetX': node.anchorOffsetX.toEmu(),
+        'anchorOffsetY': node.anchorOffsetY.toEmu(),
+        'distanceFromText': DocxRegistry().toJson(node.distanceFromText),
+        'horizontalAnchor': node.horizontalAnchor.index,
+        'verticalAnchor': node.verticalAnchor.index,
+        'horizontalPosition': node.horizontalPosition?.index,
+        'verticalPosition': node.verticalPosition?.index,
+      };
+    });
+
+    DocxRegistry().setFromJson<AnchorConfig>(
+      (Map<String, dynamic> body, metadata) {
+        return AnchorConfig(
+          wrapType: WrapType.values[body['wrapType']],
+          wrapSide: body['wrapSide'] != null
+              ? WrapSide.values[body['wrapSide']]
+              : null,
+          anchorLock: body['anchorLock'] ?? false,
+          behindDoc: body['behindDoc'] ?? false,
+          layoutInCell: body['layoutInCell'] ?? false,
+          allowOverlap: body['allowOverlap'] ?? true,
+          zOrder: body['zOrder'] ?? 0,
+          simplePosX: Emu(body['simplePosX']),
+          simplePosY: Emu(body['simplePosY']),
+          anchorOffsetX: Emu(body['anchorOffsetX']),
+          anchorOffsetY: Emu(body['anchorOffsetY']),
+          distanceFromText:
+              DocxRegistry().fromJson<TextDistance>(body['distanceFromText'])!,
+          horizontalAnchor:
+              HorizontalAnchorPosition.values[body['horizontalAnchor']],
+          verticalAnchor: VerticalAnchorPosition.values[body['verticalAnchor']],
+          horizontalPosition: body['horizontalPosition'] != null
+              ? AnchorPosition.values[body['horizontalPosition']]
+              : null,
+          verticalPosition: body['verticalPosition'] != null
+              ? AnchorPosition.values[body['verticalPosition']]
+              : null,
+        );
+      },
+    );
+
+    DocxRegistry().setToJson<TextDistance>(
+      (TextDistance node) {
+        return <String, dynamic>{
+          'top': node.top.toEmu(),
+          'right': node.right.toEmu(),
+          'bottom': node.bottom.toEmu(),
+          'left': node.left.toEmu(),
+        };
+      },
+    );
+    DocxRegistry().setFromJson<TextDistance>(
+      (Map<String, dynamic> body, metadata) {
+        return TextDistance(
+          top: Emu(body['top']),
+          right: Emu(body['right']),
+          bottom: Emu(body['bottom']),
+          left: Emu(body['left']),
         );
       },
     );
@@ -1520,6 +1595,8 @@ class DocxRegistry {
         };
       },
     );
+
+    //TODO: we need to fix images
     DocxRegistry().setFromJson<FloatingImage>(
       (Map<String, dynamic> body, metadata) {
         final bytes = metadata?['bytes'] as Uint8List?;
@@ -1871,27 +1948,6 @@ class DocxRegistry {
           rotation: body['rotation'] as int? ?? 0,
           flipHorizontal: body['flipHorizontal'] as bool? ?? false,
           flipVertical: body['flipVertical'] as bool? ?? false,
-        );
-      },
-    );
-
-    DocxRegistry().setToJson<TextDistance>(
-      (TextDistance node) {
-        return <String, dynamic>{
-          'left': node.left,
-          'right': node.right,
-          'top': node.top,
-          'bottom': node.bottom,
-        };
-      },
-    );
-    DocxRegistry().setFromJson<TextDistance>(
-      (Map<String, dynamic> body, metadata) {
-        return TextDistance(
-          left: body['left'] as int? ?? 0,
-          right: body['right'] as int? ?? 0,
-          top: body['top'] as int? ?? 0,
-          bottom: body['bottom'] as int? ?? 0,
         );
       },
     );

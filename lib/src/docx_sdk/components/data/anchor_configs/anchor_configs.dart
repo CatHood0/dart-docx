@@ -1,3 +1,5 @@
+import '../../../../../docx.dart';
+
 /// Configuration for anchoring floating objects (images, shapes) in a DOCX document.
 ///
 /// In DOCX, floating objects are positioned using a combination of:
@@ -15,10 +17,10 @@ class AnchorConfig {
     this.layoutInCell = false,
     this.allowOverlap = true,
     this.zOrder = 0,
-    this.simplePosX = 0,
-    this.simplePosY = 0,
-    this.anchorOffsetX = 0,
-    this.anchorOffsetY = 0,
+    this.simplePosX = const Emu(0),
+    this.simplePosY = const Emu(0),
+    this.anchorOffsetX = const Emu(0),
+    this.anchorOffsetY = const Emu(0),
     this.distanceFromText = const TextDistance(),
     this.horizontalAnchor = HorizontalAnchorPosition.paragraph,
     this.verticalAnchor = VerticalAnchorPosition.paragraph,
@@ -124,8 +126,8 @@ class AnchorConfig {
   /// When false, object moves with its anchor paragraph when text is added/removed.
   final bool anchorLock;
 
-  final int simplePosX;
-  final int simplePosY;
+  final UnitValue simplePosX;
+  final UnitValue simplePosY;
 
   /// Whether object is behind document text (watermark mode).
   ///
@@ -155,9 +157,9 @@ class AnchorConfig {
   /// Controls the "standoff" space in all four directions.
   final TextDistance distanceFromText;
 
-  final int anchorOffsetY;
+  final UnitValue anchorOffsetY;
 
-  final int anchorOffsetX;
+  final UnitValue anchorOffsetX;
 
   /// What the horizontal position is relative to.
   ///
@@ -199,10 +201,10 @@ class AnchorConfig {
     bool? layoutInCell,
     bool? allowOverlap,
     int? zOrder,
-    int? simplePosX,
-    int? simplePosY,
-    int? anchorOffsetX,
-    int? anchorOffsetY,
+    UnitValue? simplePosX,
+    UnitValue? simplePosY,
+    UnitValue? anchorOffsetX,
+    UnitValue? anchorOffsetY,
     TextDistance? distanceFromText,
     HorizontalAnchorPosition? horizontalAnchor,
     VerticalAnchorPosition? verticalAnchor,
@@ -237,10 +239,10 @@ class AnchorConfig {
     bool? layoutInCell,
     bool? allowOverlap,
     int? zOrder,
-    int? simplePosX,
-    int? simplePosY,
-    int? anchorOffsetX,
-    int? anchorOffsetY,
+    UnitValue? simplePosX,
+    UnitValue? simplePosY,
+    UnitValue? anchorOffsetX,
+    UnitValue? anchorOffsetY,
     TextDistance? distanceFromText,
     AnchorPosition? horizontalPosition,
     AnchorPosition? verticalPosition,
@@ -273,10 +275,10 @@ class AnchorConfig {
     bool? layoutInCell,
     bool? allowOverlap,
     int? zOrder,
-    int? simplePosX,
-    int? simplePosY,
-    int? anchorOffsetX,
-    int? anchorOffsetY,
+    UnitValue? simplePosX,
+    UnitValue? simplePosY,
+    UnitValue? anchorOffsetX,
+    UnitValue? anchorOffsetY,
     TextDistance? distanceFromText,
     AnchorPosition? horizontalPosition,
     AnchorPosition? verticalPosition,
@@ -309,10 +311,10 @@ class AnchorConfig {
     bool? layoutInCell,
     bool? allowOverlap,
     int? zOrder,
-    int? simplePosX,
-    int? simplePosY,
-    int? anchorOffsetX,
-    int? anchorOffsetY,
+    UnitValue? simplePosX,
+    UnitValue? simplePosY,
+    UnitValue? anchorOffsetX,
+    UnitValue? anchorOffsetY,
     TextDistance? distanceFromText,
     AnchorPosition? horizontalPosition,
     AnchorPosition? verticalPosition,
@@ -345,10 +347,10 @@ class AnchorConfig {
     bool? layoutInCell,
     bool? allowOverlap,
     int? zOrder,
-    int? simplePosX,
-    int? simplePosY,
-    int? anchorOffsetX,
-    int? anchorOffsetY,
+    UnitValue? simplePosX,
+    UnitValue? simplePosY,
+    UnitValue? anchorOffsetX,
+    UnitValue? anchorOffsetY,
     TextDistance? distanceFromText,
     AnchorPosition? horizontalPosition,
     AnchorPosition? verticalPosition,
@@ -372,7 +374,6 @@ class AnchorConfig {
       verticalPosition: verticalPosition ?? this.verticalPosition,
     );
   }
-
 
   @override
   String toString() {
@@ -599,14 +600,14 @@ class TextDistance {
   /// All values are in EMU units.
   /// Default is 0 (no extra distance).
   const TextDistance({
-    this.left = 0,
-    this.right = 0,
-    this.top = 0,
-    this.bottom = 0,
+    this.left = const Emu(0),
+    this.right = const Emu(0),
+    this.top = const Emu(0),
+    this.bottom = const Emu(0),
   });
 
   /// Creates uniform distance on all sides.
-  factory TextDistance.all(int distance) {
+  factory TextDistance.all(UnitValue distance) {
     return TextDistance(
       left: distance,
       right: distance,
@@ -616,45 +617,46 @@ class TextDistance {
   }
 
   /// Creates distance for left/right sides only.
-  factory TextDistance.sides(int distance) {
+  factory TextDistance.sides(UnitValue distance) {
     return TextDistance(
       left: distance,
       right: distance,
-      top: 0,
-      bottom: 0,
+      top: Emu(0),
+      bottom: Emu(0),
     );
   }
 
   /// Creates distance for top/bottom only.
-  factory TextDistance.topBottom(int distance) {
+  factory TextDistance.topBottom(UnitValue distance) {
     return TextDistance(
-      left: 0,
-      right: 0,
+      left: Emu(0),
+      right: Emu(0),
       top: distance,
       bottom: distance,
     );
   }
 
   /// Distance from left edge of object to text.
-  final int left;
+  final UnitValue left;
 
   /// Distance from right edge of object to text.
-  final int right;
+  final UnitValue right;
 
   /// Distance from top edge of object to text.
-  final int top;
+  final UnitValue top;
 
   /// Distance from bottom edge of object to text.
-  final int bottom;
+  final UnitValue bottom;
 
   /// Whether any distance is set (non-zero).
-  bool get hasDistance => left != 0 || right != 0 || top != 0 || bottom != 0;
+  bool get hasDistance =>
+      left != Emu(0) || right != Emu(0) || top != Emu(0) || bottom != Emu(0);
 
   TextDistance copyWith({
-    int? left,
-    int? right,
-    int? top,
-    int? bottom,
+    UnitValue? left,
+    UnitValue? right,
+    UnitValue? top,
+    UnitValue? bottom,
   }) {
     return TextDistance(
       left: left ?? this.left,

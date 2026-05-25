@@ -51,11 +51,11 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
 
   /// The [width] of the elemento into this [Anchor]
   /// expressed in EMU units
-  final num width;
+  final UnitValue width;
 
   /// The [height] of the elemento into this [Anchor]
   /// expressed in EMU units
-  final num height;
+  final UnitValue height;
 
   @override
   List<XmlElement> buildXml() {
@@ -70,19 +70,19 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
           ),
           XmlAttribute(
             'distT'.toName(),
-            config.distanceFromText.top.toString(),
+            config.distanceFromText.top.toEmu().toString(),
           ),
           XmlAttribute(
             'distB'.toName(),
-            config.distanceFromText.bottom.toString(),
+            config.distanceFromText.bottom.toEmu().toString(),
           ),
           XmlAttribute(
             'distL'.toName(),
-            config.distanceFromText.left.toString(),
+            config.distanceFromText.left.toEmu().toString(),
           ),
           XmlAttribute(
             'distR'.toName(),
-            config.distanceFromText.right.toString(),
+            config.distanceFromText.right.toEmu().toString(),
           ),
           XmlAttribute(
             XmlName.fromString('locked'),
@@ -103,11 +103,11 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
             attributes: <XmlAttribute>{
               XmlAttribute(
                 'x'.toName(),
-                config.simplePosX.nonNegative.toString(),
+                config.simplePosX.toEmu().nonNegative.toString(),
               ),
               XmlAttribute(
                 'y'.toName(),
-                config.simplePosY.nonNegative.toString(),
+                config.simplePosY.toEmu().nonNegative.toString(),
               ),
             },
             isSelfClosing: true,
@@ -115,14 +115,14 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
           // external offsets
           if (config.wrapType != WrapType.asCharacter)
             XmlOffsetPosition(
-              offset: config.anchorOffsetX.nonNegative,
+              offset: config.anchorOffsetX.toEmu().nonNegative,
               alignment: config.horizontalPosition?.name,
               relativeFrom: config.horizontalAnchor.name,
               x: true,
             ).buildXml(),
           if (config.wrapType != WrapType.asCharacter)
             XmlOffsetPosition(
-              offset: config.anchorOffsetY.nonNegative,
+              offset: config.anchorOffsetY.toEmu().nonNegative,
               alignment: config.verticalPosition?.name,
               relativeFrom: config.verticalAnchor.name,
               x: false,
@@ -144,8 +144,8 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
             isSelfClosing: true,
           ),
           ...Extent(
-            cx: width,
-            cy: height,
+            cx: width.toEmu(),
+            cy: height.toEmu(),
           ).buildXml(),
           ...DocProperties(
             docPrId: elementId.toString(),
@@ -210,8 +210,8 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
     DocxNode? child,
     int? elementId,
     String? name,
-    num? width,
-    num? height,
+    UnitValue? width,
+    UnitValue? height,
     AnchorConfig? config,
     String? id,
     DocxNode<dynamic>? parent,

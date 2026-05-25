@@ -124,11 +124,11 @@ Future<void> main() async {
           data: <RunBase>[
             TextRun.text(
               text: 'This is a paragraph with bold text. ',
+              textStyle: TextStyle(bold: true),
               styles: <Object>[
                 // we can use styles and attributes together
                 // to allow referencing complex styles
                 Style.ref('code'),
-                BoldAttribute(),
               ],
             ),
             HyperlinkRun.pure(
@@ -150,9 +150,15 @@ Future<void> main() async {
 
   final File file = File('example.docx');
   final Uint8List? bytes = await DocxPacker.instance
-      .dynamicFontSearch(true)
+      .autoRegisterFonts()
       .noTrimRuns()
-      .execute(document);
+      .setStandardStores()
+      .normalStyleIfNeeded()
+      .normalStyle(Style.ref('body'))
+      .execute(
+        document, 
+        flags: DocxPipeline.defaultStages,
+      );
   await file.writeAsBytes(bytes!);
 }
 ```
@@ -175,9 +181,11 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .dynamicFontSearch(true)
-      .setNormalIfNeeded(true)
+      .autoRegisterFonts()
       .noTrimRuns()
+      .setStandardStores()
+      .normalStyleIfNeeded()
+      .normalStyle(Style.ref('body'))
       .stream(
         (Stream<DocxEvent> eventStream) {
           final subscription = eventStream.listen((DocxEvent event) {
@@ -347,9 +355,15 @@ final pr = Paragraph(
           .build(),
     ]),
     // or
-    TextRun.text(text: 'bold text', bold: true),
+    TextRun.text(
+      text: 'bold text', 
+      textStyle: TextStyle(bold: true),
+    ),
     TextRun.text(text: ' and '),
-    TextRun.text(text: 'colored text', color: Colors.red),
+    TextRun.text(
+      text: 'colored text', 
+      textStyle: TextStyle(fontColor: Colors.red),
+    ),
   ],
 )
 ```
@@ -363,7 +377,7 @@ final pr  = Paragraph.text(
   alignment: Alignment.center,
   styles: [
     StyleBuilder.up()
-        .spacing(before: 240, after: 120, line: 360)
+        .spacing(before: Twip(240), after: Twip(120), line: SpacingInch(1.5))
         .build(),
   ],
 );
@@ -371,12 +385,10 @@ final pr  = Paragraph.text(
 final pr2 = Paragraph.text(
   text: 'Centered Content 2',
   alignment: Alignment.center,
-  // internally it transform your point units
-  // to native twips units
   textStyle: TextStyle(
-    spacingBefore: 12,      // 240 twips 
-    spacingAfter: 6,        // 120 twips 
-    lineSpacing: 18,        // 360 twips 
+    spacingBefore: SpacingInch(1.0), // 240 twips 
+    spacingAfter: SpacingInch(0.5),  // 120 twips 
+    lineSpacing: SpacingInch(1.5),   // 360 twips 
   ),
 );
 ```
@@ -389,19 +401,17 @@ final pr = Paragraph.text(
   text: 'Indented paragraph content',
   styles: [
     StyleBuilder.up()
-        .indent(firstLine: 720, left: 1440)
+        .indent(firstLine: Twip(720), left: Twip(1440))
         .build(),
   ],
 );
 // or
 final pr2 = Paragraph.text(
   text: 'Indented paragraph content',
-  // internally it transform your point units
-  // to native twips units
   textStyle: TextStyle(
-    indentLeft: 0.5,        // 720 twips 
-    indentRight: 0.25,      // 360 twips 
-    firstLineIndent: 0.5,   // 720 twips
+    indentLeft: Inch(0.5),        // 720 twips 
+    indentRight: Inch(0.25),      // 360 twips 
+    firstLineIndent: Inch(0.5),   // 720 twips
   ),
 );
 ```
@@ -588,8 +598,7 @@ final paragraph = Paragraph(
       asInline: true,
       data: ImageData.fileSized(
         file: File('assets/inline_icon.png'),
-        size: 0.2,
-        unit: Unit.inch,
+        size: Inch(0.2),
       ),
     ).drawing().run(),
     TextRun.text(text: ' inline image, flowing with the text.'),
@@ -621,9 +630,9 @@ final paragraph = Paragraph(
           verticalAnchor: VerticalAnchorPosition.line,
           // Explicit offsets from the anchor point (character).
           // Adjust these values to precisely place the image.
-          anchorOffsetX: 0.1.inchesToEmu(), 
+          anchorOffsetX: Inch(0.1), 
           // Move slightly above the line
-          anchorOffsetY: -0.2.inchesToEmu(),
+          anchorOffsetY: Inch(-0.2),
         ),
       ),
     ).drawing().run(),
@@ -816,9 +825,9 @@ final r = Row(
 final row = Row(
   mainAxisAlignment: MainAxisAlignment.center,
   children: <DocxNode<dynamic>>[
-    LazyImage(...).drawing().run().paragraph(),
+    LazyImage(/*...*/).drawing().run().paragraph(),
     Paragraph.text(text: 'Centered Content'),
-    LazyImage(...).drawing().run().paragraph(),
+    LazyImage(/*...*/).drawing().run().paragraph(),
   ],
 );
 ```
@@ -879,7 +888,7 @@ final row = Row(
             Paragraph.text(text: 'Feature 1'),
           ],
         ),
-        Paragraph.text(text: 'Description of feature 1.'),
+        Text('Description of feature 1.'),
       ],
     ),
     Column(
@@ -889,10 +898,10 @@ final row = Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <DocxNode<dynamic>>[
             LazyImage(/*...*/).drawing().run().paragraph(),
-            Paragraph.text(text: 'Feature 2'),
+            Text('Feature 2'),
           ],
         ),
-        Paragraph.text(text: 'Description of feature 2.'),
+        Text('Description of feature 2.'),
       ],
     ),
   ],
@@ -974,7 +983,7 @@ final text = Text(
 final text = Text(
   'Custom font text',
   style: TextStyle(
-    size: 12,  // In points
+    size: Point(12),
     family: 'Arial',
     color: Colors.blue,
     backgroundColor: Colors.yellow,

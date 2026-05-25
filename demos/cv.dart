@@ -245,7 +245,7 @@ Future<void> main() async {
   );
 
   final Uint8List? bytes = await DocxPacker()
-      .autoRegisterFonts(true)
+      .autoRegisterFonts()
       .noTrimRuns()
       .normalStyleIfNeeded()
       .logLevel(LogLevel.config)
