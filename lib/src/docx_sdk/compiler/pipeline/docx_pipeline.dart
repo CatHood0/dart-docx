@@ -259,7 +259,11 @@ class DocxPipeline {
       return context.archive;
     } catch (e, s) {
       context
-        ..registerError(e, s)
+        ..registerError(
+          e,
+          s,
+          true,
+        )
         ..isCompiled = false;
       _eventController.add(DocxEvent.end(error: e));
       return null;

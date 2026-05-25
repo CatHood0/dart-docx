@@ -9,6 +9,7 @@ import '../../../../core/extensions/cast_ext.dart';
 /// Represent a more easy version that manages all stuff related with the references and ids
 //TODO: i think that numbering store does not know about NumberingList and requires a
 // fix to allow making more simple get the NumberingOption configured
+//TODO: yeah, the store does not know about NumberingList
 class NumberingList extends DocxNode<List<DocxNode>> {
   NumberingList({
     required this.refKey,

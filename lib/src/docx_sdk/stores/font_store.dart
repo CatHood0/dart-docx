@@ -143,8 +143,9 @@ class FontStore extends Store {
         final StyleConfigurator? fontFamilyProperties =
             runProperties.fontFamily;
         if (fontFamilyProperties != null) {
+        //TODO: we need to improve this
           final String? fontFamily =
-              fontFamilyProperties.attributes?['w:ascii'].cast<String?>();
+              fontFamilyProperties.attributes?['w:ascii'] as String?;
           if (fontFamily != null && fontFamily.isNotEmpty) {
             discoveredFontNames.add(fontFamily);
           }

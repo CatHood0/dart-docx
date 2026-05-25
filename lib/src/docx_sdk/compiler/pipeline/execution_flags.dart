@@ -34,6 +34,7 @@ class ExecutionFlags {
     this.skipTheme = false,
     this.skipSdtDiscovery = false,
     this.skipColumnDiscovery = false,
+    this.skipDocumentBuild = false,
     this.forceNormalStyle = true,
     this.dynamicFontSearch = true,
     this.checkStyleRefExistence = false,
@@ -52,6 +53,9 @@ class ExecutionFlags {
 
   /// Skips image registration.
   final bool skipImageRegistration;
+
+  /// Skips document build.
+  final bool skipDocumentBuild;
 
   /// Skips complete numbering processing.
   final bool skipNumberingProcessing;

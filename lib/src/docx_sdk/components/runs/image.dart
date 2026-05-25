@@ -63,8 +63,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
 
   int? elementId;
 
-  num? _imgWidthEmu;
-  num? _imgHeightEmu;
+  UnitValue? _imgWidthEmu;
+  UnitValue? _imgHeightEmu;
 
   String? docRelsRefId;
 
@@ -125,8 +125,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
       'Uint8List to get '
       'image size',
     );
-    num? width = data.width?.toEmu();
-    num? height = data.height?.toEmu();
+    UnitValue? width = data.width;
+    UnitValue? height = data.height;
 
     //TODO: we will need to create our own decoders for different
     // image extensions than jpeg, gif, png, webp, bmp.
@@ -147,8 +147,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
         DocxElements.instance.dpi,
       );
 
-      width ??= resultSize.width;
-      height ??= resultSize.height;
+      width ??= resultSize.width?.toEmu();
+      height ??= resultSize.height?.toEmu();
     } else {
       // Avoid having a null reference
       // on both of them
@@ -156,8 +156,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
       width ??= height;
     }
     return ImageSize(
-      width: width!,
-      height: height!,
+      width: width!.toEmu(),
+      height: height!.toEmu(),
     );
   }
 
@@ -184,8 +184,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
           getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull();
     }
 
-    _imgWidthEmu = child.width?.toEmu();
-    _imgHeightEmu = child.height?.toEmu();
+    _imgWidthEmu = child.width;
+    _imgHeightEmu = child.height;
 
     if (isChildOf<CompilerConfigProvider>()) {
       final DocumentOptions opt = CompilerConfigProvider.of(this)!.options;
@@ -198,8 +198,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
         pageSize: pageSize,
       );
 
-      _imgWidthEmu = size.width;
-      _imgHeightEmu = size.height;
+      _imgWidthEmu = size.width.toEmu();
+      _imgHeightEmu = size.height.toEmu();
     }
   }
 
@@ -252,8 +252,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
                 y: transformOffsetY,
               ),
               extents: AnnotationExtents(
-                cx: _imgWidthEmu!,
-                cy: _imgHeightEmu!,
+                cx: _imgWidthEmu!.toEmu(),
+                cy: _imgHeightEmu!.toEmu(),
               ),
             ),
             //NOTE: should be customizable?
@@ -278,8 +278,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
       else
         ...InlineGraphic(
           name: imageName,
-          width: _imgWidthEmu ?? emuPerPt,
-          height: _imgHeightEmu ?? 0,
+          width: _imgWidthEmu ?? Emu(0),
+          height: _imgHeightEmu ?? Emu(0),
           components: <DocxNode<dynamic>>[graphic],
           distance: child.anchorConfig.distanceFromText,
           elementId: elementId,

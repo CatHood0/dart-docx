@@ -70,11 +70,11 @@ class PipelineContext {
   void registerError(
     Object error, [
     StackTrace? stackTrace,
-    bool isFatal = true, // NUEVO: indica si el error detiene la compilación
+    bool isFatal = true, 
   ]) {
     _lastError = error;
     if (isFatal) {
-      _hasFatalError = true; // NUEVO: flag para errores fatales
+      _hasFatalError = true;
     }
     CompilerLogger.root.error(
       'Pipeline error${isFatal ? " (fatal)" : ""}: $error',

@@ -27,6 +27,12 @@ Future<void> main() async {
     ),
     root: DocxRoot(
       sections: <DocxNode<dynamic>>[
+        SdtRichText(
+          alias: 'alias',
+          tag: 'tag',
+          placeholder: 'placeholder',
+          showingPlacHdr: true,
+        ).run().paragraph(),
         Paragraph.text(
           text: 'First list',
           styles: [

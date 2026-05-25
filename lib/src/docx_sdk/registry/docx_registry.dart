@@ -1976,8 +1976,8 @@ class DocxRegistry {
         return <String, dynamic>{
           'id': node.id,
           'name': node.name,
-          'width': node.width,
-          'height': node.height,
+          'width': node.width.toEmu(),
+          'height': node.height.toEmu(),
           'distance': DocxRegistry().toJson(node.distance),
           'elementId': node.elementId,
           'children': node.child
@@ -1993,8 +1993,8 @@ class DocxRegistry {
         return InlineGraphic(
           id: body['id'],
           name: body['name'] as String? ?? '',
-          width: body['width'] as num? ?? 0,
-          height: body['height'] as num? ?? 0,
+          width: Emu(body['width']) ,
+          height: Emu(body['height'] ),
           distance: DocxRegistry().fromJson<TextDistance>(
                   body['distance'] as Map<String, dynamic>) ??
               TextDistance(),

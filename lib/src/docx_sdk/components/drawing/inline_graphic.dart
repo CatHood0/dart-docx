@@ -56,10 +56,10 @@ class InlineGraphic extends DocxNode<Iterable<DocxNode>> {
   final String name;
 
   /// Width of the inline element in EMU units (English Metric Units).
-  final num width;
+  final UnitValue width;
 
   /// Height of the inline element in EMU units (English Metric Units).
-  final num height;
+  final UnitValue height;
 
   @override
   InlineGraphic get copy => InlineGraphic(
@@ -79,8 +79,8 @@ class InlineGraphic extends DocxNode<Iterable<DocxNode>> {
     DocxNode<dynamic>? parent,
     TextDistance? distance,
     String? name,
-    num? width,
-    num? height,
+    UnitValue? width,
+    UnitValue? height,
   }) {
     return InlineGraphic(
       distance: distance ?? this.distance,
@@ -127,8 +127,8 @@ class InlineGraphic extends DocxNode<Iterable<DocxNode>> {
         isSelfClosing: children.isEmpty,
         children: <XmlNode>[
           ...Extent(
-            cx: width,
-            cy: height,
+            cx: width.toEmu(),
+            cy: height.toEmu(),
           ).buildXml(),
           ...DocProperties(
             docPrId: elementId!.toString(),

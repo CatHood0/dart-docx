@@ -218,6 +218,7 @@ class NumberingStore extends Store {
           final num = element.numbering!;
           uniqueNumberings.add((element.id, num.reference, num.refId!));
         }
+        //TODO: numberings are not being registered
         // NumberingList will not count, since will register the concrete instances
         // in compilation time. At this point, the implementation replaces
         // some elements automatically, and cannot be do it in another way

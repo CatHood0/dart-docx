@@ -45,7 +45,9 @@ class LoggerConfiguration {
           '[${record.level.toLogLevel().name}]'
           '[${record.loggerName}]: '
           '${record.time}: '
-          '${record.message}',
+          '${record.message}'
+          '${record.error != null ? '\nException: ${record.error}' : ''}'
+          '${record.stackTrace != null ? '\nError: ${record.stackTrace}' : ''}',
         );
       }
     });

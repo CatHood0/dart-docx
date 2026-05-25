@@ -61,8 +61,8 @@ class WPShape extends DocxNode<DocxNode> {
       shapeLocks: shapeLocks,
     );
 
-    final num? width = anchor?.width ?? inline?.width.toInt();
-    final num? height = anchor?.height ?? inline?.height.toInt();
+    final UnitValue? width = anchor?.width ?? inline?.width;
+    final UnitValue? height = anchor?.height ?? inline?.height;
     assert(
       width != null && height != null,
       'Founded non defined size '
@@ -70,13 +70,13 @@ class WPShape extends DocxNode<DocxNode> {
     );
 
     assert(
-      width == shapeProperties.transform.extents.cx,
+      width?.toEmu() == shapeProperties.transform.extents.cx,
       'the ${anchor?.runtimeType ?? inline?.runtimeType ?? 'N/A'} width must be equals than the '
       'ShapeProperties -> Transform2D -> AnnotationExtents -> cx',
     );
 
     assert(
-      height == shapeProperties.transform.extents.cy,
+      height?.toEmu() == shapeProperties.transform.extents.cy,
       'the ${anchor?.runtimeType ?? inline?.runtimeType ?? 'N/A'} height must be equals than the '
       'ShapeProperties -> Transform2D -> AnnotationExtents -> cy specified',
     );

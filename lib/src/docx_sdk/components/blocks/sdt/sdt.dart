@@ -33,5 +33,5 @@ abstract class Sdt<T> extends DocxNode<T> {
 
   /// Optional unique identifier for the SDT.
   /// Note: This is different from DocxNode.id which is auto-generated.
-  final int? sdtId;
+  int? sdtId;
 }

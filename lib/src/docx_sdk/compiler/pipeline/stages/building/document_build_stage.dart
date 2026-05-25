@@ -22,7 +22,7 @@ class DocumentBuildStage extends PipelineStage {
   String get description => 'Build word/document.xml.';
 
   @override
-  bool shouldExecute(PipelineContext context) => true;
+  bool shouldExecute(PipelineContext context) => !context.flags.skipDocumentBuild;
 
   @override
   void execute(PipelineContext context) {
@@ -36,15 +36,20 @@ class DocumentBuildStage extends PipelineStage {
         options: context.options,
         normalStyleIfNeeded: context.config.normalStyleIfNeeded,
         normalStyle: context.config.normalStyle,
+        noTrim: context.config.noTrim,
+        checkStyleRefExistence: context.config.checkStyleRefExistence,
         child: DocxApp(
           docRelsStore:
-              context.getStoreOfExactType<DocumentRelsCounterStore>()!,
-          numberingStore: context.getStoreOfExactType<NumberingStore>()!,
-          mediaStore: context.getStoreOfExactType<MediaStore>()!,
+              context.getStoreOfExactType<DocumentRelsCounterStore>() ??
+                  DocumentRelsCounterStore(),
+          numberingStore:
+              context.getStoreOfExactType<NumberingStore>() ?? NumberingStore(),
+          mediaStore: context.getStoreOfExactType<MediaStore>() ?? MediaStore(),
           drawingStore:
-              context.getStoreOfExactType<DrawingElementCounterStore>()!,
-          fontStore: context.getStoreOfExactType<FontStore>()!,
-          sdtStore: context.getStoreOfExactType<SdtStore>()!,
+              context.getStoreOfExactType<DrawingElementCounterStore>() ??
+                  DrawingElementCounterStore(),
+          fontStore: context.getStoreOfExactType<FontStore>() ?? FontStore(),
+          sdtStore: context.getStoreOfExactType<SdtStore>() ?? SdtStore(),
           hyperlinkStore: context.getStoreOfExactType<HyperlinkStore>()!,
           styles: context.document.options.docStyles,
           child: context.tree,

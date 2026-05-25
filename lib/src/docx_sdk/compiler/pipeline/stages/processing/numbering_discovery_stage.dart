@@ -37,7 +37,7 @@ class NumberingDiscoveryStage extends PipelineStage {
   @override
   void execute(PipelineContext context) {
     final hasNumberingUsage =
-        context.metadata['hasNumberingUsage'] as bool? ?? false;
+        context.metadata['hasNumberingUsage'] as bool? ?? true;
     if (!hasNumberingUsage) {
       CompilerLogger.root.debug(
         'No numbering usage detected, skipping initialization.',

@@ -164,7 +164,7 @@ class DocxCompiler {
     );
 
     // Delegate to pipeline - it will create the context using the unified factory
-    final archive = await _pipeline.compile(
+    final Archive? archive = await _pipeline.compile(
       document,
       applyCustomTheme: applyCustomTheme,
       flags: flags,
@@ -176,7 +176,6 @@ class DocxCompiler {
       CompilerLogger.root.info('Docx compilation completed successfully.');
     } else {
       final lastError = _pipeline.context.lastError;
-
       throw DocxCompilationException(
         message: lastError != null ? 'Docx compilation failed: $lastError' : 'Docx compilation failed: Unknown error',
         documentTitle: document.options.title,

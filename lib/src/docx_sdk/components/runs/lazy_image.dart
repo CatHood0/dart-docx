@@ -103,8 +103,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
   String get getImageName =>
       child.name ?? 'image:${Random.secure().nextInt(900) * 10}';
 
-  num? _imgWidthEmu;
-  num? _imgHeightEmu;
+  UnitValue? _imgWidthEmu;
+  UnitValue? _imgHeightEmu;
   String? relationshipId = '1';
 
   @override
@@ -131,8 +131,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
           getAncestorOfExactType<InlineGraphic>()?.elementId?.castOrNull();
     }
 
-    _imgWidthEmu = child.width?.toEmu();
-    _imgHeightEmu = child.height?.toEmu();
+    _imgWidthEmu = child.width;
+    _imgHeightEmu = child.height;
 
     if (isChildOf<CompilerConfigProvider>()) {
       final DocumentOptions opt = CompilerConfigProvider.of(this)!.options;
@@ -145,8 +145,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
         pageSize: pageSize,
       );
 
-      _imgWidthEmu = size.width;
-      _imgHeightEmu = size.height;
+      _imgWidthEmu = size.width.toEmu();
+      _imgHeightEmu = size.height.toEmu();
     }
   }
 
@@ -198,7 +198,10 @@ class LazyImage extends DocxNode<ImageData<File>> {
               // Both sides where these elements are used
               // basically is mandatory, since word needs that
               // them have the same digit value
-              extents: AnnotationExtents(cx: _imgWidthEmu!, cy: _imgHeightEmu!),
+              extents: AnnotationExtents(
+                cx: _imgWidthEmu!.toEmu(),
+                cy: _imgHeightEmu!.toEmu(),
+              ),
             ),
             // NOTE: should be customizable?
             presetGeometry: PresetGeometry(preset: PresetShapeType.rectangle),

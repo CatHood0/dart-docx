@@ -48,6 +48,13 @@ class SdtDiscoveryStage extends PipelineStage {
 
     if (sdts != null && sdts.isNotEmpty) {
       for (final sdt in sdts) {
+        if (sdt.sdtId == null) {
+          final int id = context
+              .getStoreOfExactType<SdtStore>()!
+              .getNextId(nodeId: sdt.id);
+          sdt.sdtId = id;
+          continue;
+        }
         context.getStoreOfExactType<SdtStore>()!.registerId(
               sdt.id,
               sdt.sdtId!,

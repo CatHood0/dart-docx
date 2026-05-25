@@ -137,9 +137,7 @@ abstract class DocxNode<T> {
   /// * During compilation time works checking if this elements is
   ///   mounted with its `DocxRoot` as its root point
   @mustCallSuper
-  bool get mounted =>
-      parent != null &&
-      (!DocxElements.instance.initializeByCompile || isChildOf<DocxRoot>());
+  bool get mounted => parent != null;
 
   void markAsDirty() {
     CompilerLogger.root.config('[$runtimeType:$id]: marked as dirty');
@@ -202,9 +200,6 @@ abstract class DocxNode<T> {
   bool isChildOf<R extends DocxNode>() => getAncestorOfExactType<R>() != null;
 
   R? getAncestorOfExactType<R extends DocxNode<dynamic>>() {
-    if (!mounted) {
-      return null;
-    }
     DocxNode? current = parent;
     CompilerLogger.root.debug('$runtimeType:$id will try to ');
     CompilerLogger.root.debug(
@@ -225,8 +220,12 @@ abstract class DocxNode<T> {
       return null;
     }
 
+    if (current == null) {
+      return null;
+    }
+
     int countTries = 0;
-    String lastId = current!.id;
+    String lastId = current.id;
     int loopTraverse = 0;
     while (current != null) {
       if (current is R) {
