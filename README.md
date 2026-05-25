@@ -157,7 +157,9 @@ Future<void> main() async {
       .normalStyle(Style.ref('body'))
       .execute(
         document, 
-        flags: DocxPipeline.defaultStages,
+        applyCustomTheme: false,
+        flags: ExecutionFlags(skipStyleValidationStage: true),
+        stages: DocxPipeline.defaultStages,
       );
   await file.writeAsBytes(bytes!);
 }
@@ -226,7 +228,12 @@ Future<void> main() async {
           
           // El stream will be closed when compilation ends 
        })
-      .execute(doc, applyCustomTheme: false);
+      .execute(
+        doc, 
+        applyCustomTheme: false,
+        flags: ExecutionFlags(skipStyleValidationStage: true),
+        stages: DocxPipeline.defaultStages,
+      );
 
   if (bytes != null) {
     await File('document.docx').writeAsBytes(bytes);
