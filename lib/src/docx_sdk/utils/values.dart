@@ -73,6 +73,34 @@ abstract class UnitValue {
       );
 }
 
+class RawUnit extends UnitValue {
+  RawUnit(super.value);
+
+  @override
+  num toCm() => value;
+
+  @override
+  num toDxa() => value;
+
+  @override
+  num toEmu() => value;
+
+  @override
+  num toInches() => value;
+
+  @override
+  num toMm() => value;
+
+  @override
+  num toPixels([num dpi = 96]) => value;
+
+  @override
+  num toPt() => value;
+
+  @override
+  num toTwips([num dpi = 96]) => value;
+}
+
 class Millimeter extends UnitValue {
   const Millimeter(super.value);
 
@@ -329,6 +357,50 @@ class Inch extends UnitValue {
   @override
   num toTwips([num dpi = 96]) {
     return value.inchesToTwips();
+  }
+
+  @override
+  num toEmu() {
+    return value.inchesToEmu();
+  }
+}
+
+class SpacingInch extends UnitValue {
+  const SpacingInch(super.value);
+
+  @override
+  num toCm() {
+    return value * cmPerInch;
+  }
+
+  @override
+  num toDxa() {
+    return value.inchesToDxa();
+  }
+
+  @override
+  num toInches() {
+    return value;
+  }
+
+  @override
+  num toMm() {
+    return value * mmPerInch;
+  }
+
+  @override
+  num toPixels([num dpi = 96]) {
+    return value.inchesToPixels();
+  }
+
+  @override
+  num toPt() {
+    return value.inchesToPoints();
+  }
+
+  @override
+  num toTwips([num dpi = 96]) {
+    return (value * kDefaultSpacing.value).round();
   }
 
   @override

@@ -14,11 +14,11 @@ Future<void> main() async {
       styles: DocumentStyles.base().withNewStyles([
         StyleBuilder.paragraph('title')
             .name('Title')
-            .fontSize(16.ptToHalfPoints())
+            .fontSize(Point(16))
             .bold()
             .spacing(
-              before: 12.ptToTwips(),
-              after: 6.ptToTwips(),
+              before: Point(12),
+              after: Point(6),
             )
             .qFormat(true)
             .uiPriority(8)

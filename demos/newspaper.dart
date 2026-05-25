@@ -42,74 +42,59 @@ Future<void> main() async {
           children: <RunBase<dynamic>>[
             TextRun.text(
               text: 'THE DAILY NEWS',
-              styles: <Object>[
-                BoldAttribute(),
-                StyleBuilder.uc()
-                    .fontSize(28.ptToHalfPoints())
-                    .fontFamily('Georgia')
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(28),
+                fontFamily: 'Georgia',
+              ),
             ),
           ],
           alignment: Alignment.center,
-          styles: <Style>[
-            StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
-          ],
+          textStyle: TextStyle(
+            spacingAfter: Point(10),
+          ),
         ),
 
         Paragraph(
           children: <RunBase<dynamic>>[
             TextRun.text(
               text: 'Monday, January 15, 2024  |  Volume CXXIII, No. 42',
-              styles: <Object>[
-                ItalicAttribute(),
-                StyleBuilder.uc()
-                    .fontSize(10.ptToHalfPoints())
-                    .fontFamily('Georgia')
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                italic: true,
+              ),
             ),
           ],
           alignment: Alignment.center,
-          styles: <Style>[
-            StyleBuilder.up().spacing(after: 4.ptToTwips()).build(),
-          ],
+          textStyle: TextStyle(
+            spacingAfter: Point(4),
+          ),
         ),
 
         // Thick separator line
         //TODO: create divider object
         Paragraph.text(
           text: '_______________________________________________',
-          styles: <Style>[
-            StyleBuilder.up()
-                .alignment(Alignment.center)
-                .spacing(after: 5.ptToTwips())
-                .build(),
-          ],
+          textStyle: TextStyle(
+            spacingAfter: Point(5),
+          ),
         ),
 
-        // ============================================================
-        // MAIN HEADLINE
-        // ============================================================
         Paragraph(
           children: <RunBase<dynamic>>[
             TextRun.text(
               text: 'MAJOR BREAKTHROUGH IN RENEWABLE ENERGY RESEARCH',
-              styles: <Object>[
-                BoldAttribute(),
-                StyleBuilder.uc()
-                    .fontSize(22.ptToHalfPoints())
-                    .fontFamily('Georgia')
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(22),
+                fontFamily: 'Georgia',
+              ),
             ),
           ],
           alignment: Alignment.center,
-          styles: <Style>[
-            StyleBuilder.up()
-                .spacing(before: 5.ptToTwips(), after: 7.ptToTwips())
-                .build(),
-          ],
+          textStyle: TextStyle(
+            spacingBefore: Point(5),
+            spacingAfter: Point(7),
+          ),
         ),
 
         // Subheadline
@@ -117,32 +102,29 @@ Future<void> main() async {
           children: <RunBase<dynamic>>[
             TextRun.text(
               text: 'Scientists announce revolutionary solar cell technology',
-              styles: <Object>[
-                ItalicAttribute(),
-                StyleBuilder.uc()
-                    .fontSize(12.ptToHalfPoints())
-                    .fontFamily('Georgia')
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(12),
+                fontFamily: 'Georgia',
+              ),
             ),
           ],
           alignment: Alignment.center,
-          styles: <Style>[
-            StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
-          ],
+          textStyle: TextStyle(
+            spacingAfter: Point(10),
+          ),
         ),
 
         // Byline
-        Paragraph.text(
-          text: 'By Jane Smith, Science Editor',
-          styles: <Style>[
-            StyleBuilder.up()
-                .fontSize(9.ptToHalfPoints())
-                .fontFamily('Georgia')
-                .alignment(Alignment.center)
-                .spacing(after: 5.ptToTwips())
-                .build(),
-          ],
+        Align(
+          alignment: Alignment.center,
+          child: Paragraph.text(
+            text: 'By Jane Smith, Science Editor',
+            textStyle: TextStyle(
+              fontSize: Point(9),
+              fontFamily: 'Georgia',
+              spacingAfter: Point(5),
+            ),
+          ),
         ),
 
         Column(
@@ -150,54 +132,38 @@ Future<void> main() async {
             // Article 1: Main Story
             Paragraph(
               children: <RunBase<dynamic>>[
-                TextRun.text(
-                  text: _article1Paragraph1,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
-                ),
+                TextRun.text(text: _article1Paragraph1),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(after: 5.ptToTwips())
-                    .indent(firstLine: 0.5.inchesToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                firstLineIndent: Inch(0.5),
+                spacingAfter: Point(5),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _article1Paragraph2,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(5),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _article1Paragraph3,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(5),
+              ),
             ),
 
             // Section heading
@@ -205,20 +171,15 @@ Future<void> main() async {
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'LOCAL NEWS',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(12.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(before: 1.ptToTwips(), after: 5.ptToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(12),
+                fontFamily: 'Georgia',
+                spacingBefore: Point(1),
+                spacingAfter: Point(5),
+              ),
             ),
 
             // Local news item
@@ -226,34 +187,26 @@ Future<void> main() async {
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'City Council Approves New Park Project',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(11.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(11),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(5),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _localNewsText1,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(5),
+              ),
             ),
 
             // Another local news item
@@ -261,34 +214,26 @@ Future<void> main() async {
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'School District Announces Summer Programs',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(11.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(11),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(5),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _localNewsText2,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(11),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(5),
+              ),
             ),
 
             // Sports section
@@ -296,55 +241,41 @@ Future<void> main() async {
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'SPORTS',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(12.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(before: 3.ptToTwips(), after: 5.ptToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(12),
+                fontFamily: 'Georgia',
+                spacingBefore: Point(3),
+                spacingAfter: Point(5),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'Tigers Win Championship Game',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(11.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(before: 10.ptToTwips(), after: 5.ptToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(11),
+                fontFamily: 'Georgia',
+                spacingBefore: Point(10),
+                spacingAfter: Point(5),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _sportsText1,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(10),
+              ),
             ),
           ],
         ),
@@ -352,62 +283,48 @@ Future<void> main() async {
         Column(
           children: <DocxNode<dynamic>>[
             // Weather Box
-            _buildWeatherBox(),
+            WeatherBox(),
 
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'OPINION',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(12.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(before: 10.ptToTwips(), after: 5.ptToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                spacingBefore: Point(10),
+                spacingAfter: Point(5),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'The Future of Democracy',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    ItalicAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(11.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(before: 20.ptToTwips(), after: 10.ptToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                italic: true,
+                fontSize: Point(11),
+                fontFamily: 'Georgia',
+                spacingBefore: Point(20),
+                spacingAfter: Point(10),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _opinionText1,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(10),
+              ),
             ),
 
             // Business Section
@@ -415,55 +332,41 @@ Future<void> main() async {
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'BUSINESS',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(12.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(before: 20.ptToTwips(), after: 5.ptToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(12),
+                fontFamily: 'Georgia',
+                spacingBefore: Point(20),
+                spacingAfter: Point(5),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'Stock Market Reaches New Highs',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(11.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(before: 10.ptToTwips(), after: 10.ptToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(11),
+                fontFamily: 'Georgia',
+                spacingBefore: Point(10),
+                spacingAfter: Point(10),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _businessText1,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 10.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(10),
+              ),
             ),
 
             // Classifieds Section
@@ -471,40 +374,30 @@ Future<void> main() async {
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'CLASSIFIEDS',
-                  styles: <Object>[
-                    BoldAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(12.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .spacing(before: 20.ptToTwips(), after: 10.ptToTwips())
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                bold: true,
+                fontSize: Point(12),
+                fontFamily: 'Georgia',
+                spacingBefore: Point(20),
+                spacingAfter: Point(10),
+              ),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: _classifiedsText,
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(10.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
                 ),
               ],
-              styles: <Style>[
-                StyleBuilder.up().spacing(after: 5.ptToTwips()).build(),
-              ],
+              textStyle: TextStyle(
+                fontSize: Point(10),
+                fontFamily: 'Georgia',
+                spacingAfter: Point(5),
+              ),
             ),
 
-            // Quote/Box
-            _buildQuoteBox(),
+            QuoteBox(),
           ],
         ),
       ],
@@ -529,162 +422,158 @@ Future<void> main() async {
   }
 }
 
-/// Builds a weather information box using a table
-Table _buildWeatherBox() {
-  return Table(
-    tableProperties: TableProperties(
-      width: 2700,
-      widthType: TableWidthType.dxa,
-      borders: TableBorders.symmetric(
-        vertical: BorderSide(
-          style: BorderStyle.single,
-          size: Point(8),
-          color: Colors.black,
+class WeatherBox extends StatelessWidget {
+  @override
+  DocxNode<dynamic> build() {
+    /// Builds a weather information box using a table
+    return Table(
+      tableProperties: TableProperties(
+        width: 2700,
+        widthType: TableWidthType.dxa,
+        borders: TableBorders.symmetric(
+          vertical: BorderSide(
+            style: BorderStyle.single,
+            size: Point(8),
+            color: Colors.black,
+          ),
+          horizontal: BorderSide(
+            style: BorderStyle.single,
+            size: Point(8),
+            color: Colors.black,
+          ),
         ),
-        horizontal: BorderSide(
-          style: BorderStyle.single,
-          size: Point(8),
-          color: Colors.black,
+      ),
+      columns: GridColumn(width: 800).repeat(2),
+      rows: <TableRow>[
+        TableRow(
+          cells: <TableCell>[
+            TableCell.one(
+              cellConfig: TableCellConfig.dxa(width: 800),
+              child: Paragraph.text(
+                text: 'WEATHER',
+                textStyle: TextStyle(
+                  bold: true,
+                  fontSize: Point(10),
+                  fontFamily: 'Georgia',
+                ),
+                align: Alignment.center,
+              ),
+            ),
+            TableCell.one(
+              cellConfig: TableCellConfig.dxa(width: 800),
+              child: Paragraph.text(
+                text: '5-DAY FORECAST',
+                textStyle: TextStyle(
+                  bold: true,
+                  fontSize: Point(10),
+                  fontFamily: 'Georgia',
+                ),
+                align: Alignment.center,
+              ),
+            ),
+          ],
         ),
-      ),
-    ),
-    columns: GridColumn(width: 800).repeat(2),
-    rows: <TableRow>[
-      TableRow(
-        cells: <TableCell>[
-          TableCell.one(
-            cellConfig: TableCellConfig.dxa(width: 800),
-            child: Paragraph.text(
-              text: 'WEATHER',
-              textStyle: TextStyle(
-                bold: true,
-                fontSize: 10,
-                fontFamily: 'Georgia',
+        TableRow(
+          cells: <TableCell>[
+            TableCell.one(
+              cellConfig: TableCellConfig.dxa(width: 800),
+              child: Column(
+                children: [
+                  Text(
+                    'Sunny',
+                    textAlign: TextAlign.center,
+                    textStyle: TextStyle(
+                      fontSize: Point(9),
+                      fontFamily: 'Georgia',
+                    ),
+                  ),
+                  Text(
+                    '72F',
+                    textAlign: TextAlign.center,
+                    textStyle: TextStyle(
+                      fontSize: Point(9),
+                      fontFamily: 'Georgia',
+                    ),
+                  ),
+                ],
               ),
-              align: Alignment.center,
             ),
-          ),
-          TableCell.one(
-            cellConfig: TableCellConfig.dxa(width: 800),
-            child: Paragraph.text(
-              text: '5-DAY FORECAST',
-              textStyle: TextStyle(
-                bold: true,
-                fontSize: 10,
-                fontFamily: 'Georgia',
+            TableCell.one(
+              cellConfig: TableCellConfig.dxa(width: 800),
+              child: Column(
+                children: [
+                  Text(
+                    'Mon: 72F',
+                    textAlign: TextAlign.center,
+                    textStyle: TextStyle(
+                      fontSize: Point(9),
+                      fontFamily: 'Georgia',
+                    ),
+                  ),
+                  Text(
+                    'Tue: 68F',
+                    textAlign: TextAlign.center,
+                    textStyle: TextStyle(
+                      fontSize: Point(9),
+                      fontFamily: 'Georgia',
+                    ),
+                  ),
+                ],
               ),
-              align: Alignment.center,
             ),
-          ),
-        ],
-      ),
-      TableRow(
-        cells: <TableCell>[
-          TableCell.one(
-            cellConfig: TableCellConfig.dxa(width: 800),
-            child: Column(
-              children: [
-                Text(
-                  'Sunny',
-                  textAlign: TextAlign.center,
-                  textStyle: TextStyle(
-                    fontSize: 9,
-                    fontFamily: 'Georgia',
-                  ),
-                ),
-                Text(
-                  '72F',
-                  textAlign: TextAlign.center,
-                  textStyle: TextStyle(
-                    fontSize: 9,
-                    fontFamily: 'Georgia',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          TableCell.one(
-            cellConfig: TableCellConfig.dxa(width: 800),
-            child: Column(
-              children: [
-                Text(
-                  'Mon: 72F',
-                  textAlign: TextAlign.center,
-                  textStyle: TextStyle(
-                    fontSize: 9,
-                    fontFamily: 'Georgia',
-                  ),
-                ),
-                Text(
-                  'Tue: 68F',
-                  textAlign: TextAlign.center,
-                  textStyle: TextStyle(
-                    fontSize: 9,
-                    fontFamily: 'Georgia',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
+          ],
+        ),
+      ],
+    );
+  }
 }
 
-/// Builds a highlighted quote box
-Table _buildQuoteBox() {
-  return Table(
-    tableProperties: TableProperties(
-      width: 2000,
-      widthType: TableWidthType.dxa,
-      borders: TableBorders.all(
-        BorderSide(
-          style: BorderStyle.single,
-          size: Point(2),
-          color: Color(0xFF000080),
+class QuoteBox extends StatelessWidget {
+  @override
+  DocxNode<dynamic> build() {
+    return Table(
+      tableProperties: TableProperties(
+        width: 2000,
+        widthType: TableWidthType.dxa,
+        borders: TableBorders.all(
+          BorderSide(
+            style: BorderStyle.single,
+            size: Point(2),
+            color: Color(0xFF000080),
+          ),
         ),
       ),
-    ),
-    columns: <GridColumn>[GridColumn(width: 1600)],
-    rows: <TableRow>[
-      TableRow(
-        cells: <TableCell>[
-          TableCell.one(
-            cellConfig: TableCellConfig.dxa(
-              width: 1600,
-              shading: Shading.clear(fill: Color(0xFFF5F5F5)),
-            ),
-            child: Paragraph(
-              children: <RunBase<dynamic>>[
-                TextRun.text(
-                  text: '"The best way to predict the future is to create it."',
-                  styles: <Object>[
-                    ItalicAttribute(),
-                    StyleBuilder.uc()
-                        .fontSize(11.ptToHalfPoints())
-                        .fontFamily('Georgia')
-                        .build(),
-                  ],
+      columns: <GridColumn>[GridColumn(width: 1600)],
+      rows: <TableRow>[
+        TableRow(
+          cells: <TableCell>[
+            TableCell.one(
+              cellConfig: TableCellConfig.dxa(
+                width: 1600,
+                shading: Shading.clear(fill: Color(0xFFF5F5F5)),
+              ),
+              child: Paragraph(
+                children: <RunBase<dynamic>>[
+                  TextRun.text(
+                    text:
+                        '"The best way to predict the future is to create it."',
+                  ),
+                ],
+                textStyle: TextStyle(
+                  italic: true,
+                  fontSize: Point(11),
+                  fontFamily: 'Georgia',
+                  spacingBefore: Point(12),
+                  spacingAfter: Point(5),
                 ),
-              ],
-              styles: <Style>[
-                StyleBuilder.up()
-                    .alignment(Alignment.left)
-                    .spacing(before: 12.ptToTwips(), after: 5.ptToTwips())
-                    .build(),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
-    ],
-  );
+          ],
+        ),
+      ],
+    );
+  }
 }
-
-// ================================================================
-// SAMPLE TEXT CONTENT
-// ================================================================
 
 const String _article1Paragraph1 =
     'In a groundbreaking announcement that has sent shockwaves through the scientific community, '

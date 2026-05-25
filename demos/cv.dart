@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
+import 'package:docx/src/core/extensions/cast_ext.dart';
 
 /// Simple demo that generates a minimal CV as a .docx file.
 Future<void> main() async {
@@ -42,32 +43,32 @@ Future<void> main() async {
         <Style>[
           StyleBuilder.paragraph('title')
               .name('Title')
-              .fontSize(36.ptToHalfPoints())
+              .fontSize(Point(36))
               .fontFamily('Times New Roman')
               .bold()
               .alignment(Alignment.left)
               .qFormat(true)
               .spacing(
-                before: 5.ptToTwips(),
-                after: 12.ptToTwips(),
+                before: Twip(5),
+                after: Twip(12),
               )
               .uiPriority(20)
               .build(),
           StyleBuilder.paragraph('body')
               .name('Body')
-              .fontSize(9.ptToHalfPoints())
+              .fontSize(Point(9))
               .fontFamily('Merryweather')
               .qFormat(true)
               .build(),
           StyleBuilder.paragraph('section')
               .name('Subtitle')
-              .fontSize(9.ptToHalfPoints())
+              .fontSize(Point(9))
               .fontFamily('FreeSans')
               .bold()
               .runColor(Color(0x2079c7))
               .spacing(
-                before: 0.35.inchesToTwips(),
-                after: 0.15.inchesToTwips(),
+                before: Inch(0.35),
+                after: Inch(0.15),
               )
               .qFormat(true)
               .build(),
@@ -80,21 +81,15 @@ Future<void> main() async {
           children: <DocxNode<dynamic>>[
             Paragraph.text(
               text: 'Tu nombre',
-              styles: <Style>[
-                Style.ref('title'),
-              ],
+              styles: Style.ref('title').toList(),
             ),
             Paragraph.text(
               text: 'Inserta tu texto '
                   'aquí Inserta tu texto '
                   'aquí Inserta tu texto aquí',
-              styles: <Style>[
-                StyleBuilder.up()
-                    .fontFamily(
-                      'OpenSans',
-                    )
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontFamily: 'OpenSans',
+              ),
             ),
             ...getRepeatedSection(
               title: 'EXPERIENCIA',
@@ -139,122 +134,82 @@ Future<void> main() async {
           children: <DocxNode<dynamic>>[
             Paragraph.text(
               text: 'Tu calle 123',
-              runStyles: <Style>[
-                StyleBuilder.uc()
-                    .fontFamily(
-                      'OpenSans',
-                    )
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontFamily: 'OpenSans',
+                bold: true,
+              ),
             ),
             Paragraph.text(
               text: 'Tu ciudad, Provincia x1234xxx',
-              runStyles: <Style>[
-                StyleBuilder.uc()
-                    .fontFamily(
-                      'OpenSans',
-                    )
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontFamily: 'OpenSans',
+                bold: true,
+              ),
             ),
             Paragraph.text(
               text: '(54) 00 0 0000',
-              runStyles: <Style>[
-                StyleBuilder.uc()
-                    .fontFamily(
-                      'OpenSans',
-                    )
-                    .bold()
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontFamily: 'OpenSans',
+                bold: true,
+              ),
             ),
             Paragraph.text(
               text: 'no_reply@example.com',
-              runStyles: <Style>[
-                StyleBuilder.uc()
-                    .fontFamily(
-                      'OpenSans',
-                    )
-                    .bold()
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                fontFamily: 'OpenSans',
+                bold: true,
+              ),
             ),
             Paragraph.text(
               text: 'HABILIDADES',
-              styles: <Style>[
-                Style.ref('section'),
-                StyleBuilder.up()
-                    .spacing(
-                      before: 0.4.inchesToTwips(),
-                      after: 0.15.inchesToTwips(),
-                    )
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                spacingAfter: Inch(0.4),
+                spacingBefore: Inch(0.15),
+              ),
+              styles: Style.ref('section').toList(),
             ),
             Paragraph(
               children: <RunBase<dynamic>>[
                 TextRun.text(
                   text: 'Inserta tu texto aquí',
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(
-                          9.ptToHalfPoints(),
-                        )
-                        .build(),
-                  ],
+                  textStyle: TextStyle(
+                    fontSize: Point(9),
+                  ),
                 ),
                 Run(component: Break.lineBreak()),
                 TextRun.text(
                   text: 'Inserta tu texto aquí',
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(
-                          9.ptToHalfPoints(),
-                        )
-                        .build(),
-                  ],
+                  textStyle: TextStyle(
+                    fontSize: Point(9),
+                  ),
                 ),
                 Run(component: Break.lineBreak()),
                 TextRun.text(
                   text: 'Inserta tu texto aquí '
                       'Inserta tu texto aquí ',
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(
-                          9.ptToHalfPoints(),
-                        )
-                        .build(),
-                  ],
+                  textStyle: TextStyle(
+                    fontSize: Point(9),
+                  ),
                 ),
                 Run(component: Break.lineBreak()),
                 TextRun.text(
                   text: 'Inserta tu texto aquí '
                       'Inserta tu texto aquí ',
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(
-                          9.ptToHalfPoints(),
-                        )
-                        .build(),
-                  ],
+                  textStyle: TextStyle(
+                    fontSize: Point(9),
+                  ),
                 ),
               ],
-              styles: <Style>[
-                Style.ref('body'),
-                StyleBuilder.up()
-                    .spacing(
-                      after: 5.ptToTwips(),
-                      line: 1.5.inchesToLineSpacing(),
-                      rule: LineRule.exact,
-                    )
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                spacingAfter: Twip(5),
+                lineSpacing: SpacingInch(1.5),
+                lineSpacingRule: LineRule.exact,
+              ),
+              styles: Style.ref('body').toList(),
             ),
             Paragraph.text(
               text: 'RECONOCIMIENTOS',
-              styles: <Style>[
-                Style.ref('section'),
-              ],
+              styles: Style.ref('section').toList(),
             ),
             ...Paragraph(
               children: <RunBase<dynamic>>[
@@ -263,33 +218,24 @@ Future<void> main() async {
                       'Inserta tu texto aquí '
                       'Inserta tu texto aquí '
                       'Inserta tu texto aquí ',
-                  styles: <Object>[
-                    StyleBuilder.uc()
-                        .fontSize(
-                          9.ptToHalfPoints(),
-                        )
-                        .build(),
-                  ],
+                  textStyle: TextStyle(
+                    fontSize: Point(9),
+                  ),
                 ),
               ],
-              styles: <Style>[
-                Style.ref('body'),
-                StyleBuilder.up()
-                    .spacing(
-                      after: 1.ptToTwips(),
-                      line: 1.5.inchesToLineSpacing(),
-                      rule: LineRule.exact,
-                    )
-                    .build(),
-              ],
+              textStyle: TextStyle(
+                spacingAfter: Twip(1),
+                lineSpacing: SpacingInch(1.5),
+                lineSpacingRule: LineRule.exact,
+              ),
+              styles: Style.ref('body').toList(),
             ).repeat(4),
             ...getRepeatedSection(
               title: 'IDIOMAS',
               date: '',
               content: 'Inserta tu texto aquí '
                   'Inserta tu texto aquí ',
-              contentStyle:
-                  StyleBuilder.uc().fontSize(9.ptToHalfPoints()).build(),
+              contentStyle: StyleBuilder.uc().fontSize(Point(9)).build(),
               repeat: 1,
             ),
           ],
@@ -341,22 +287,15 @@ List<DocxNode> getRepeatedSection({
         if (subtitle1.isNotEmpty)
           TextRun.text(
             text: subtitle1,
-            styles: <Object>[
-              BoldAttribute(),
-              StyleBuilder.uc()
-                  .fontSize(
-                    11.ptToHalfPoints(),
-                  )
-                  .build(),
-            ],
+            textStyle: TextStyle(fontSize: Point(11), bold: true),
           ),
         if (subtitle2.isNotEmpty)
           TextRun.text(
             text: subtitle2,
-            styles: <Object>[
+            styles: [
               StyleBuilder.uc()
                   .fontSize(
-                    11.ptToHalfPoints(),
+                    Point(11),
                   )
                   .build(),
             ],
@@ -364,27 +303,16 @@ List<DocxNode> getRepeatedSection({
         if (subtitle3.isNotEmpty)
           TextRun.text(
             text: subtitle3,
-            styles: <Object>[
-              ItalicAttribute(),
-              StyleBuilder.uc()
-                  .fontSize(
-                    11.ptToHalfPoints(),
-                  )
-                  .build(),
-            ],
+            textStyle: TextStyle(fontSize: Point(11), italic: true),
           ),
         if (date.isNotEmpty) Run(component: Break.lineBreak()),
         if (date.isNotEmpty)
           TextRun.text(
             text: date,
-            styles: <Object>[
-              StyleBuilder.uc()
-                  .fontSize(8.ptToHalfPoints())
-                  .runColor(Color(
-                    0x55666666,
-                  ))
-                  .build(),
-            ],
+            textStyle: TextStyle(
+              fontSize: Point(8),
+              fontColor: Color(0x55666666),
+            ),
           ),
         if (date.isNotEmpty ||
             subtitle1.isNotEmpty ||
@@ -393,26 +321,18 @@ List<DocxNode> getRepeatedSection({
           Run(component: Break.lineBreak()),
         TextRun.text(
           text: content,
-          styles: <Object>[
-            contentStyle ??
-                StyleBuilder.uc()
-                    .fontSize(9.ptToHalfPoints())
-                    .runColor(Color(
-                      0x55666666,
-                    ))
-                    .build(),
-          ],
+          textStyle: TextStyle(
+            fontSize: Point(9),
+            fontColor: Color(0x55666666),
+          ),
+          styles: contentStyle?.toList() ?? <Style>[],
         ),
       ],
-      styles: <Style>[
-        Style.ref('body'),
-        StyleBuilder.up()
-            .spacing(
-              line: 1.3.inchesToLineSpacing(),
-              rule: LineRule.exact,
-            )
-            .build(),
-      ],
+      textStyle: TextStyle(
+        lineSpacing: SpacingInch(1.3),
+        lineSpacingRule: LineRule.exact,
+      ),
+      styles: Style.ref('body').toList(),
     ).repeat(repeat),
   ];
 }

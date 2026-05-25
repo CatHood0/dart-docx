@@ -31,8 +31,8 @@ Future<void> main() async {
           styles: <Style>[
             StyleBuilder.paragraph('Heading1')
                 .bold()
-                .fontSize(14.ptToHalfPoints())
-                .spacing(before: 200, after: 100)
+                .fontSize(Point(14))
+                .spacing(before: Twip(200), after: Twip(100))
                 .build(),
           ],
         ),
@@ -42,8 +42,8 @@ Future<void> main() async {
               'navigation on right.',
           styles: <Style>[
             StyleBuilder.paragraph('Body')
-                .fontSize(10.ptToHalfPoints())
-                .spacing(after: 120)
+                .fontSize(Point(10))
+                .spacing(after: Twip(120))
                 .build(),
           ],
         ),
@@ -64,7 +64,7 @@ Future<void> main() async {
                   styles: <Style>[
                     StyleBuilder.paragraph('Title')
                         .bold()
-                        .fontSize(16.ptToHalfPoints())
+                        .fontSize(Point(16))
                         .build(),
                   ],
                 ),
@@ -72,7 +72,7 @@ Future<void> main() async {
                   text: 'Subtitle or description text',
                   styles: <Style>[
                     StyleBuilder.paragraph('Subtitle')
-                        .fontSize(10.ptToHalfPoints())
+                        .fontSize(Point(10))
                         .runColor(Color(0xFF666666))
                         .build(),
                   ],
@@ -86,8 +86,8 @@ Future<void> main() async {
           styles: <Style>[
             StyleBuilder.paragraph('Heading1')
                 .bold()
-                .fontSize(14.ptToHalfPoints())
-                .spacing(before: 300, after: 100)
+                .fontSize(Point(14))
+                .spacing(before: Twip(300), after: Twip(100))
                 .build(),
           ],
         ),
@@ -96,8 +96,8 @@ Future<void> main() async {
               'Common for product cards with image on left and details on right.',
           styles: <Style>[
             StyleBuilder.paragraph('Body')
-                .fontSize(10.ptToHalfPoints())
-                .spacing(after: 120)
+                .fontSize(Point(10))
+                .spacing(after: Twip(120))
                 .build(),
           ],
         ),
@@ -119,7 +119,7 @@ Future<void> main() async {
                   styles: <Style>[
                     StyleBuilder.paragraph('Product')
                         .bold()
-                        .fontSize(14.ptToHalfPoints())
+                        .fontSize(Point(14))
                         .build(),
                   ],
                 ),
@@ -128,9 +128,7 @@ Future<void> main() async {
                       'the features and benefits. It can span multiple '
                       'lines and will be vertically centered with the image.',
                   styles: <Style>[
-                    StyleBuilder.paragraph('Body')
-                        .fontSize(10.ptToHalfPoints())
-                        .build(),
+                    StyleBuilder.paragraph('Body').fontSize(Point(10)).build(),
                   ],
                 ),
               ],
@@ -142,8 +140,8 @@ Future<void> main() async {
           styles: <Style>[
             StyleBuilder.paragraph('Heading1')
                 .bold()
-                .fontSize(14.ptToHalfPoints())
-                .spacing(before: 300, after: 100)
+                .fontSize(Point(14))
+                .spacing(before: Twip(300), after: Twip(100))
                 .build(),
           ],
         ),
@@ -152,8 +150,8 @@ Future<void> main() async {
               'Good for hero sections with centered content.',
           styles: <Style>[
             StyleBuilder.paragraph('Body')
-                .fontSize(10.ptToHalfPoints())
-                .spacing(after: 120)
+                .fontSize(Point(10))
+                .spacing(after: Twip(120))
                 .build(),
           ],
         ),
@@ -172,7 +170,7 @@ Future<void> main() async {
               styles: <Style>[
                 StyleBuilder.paragraph('Centered')
                     .bold()
-                    .fontSize(12.ptToHalfPoints())
+                    .fontSize(Point(12))
                     .alignment(Alignment.center)
                     .build(),
               ],
@@ -191,8 +189,8 @@ Future<void> main() async {
           styles: <Style>[
             StyleBuilder.paragraph('Heading1')
                 .bold()
-                .fontSize(14.ptToHalfPoints())
-                .spacing(before: 300, after: 100)
+                .fontSize(Point(14))
+                .spacing(before: Twip(300), after: Twip(100))
                 .build(),
           ],
         ),
@@ -201,8 +199,8 @@ Future<void> main() async {
               'Useful for signatures, dates, or trailing elements.',
           styles: <Style>[
             StyleBuilder.paragraph('Body')
-                .fontSize(10.ptToHalfPoints())
-                .spacing(after: 120)
+                .fontSize(Point(10))
+                .spacing(after: Twip(120))
                 .build(),
           ],
         ),
@@ -215,24 +213,20 @@ Future<void> main() async {
                   text: 'Authorized Signature',
                   styles: <Style>[
                     StyleBuilder.paragraph('Signature')
-                        .fontSize(10.ptToHalfPoints())
+                        .fontSize(Point(10))
                         .build(),
                   ],
                 ),
                 Paragraph.text(
                   text: '________________________',
                   styles: <Style>[
-                    StyleBuilder.paragraph('Line')
-                        .fontSize(10.ptToHalfPoints())
-                        .build(),
+                    StyleBuilder.paragraph('Line').fontSize(Point(10)).build(),
                   ],
                 ),
                 Paragraph.text(
                   text: 'Date: ________________',
                   styles: <Style>[
-                    StyleBuilder.paragraph('Date')
-                        .fontSize(10.ptToHalfPoints())
-                        .build(),
+                    StyleBuilder.paragraph('Date').fontSize(Point(10)).build(),
                   ],
                 ),
               ],
@@ -244,8 +238,8 @@ Future<void> main() async {
           styles: <Style>[
             StyleBuilder.paragraph('Heading1')
                 .bold()
-                .fontSize(14.ptToHalfPoints())
-                .spacing(before: 300, after: 100)
+                .fontSize(Point(14))
+                .spacing(before: Twip(300), after: Twip(100))
                 .build(),
           ],
         ),
@@ -254,8 +248,8 @@ Future<void> main() async {
               'control over the total row width. Each child gets equal share.',
           styles: <Style>[
             StyleBuilder.paragraph('Body')
-                .fontSize(10.ptToHalfPoints())
-                .spacing(after: 120)
+                .fontSize(Point(10))
+                .spacing(after: Twip(120))
                 .build(),
           ],
         ),
@@ -271,16 +265,14 @@ Future<void> main() async {
                   styles: <Style>[
                     StyleBuilder.paragraph('Col')
                         .bold()
-                        .fontSize(10.ptToHalfPoints())
+                        .fontSize(Point(10))
                         .build(),
                   ],
                 ),
                 Paragraph.text(
                   text: 'Width: ~166px',
                   styles: <Style>[
-                    StyleBuilder.paragraph('Body')
-                        .fontSize(9.ptToHalfPoints())
-                        .build(),
+                    StyleBuilder.paragraph('Body').fontSize(Point(9)).build(),
                   ],
                 ),
               ],
@@ -292,16 +284,14 @@ Future<void> main() async {
                   styles: <Style>[
                     StyleBuilder.paragraph('Col')
                         .bold()
-                        .fontSize(10.ptToHalfPoints())
+                        .fontSize(Point(10))
                         .build(),
                   ],
                 ),
                 Paragraph.text(
                   text: 'Width: ~166px',
                   styles: <Style>[
-                    StyleBuilder.paragraph('Body')
-                        .fontSize(9.ptToHalfPoints())
-                        .build(),
+                    StyleBuilder.paragraph('Body').fontSize(Point(9)).build(),
                   ],
                 ),
               ],
@@ -313,16 +303,14 @@ Future<void> main() async {
                   styles: <Style>[
                     StyleBuilder.paragraph('Col')
                         .bold()
-                        .fontSize(10.ptToHalfPoints())
+                        .fontSize(Point(10))
                         .build(),
                   ],
                 ),
                 Paragraph.text(
                   text: 'Width: ~166px',
                   styles: <Style>[
-                    StyleBuilder.paragraph('Body')
-                        .fontSize(9.ptToHalfPoints())
-                        .build(),
+                    StyleBuilder.paragraph('Body').fontSize(Point(9)).build(),
                   ],
                 ),
               ],
@@ -334,8 +322,8 @@ Future<void> main() async {
           styles: <Style>[
             StyleBuilder.paragraph('Heading1')
                 .bold()
-                .fontSize(14.ptToHalfPoints())
-                .spacing(before: 300, after: 100)
+                .fontSize(Point(14))
+                .spacing(before: Twip(300), after: Twip(100))
                 .build(),
           ],
         ),
@@ -344,8 +332,8 @@ Future<void> main() async {
               'grids or cards with multiple sections.',
           styles: <Style>[
             StyleBuilder.paragraph('Body')
-                .fontSize(10.ptToHalfPoints())
-                .spacing(after: 120)
+                .fontSize(Point(10))
+                .spacing(after: Twip(120))
                 .build(),
           ],
         ),
@@ -370,7 +358,7 @@ Future<void> main() async {
                       styles: <Style>[
                         StyleBuilder.paragraph('Feature')
                             .bold()
-                            .fontSize(11.ptToHalfPoints())
+                            .fontSize(Point(11))
                             .build(),
                       ],
                     ),
@@ -379,9 +367,7 @@ Future<void> main() async {
                 Paragraph.text(
                   text: 'Description of feature 1 with details.',
                   styles: <Style>[
-                    StyleBuilder.paragraph('Body')
-                        .fontSize(9.ptToHalfPoints())
-                        .build(),
+                    StyleBuilder.paragraph('Body').fontSize(Point(9)).build(),
                   ],
                 ),
               ],
@@ -404,7 +390,7 @@ Future<void> main() async {
                       styles: <Style>[
                         StyleBuilder.paragraph('Feature')
                             .bold()
-                            .fontSize(11.ptToHalfPoints())
+                            .fontSize(Point(11))
                             .build(),
                       ],
                     ),
@@ -413,9 +399,7 @@ Future<void> main() async {
                 Paragraph.text(
                   text: 'Description of feature 2 with details.',
                   styles: <Style>[
-                    StyleBuilder.paragraph('Body')
-                        .fontSize(9.ptToHalfPoints())
-                        .build(),
+                    StyleBuilder.paragraph('Body').fontSize(Point(9)).build(),
                   ],
                 ),
               ],
@@ -427,8 +411,8 @@ Future<void> main() async {
           styles: <Style>[
             StyleBuilder.paragraph('Heading1')
                 .bold()
-                .fontSize(14.ptToHalfPoints())
-                .spacing(before: 300, after: 100)
+                .fontSize(Point(14))
+                .spacing(before: Twip(300), after: Twip(100))
                 .build(),
           ],
         ),
@@ -437,8 +421,8 @@ Future<void> main() async {
               'vertically within the row height.',
           styles: <Style>[
             StyleBuilder.paragraph('Body')
-                .fontSize(10.ptToHalfPoints())
-                .spacing(after: 120)
+                .fontSize(Point(10))
+                .spacing(after: Twip(120))
                 .build(),
           ],
         ),
@@ -457,9 +441,7 @@ Future<void> main() async {
               text: 'Top aligned (CrossAxisAlignment.start)\n\n'
                   'This text has multiple lines\nto show the effect.',
               styles: <Style>[
-                StyleBuilder.paragraph('Body')
-                    .fontSize(10.ptToHalfPoints())
-                    .build(),
+                StyleBuilder.paragraph('Body').fontSize(Point(10)).build(),
               ],
             ),
           ],
@@ -479,9 +461,7 @@ Future<void> main() async {
               text: 'Center aligned (CrossAxisAlignment.center)\n\n'
                   'This text has multiple lines\nto show the effect.',
               styles: <Style>[
-                StyleBuilder.paragraph('Body')
-                    .fontSize(10.ptToHalfPoints())
-                    .build(),
+                StyleBuilder.paragraph('Body').fontSize(Point(10)).build(),
               ],
             ),
           ],
@@ -501,9 +481,7 @@ Future<void> main() async {
               text: 'Bottom aligned (CrossAxisAlignment.end)\n\n'
                   'This text has multiple lines\nto show the effect.',
               styles: <Style>[
-                StyleBuilder.paragraph('Body')
-                    .fontSize(10.ptToHalfPoints())
-                    .build(),
+                StyleBuilder.paragraph('Body').fontSize(Point(10)).build(),
               ],
             ),
           ],

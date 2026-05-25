@@ -1,9 +1,9 @@
 import 'package:meta/meta.dart'
-    show experimental, visibleForOverriding, protected, mustCallSuper;
+    show experimental, visibleForOverriding, mustCallSuper;
 import 'package:xml/xml.dart' show XmlNode;
 
+import '../../registry/docx_registry.dart';
 import '../../sdk.dart';
-import 'empty_node.dart';
 
 abstract class DocxNode<T> {
   DocxNode({
@@ -15,8 +15,6 @@ abstract class DocxNode<T> {
 
   bool isEmptyNode() => this is EmptyNode;
 
-  @experimental
-  @protected
   int length = 0;
 
   @visibleForOverriding
@@ -100,12 +98,7 @@ abstract class DocxNode<T> {
   set parent(DocxNode? parent) {
     _parent = parent;
     // When set to null, is more probably than this element is removed from tree
-    if (DocxElements.instance.initializeByCompile && parent == null) {
-      markAsDirty();
-      deactivate();
-      return;
-    } else if (DocxElements.instance.initializeByCompile &&
-        parent?.mounted == true) {
+    if (DocxElements.instance.initializeByCompile && parent?.mounted == true) {
       init();
     }
   }
@@ -132,13 +125,21 @@ abstract class DocxNode<T> {
   @experimental
   dynamic query(String xpath) {}
 
+  /// Notifies when a node changes its internal properties
   void didChangeConfigurations(
     DocxNode<T> prev,
     DocxNode<T> current,
   ) {}
 
+  /// Whether this element is mounted in the tree.
+  ///
+  /// * During runtime works just checking if the parent is not null
+  /// * During compilation time works checking if this elements is
+  ///   mounted with its `DocxRoot` as its root point
   @mustCallSuper
-  bool get mounted => parent != null && isChildOf<DocxRoot>();
+  bool get mounted =>
+      parent != null &&
+      (!DocxElements.instance.initializeByCompile || isChildOf<DocxRoot>());
 
   void markAsDirty() {
     CompilerLogger.root.config('[$runtimeType:$id]: marked as dirty');
@@ -156,11 +157,6 @@ abstract class DocxNode<T> {
     CompilerLogger.root.config(
       '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: initializated correctly into ${parent!.runtimeType}:${parent!.id}',
     );
-
-    visitElement((e) {
-      e.init();
-      return false;
-    });
   }
 
   void deactivate() {
@@ -210,7 +206,7 @@ abstract class DocxNode<T> {
       return null;
     }
     DocxNode? current = parent;
-    CompilerLogger.root.debug('===$runtimeType:$id will try to ===');
+    CompilerLogger.root.debug('$runtimeType:$id will try to ');
     CompilerLogger.root.debug(
       '${' ' * depth} | search ancestor '
       'of type $R',
@@ -269,6 +265,21 @@ abstract class DocxNode<T> {
     return null;
   }
 
+  @mustCallSuper
+  Map<String, dynamic>? toJson() {
+    return DocxRegistry().toJson(this);
+  }
+
+  static DocxNode? fromJson(
+    Map<String, dynamic> map, {
+    Map<String, dynamic>? metadata,
+  }) {
+    return DocxRegistry().fromJson(
+      map,
+      metadata: metadata,
+    );
+  }
+
   DocxNode? visitElement(
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
@@ -310,4 +321,21 @@ abstract class DocxNode<T> {
 
     return buffer.toString();
   }
+
+  //TODO: we need to implement correctly this for all components
+  @override
+  bool operator ==(Object other) {
+    if (other is! DocxNode) return false;
+    return runtimeType == other.runtimeType && id == other.id;
+  }
+
+  @override
+  int get hashCode => Object.hashAll(
+        [
+          id,
+          child.hashCode,
+          index,
+          length,
+        ],
+      );
 }

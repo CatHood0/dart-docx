@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:xml/xml.dart';
 import '../../exceptions/content_not_processed_exception.dart';
-import '../../mixins/ignorable_mixin.dart';
 import '../../sdk.dart';
 
 abstract class RunBase<T> extends DocxNode<T>
@@ -18,11 +17,19 @@ abstract class RunBase<T> extends DocxNode<T>
     return super.toString();
   }
 
+  bool canMerge(RunBase node);
+
+  @override
+  bool isEmptyNode() => this is EmptyNode || dataLength == 0;
+
   RunBase cut(int offset, int offsetEnd);
   (RunBase, RunBase) cutTwo(int offset, int offsetEnd);
   (RunBase, RunBase, RunBase) cutAll(int offset, int offsetEnd);
 
   int get dataLength;
+
+  int start = 0;
+  int end = 0;
 
   bool get isEmptyData;
 

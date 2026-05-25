@@ -135,7 +135,7 @@ const Orientation defaultOrientation = Orientation.portrait;
 ///```
 /// lineSpacing = n / 240
 ///```
-const UnitValue kDefaultSpacing1 = Twip(240);
+const UnitValue kDefaultSpacing = Twip(240);
 //const double kDefaultSpacing15 = 360;
 //const double kDefaultSpacing2 = 400;
 const DocumentMargins kDefaultLandscapeMargins = DocumentMargins(

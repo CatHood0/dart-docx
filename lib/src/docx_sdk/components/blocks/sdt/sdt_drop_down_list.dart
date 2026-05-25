@@ -66,7 +66,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
     super.id,
     super.sdtId,
   })  : _alias = alias,
-        _items = items,
+        this.items = items,
         _selectedValue = selectedValue,
         _displayText = _computeDisplayText(items, selectedValue),
         super(
@@ -82,7 +82,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
   final String tag;
 
   /// List of available options in the drop-down.
-  final List<SdtListItem> _items;
+  final List<SdtListItem> items;
 
   /// Currently selected value (corresponds to an item's value).
   final String? _selectedValue;
@@ -131,7 +131,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
     final List<XmlNode> children = <XmlNode>[
       XmlElement.tag(
         'w:dropDownList',
-        children: _items
+        children: items
             .expand((
               SdtListItem item,
             ) =>
@@ -240,7 +240,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
         sdtId: sdtId,
         alias: _alias,
         tag: tag,
-        items: _items,
+        items: this.items,
         selectedValue: _selectedValue,
         placeholder: placeholder,
         showingPlacHdr: showingPlacHdr,
@@ -268,7 +268,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
       sdtId: sdtId ?? this.sdtId,
       alias: alias ?? _alias,
       tag: tag ?? this.tag,
-      items: items ?? _items,
+      items: items ?? this.items,
       selectedValue: selectedValue ?? _selectedValue,
       placeholder: placeholder ?? this.placeholder,
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,
@@ -313,6 +313,6 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
 
   @override
   String toString() {
-    return 'SdtDropDownList(alias: $_alias, tag: $tag, items: ${_items.length}, selected: $_selectedValue)';
+    return 'SdtDropDownList(alias: $_alias, tag: $tag, items: ${items.length}, selected: $_selectedValue)';
   }
 }

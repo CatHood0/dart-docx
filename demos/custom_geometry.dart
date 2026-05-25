@@ -25,7 +25,7 @@ Future<void> main() async {
         <Style>[
           StyleBuilder.paragraph('CustomShapeTitle')
               .name('Custom Shape Gallery')
-              .fontSize(28.ptToHalfPoints())
+              .fontSize(Point(28))
               .fontFamily('Calibri')
               .bold()
               .alignment(Alignment.center)
@@ -33,13 +33,13 @@ Future<void> main() async {
               .build(),
           StyleBuilder.paragraph('ShapeDescription')
               .name('Shape Description')
-              .fontSize(20.ptToHalfPoints())
+              .fontSize(Point(20))
               .fontFamily('Calibri')
               .alignment(Alignment.center)
               .build(),
           StyleBuilder.paragraph('ShapeLabel')
               .name('Shape Label')
-              .fontSize(16.ptToHalfPoints())
+              .fontSize(Point(16))
               .fontFamily('Calibri')
               .bold()
               .alignment(Alignment.center)
@@ -68,7 +68,7 @@ Future<void> main() async {
         Run.lineBreak(),
 
         // Example 1: Triangle shape
-        _buildShapeExample(
+        ShapeExample(
           title: '1. Triangle Shape',
           description: 'Created with MoveToCommand and LineToCommand',
           shapePath: ShapePath(
@@ -89,7 +89,7 @@ Future<void> main() async {
         ),
 
         // Example 2: Pentagon shape
-        _buildShapeExample(
+        ShapeExample(
           title: '2. Pentagon Shape',
           description: 'Pentagon with 5 sides using LineToCommand',
           shapePath: ShapePath(
@@ -112,7 +112,7 @@ Future<void> main() async {
         ),
 
         // Example 3: Arrow shape
-        _buildShapeExample(
+        ShapeExample(
           title: '3. Arrow Shape',
           description: 'Directional arrow using LineToCommand',
           shapePath: ShapePath(
@@ -136,7 +136,7 @@ Future<void> main() async {
         ),
 
         // Example 4: Diamond shape
-        _buildShapeExample(
+        ShapeExample(
           title: '4. Diamond Shape',
           description: 'Rotated square using LineToCommand',
           shapePath: ShapePath(
@@ -158,7 +158,7 @@ Future<void> main() async {
         ),
 
         // Example 5: House shape
-        _buildShapeExample(
+        ShapeExample(
           title: '5. House Shape',
           description: 'House with roof using LineToCommand',
           shapePath: ShapePath(
@@ -181,7 +181,7 @@ Future<void> main() async {
         ),
 
         // Example 6: Cross shape
-        _buildShapeExample(
+        ShapeExample(
           title: '6. Cross Shape',
           description: 'Plus/cross shape using LineToCommand',
           shapePath: ShapePath(
@@ -211,7 +211,7 @@ Future<void> main() async {
         ),
 
         // Example 7: Hexagon shape
-        _buildShapeExample(
+        ShapeExample(
           title: '7. Hexagon Shape',
           description: 'Six-sided polygon using LineToCommand',
           shapePath: ShapePath(
@@ -235,7 +235,7 @@ Future<void> main() async {
         ),
 
         // Example 8: Star shape
-        _buildShapeExample(
+        ShapeExample(
           title: '8. Star Shape',
           description: 'Five-pointed star using LineToCommand',
           shapePath: ShapePath(
@@ -267,7 +267,7 @@ Future<void> main() async {
           text: 'Custom Geometry Components Used:',
           styles: <Style>[
             StyleBuilder.paragraph('CustomShapeTitle')
-                .fontSize(20.ptToHalfPoints())
+                .fontSize(Point(20))
                 .build(),
           ],
         ),
@@ -275,28 +275,28 @@ Future<void> main() async {
           text:
               '• ShapePath - Defines a path with commands (MoveToCommand, LineToCommand, ClosePathCommand)',
           styles: <Style>[
-            StyleBuilder.paragraph('Body').fontSize(10.ptToHalfPoints()).build()
+            StyleBuilder.paragraph('Body').fontSize(Point(10)).build()
           ],
         ),
         Paragraph.text(
           text:
               '• CustomGeometryComponent - Contains the complete geometry definition with bounding box',
           styles: <Style>[
-            StyleBuilder.paragraph('Body').fontSize(10.ptToHalfPoints()).build()
+            StyleBuilder.paragraph('Body').fontSize(Point(10)).build()
           ],
         ),
         Paragraph.text(
           text:
               '• ShapeProperties.custom() - Creates shape properties with custom geometry',
           styles: <Style>[
-            StyleBuilder.paragraph('Body').fontSize(10.ptToHalfPoints()).build()
+            StyleBuilder.paragraph('Body').fontSize(Point(10)).build()
           ],
         ),
         Paragraph.text(
           text:
               '• Anchor with Graphic.shape() - Places the shape in the document',
           styles: <Style>[
-            StyleBuilder.paragraph('Body').fontSize(10.ptToHalfPoints()).build()
+            StyleBuilder.paragraph('Body').fontSize(Point(10)).build()
           ],
         ),
       ],
@@ -320,76 +320,88 @@ Future<void> main() async {
   }
 }
 
-/// Builds a shape example with title, description, and the shape itself
-DocxNode<dynamic> _buildShapeExample({
-  required String title,
-  required String description,
-  required ShapePath shapePath,
-  required Color fillColor,
-  required Color borderColor,
-  required int borderWidth,
-}) {
-  // Build the custom geometry component
-  final CustomGeometryComponent geometry = CustomGeometryComponent(
-    paths: <ShapePath>[shapePath],
-    boundingBox: Rect(0, 0, shapePath.width, shapePath.height),
-    guide: GeometryGuideList(),
-    adjustValue: AdjustValueList(),
-    handle: HandlesList(),
-  );
+class ShapeExample extends StatelessWidget {
+  ShapeExample({
+    required this.title,
+    required this.description,
+    required this.shapePath,
+    required this.fillColor,
+    required this.borderColor,
+    required this.borderWidth,
+    super.key,
+  });
 
-  // Create anchor to position the shape
-  final int size = 150.ptToEmu();
+  final String title;
+  final String description;
+  final ShapePath shapePath;
+  final Color fillColor;
+  final Color borderColor;
+  final int borderWidth;
 
-  // Build shape properties with custom geometry
-  final ShapeProperties shapeProperties = ShapeProperties.custom(
-    transform: Transform2D.zero(extents: AnnotationExtents.same(size)),
-    geometry: geometry,
-    fill: SolidFill(color: fillColor),
-    border: ShapeBorder(
-      width: Point(borderWidth),
-      color: borderColor,
-    ),
-  );
+  @override
+  DocxNode<dynamic> build() {
+    // Build the custom geometry component
+    final CustomGeometryComponent geometry = CustomGeometryComponent(
+      paths: <ShapePath>[shapePath],
+      boundingBox: Rect(0, 0, shapePath.width, shapePath.height),
+      guide: GeometryGuideList(),
+      adjustValue: AdjustValueList(),
+      handle: HandlesList(),
+    );
 
-  // Build the wordprocessing shape
-  final WPShape shape = WPShape(
-    shapeProperties: shapeProperties,
-    name: title,
-    description: description,
-  );
+    // Create anchor to position the shape
+    final int size = 150.ptToEmu();
 
-  // Create column with centered content
-  return Column(
-    children: <DocxNode<dynamic>>[
-      Paragraph.text(
-        text: title,
-        styles: <Style>[
-          StyleBuilder.paragraph('ShapeLabel')
-              .spacing(before: 200, after: 50)
-              .build(),
-        ],
+    // Build shape properties with custom geometry
+    final ShapeProperties shapeProperties = ShapeProperties.custom(
+      transform: Transform2D.zero(extents: AnnotationExtents.same(size)),
+      geometry: geometry,
+      fill: SolidFill(color: fillColor),
+      border: ShapeBorder(
+        width: Point(borderWidth),
+        color: borderColor,
       ),
-      Anchor(
-        name: title,
-        width: size,
-        height: size,
-        config: AnchorConfig.square().toPageAnchorPosition(
-          horizontalPosition: AnchorPosition.center,
-          verticalPosition: AnchorPosition.center,
+    );
+
+    // Build the wordprocessing shape
+    final WPShape shape = WPShape(
+      shapeProperties: shapeProperties,
+      name: title,
+      description: description,
+    );
+
+    // Create column with centered content
+    return Column(
+      children: <DocxNode<dynamic>>[
+        Paragraph.text(
+          text: title,
+          styles: <Style>[
+            StyleBuilder.paragraph('ShapeLabel')
+                .spacing(before: Twip(200), after: Twip(50))
+                .build(),
+          ],
         ),
-        child: Graphic.shape(child: shape),
-      ).drawing().run().paragraph(),
-      Paragraph.text(
-        text: description,
-        styles: <Style>[
-          StyleBuilder.paragraph('Body')
-              .fontSize(10.ptToHalfPoints())
-              .alignment(Alignment.center)
-              .spacing(after: 200)
-              .build(),
-        ],
-      ),
-    ],
-  );
+        Anchor(
+          name: title,
+          width: size,
+          height: size,
+          config: AnchorConfig.square().toPageAnchorPosition(
+            horizontalPosition: AnchorPosition.center,
+            verticalPosition: AnchorPosition.center,
+          ),
+          child: Graphic.shape(child: shape),
+        ).drawing().run().paragraph(),
+        Paragraph.text(
+          text: description,
+          styles: <Style>[
+            StyleBuilder.paragraph('Body')
+                .fontSize(Point(10))
+                .alignment(Alignment.center)
+                .spacing(after: Twip(200))
+                .build(),
+          ],
+        ),
+      ],
+    );
+  }
 }

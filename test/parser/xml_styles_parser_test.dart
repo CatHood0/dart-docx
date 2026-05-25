@@ -26,8 +26,7 @@ void main() {
       );
 
       // Test 'Normal' style
-      final Style normalStyle =
-          stylesSheet.styles.firstWhere((s) => s.styleId == 'Normal');
+      final Style normalStyle = stylesSheet.styles['Normal']!;
       expect(normalStyle.type, 'paragraph');
       expect(
         normalStyle.styleName()?.value,
@@ -36,8 +35,7 @@ void main() {
       expect(normalStyle.defaultValue, isNull);
 
       // Test 'Heading1' style
-      final Style heading1Style =
-          stylesSheet.styles.firstWhere((Style s) => s.styleId == 'Heading1');
+      final Style heading1Style = stylesSheet.styles['Heading1']!;
       expect(heading1Style.contains('w:rPr'), isTrue);
       expect(heading1Style.contains('w:pPr'), isTrue);
       final StyleConfigurator? headingBlockProperties =

@@ -62,6 +62,15 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     length = child.text.length;
   }
 
+  factory HyperlinkRun.empty() {
+    return HyperlinkRun(
+      child: HyperlinkTextPart(
+        text: '',
+        hyperlink: '',
+      ),
+    );
+  }
+
   /// Creates a hyperlink with the specified URL and optional display text.
   ///
   /// The [link] parameter is the URL that will be opened when clicked.
@@ -86,7 +95,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
   HyperlinkRun.pure({
     required String link,
     String? text,
-    List<Object> styles = const <Object>[],
+    List<Style> styles = const <Style>[],
     super.parent,
     super.id,
     bool bold = false,
@@ -101,7 +110,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
           child: HyperlinkTextPart(
             text: text ?? link,
             hyperlink: link,
-            styles: <Object>[
+            styles: <Style>[
               ...styles,
               ...TextStyle(
                 bold: bold,
@@ -119,6 +128,10 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     length = child.text.length;
   }
 
+  @override
+  bool canMerge(RunBase node) =>
+      node is HyperlinkRun && child.styles == node.child.styles;
+
   @protected
   @internal
   HyperlinkRun.inheritFrom({
@@ -132,10 +145,10 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
           child: HyperlinkTextPart(
             text: text,
             hyperlink: text,
-            styles: [
+            styles: <Style>[
               ...element.styles,
               if (element.textStyle != null)
-                element.textStyle!.toStyle().toList().skipNulls<Style>(),
+                ...element.textStyle!.toStyle().toList().skipNulls<Style>(),
             ],
           ),
         ) {
@@ -144,14 +157,17 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   HyperlinkRun cut(int offset, int offsetEnd) {
-    final int length = math.min(dataLength, offsetEnd);
-    final int start = math.min(0, offset);
+    final int start = math.max(0, offset);
+    final int end = math.min(dataLength, offset + offsetEnd);
+
+    if (start >= end) return HyperlinkRun.empty();
+    final bool rawHyperlink = child.text == child.hyperlink;
 
     return HyperlinkRun.pure(
-      link: child.hyperlink.substring(
-        start,
-        length,
-      ),
+      link: rawHyperlink
+          ? child.hyperlink.substring(start, end)
+          : child.hyperlink,
+      text: child.text.substring(start, end),
       styles: child.styles.toList(),
       parent: parent,
     );
@@ -159,59 +175,75 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   (HyperlinkRun, HyperlinkRun) cutTwo(int offset, int offsetEnd) {
-    final int length = math.min(dataLength, offsetEnd);
-    final int start = math.min(0, offset);
+    final int cutPoint = math.max(0, math.min(dataLength, offset));
+    final bool rawHyperlink = child.text == child.hyperlink;
 
-    return (
-      HyperlinkRun.pure(
-        link: child.hyperlink.substring(
-          0,
-          start,
-        ),
-        styles: child.styles.toList(),
-        parent: parent,
-      ),
-      HyperlinkRun.pure(
-        link: child.hyperlink.substring(
-          start,
-          length,
-        ),
-        styles: child.styles.toList(),
-        parent: parent,
-      )
-    );
+    final HyperlinkRun left = cutPoint > 0
+        ? HyperlinkRun.pure(
+            link: rawHyperlink
+                ? child.hyperlink.substring(0, cutPoint)
+                : child.hyperlink,
+            text: child.text.substring(0, cutPoint),
+            styles: child.styles.toList(),
+            parent: parent,
+          )
+        : HyperlinkRun.empty();
+
+    final HyperlinkRun right = cutPoint < dataLength
+        ? HyperlinkRun.pure(
+            link: rawHyperlink
+                ? child.hyperlink.substring(cutPoint)
+                : child.hyperlink,
+            text: child.text.substring(cutPoint),
+            styles: child.styles.toList(),
+            parent: parent,
+          )
+        : HyperlinkRun.empty();
+
+    return (left, right);
   }
 
   @override
   (HyperlinkRun, HyperlinkRun, HyperlinkRun) cutAll(int offset, int offsetEnd) {
-    final int length = math.min(dataLength, offsetEnd);
-    final int start = math.min(0, offset);
+    final int relativeStart = math.max(0, offset);
+    final int relativeEnd = math.min(dataLength, offset + offsetEnd);
+    final int cutLength = relativeEnd - relativeStart;
+    final bool rawHyperlink = child.text == child.hyperlink;
 
-    return (
-      HyperlinkRun.pure(
-        link: child.hyperlink.substring(
-          0,
-          start,
-        ),
-        styles: child.styles.toList(),
-        parent: parent,
-      ),
-      HyperlinkRun.pure(
-        link: child.hyperlink.substring(
-          start,
-          length,
-        ),
-        styles: child.styles.toList(),
-        parent: parent,
-      ),
-      HyperlinkRun.pure(
-        link: child.hyperlink.substring(
-          length,
-        ),
-        styles: child.styles.toList(),
-        parent: parent,
-      )
-    );
+    final HyperlinkRun left = relativeStart > 0
+        ? HyperlinkRun.pure(
+            link: rawHyperlink
+                ? child.hyperlink.substring(0, relativeStart)
+                : child.hyperlink,
+            text: child.text.substring(0, relativeStart),
+            styles: child.styles.toList(),
+            parent: parent,
+          )
+        : HyperlinkRun.empty();
+
+    final HyperlinkRun center = cutLength > 0
+        ? HyperlinkRun.pure(
+            link: rawHyperlink
+                ? child.hyperlink.substring(relativeStart, relativeEnd)
+                : child.hyperlink,
+            text: child.text.substring(relativeStart, relativeEnd),
+            styles: child.styles.toList(),
+            parent: parent,
+          )
+        : HyperlinkRun.empty();
+
+    final HyperlinkRun right = relativeEnd < dataLength
+        ? HyperlinkRun.pure(
+            link: rawHyperlink
+                ? child.hyperlink.substring(relativeEnd)
+                : child.hyperlink,
+            text: child.text.substring(relativeEnd),
+            styles: child.styles.toList(),
+            parent: parent,
+          )
+        : HyperlinkRun.empty();
+
+    return (left, center, right);
   }
 
   @override
@@ -267,7 +299,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   bool shouldIgnore() {
-    return child.hyperlink.isEmpty;
+    return isEmptyNode();
   }
 
   @override
@@ -291,26 +323,16 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
 
   @override
   List<XmlNode> buildXmlStyle() {
-    final List<Object> styles = <Object>[...child.styles];
-    if (styles.any(
-        (Object e) => e is TextRunAttribution && e.scope != Scope.portion)) {
-      throw Exception('The styles passed in $runtimeType are invalid. '
-          'All of them must implement "Scope.portion" value');
-    }
+    final List<Style> styles = <Style>[...child.styles];
     final List<XmlElement> xmlStyles = <XmlElement>[];
-    for (final Object style in styles) {
-      if (style is Style && style.isInvalid) continue;
-      if (style is TextRunAttribution) {
-        final el = style.toXml();
-        if (el != null) xmlStyles.add(el);
-      } else {
-        final List<XmlElement> elements = (style as Style).forRunStyle(
-          // only not reference styles have configurators
-          useConfigurators: !style.isReference,
-          shouldShowStyleRef: style.isReference,
-        );
-        xmlStyles.addAll(elements);
-      }
+    for (final Style style in styles) {
+      if (style.isInvalid) continue;
+      final List<XmlElement> elements = style.forRunStyle(
+        // only not reference styles have configurators
+        useConfigurators: !style.isReference,
+        shouldShowStyleRef: style.isReference,
+      );
+      xmlStyles.addAll(elements);
     }
     return xmlStyles;
   }

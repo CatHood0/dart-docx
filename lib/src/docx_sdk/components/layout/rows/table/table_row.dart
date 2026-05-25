@@ -37,9 +37,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.isHeader = false,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null
-            ? TableHeightRule.atLeast
-            : heightRule,
+  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
         super(child: List.from(cells)) {
     int cellIndex = 0;
     for (final TableCell cell in child) {
@@ -62,9 +60,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     super.id,
     super.parent,
   })  : isHeader = true,
-        heightRule = height != null && heightRule == null
-            ? TableHeightRule.atLeast
-            : heightRule,
+        heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
         super(child: List.from(cells)) {
     int cellIndex = 0;
     for (final TableCell cell in child) {
@@ -86,9 +82,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.isHeader = false,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null
-            ? TableHeightRule.atLeast
-            : heightRule,
+  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
         super(child: List.from(<dynamic>[]));
 
   TableRow.one({
@@ -102,9 +96,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     TableHeightRule? heightRule,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null
-            ? TableHeightRule.atLeast
-            : heightRule,
+  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
         super(child: List.from(<dynamic>[cell]));
 
   TableRow.two({
@@ -119,9 +111,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     TableHeightRule? heightRule,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null
-            ? TableHeightRule.atLeast
-            : heightRule,
+  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
         super(child: List.from(<dynamic>[cell, cell2]));
 
   TableRow.three({
@@ -137,9 +127,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     TableHeightRule? heightRule,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null
-            ? TableHeightRule.atLeast
-            : heightRule,
+  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
         super(child: List.from(<dynamic>[cell, cell2, cell3]));
 
   final bool? canSplit;
@@ -203,8 +191,7 @@ class TableRow extends DocxNode<List<TableCell>> {
 
   @override
   List<XmlNode> buildXmlStyle() {
-    final Alignment? align =
-        alignment ?? getAncestorOfExactType<Align>()?.alignment;
+    final Alignment? align = alignment ?? getAncestorOfExactType<Align>()?.alignment;
     assert(
       align == null || align.isCenterLeftOrRight(),
       'TableRow alignment only supports: '
@@ -278,6 +265,9 @@ class TableRow extends DocxNode<List<TableCell>> {
         canSplit: canSplit,
         height: height,
         heightRule: heightRule,
+        alignment: alignment,
+        isHeader: isHeader,
+        spacing: spacing,
       );
 
   @override
@@ -294,6 +284,7 @@ class TableRow extends DocxNode<List<TableCell>> {
     UnitValue? spacing,
   }) {
     return TableRow(
+      id: id ?? this.id,
       cells: cells ?? this.child,
       canSplit: canSplit ?? this.canSplit,
       hidden: hidden ?? this.hidden,
@@ -302,7 +293,6 @@ class TableRow extends DocxNode<List<TableCell>> {
       alignment: alignment ?? this.alignment,
       isHeader: isHeader ?? this.isHeader,
       spacing: spacing ?? this.spacing,
-      id: id ?? this.id,
       parent: parent ?? this.parent,
     );
   }

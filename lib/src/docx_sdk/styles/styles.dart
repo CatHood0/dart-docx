@@ -54,7 +54,8 @@ class Style extends IterableConfigurators {
     this.revisionIdPPr,
     this.revisionIdRun,
     this.revisionIdRPr,
-  })  : id = nanoid(10),
+    String? id,
+  })  : id = id ?? nanoid(10),
         _onlyReference = false,
         super(
           configurators: List.from(
@@ -84,10 +85,10 @@ class Style extends IterableConfigurators {
   /// final reference = Style.reference('Heading1');
   /// final fullStyle = styleSheet.getStyleById(reference.styleId);
   /// ```
-  Style.ref(this.styleId)
+  Style.ref(this.styleId, [String? id])
       : type = '',
         revisionIdDefault = null,
-        id = nanoid(10),
+        id = id ?? nanoid(10),
         defaultValue = null,
         revisionIdRPr = null,
         revisionIdRun = null,
@@ -97,11 +98,11 @@ class Style extends IterableConfigurators {
           configurators: <StyleConfigurator>[],
         );
 
-  Style.themeReference(int idx)
+  Style.themeReference(int idx, [String? id])
       : type = '',
         styleId = '$idx',
         revisionIdDefault = null,
-        id = nanoid(10),
+        id = id ?? nanoid(10),
         defaultValue = null,
         revisionIdRPr = null,
         revisionIdRun = null,

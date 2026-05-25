@@ -51,8 +51,8 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
     required this.tag,
     required this.dateFormat,
     required String locale,
-    String storeMappedDataAs = 'dateTime',
-    SdtCalendar calendar = SdtCalendar.gregorian,
+    this.storeMappedDataAs = 'dateTime',
+    this.calendar = SdtCalendar.gregorian,
     DateTime? value,
     this.placeholder,
     this.showingPlacHdr = true,
@@ -63,8 +63,6 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
     super.sdtId,
   })  : _alias = alias,
         _locale = locale,
-        _storeMappedDataAs = storeMappedDataAs,
-        _calendar = calendar,
         _value = value,
         _displayText = _formatDate(value, dateFormat),
         super(
@@ -87,10 +85,10 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
   String get locale => _locale;
 
   /// How to store the mapped data (usually 'dateTime').
-  final String _storeMappedDataAs;
+  final String storeMappedDataAs;
 
   /// Calendar system to use.
-  final SdtCalendar _calendar;
+  final SdtCalendar calendar;
 
   /// The selected date value.
   final DateTime? _value;
@@ -161,7 +159,7 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
           XmlElement.tag(
             'w:storeMappedDataAs',
             attributes: <XmlAttribute>[
-              XmlAttribute('w:val'.toName(), _storeMappedDataAs),
+              XmlAttribute('w:val'.toName(), storeMappedDataAs),
             ],
             isSelfClosing: true,
           ),
@@ -169,7 +167,7 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
           XmlElement.tag(
             'w:calendar',
             attributes: <XmlAttribute>[
-              XmlAttribute('w:val'.toName(), _calendar.value),
+              XmlAttribute('w:val'.toName(), calendar.value),
             ],
             isSelfClosing: true,
           ),
@@ -281,8 +279,8 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
         tag: tag,
         dateFormat: dateFormat,
         locale: _locale,
-        storeMappedDataAs: _storeMappedDataAs,
-        calendar: _calendar,
+        storeMappedDataAs: this.storeMappedDataAs,
+        calendar: this.calendar,
         value: _value,
         placeholder: placeholder,
         showingPlacHdr: showingPlacHdr,
@@ -315,8 +313,8 @@ class SdtDate extends Sdt<RunBase> with PrintableMixin {
       tag: tag ?? this.tag,
       dateFormat: dateFormat ?? this.dateFormat,
       locale: lid ?? _locale,
-      storeMappedDataAs: storeMappedDataAs ?? _storeMappedDataAs,
-      calendar: calendar ?? _calendar,
+      storeMappedDataAs: storeMappedDataAs ?? this.storeMappedDataAs,
+      calendar: calendar ?? this.calendar,
       value: value ?? _value,
       placeholder: placeholder ?? this.placeholder,
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,

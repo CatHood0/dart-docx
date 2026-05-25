@@ -72,8 +72,8 @@ Future<void> main() async {
       lastModifiedBy: 'Me',
       editorSettings: EditorOptions(
         fontFamily: 'Arial',
-        fontSize: 12.ptToHalfPoints(),
-        complexScriptFontSize: 12.ptToHalfPoints(),
+        fontSize: Point(12),
+        complexScriptFontSize: Point(12),
         //TODO:  we need to work of headers and footers
         headerType: 'default',
         footerType: 'default',
@@ -98,73 +98,81 @@ Future<void> main() async {
         <Style>[
           StyleBuilder.paragraph('Title')
               .name('Title')
-              .fontSize(28.ptToHalfPoints())
+              .fontSize(Point(28))
               .fontFamily('Georgia')
               .bold()
               .alignment(Alignment.center)
               .qFormat(true)
               .spacing(
-                before: 12.ptToTwips(),
-                after: 6.ptToTwips(),
+                before: Point(12),
+                after: Point(6),
               )
               .uiPriority(20)
               .build(),
           StyleBuilder.paragraph('Subtitle')
               .name('Subtitle')
-              .fontSize(14.ptToHalfPoints())
+              .fontSize(Point(14))
               .fontFamily('Georgia')
               .italic()
               .runColor(Color(0x666666))
               .alignment(Alignment.center)
               .qFormat(true)
-              .spacing(before: 60, after: 300)
+              .spacing(before: Twip(60), after: Twip(300))
               .uiPriority(19)
               .build(),
           StyleBuilder.paragraph('Chapter')
               .name('Chapter')
-              .fontSize(20.ptToHalfPoints())
+              .fontSize(Point(20))
               .fontFamily('Georgia')
               .bold()
               .smallCaps()
               .alignment(Alignment.center)
               .qFormat(true)
-              .spacing(before: 240, after: 120)
+              .spacing(before: Twip(240), after: Twip(120))
               .uiPriority(18)
               .basedOn('Normal')
               .next('BodyText')
               .build(),
           StyleBuilder.paragraph('BodyText')
               .name('Body Text')
-              .fontSize(13.ptToHalfPoints())
+              .fontSize(Point(13))
               .fontFamily('Times New Roman')
               .alignment(Alignment.left)
               .qFormat(true)
-              .spacing(line: 276)
-              .indent(firstLine: 360)
+              .spacing(line: Twip(276))
+              .indent(firstLine: Twip(360))
               .uiPriority(10)
               .basedOn('Normal')
               .build(),
           StyleBuilder.paragraph('Quote')
               .name('Quote')
-              .fontSize(12.ptToHalfPoints())
+              .fontSize(Point(12))
               .fontFamily('Times New Roman')
               .italic()
               .runColor(Color(0x444444))
               .alignment(Alignment.left)
               .qFormat(true)
-              .indent(left: 360, right: 360)
-              .spacing(before: 120, after: 120, line: 240)
+              .indent(left: Twip(360), right: Twip(360))
+              .spacing(
+                before: Twip(120),
+                after: Twip(120),
+                line: SpacingInch(1.0),
+              )
               .uiPriority(15)
               .basedOn('Normal')
               .build(),
           StyleBuilder.paragraph('Epilogue')
               .name('Epilogue')
-              .fontSize(12.ptToHalfPoints())
+              .fontSize(Point(12))
               .fontFamily('Times New Roman')
               .italic()
               .alignment(Alignment.left)
               .qFormat(true)
-              .spacing(before: 240, after: 240, line: 240)
+              .spacing(
+                before: Twip(240),
+                after: Twip(240),
+                line: SpacingInch(1.0),
+              )
               .uiPriority(17)
               .basedOn('Normal')
               .build(),
@@ -182,16 +190,14 @@ Future<void> main() async {
         Paragraph(
           children: <RunBase<dynamic>>[
             ...Run.lineBreak().repeat(10).cast(),
-            TextRun(
-              textPart: TextPart(
-                text: 'WHISPERS IN THE FOG',
-                styles: <Object>[
-                  BoldAttribute(),
-                  StyleBuilder.uc().smallCaps().build(),
-                ],
-              ),
+            TextRun.text(
+              text: 'WHISPERS IN THE FOG',
             ),
           ],
+          textStyle: TextStyle(
+            bold: true,
+            smallCaps: true,
+          ),
           styles: <Style>[
             Style.ref('Title'),
           ],
@@ -217,10 +223,8 @@ Future<void> main() async {
             TextRun(
               textPart: TextPart(
                 text: 'by',
-                styles: <Object>[
-                  ItalicAttribute(),
-                ],
               ),
+              textStyle: TextStyle(italic: true),
             ),
           ],
           styles: <Style>[
@@ -232,11 +236,9 @@ Future<void> main() async {
           children: <RunBase<dynamic>>[
             Run.lineBreak(),
             TextRun(
+              textStyle: TextStyle(bold: true),
               textPart: TextPart(
                 text: 'Alexander Gray',
-                styles: <Object>[
-                  BoldAttribute(),
-                ],
               ),
             ),
           ],
@@ -264,11 +266,9 @@ Future<void> main() async {
             ),
             Run.lineBreak(),
             TextRun(
+              textStyle: TextStyle(italic: true),
               textPart: TextPart(
                 text: 'The Harbor Walk',
-                styles: <Object>[
-                  ItalicAttribute(),
-                ],
               ),
             ),
           ],
@@ -320,11 +320,9 @@ Future<void> main() async {
             ),
             Run.lineBreak(),
             TextRun(
+              textStyle: TextStyle(italic: true),
               textPart: TextPart(
                 text: 'Shadows in the Mist',
-                styles: <Object>[
-                  ItalicAttribute(),
-                ],
               ),
             ),
           ],
@@ -350,17 +348,13 @@ Future<void> main() async {
 
         Paragraph(
           children: <RunBase<dynamic>>[
-            TextRun(
-              textPart: TextPart(text: 'CHAPTER III'),
+            TextRun.text(
+              text: 'CHAPTER III',
             ),
             Run.lineBreak(),
-            TextRun(
-              textPart: TextPart(
-                text: 'The Lantern and the Keeper',
-                styles: <Object>[
-                  ItalicAttribute(),
-                ],
-              ),
+            TextRun.text(
+              text: 'The Lantern and the Keeper',
+              textStyle: TextStyle(italic: true),
             ),
           ],
           styles: <Style>[
@@ -377,36 +371,32 @@ Future<void> main() async {
 
         Paragraph(
           children: <RunBase<dynamic>>[
-            TextRun(
-              textPart: TextPart(
-                text: '"You\'re late," the man said, '
-                    'his voice like gravel underfoot.',
-                styles: <Object>[
-                  ItalicAttribute(),
-                ],
-              ),
+            TextRun.text(
+              text: '"You\'re late," the man said, '
+                  'his voice like gravel underfoot.',
             ),
           ],
+          textStyle: TextStyle(
+            italic: true,
+            indentLeft: Inch(1.5),
+          ),
           styles: <Style>[
             Style.ref('BodyText'),
-            StyleBuilder.up().indent(left: 360).build(),
           ],
         ),
 
         Paragraph(
           children: <RunBase<dynamic>>[
-            TextRun(
-              textPart: TextPart(
-                text: '"But then, you always were."',
-                styles: <Object>[
-                  ItalicAttribute(),
-                ],
-              ),
+            TextRun.text(
+              text: '"But then, you always were."',
             ),
           ],
+          textStyle: TextStyle(
+            italic: true,
+            indentLeft: Inch(1.5),
+          ),
           styles: <Style>[
             Style.ref('BodyText'),
-            StyleBuilder.up().indent(left: 360).build(),
           ],
         ),
 
@@ -441,23 +431,19 @@ Future<void> main() async {
             ...Run(
               component: Break.lineBreak(),
             ).repeat(4).cast(),
-            TextRun(
-              textPart: TextPart(
-                text: '© 2023 Midnight Press',
-                styles: <Object>[
-                  FontSizeAttribute(9.ptToHalfPoints().toInt()),
-                  ForegroundTextColorAttribute(Color(999999)),
-                ],
+            TextRun.text(
+              text: '© 2023 Midnight Press',
+              textStyle: TextStyle(
+                fontSize: Point(9),
+                fontColor: Color(0x999999),
               ),
             ),
             Run(component: Break.lineBreak()),
-            TextRun(
-              textPart: TextPart(
-                text: 'All rights reserved',
-                styles: <Object>[
-                  FontSizeAttribute(8.ptToHalfPoints().toInt()),
-                  ForegroundTextColorAttribute(Color(0x999999)),
-                ],
+            TextRun.text(
+              text: 'All rights reserved',
+              textStyle: TextStyle(
+                fontSize: Point(8),
+                fontColor: Color(0x999999),
               ),
             ),
           ],

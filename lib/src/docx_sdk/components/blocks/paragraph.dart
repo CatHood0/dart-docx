@@ -6,7 +6,6 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../compiler/inherited/compiler_config_provider.dart';
-import '../../stores/inherited_stores/numbering_store_provider.dart';
 
 /// Fundamental document unit for organizing text content.
 ///
@@ -124,11 +123,13 @@ class Paragraph extends DocxNode<List<RunBase>> {
         super(child: <RunBase<dynamic>>[...children]) {
     int index = 0;
     for (final RunBase content in children) {
-      length += content.dataLength;
       content
         ..parent = this
         ..index = index
-        ..depth = depth + 1;
+        ..depth = depth + 1
+        ..start = length
+        ..end = length + content.dataLength;
+      length += content.dataLength;
       index++;
     }
   }
@@ -138,7 +139,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
     String? id,
     DocxNode? parent,
     Iterable<Style> styles = const <Style>[],
-    Iterable<Object> runStyles = const <Object>[],
+    Iterable<Style> runStyles = const <Style>[],
     ParagraphPageBreak pageBreak = ParagraphPageBreak.none,
     Numbering? numbering,
     Alignment? align,
@@ -164,9 +165,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
   }
 
   factory Paragraph.empty() => Paragraph(
-        children: <RunBase<dynamic>>[
-          TextRun.empty(),
-        ],
+        children: <RunBase<dynamic>>[],
       );
 
   factory Paragraph.run(
@@ -254,7 +253,13 @@ class Paragraph extends DocxNode<List<RunBase>> {
       );
     }
 
-    for (final RunBase e in child) {
+    final List<RunBase> elements = List.from(child);
+
+    if (elements.isEmpty) {
+      elements.add(TextRun.empty());
+    }
+
+    for (final RunBase e in elements) {
       final List<XmlNode> element = e.buildXml();
       if (e.shouldIgnore() || element.isEmpty || e.isEmptyNode()) {
         continue;
@@ -533,20 +538,51 @@ class Paragraph extends DocxNode<List<RunBase>> {
   }
 
   void addRun(RunBase run) {
-    final Paragraph prev = copy;
-    child.add(run);
-    didChangeConfigurations(prev, this);
+    addRunAt(child.length, run);
   }
 
   void addRunFirst(RunBase run) {
-    final Paragraph prev = copy;
-    child.insert(0, run);
-    didChangeConfigurations(prev, this);
+    addRunAt(0, run);
   }
 
   void addRunAt(int index, RunBase run) {
     final Paragraph prev = copy;
-    child.insert(index, run);
+    if (run.mounted || run.parent != this) {
+      run.deactivate();
+    }
+    run
+      ..parent = this
+      ..index = index;
+
+    if (index < child.length) {
+      int insertStart;
+      if (index == 0) {
+        insertStart = 0;
+      } else {
+        insertStart = child[index - 1].end;
+      }
+
+      run
+        ..start = insertStart
+        ..end = insertStart + run.dataLength;
+
+      int offset = run.dataLength;
+      for (int i = index; i < child.length; i++) {
+        child[i]
+          ..start += offset
+          ..end += offset;
+      }
+
+      child.insert(index, run);
+      length += run.dataLength;
+    } else {
+      int insertStart = length;
+      run
+        ..start = insertStart
+        ..end = insertStart + run.dataLength;
+      child.insert(index, run);
+      length += run.dataLength;
+    }
     didChangeConfigurations(prev, this);
   }
 
@@ -554,13 +590,25 @@ class Paragraph extends DocxNode<List<RunBase>> {
   void addAll(List<DocxNode<dynamic>> components) {
     final Paragraph prev = copy;
     for (final DocxNode<dynamic> v in components) {
-      length += v.length;
       if (v is RunBase) {
+        v
+          ..parent = this
+          ..index = child.length
+          ..start = length
+          ..end = length + v.length;
         child.add(v);
+        length += v.length;
         continue;
       }
 
-      child.add(Run(component: v));
+      child.add(
+        Run(component: v)
+          ..parent = this
+          ..index = child.length
+          ..start = length
+          ..end = length + 1,
+      );
+      length += v.length;
     }
     didChangeConfigurations(prev, this);
   }
@@ -573,21 +621,19 @@ class Paragraph extends DocxNode<List<RunBase>> {
     List<Object>? styles,
     bool mergeStyles = true,
   }) {
-    assert(
-      styles == null ||
-          styles.every((Object e) => e is Attributes || e is Style),
-      'styles must be only Attributes or Style type',
-    );
     offset ??= 0;
     if (path != null) {
       return;
     }
+
+    final Paragraph prev = copy;
+
     final (int index, int remaining) = getIndexByOffset(offset);
     if (index == -1) {
       addRun(
         TextRun.text(
           text: text,
-          styles: styles ?? <Object>[],
+          styles: styles?.cast() ?? <Style>[],
         ),
       );
       return;
@@ -599,7 +645,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
       addRun(
         TextRun.text(
           text: text,
-          styles: styles ?? <Object>[],
+          styles: styles?.cast() ?? <Style>[],
         ),
       );
       return;
@@ -608,118 +654,114 @@ class Paragraph extends DocxNode<List<RunBase>> {
     final DocxNode<dynamic> childData = run is Run ? run.child : run;
     final int local = math.min(childData.length, remaining);
 
+    final int oldLength = length;
+
     if (childData is TextRun) {
       childData.insertText(
         text,
         offset: local,
-        mergeStyles: true,
         styles: styles,
+        mergeStyles: true,
       );
+      length = oldLength + text.length;
     } else if (childData is HyperlinkRun) {
       childData.insertText(
         text,
         offset: local,
-        mergeStyles: true,
         styles: styles,
+        mergeStyles: true,
       );
+      length = oldLength + text.length;
     }
+
+    didChangeConfigurations(prev, this);
   }
 
   (int, int) getIndexByOffset(int offset, {int startOffset = 0}) {
+    int accumulatedOffset = startOffset;
+
     final int index = child.indexWhere((RunBase<dynamic> e) {
-      if ((startOffset + e.length) > offset) {
+      if ((accumulatedOffset + e.length) > offset) {
         return true;
       }
-      startOffset += e.length;
+      accumulatedOffset += e.length;
       return false;
     });
-    return (index, startOffset);
+
+    return (index, accumulatedOffset);
   }
 
+  /// Returns a new Paragraph with the runs that matches with
+  /// the positions specified
   Paragraph cut(int offset, int offsetEnd) {
-    if (offset < 0 || offset >= length || offsetEnd < 0 || offsetEnd > length) {
-      return Paragraph.empty();
-    }
-
-    assert(offset < offsetEnd, 'offsets must be normalized');
-
     final (int index, int local) = getIndexByOffset(offset);
-    if (index == -1) {
-      return Paragraph.empty();
-    }
+    if (index == -1) return Paragraph.empty();
 
-    int remaining = offsetEnd - local;
-    int start = local - offset;
+    int remaining = offsetEnd - offset;
+    int startOffset = offset - local;
     final List<RunBase> runs = <RunBase<dynamic>>[];
 
     for (int i = index; i < child.length; i++) {
-      if (remaining <= 0) break;
+      if (remaining <= 0) {
+        break;
+      }
+
       final (
         RunBase<dynamic> left,
         RunBase<dynamic> center,
         RunBase<dynamic> right
-      ) = child[i].cutAll(start, remaining);
+      ) = child[i].copy.cast<RunBase>().cutAll(startOffset, remaining);
 
-      //TODO: check if this works as expected
-      if ((!left.isEmptyData || left.length > 0) && !left.isEmptyNode()) {
-        runs.add(left);
-      }
-      if (!center.isEmptyData && !center.isEmptyNode()) {
+      if (!center.isEmptyData && center.length > 0) {
         runs.add(center);
       }
-      if (!right.isEmptyData && !right.isEmptyNode()) {
-        runs.add(right);
-      }
-      start = 0;
+
       remaining -= center.length;
+      startOffset = 0;
     }
 
     return Paragraph(children: runs, styles: styles.toList());
   }
 
-  // @override
-  // void addImage(
-  //   ImageData<Object> data, {
-  //   required bool anchored,
-  //   String? id,
-  // }) {
-  //   if (anchored) {
-  //     super.child.add(
-  //           Run(
-  //             component: Drawing(
-  //               child: data is ImageData<Uint8List>
-  //                   ? FloatingImage(
-  //                       id: id,
-  //                       data: data.cast(),
-  //                     )
-  //                   : LazyFloatingImage(
-  //                       id: id,
-  //                       data: data.cast(),
-  //                     ),
-  //             ),
-  //           ),
-  //         );
-  //     return;
-  //   }
+  /// Delete all the text within the specified positions
+  /// and returns a new Paragraph with the remaining runs
+  Paragraph deleteRange(int offset, int offsetEnd) {
+    final (int index, int local) = getIndexByOffset(offset);
+    if (index == -1) return Paragraph.empty();
 
-  //   super.child.add(
-  //         Run(
-  //           component: Drawing(
-  //             child: data is ImageData<Uint8List>
-  //                 ? Image(
-  //                     id: id,
-  //                     data: data.cast(),
-  //                     asInline: true,
-  //                   )
-  //                 : LazyImage(
-  //                     id: id,
-  //                     data: data.cast(),
-  //                     asInline: true,
-  //                   ),
-  //           ),
-  //         ),
-  //       );
-  // }
+    int remaining = offsetEnd - offset;
+    int startOffset = offset - local;
+    final List<RunBase> runs = <RunBase<dynamic>>[];
+
+    if (index > 0) {
+      runs.addAll(child.sublist(0, index));
+    }
+
+    for (int i = index; i < child.length; i++) {
+      if (remaining <= 0) {
+        runs.addAll(child.sublist(i));
+        break;
+      }
+
+      final (
+        RunBase<dynamic> left,
+        RunBase<dynamic> center,
+        RunBase<dynamic> right
+      ) = child[i].copy.cast<RunBase>().cutAll(startOffset, remaining);
+
+      if (!left.isEmptyData && left.length > 0) {
+        runs.add(left);
+      }
+      if (!right.isEmptyData && right.length > 0) {
+        runs.add(right);
+      }
+
+      remaining -= center.length;
+      startOffset = 0;
+    }
+
+    return Paragraph(children: runs, styles: styles.toList());
+  }
 
   @override
   void removeById(String id, {List<int> path = const <int>[]}) {
@@ -728,18 +770,28 @@ class Paragraph extends DocxNode<List<RunBase>> {
     final int index = child.indexWhere((e) => e.id == id);
 
     if (index == -1) return;
-    child.removeAt(index).deactivate();
+    final RunBase<dynamic> removed = child.removeAt(index)..deactivate();
+    final int removedLength = removed.length;
+
+    length -= removedLength;
+
+    for (int i = index; i < child.length; i++) {
+      child[i].index = i;
+      child[i].start -= removedLength;
+      child[i].end -= removedLength;
+    }
+
     didChangeConfigurations(prev, this);
   }
 
   @override
   void remove(DocxNode element, {List<int> path = const <int>[]}) {
-    if (element.parent != this || element is! RunBase) {
+    if ((element.mounted && element.parent != this) || element is! RunBase) {
       return;
     }
     final Paragraph prev = copy;
 
-    final RunBase<dynamic> prevElement = child.elementAt(element.index);
+    final RunBase<dynamic> prevElement = child[element.index];
 
     if (prevElement.id != element.id) {
       CompilerLogger.root.debug(
@@ -748,8 +800,16 @@ class Paragraph extends DocxNode<List<RunBase>> {
       );
       return;
     }
+    final int removedLength = prevElement.length;
 
     child.removeAt(element.index).deactivate();
+    length -= removedLength;
+
+    for (int i = element.index; i < child.length; i++) {
+      child[i].index = i;
+      child[i].start -= removedLength;
+      child[i].end -= removedLength;
+    }
 
     didChangeConfigurations(prev, this);
   }
@@ -781,9 +841,11 @@ class Paragraph extends DocxNode<List<RunBase>> {
       return;
     }
 
+    final int oldLength = element.length;
+
     element.deactivate();
 
-    length -= element.length;
+    length -= oldLength;
 
     CompilerLogger.root.debug(
       'Replaced | $element | '
@@ -791,14 +853,30 @@ class Paragraph extends DocxNode<List<RunBase>> {
       'state at: $i in $runtimeType class type',
     );
 
-    length += component.length;
+    final RunBase newRun = component.copy.cast<RunBase>();
+    final int newLength = newRun.length;
 
-    child[i] = component.copy.cast<RunBase>();
+    length += newLength;
 
-    final RunBase<dynamic> t = child[i];
+    newRun
+      ..start = element.start
+      ..end = element.start + newLength
+      ..index = i
+      ..parent = this;
 
-    if (t.mounted) {
-      t
+    child[i] = newRun;
+
+    if (oldLength != newLength) {
+      final int delta = newLength - oldLength;
+      for (int j = i + 1; j < child.length; j++) {
+        child[j]
+          ..start += delta
+          ..end += delta;
+      }
+    }
+
+    if (newRun.mounted) {
+      newRun
         ..markAsDirty()
         ..init();
     }

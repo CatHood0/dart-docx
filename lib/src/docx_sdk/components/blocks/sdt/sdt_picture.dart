@@ -55,7 +55,6 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
     super.id,
     super.sdtId,
   })  : _alias = alias,
-        _content = content,
         super(child: content ?? TextRun.empty()) {
     child
       ..parent = this
@@ -69,9 +68,6 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
 
   /// Internal tag for programming reference.
   final String tag;
-
-  /// The image content run.
-  final RunBase? _content;
 
   /// Placeholder text shown when no image is set.
   final String? placeholder;
@@ -202,7 +198,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
         showingPlacHdr: showingPlacHdr,
         lock: lock,
         temporary: temporary,
-        content: _content,
+        content: child,
         parent: parent,
       );
 
@@ -228,7 +224,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,
       lock: lock ?? this.lock,
       temporary: temporary ?? this.temporary,
-      content: content ?? _content,
+      content: content ?? child,
       parent: parent ?? this.parent,
     );
   }
@@ -262,10 +258,6 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
                 visitChildrenIfNeeded: visitChildrenIfNeeded,
               );
   }
-
-  // ═══════════════════════════════════════════════════════════
-  // PRINTABLE MIXIN
-  // ═══════════════════════════════════════════════════════════
 
   @override
   String toPlainText() => '';

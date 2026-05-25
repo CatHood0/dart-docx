@@ -11,7 +11,7 @@ class Run extends RunBase<DocxNode> {
     super.id,
     super.parent,
   }) : super(child: component) {
-    length += component.length;
+    length += 1;
     child
       ..parent = this
       ..index = index
@@ -24,7 +24,7 @@ class Run extends RunBase<DocxNode> {
     super.id,
     super.parent,
   }) : super(child: breaker) {
-    length += breaker.length;
+    length += 1;
     breaker
       ..parent = this
       ..index = index
@@ -32,18 +32,30 @@ class Run extends RunBase<DocxNode> {
   }
 
   factory Run.lineBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(breaker: Break.lineBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(
+      breaker: Break.lineBreak(),
+      wrapInRunMark: wrapInRunMark,
+    );
   }
 
   factory Run.pageBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(breaker: Break.pageBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(
+      breaker: Break.pageBreak(),
+      wrapInRunMark: wrapInRunMark,
+    );
   }
 
   factory Run.columnBreak({bool wrapInRunMark = true}) {
-    return Run.breaker(breaker: Break.columnBreak(), wrapInRunMark: wrapInRunMark);
+    return Run.breaker(
+      breaker: Break.columnBreak(),
+      wrapInRunMark: wrapInRunMark,
+    );
   }
 
   bool wrapInRunMark;
+
+  @override
+  bool canMerge(RunBase node) => false;
 
   @override
   bool isEmptyNode() {
@@ -91,30 +103,31 @@ class Run extends RunBase<DocxNode> {
 
   @override
   (RunBase, RunBase, RunBase) cutAll(int offset, int offsetEnd) {
-    if (child is TextRun) {
-      return child.cast<TextRun>().cutAll(offset, offsetEnd);
+    if (offset <= 0 && offsetEnd >= 1) {
+      return (
+        Run(component: EmptyNode(), id: id, parent: parent),
+        Run(component: child, id: id, parent: parent),
+        Run(component: EmptyNode(), id: id, parent: parent)
+      );
+    } else if (offset <= 0 && offsetEnd < 1) {
+      return (
+        Run(component: child, id: id, parent: parent),
+        Run(component: EmptyNode(), id: id, parent: parent),
+        Run(component: EmptyNode(), id: id, parent: parent)
+      );
+    } else if (offset >= 1) {
+      return (
+        Run(component: EmptyNode(), id: id, parent: parent),
+        Run(component: EmptyNode(), id: id, parent: parent),
+        Run(component: child, id: id, parent: parent)
+      );
+    } else {
+      return (
+        Run(component: EmptyNode(), id: id, parent: parent),
+        Run(component: EmptyNode(), id: id, parent: parent),
+        Run(component: EmptyNode(), id: id, parent: parent)
+      );
     }
-    if (child is HyperlinkRun) {
-      return child.cast<TextRun>().cutAll(offset, offsetEnd);
-    }
-
-    return (
-      Run(
-        component: offset > 0 ? EmptyNode() : child,
-        id: id,
-        parent: parent,
-      ),
-      Run(
-        component: EmptyNode(),
-        id: id,
-        parent: parent,
-      ),
-      Run(
-        component: EmptyNode(),
-        id: id,
-        parent: parent,
-      ),
-    );
   }
 
   @override
@@ -193,7 +206,9 @@ class Run extends RunBase<DocxNode> {
   //TODO: improve these methods
   @override
   String toPlainText() {
-    return child is PrintableMixin ? (child as PrintableMixin).toPlainText() : '';
+    return child is PrintableMixin
+        ? (child as PrintableMixin).toPlainText()
+        : '';
   }
 
   @override

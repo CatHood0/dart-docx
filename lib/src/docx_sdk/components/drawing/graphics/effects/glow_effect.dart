@@ -7,10 +7,18 @@ import '../../shared/effects.dart';
 /// Creates a colored halo around the shape, often used for emphasis or
 /// to simulate light emission. The glow is typically soft and diffuse.
 class GlowEffectComponent extends Effect<GlowEffect> {
-  GlowEffectComponent({required super.child});
+  GlowEffectComponent({
+    required super.child,
+    super.id,
+    super.parent,
+  });
 
   @override
-  GlowEffectComponent get copy => GlowEffectComponent(child: child.copy);
+  GlowEffectComponent get copy => GlowEffectComponent(
+        child: child.copy,
+        id: id,
+        parent: parent,
+      );
 
   @override
   GlowEffectComponent copyWith({
@@ -19,8 +27,10 @@ class GlowEffectComponent extends Effect<GlowEffect> {
     DocxNode<dynamic>? parent,
   }) {
     return GlowEffectComponent(
+      id: id ?? this.id,
       child: child ?? this.child.copy,
-    )..parent = parent ?? this.parent;
+      parent: parent ?? this.parent,
+    );
   }
 
   @override

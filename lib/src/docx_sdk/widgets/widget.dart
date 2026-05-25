@@ -9,6 +9,15 @@ abstract class Widget extends DocxNode {
   Widget({String? key}) : super(id: key, child: null);
 
   DocxNode build();
+
+  @override
+  List<DocxNode<dynamic>> repeat(
+    int times, {
+    DocxNode<dynamic>? Function(int index, DocxNode<dynamic> element)?
+        overrideCopy,
+  }) {
+    return [this];
+  }
 }
 
 abstract class StatelessWidget extends Widget {

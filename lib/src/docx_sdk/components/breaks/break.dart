@@ -54,6 +54,10 @@ class Break extends RunBase<BreakType> {
   @override
   Break get copy => Break(child: child);
 
+
+  @override
+  bool canMerge(RunBase<dynamic> node) => false;
+
   @override
   Break copyWith({String? id, DocxNode<BreakType>? parent, BreakType? child}) {
     return Break(child: child ?? this.child);

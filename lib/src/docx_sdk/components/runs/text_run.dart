@@ -4,7 +4,6 @@ import 'package:xml/xml.dart';
 import '../../../core/extensions/string_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../compiler/inherited/compiler_config_provider.dart';
-import '../../exceptions/docx_compilation_exception.dart';
 import '../../sdk.dart';
 
 /// Basic text run element for inline text content.
@@ -57,14 +56,14 @@ class TextRun extends RunBase<TextPart> {
 
   TextRun.text({
     required String text,
-    List<Object> styles = const <Object>[],
+    List<Style> styles = const <Style>[],
     this.textStyle,
     super.parent,
     super.id,
   }) : super(
           child: TextPart(
             text: text,
-            styles: styles,
+            styles: List.from(styles),
           ),
         ) {
     length += child.text.length;
@@ -77,25 +76,28 @@ class TextRun extends RunBase<TextPart> {
   }) : super(
           child: TextPart(
             text: '',
-            styles: <Object>[],
+            styles: <Style>[],
           ),
         );
 
   final TextStyle? textStyle;
+
+  @override
+  bool canMerge(RunBase node) =>
+      node is TextRun && child.styles == node.child.styles;
 
   /// Regular expression to detect consecutive whitespace characters.
   static final RegExp _consecutiveWhitespacesRegExp = RegExp(r'\s{2,}');
 
   @override
   TextRun cut(int offset, int offsetEnd) {
-    final int length = math.min(dataLength, offsetEnd);
-    final int start = math.min(0, offset);
+    final int start = math.max(0, offset);
+    final int end = math.min(dataLength, offset + offsetEnd);
+
+    if (start >= end) return TextRun.empty();
 
     return TextRun.text(
-      text: child._text.substring(
-        start,
-        length,
-      ),
+      text: child._text.substring(start, end),
       styles: child.styles.toList(),
       textStyle: textStyle,
       parent: parent,
@@ -104,64 +106,63 @@ class TextRun extends RunBase<TextPart> {
 
   @override
   (TextRun, TextRun) cutTwo(int offset, int offsetEnd) {
-    final int length = math.min(dataLength, offsetEnd);
-    final int start = math.min(0, offset);
+    final int cutPoint = math.max(0, math.min(dataLength, offset));
 
-    return (
-      TextRun.text(
-        text: child._text.substring(
-          0,
-          start,
-        ),
-        styles: child.styles.toList(),
-        textStyle: textStyle,
-        parent: parent,
-      ),
-      TextRun.text(
-        text: child._text.substring(
-          start,
-          length,
-        ),
-        styles: child.styles.toList(),
-        textStyle: textStyle,
-        parent: parent,
-      )
-    );
+    final TextRun left = cutPoint > 0
+        ? TextRun.text(
+            text: child._text.substring(0, cutPoint),
+            styles: child.styles.toList(),
+            textStyle: textStyle,
+            parent: parent,
+          )
+        : TextRun.empty();
+
+    final TextRun right = cutPoint < dataLength
+        ? TextRun.text(
+            text: child._text.substring(cutPoint),
+            styles: child.styles.toList(),
+            textStyle: textStyle,
+            parent: parent,
+          )
+        : TextRun.empty();
+
+    return (left, right);
   }
 
   @override
   (TextRun, TextRun, TextRun) cutAll(int offset, int offsetEnd) {
-    final int length = math.min(dataLength, offsetEnd);
-    final int start = math.min(0, offset);
+    final int relativeStart = math.max(0, offset);
+    final int relativeEnd = math.min(dataLength, offset + offsetEnd);
+    final int cutLength = relativeEnd - relativeStart;
 
-    return (
-      TextRun.text(
-        text: child._text.substring(
-          0,
-          start,
-        ),
-        styles: child.styles.toList(),
-        textStyle: textStyle,
-        parent: parent,
-      ),
-      TextRun.text(
-        text: child._text.substring(
-          start,
-          length,
-        ),
-        styles: child.styles.toList(),
-        textStyle: textStyle,
-        parent: parent,
-      ),
-      TextRun.text(
-        text: child._text.substring(
-          length,
-        ),
-        styles: child.styles.toList(),
-        textStyle: textStyle,
-        parent: parent,
-      ),
-    );
+    final TextRun left = relativeStart > 0
+        ? TextRun.text(
+            text: child._text.substring(0, relativeStart),
+            styles: child.styles.toList(),
+            textStyle: textStyle,
+            parent: parent,
+          )
+        : TextRun.empty();
+
+    final TextRun center = cutLength > 0
+        ? TextRun.text(
+            text: child._text.substring(relativeStart, relativeEnd),
+            styles: child.styles.toList(),
+            textStyle: textStyle,
+            parent: parent,
+          )
+        : TextRun.empty();
+
+    final TextRun right = relativeEnd < dataLength
+        ? TextRun.text(
+            text: child._text.substring(relativeEnd),
+            styles: child.styles.toList(),
+            textStyle: textStyle,
+            parent: parent,
+          )
+        : TextRun.empty();
+
+    return (left, center, right);
   }
 
   @override
@@ -186,6 +187,7 @@ class TextRun extends RunBase<TextPart> {
       offset,
       text,
     );
+    length += text.length;
   }
 
   @override
@@ -199,6 +201,7 @@ class TextRun extends RunBase<TextPart> {
       length,
       '',
     );
+    this.length -= length;
   }
 
   @override
@@ -260,21 +263,7 @@ class TextRun extends RunBase<TextPart> {
 
   @override
   List<XmlNode> buildXmlStyle() {
-    final List<Object> styles = <Object>[...child.styles];
-    if (styles.any(
-      (Object e) => e is TextRunAttribution && e.scope != Scope.portion,
-    )) {
-      throw DocxCompilationException(
-        message: 'The styles passed in $runtimeType are invalid. '
-            'All of them '
-            'must implement "Scope.portion" value',
-        cause: 'There is 1 or more elements with the '
-            '"scope" property with no "Scope.portion" value',
-        node: copy,
-        stackTrace: StackTrace.fromString(''),
-      );
-    }
-
+    final List<Style> styles = <Style>[...child.styles];
     //TODO: we need to apply rules that avoid runs or non block parts to have only
     // inline properties defined and show that errors as stacktraces using exceptions
     if (textStyle != null) {
@@ -282,19 +271,13 @@ class TextRun extends RunBase<TextPart> {
       if (style != null) styles.add(style);
     }
     final List<XmlElement> xmlStyles = <XmlElement>[];
-    for (final Object style in styles) {
-      if (style is Style && style.isInvalid) continue;
-      if (style is TextRunAttribution) {
-        final XmlElement? el = style.toXml();
-        if (el != null) xmlStyles.add(el);
-      } else {
-        final List<XmlElement> elements = (style as Style).forRunStyle(
-          // only not reference styles have configurators
-          useConfigurators: !style.isReference,
-          shouldShowStyleRef: style.isReference,
-        );
-        xmlStyles.addAll(elements);
-      }
+    for (final Style style in styles) {
+      if (style.isInvalid) continue;
+      final List<XmlElement> elements = style.forRunStyle(
+        useConfigurators: !style.isReference,
+        shouldShowStyleRef: style.isReference,
+      );
+      xmlStyles.addAll(elements);
     }
     return <XmlNode>[
       ...xmlStyles,
@@ -325,21 +308,16 @@ class TextRun extends RunBase<TextPart> {
 class TextPart {
   TextPart({
     required String text,
-    this.styles = const <Object>[],
+    List<Style> styles = const <Style>[],
   })  : _text = text,
+        styles = List.from(styles),
         assert(
           !text.contains('\n'),
           'text cannot '
           'contains \\n in it. Please, divide your '
           'text in multiple paragraph to avoid '
           'this error',
-        ),
-        assert(styles.every(
-          (
-            Object element,
-          ) =>
-              element is Style || element is TextRunAttribution,
-        ));
+        );
 
   String _text;
 
@@ -347,11 +325,7 @@ class TextPart {
   String get text => _text;
 
   /// All the related styles with this run
-  ///
-  /// Only two objects are accepted:
-  ///  * Style
-  ///  * TextRunAttribution
-  final List<Object> styles;
+  final List<Style> styles;
 
   @override
   String toString() {

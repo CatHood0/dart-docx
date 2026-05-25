@@ -208,7 +208,13 @@ class DocxPipeline {
       final Stopwatch watch = Stopwatch()..start();
       CompilerLogger.root.debug('Ensuring initializatin start');
       context.document.options.docStyles.index();
-      context.tree.init();
+      context.tree.visitAllElement(
+        visitChildrenIfNeeded: true,
+        (DocxNode<dynamic> e) {
+          e.init();
+          return false;
+        },
+      );
       watch.stop();
       CompilerLogger.root.debug(
         'Ensuring initializatin end '

@@ -57,8 +57,8 @@ class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
     super.sdtId,
   })  : _alias = alias,
         _checked = checked,
-        _checkedState = checkedState,
-        _uncheckedState = uncheckedState,
+        this.checkedState = checkedState,
+        this.uncheckedState = uncheckedState,
         _displayText = checked ? checkedState.symbol : uncheckedState.symbol,
         super(
             child: TextRun.text(
@@ -77,10 +77,10 @@ class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
   bool get checked => _checked;
 
   /// The symbol to show when checked.
-  final SdtCheckboxState _checkedState;
+  final SdtCheckboxState checkedState;
 
   /// The symbol to show when unchecked.
-  final SdtCheckboxState _uncheckedState;
+  final SdtCheckboxState uncheckedState;
 
   /// The display text (checkbox symbol).
   final String _displayText;
@@ -128,8 +128,8 @@ class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
           XmlElement.tag(
             'w14:checkedState',
             attributes: <XmlAttribute>[
-              XmlAttribute('w14:val'.toName(), _checkedState.code),
-              XmlAttribute('w14:font'.toName(), _checkedState.font),
+              XmlAttribute('w14:val'.toName(), checkedState.code),
+              XmlAttribute('w14:font'.toName(), checkedState.font),
             ],
             isSelfClosing: true,
           ),
@@ -137,8 +137,8 @@ class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
           XmlElement.tag(
             'w14:uncheckedState',
             attributes: <XmlAttribute>[
-              XmlAttribute('w14:val'.toName(), _uncheckedState.code),
-              XmlAttribute('w14:font'.toName(), _uncheckedState.font),
+              XmlAttribute('w14:val'.toName(), uncheckedState.code),
+              XmlAttribute('w14:font'.toName(), uncheckedState.font),
             ],
             isSelfClosing: true,
           ),
@@ -252,8 +252,8 @@ class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
         alias: _alias,
         tag: tag,
         checked: _checked,
-        checkedState: _checkedState,
-        uncheckedState: _uncheckedState,
+        checkedState: this.checkedState,
+        uncheckedState: this.uncheckedState,
         placeholder: placeholder,
         showingPlacHdr: showingPlacHdr,
         lock: lock,
@@ -282,8 +282,8 @@ class SdtCheckbox extends Sdt<RunBase> with PrintableMixin {
       alias: alias ?? _alias,
       tag: tag ?? this.tag,
       checked: checked ?? _checked,
-      checkedState: checkedState ?? _checkedState,
-      uncheckedState: uncheckedState ?? _uncheckedState,
+      checkedState: checkedState ?? this.checkedState,
+      uncheckedState: uncheckedState ?? this.uncheckedState,
       placeholder: placeholder ?? this.placeholder,
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,
       lock: lock ?? this.lock,

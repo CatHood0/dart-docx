@@ -28,27 +28,27 @@ Future<void> main() async {
         <Style>[
           StyleBuilder.paragraph('Title')
               .name('Title')
-              .fontSize(28.ptToHalfPoints())
+              .fontSize(Point(28))
               .fontFamily('Georgia')
               .bold()
               .alignment(Alignment.center)
               .qFormat(true)
               .spacing(
-                before: 12.ptToTwips(),
-                after: 6.ptToTwips(),
+                before: Point(12),
+                after: Point(6),
               )
               .uiPriority(20)
               .build(),
           StyleBuilder.paragraph('Subtitle')
               .name('Subtitle')
-              .fontSize(20.ptToHalfPoints())
+              .fontSize(Point(20))
               .fontFamily('Georgia')
               .bold()
               .alignment(Alignment.center)
               .qFormat(true)
               .spacing(
-                before: 12.ptToTwips(),
-                after: 6.ptToTwips(),
+                before: Point(12),
+                after: Point(6),
               )
               .uiPriority(20)
               .build(),
@@ -66,10 +66,9 @@ Future<void> main() async {
         // Document title
         Paragraph.text(
           text: 'Advanced Table Examples in DOCX',
-          runStyles: <Object>[
-            BoldAttribute(),
-            StyleBuilder.uc().fontSize(16.ptToHalfPoints()).build(),
-          ],
+          textStyle: TextStyle(
+            fontSize: Point(16),
+          ),
           styles: <Style>[
             Style.ref('title'),
           ],
@@ -78,7 +77,7 @@ Future<void> main() async {
         // 1. Basic simple table
         Paragraph.text(
           text: '1. Basic Simple Table (2x2)',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(text: 'Basic table with two rows and two columns.'),
         _buildSimpleTable(),
@@ -87,7 +86,7 @@ Future<void> main() async {
         // 2. Table with merged cells
         Paragraph.text(
           text: '2. Table with Merged Cells',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(text: 'Example of gridSpan (colspan) and rowSpan.'),
         _buildMergedCellsTable(),
@@ -96,7 +95,7 @@ Future<void> main() async {
         // 3. Table with complex content
         Paragraph.text(
           text: '3. Table with Diverse Content',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(
             text: 'Cells with multiple paragraphs, lists, and styles.'),
@@ -106,7 +105,7 @@ Future<void> main() async {
         // 4. Table with custom borders
         Paragraph.text(
           text: '4. Table with Custom Borders',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(text: 'Borders of different styles and colors.'),
         _buildCustomBordersTable(),
@@ -115,7 +114,7 @@ Future<void> main() async {
         // 5. Table with backgrounds and shading
         Paragraph.text(
           text: '5. Table with Backgrounds and Shading',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(text: 'Cells with different background colors.'),
         _buildShadedTable(),
@@ -124,7 +123,7 @@ Future<void> main() async {
         // 6. Table with vertical alignment
         Paragraph.text(
           text: '6. Table with Vertical Alignment',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(text: 'Content vertically aligned in different ways.'),
         _buildVerticalAlignmentTable(),
@@ -133,7 +132,7 @@ Future<void> main() async {
         // 7. Table with custom widths
         Paragraph.text(
           text: '7. Table with Custom Widths',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(text: 'Columns with different widths.'),
         _buildCustomWidthTable(),
@@ -142,7 +141,7 @@ Future<void> main() async {
         // 8. Table with fixed header
         Paragraph.text(
           text: '8. Table with Fixed Header',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(text: 'Header row that repeats on each page.'),
         _buildHeaderTable(),
@@ -151,7 +150,7 @@ Future<void> main() async {
         // 9. Table with auto layout
         Paragraph.text(
           text: '9. Table with Auto Layout',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(
           text: 'Table that automatically adjusts to content.',
@@ -162,7 +161,7 @@ Future<void> main() async {
         // 10. Nested table
         Paragraph.text(
           text: '10. Nested Table',
-          runStyles: <Object>[BoldAttribute()],
+          textStyle: TextStyle(bold: true),
         ),
         Paragraph.text(text: 'Example of a table inside a cell.'),
         _buildNestedTable(),
@@ -205,7 +204,7 @@ Table _buildSimpleTable() {
                 verticalAlignment: VerticalAlignment.center),
             child: Paragraph.text(
               text: 'Header 1',
-              runStyles: <Object>[BoldAttribute()],
+              textStyle: TextStyle(bold: true),
               styles: <Style>[Style.ref('Subtitle')],
             ),
           ),
@@ -214,7 +213,7 @@ Table _buildSimpleTable() {
                 verticalAlignment: VerticalAlignment.center),
             child: Paragraph.text(
               text: 'Header 2',
-              runStyles: <Object>[BoldAttribute()],
+              textStyle: TextStyle(bold: true),
               align: Alignment.center,
               styles: <Style>[Style.ref('Subtitle')],
             ),
@@ -269,7 +268,7 @@ Table _buildMergedCellsTable() {
             ),
             child: Paragraph.text(
               text: 'Horizontally merged (colspan=2)',
-              runStyles: <Object>[BoldAttribute()],
+              textStyle: TextStyle(bold: true),
               align: Alignment.center,
             ),
           ),
@@ -297,7 +296,7 @@ Table _buildMergedCellsTable() {
             ),
             child: Paragraph.text(
               text: 'Vertically merged (rowspan=2)',
-              runStyles: <Object>[BoldAttribute()],
+              textStyle: TextStyle(bold: true),
               align: Alignment.center,
             ),
           ),
@@ -373,7 +372,7 @@ Table _buildComplexContentTable() {
             children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'Text with multiple formats:',
-                runStyles: <Object>[BoldAttribute()],
+                textStyle: TextStyle(bold: true),
               ),
               Run.lineBreak(),
               Paragraph.text(
@@ -384,12 +383,12 @@ Table _buildComplexContentTable() {
                   TextRun.text(text: 'Text in '),
                   TextRun.text(
                     text: 'bold',
-                    styles: <Object>[BoldAttribute()],
+                    textStyle: TextStyle(bold: true),
                   ),
                   TextRun.text(text: ' and '),
                   TextRun.text(
                     text: 'italic',
-                    styles: <Object>[ItalicAttribute()],
+                    textStyle: TextStyle(italic: true),
                   ),
                   TextRun.text(text: ' combined.'),
                 ],
@@ -397,7 +396,10 @@ Table _buildComplexContentTable() {
               Run.lineBreak(),
               Paragraph.text(
                 text: 'Underlined and strikethrough text:',
-                runStyles: <Object>[UnderlineAttribute(), StrikeAttribute()],
+                textStyle: TextStyle(
+                  underline: true,
+                  strikethrough: true,
+                ),
               ),
             ],
           ),
@@ -409,7 +411,7 @@ Table _buildComplexContentTable() {
             children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'List inside a table:',
-                runStyles: <Object>[BoldAttribute()],
+                textStyle: TextStyle(bold: true),
               ),
               Run.lineBreak(),
               Paragraph.text(
@@ -435,10 +437,10 @@ Table _buildComplexContentTable() {
                   TextRun.text(text: 'Text '),
                   TextRun.text(
                     text: 'special',
-                    styles: <Object>[
-                      BoldAttribute(),
-                      ForegroundTextColorAttribute(Color(0xFF0000))
-                    ],
+                    textStyle: TextStyle(
+                      bold: true,
+                      fontColor: Color(0xFF0000),
+                    ),
                   ),
                 ],
                 styles: <Style>[Style.ref('ListParagraph')],
@@ -779,7 +781,7 @@ Table _buildHeaderTable() {
             child: Paragraph.text(
               text: 'HEADER 1',
               align: Alignment.center,
-              runStyles: <Object>[BoldAttribute()],
+              textStyle: TextStyle(bold: true),
             ),
           ),
           TableCell.one(
@@ -792,7 +794,7 @@ Table _buildHeaderTable() {
             ),
             child: Paragraph.text(
               text: 'HEADER 2',
-              runStyles: <Object>[BoldAttribute()],
+              textStyle: TextStyle(bold: true),
               align: Alignment.center,
             ),
           ),
@@ -889,7 +891,7 @@ Table _buildNestedTable() {
             children: <DocxNode<dynamic>>[
               Paragraph.text(
                 text: 'Cell with nested table:',
-                runStyles: <Object>[BoldAttribute()],
+                textStyle: TextStyle(bold: true),
               ),
               Table(
                 tableProperties: TableProperties(

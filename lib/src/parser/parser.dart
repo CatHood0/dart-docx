@@ -152,7 +152,7 @@ abstract class Parser<T, R, O extends ParserOptions> {
             double.tryParse(spacingNode.getAttribute('w:line') ?? '');
         if (rawLine != null) {
           //TODO: ?
-          double effectiveSpacing = rawLine / kDefaultSpacing1.value;
+          double effectiveSpacing = rawLine / kDefaultSpacing.value;
           if (effectiveSpacing > 1.0 && effectiveSpacing < 1.50) {
             effectiveSpacing = 1.0;
           } else if (effectiveSpacing > 1.5 && effectiveSpacing < 2.0) {
