@@ -1132,6 +1132,128 @@ class StyleBuilder {
     );
   }
 
+  static StyleBuilder get normalBuilder => StyleBuilder.paragraph('Normal')
+      .name('Normal')
+      .fontSize(Point(12))
+      .alignment(Alignment.left)
+      .spacing(before: Twip(0), after: Twip(160))
+      .lang(DocxLanguage(language: LanguageCodes.englishUS))
+      .qFormat();
+
+  static StyleBuilder get listParagraphBuilder =>
+      StyleBuilder.paragraph('ListParagraph')
+          .name('List Paragraph')
+          .basedOn('Normal')
+          .keepNext()
+          .keepLines()
+          .activateWindowControl()
+          .contextualSpacing()
+          .qFormat();
+
+  static StyleBuilder get defaultParagraphFontBuilder =>
+      StyleBuilder.character('DefaultParagraphFont')
+          .name('Default Paragraph Font')
+          .asDefaultStyle(true);
+
+  static StyleBuilder get hyperlinkBuilder =>
+      StyleBuilder.character('Hyperlink')
+          .name('Hyperlink')
+          .runColor(Color(0x0563C1))
+          .underline();
+
+  static StyleBuilder get heading1Builder => StyleBuilder.paragraph('Heading1')
+      .name('Heading 1')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(Point(24))
+      .bold()
+      .spacing(before: Twip(480))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(1)
+      .uiPriority(9)
+      .qFormat();
+
+  static StyleBuilder get heading2Builder => StyleBuilder.paragraph('Heading2')
+      .name('Heading 2')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(Point(18))
+      .bold()
+      .spacing(before: Twip(360), after: Twip(80))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(2)
+      .uiPriority(9)
+      .unhideWhenUsed(true)
+      .qFormat();
+
+  static StyleBuilder get heading3Builder => StyleBuilder.paragraph('Heading3')
+      .name('Heading 3')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(Point(14))
+      .bold()
+      .spacing(before: Twip(280), after: Twip(80))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(3)
+      .uiPriority(9)
+      .semiHidden(true)
+      .unhideWhenUsed(true)
+      .qFormat();
+
+  static StyleBuilder get heading4Builder => StyleBuilder.paragraph('Heading4')
+      .name('Heading 4')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(Point(12))
+      .bold()
+      .spacing(before: Twip(240), after: Twip(40))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(4)
+      .uiPriority(9)
+      .semiHidden(true)
+      .unhideWhenUsed(true)
+      .qFormat();
+
+  static StyleBuilder get heading5Builder => StyleBuilder.paragraph('Heading5')
+      .name('Heading 5')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(Point(12))
+      .bold()
+      .spacing(before: Twip(220), after: Twip(40))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(5)
+      .uiPriority(9)
+      .semiHidden(true)
+      .unhideWhenUsed(true)
+      .qFormat();
+
+  static StyleBuilder get heading6Builder => StyleBuilder.paragraph('Heading6')
+      .name('Heading 6')
+      .basedOn('Normal')
+      .next('Normal')
+      .fontFamily('Times New Roman')
+      .fontSize(Point(10))
+      .bold()
+      .spacing(before: Twip(200), after: Twip(40))
+      .keepNext()
+      .keepLines()
+      .outlineLevel(6)
+      .uiPriority(9)
+      .semiHidden(true)
+      .unhideWhenUsed(true)
+      .qFormat();
+
   static Style get normal => StyleBuilder.paragraph('Normal')
       .name('Normal')
       .fontSize(Point(12))

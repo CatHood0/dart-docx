@@ -1,7 +1,8 @@
 import 'package:xml/xml.dart';
 
+import '../../../docx.dart';
+import '../../core/extensions/cast_ext.dart';
 import '../../core/extensions/string_ext.dart';
-import '../sdk.dart';
 
 /// Represents a Word document style with support for inheritance and revision tracking.
 ///
@@ -56,21 +57,20 @@ class Style extends IterableConfigurators {
     this.revisionIdRPr,
     String? id,
   })  : id = id ?? nanoid(10),
-        _onlyReference = false,
+        _ref = false,
         super(
           configurators: List.from(
             configurators ?? <StyleConfigurator>[],
           ),
         ) {
     if (styleName != null) {
-      super.configurators.insert(
-            0,
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'name',
-              value: styleName,
-            ),
-          );
+      add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'name',
+          value: styleName,
+        ),
+      );
     }
   }
 
@@ -93,7 +93,7 @@ class Style extends IterableConfigurators {
         revisionIdRPr = null,
         revisionIdRun = null,
         revisionIdPPr = null,
-        _onlyReference = true,
+        _ref = true,
         super(
           configurators: <StyleConfigurator>[],
         );
@@ -107,9 +107,28 @@ class Style extends IterableConfigurators {
         revisionIdRPr = null,
         revisionIdRun = null,
         revisionIdPPr = null,
-        _onlyReference = true,
+        _ref = true,
         super(
           configurators: <StyleConfigurator>[],
+        );
+
+  Style.raw({
+    required this.type,
+    required this.styleId,
+    Iterable<StyleConfigurator>? configurators,
+    bool asRef = false,
+    String? id,
+    this.defaultValue,
+    this.revisionIdDefault,
+    this.revisionIdPPr,
+    this.revisionIdRun,
+    this.revisionIdRPr,
+  })  : id = id ?? nanoid(10),
+        _ref = asRef,
+        super(
+          configurators: List.from(
+            configurators ?? <StyleConfigurator>[],
+          ),
         );
 
   /// Creates a placeholder Style instance representing an invalid or missing style.
@@ -140,9 +159,40 @@ class Style extends IterableConfigurators {
   static const String characterType = 'character';
   static const String tableType = 'table';
 
-  // Internal state
-  bool _onlyReference = false;
-  late String id;
+  Style? mergeBuilder(StyleBuilder styleBuilder) {
+    if (styleBuilder.type != type) return null;
+    return merge(styleBuilder.build());
+  }
+
+  /// Merge the current [other] instance with the [other]
+  Style merge(Style other) {
+    if (other.type != type) return this;
+    if (other.isReference || other.isInvalid) return this;
+
+    final List<StyleConfigurator<Object>> configs = other._configurators
+        .map(
+          (configurator) => configMap[configurator.qualifiedName] != null
+              ? configMap[configurator.qualifiedName]!.merge(configurator)
+              : configurator,
+        )
+        .toList();
+
+    return Style.raw(
+      id: id,
+      type: type,
+      styleId: styleId,
+      asRef: isReference,
+      defaultValue: other.defaultValue ?? defaultValue,
+      revisionIdRun: other.revisionIdRun ?? revisionIdRun,
+      revisionIdDefault: other.revisionIdDefault ?? revisionIdDefault,
+      revisionIdPPr: other.revisionIdPPr ?? revisionIdPPr,
+      revisionIdRPr: other.revisionIdRPr ?? revisionIdRPr,
+      configurators: configs,
+    );
+  }
+
+  final bool _ref;
+  late final String id;
 
   /// Revision tracking IDs (rsid) - used for collaborative editing and change tracking
 
@@ -162,8 +212,6 @@ class Style extends IterableConfigurators {
   /// Updated when decorative text formatting (color, underline, highlighting) is modified.
   final String? revisionIdRPr;
 
-  /// Style properties
-
   /// The type of style: 'paragraph' for paragraph styles, 'character' for character styles.
   final String type;
 
@@ -175,7 +223,7 @@ class Style extends IterableConfigurators {
   final Object? defaultValue;
 
   /// Returns true if this is a reference-only style (created with [Style.ref]).
-  bool get isReference => _onlyReference;
+  bool get isReference => _ref;
 
   /// Returns true if this represents an invalid or non-existent style.
   bool get isInvalid => styleId == 'invalid' && type == 'invalid';
@@ -188,8 +236,22 @@ class Style extends IterableConfigurators {
   /// the styles to the text runs
   StyleConfigurator? get runProperties => getConfiguratorOrNull('w:rPr');
 
+  Style get copy => Style.raw(
+        id: id,
+        type: type,
+        styleId: styleId,
+        configurators: configurators,
+        asRef: _ref,
+        defaultValue: defaultValue,
+        revisionIdDefault: revisionIdDefault,
+        revisionIdPPr: revisionIdPPr,
+        revisionIdRun: revisionIdRun,
+        revisionIdRPr: revisionIdRPr,
+      );
+
   static StyleConfigurator? styleConfiguratorOrNull(
-      StyleConfigurator configurator) {
+    StyleConfigurator configurator,
+  ) {
     return configurator.isInvalid ? null : configurator;
   }
 
@@ -228,6 +290,8 @@ class Style extends IterableConfigurators {
   /// ```
   ///
   /// Returns a new Style instance with all inherited properties merged.
+  //TODO: index styles if them not changed at any point
+  // to avoid resolving too many times some styles
   Style resolveStyle(DocumentStyles styles) {
     if (isReference || basedOn == null) {
       return this;
@@ -389,13 +453,8 @@ class Style extends IterableConfigurators {
         'styleName: $styleName => [$configurators]';
   }
 
-  /// Generates the XML representation of this style.
-  String toXmlString() {
-    return toXmlNode()!.toXmlString();
-  }
-
-  XmlElement? toXmlNode() {
-    if (isInvalid) return null;
+  XmlElement? buldXml() {
+    if (isInvalid || isReference) return null;
     return XmlElement.tag(
       'w:style',
       attributes: <XmlAttribute>[
@@ -425,11 +484,11 @@ class Style extends IterableConfigurators {
           ),
       ],
       children: <XmlNode>[
-        ...configurators.map(
+        ..._configurators.map(
           (
             StyleConfigurator configurator,
           ) =>
-              configurator.toXmlNode(),
+              configurator.buildXml(),
         ),
       ],
       isSelfClosing: false,
@@ -469,7 +528,7 @@ class Style extends IterableConfigurators {
 ///   ],
 /// )
 /// ```
-class StyleConfigurator extends IterableConfigurators {
+class StyleConfigurator<T extends Object> extends IterableConfigurators {
   /// Creates a self-closing XML element.
   ///
   /// Self-closing elements have no content and end with />.
@@ -485,7 +544,7 @@ class StyleConfigurator extends IterableConfigurators {
     this.value,
     this.attributes,
   })  : isSelfClosing = true,
-        super(configurators: const <StyleConfigurator>[]);
+        super(configurators: <StyleConfigurator>[]);
 
   /// Creates an invalid configurator placeholder.
   ///
@@ -496,7 +555,7 @@ class StyleConfigurator extends IterableConfigurators {
         value = null,
         attributes = null,
         isSelfClosing = false,
-        super(configurators: const <StyleConfigurator>[]);
+        super(configurators: <StyleConfigurator>[]);
 
   /// Creates a non-self-closing XML element that can contain child elements.
   ///
@@ -513,13 +572,28 @@ class StyleConfigurator extends IterableConfigurators {
     this.prefix,
     this.value,
     this.attributes,
-    super.configurators = const <StyleConfigurator>[],
+    List<StyleConfigurator> configurators = const <StyleConfigurator>[],
   })  : isSelfClosing = false,
         assert(prefix == null || prefix.isNotEmpty, 'Prefix cannot be empty'),
         assert(
           propertyName.isNotEmpty,
           'propertyName cannot be empty',
-        );
+        ),
+        super(configurators: List.from(configurators));
+
+  StyleConfigurator.raw({
+    required this.propertyName,
+    this.prefix,
+    this.value,
+    this.attributes,
+    this.isSelfClosing = false,
+    List<StyleConfigurator> configurators = const <StyleConfigurator>[],
+  })  : assert(prefix == null || prefix.isNotEmpty, 'Prefix cannot be empty'),
+        assert(
+          propertyName.isNotEmpty,
+          'propertyName cannot be empty',
+        ),
+        super(configurators: List.from(configurators));
 
   /// The local name of the XML element (without namespace prefix).
   final String propertyName;
@@ -528,13 +602,64 @@ class StyleConfigurator extends IterableConfigurators {
   final String? prefix;
 
   /// The value for the w:val attribute, if this element has one.
-  final Object? value;
+  final T? value;
 
   /// Additional XML attributes beyond w:val.
   final Map<String, dynamic>? attributes;
 
   /// Whether this element is self-closing (true) or contains children (false).
   final bool isSelfClosing;
+
+  StyleConfigurator<T> merge(StyleConfigurator<T> other) {
+    final Map<String, StyleConfigurator> mergedConfigs = Map.from(
+      configMap,
+    );
+
+    for (final config in other._configurators) {
+      mergedConfigs[config.qualifiedName] =
+          mergedConfigs.containsKey(config.qualifiedName)
+              ? mergedConfigs[config.qualifiedName]!.merge(config)
+              : config;
+    }
+
+    return copyWith(
+      configurators: mergedConfigs.values.toList(),
+      value: other.value ?? value,
+      attributes: attributes != null || other.attributes != null
+          ? <String, dynamic>{...?attributes, ...?other.attributes}
+          : attributes,
+    )..invalidateIndex();
+  }
+
+  StyleConfigurator<T> get copy => StyleConfigurator<T>.raw(
+        propertyName: propertyName,
+        prefix: prefix,
+        value: value,
+        attributes: attributes != null
+            ? <String, dynamic>{
+                ...?attributes,
+              }
+            : null,
+        isSelfClosing: isSelfClosing,
+        configurators: _configurators,
+      );
+
+  StyleConfigurator<T> copyWith({
+    String? propertyName,
+    String? prefix,
+    T? value,
+    Map<String, dynamic>? attributes,
+    List<StyleConfigurator>? configurators,
+    bool? isSelfClosing,
+  }) =>
+      StyleConfigurator<T>.raw(
+        propertyName: propertyName ?? this.propertyName,
+        prefix: prefix ?? this.prefix,
+        value: value ?? this.value,
+        attributes: attributes ?? this.attributes,
+        isSelfClosing: isSelfClosing ?? this.isSelfClosing,
+        configurators: configurators ?? _configurators,
+      );
 
   /// The fully qualified XML element name including namespace prefix.
   String get qualifiedName =>
@@ -550,24 +675,17 @@ class StyleConfigurator extends IterableConfigurators {
           isSelfClosing);
 
   /// Returns true if this configurator contains child elements.
-  bool get hasChildren => configurators.isNotEmpty;
+  bool get hasChildren => _configurators.isNotEmpty;
 
   @override
   String toString() {
     return 'StyleConfigurator(name: $qualifiedName, '
         'value: $value, '
         'attributes: $attributes, '
-        'children: ${configurators.length})';
+        'children: ${_configurators.length})';
   }
 
-  /// Generates the XML representation of this configurator and its children.
-  ///
-  /// Produces properly formatted XML with attributes and appropriate closing.
-  String toXmlString() {
-    return toXmlNode().toXmlString();
-  }
-
-  XmlElement toXmlNode() {
+  XmlElement buildXml() {
     final List<XmlAttribute> xmlAttributes = <XmlAttribute>[];
 
     if (value != null) {
@@ -593,9 +711,9 @@ class StyleConfigurator extends IterableConfigurators {
       }
     }
 
-    final List<XmlNode> childrenNodes = configurators
+    final List<XmlNode> childrenNodes = _configurators
         .map(
-          (StyleConfigurator e) => e.toXmlNode(),
+          (StyleConfigurator e) => e.buildXml(),
         )
         .whereType<XmlElement>()
         .toList();
@@ -620,14 +738,82 @@ class StyleConfigurator extends IterableConfigurators {
 abstract class IterableConfigurators {
   IterableConfigurators({
     required Iterable<StyleConfigurator> configurators,
-  }) : configurators = List<StyleConfigurator>.from(configurators);
+  }) : _configurators = List<StyleConfigurator>.from(configurators);
 
   /// The collection of StyleConfigurator objects.
-  final List<StyleConfigurator> configurators;
+  final List<StyleConfigurator> _configurators;
 
-  void add(StyleConfigurator configurator) => configurators.add(configurator);
-  void addAll(Iterable<StyleConfigurator> configurators) =>
-      this.configurators.addAll(configurators);
+  List<StyleConfigurator> get configurators => List.from(
+        _configurators,
+      );
+
+  void sort([int Function(StyleConfigurator, StyleConfigurator)? compare]) {
+    _configurators.sort(compare);
+  }
+
+  StyleConfigurator elementAt(int index) {
+    return _configurators.elementAt(index);
+  }
+
+  StyleConfigurator? elementAtOrNull(int index) {
+    return _configurators.elementAtOrNull(index);
+  }
+
+  StyleConfigurator operator [](int index) {
+    return _configurators[index];
+  }
+
+  void operator []=(int index, StyleConfigurator value) {
+    invalidateIndex();
+    _configurators[index] = value;
+  }
+
+  void insertAt(int index, StyleConfigurator configurator) {
+    invalidateIndex();
+    _configurators.insert(index, configurator);
+  }
+
+
+  void add(StyleConfigurator configurator) {
+    invalidateIndex();
+    _configurators.add(configurator);
+  }
+
+  void addAll(Iterable<StyleConfigurator> configurators) {
+    invalidateIndex();
+    _configurators.addAll(configurators);
+  }
+
+  void remove(StyleConfigurator element) {
+    if (_indexedConfigurators != null &&
+        !_indexedConfigurators!.containsKey(element.qualifiedName)) {
+      return;
+    }
+    invalidateIndex();
+    _configurators.removeWhere(
+      (
+        StyleConfigurator<Object> e,
+      ) =>
+          e.qualifiedName == element.qualifiedName,
+    );
+  }
+
+  StyleConfigurator removeAt(int index) {
+    invalidateIndex();
+    return _configurators.removeAt(index);
+  }
+
+  Map<String, StyleConfigurator>? _indexedConfigurators;
+
+  void invalidateIndex() => _indexedConfigurators = null;
+
+  Map<String, StyleConfigurator> get configMap {
+    if (_indexedConfigurators != null) {
+      return _indexedConfigurators!;
+    }
+    return _indexedConfigurators = _configurators
+        .toMap((StyleConfigurator<Object> key) => key.qualifiedName);
+  }
 
   /// Gets the 'rFonts' configurator if present.
   StyleConfigurator? get fontFamily {
@@ -795,7 +981,15 @@ abstract class IterableConfigurators {
       return false;
     }
 
-    for (final StyleConfigurator config in configurators) {
+    if (_indexedConfigurators != null) {
+      if (object is String) {
+        return _indexedConfigurators!.containsKey(object);
+      } else if (object is StyleConfigurator) {
+        return _indexedConfigurators!.containsKey(object.qualifiedName);
+      }
+    }
+
+    for (final StyleConfigurator config in _configurators) {
       if (object is String &&
           (object.contains(':')
               ? config.qualifiedName == object
@@ -817,7 +1011,7 @@ abstract class IterableConfigurators {
 
   /// Gets the first 'name' configurator if present.
   StyleConfigurator? styleName({String? language}) {
-    return styleConfiguratorOrNull(configurators.firstWhere(
+    return styleConfiguratorOrNull(_configurators.firstWhere(
       (StyleConfigurator e) {
         final dynamic lang = (e.attributes ?? <String, dynamic>{})['w:lang'];
         return language != null
@@ -832,7 +1026,7 @@ abstract class IterableConfigurators {
   ///
   /// Usually we use them to know all names by language
   Iterable<StyleConfigurator> styleNames() {
-    return configurators.where(
+    return _configurators.where(
       (StyleConfigurator e) =>
           e.qualifiedName == 'w:name' || e.propertyName == 'name',
     );
@@ -851,7 +1045,7 @@ abstract class IterableConfigurators {
     bool fullName = false,
     bool Function(StyleConfigurator)? predicate,
   }) {
-    return styleConfiguratorOrNull(configurators.firstWhere(
+    return styleConfiguratorOrNull(_configurators.firstWhere(
       (StyleConfigurator e) => (fullName || matcher.contains(':'))
           ? e.qualifiedName == matcher &&
               (predicate == null ? true : predicate(e))
@@ -866,7 +1060,7 @@ abstract class IterableConfigurators {
   /// Similar to [getConfiguratorOrNull] but always returns a StyleConfigurator,
   /// which may be invalid if no match was found.
   StyleConfigurator getConfigurator(String matcher, {bool fullName = false}) {
-    return configurators.firstWhere(
+    return _configurators.firstWhere(
       (StyleConfigurator e) => fullName || matcher.contains(':')
           ? e.qualifiedName == matcher
           : e.propertyName == matcher,
@@ -879,8 +1073,8 @@ abstract class IterableConfigurators {
   /// Returns an iterable containing all configurators whose qualified name
   /// or property name matches the given [matcher].
   Iterable<StyleConfigurator> findAllElements(String matcher) {
-    if (configurators.isEmpty) return <StyleConfigurator>[];
-    return configurators.where(
+    if (_configurators.isEmpty) return <StyleConfigurator>[];
+    return _configurators.where(
       (StyleConfigurator e) => matcher.contains(':')
           ? e.qualifiedName == matcher
           : e.propertyName == matcher,
