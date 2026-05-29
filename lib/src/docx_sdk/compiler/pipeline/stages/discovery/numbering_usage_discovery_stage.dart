@@ -18,7 +18,8 @@ class NumberingUsageDiscoveryStage extends PipelineStage {
   StageCategory get category => StageCategory.discovery;
 
   @override
-  String get description => 'Detects numbering usage in paragraphs and NumberingLists.';
+  String get description =>
+      'Detects numbering usage in paragraphs and NumberingLists.';
 
   @override
   bool shouldExecute(PipelineContext context) {
@@ -29,10 +30,11 @@ class NumberingUsageDiscoveryStage extends PipelineStage {
   void execute(PipelineContext context) {
     context.emit(DocxEvent.searching(subject: 'Detecting numbering usage'));
 
-    final bool hasNumberingUsage = context.document.root.visitElement(
+    final bool hasNumberingUsage = context.tree.visitElement(
           visitChildrenIfNeeded: true,
           (DocxNode<dynamic> el) {
-            return el is Paragraph && el.numbering != null || el is NumberingList;
+            return el is Paragraph && el.numbering != null ||
+                el is NumberingList;
           },
         ) !=
         null;

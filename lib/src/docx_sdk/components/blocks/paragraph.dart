@@ -6,6 +6,7 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
 import '../../compiler/inherited/compiler_config_provider.dart';
+import '../../exceptions/docx_compilation_exception.dart';
 
 /// Fundamental document unit for organizing text content.
 ///
@@ -286,12 +287,25 @@ class Paragraph extends DocxNode<List<RunBase>> {
     final List<XmlElement> pPrChildren = <XmlElement>[];
 
     final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
+    if (DocxElements.instance.initializeByCompile && configs == null) {
+      throw DocxCompilationException(
+        message: 'Not found required CompilerConfigProvider '
+            'build of styles in $runtimeType:$id => ${parent != null ? 'Parent defined' : '$parent'}',
+        node: this,
+        cause:
+            'Not found required provider in tree ${parent == null ? 'with no parent definition' : ''}',
+      );
+    }
     if (numbering != null && isChildOf<NumberingStoreProvider>()) {
       if (numbering!.level > 9) {
-        throw 'Level cannot be greater than 9. Read more here: '
-            'https://answers.microsoft.com/en-us/msoffice/forum/'
-            'all/does-word-support-more-than-9-list-levels/'
-            'd130fdcd-1781-446d-8c84-c6c79124e4d7';
+        throw DocxCompilationException(
+          message: 'Level cannot be greater than 9. Read more here: '
+              'https://answers.microsoft.com/en-us/msoffice/forum/'
+              'all/does-word-support-more-than-9-list-levels/'
+              'd130fdcd-1781-446d-8c84-c6c79124e4d7',
+          node: this,
+          cause: 'Unsupported level "${numbering!.level}"',
+        );
       }
       final NumberingStore provider = NumberingStoreProvider.of(this);
       if (isChildOf<NumberingList>()) {

@@ -8,9 +8,7 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/normalizer/auto_size_normalizer.dart';
-import '../../compiler/inherited/compiler_config_provider.dart';
 import '../../exceptions/docx_compilation_exception.dart';
-import '../../stores/inherited_stores/drawing_counter_provider.dart';
 import '../../stores/inherited_stores/media_provider.dart';
 
 /// Standard image component with in-memory byte data.
@@ -48,18 +46,18 @@ class Image extends DocxNode<ImageData<Uint8List>> {
     super.id,
     this.elementId,
     this.asInline = false,
-    this.transformOffsetX = 0,
-    this.transformOffsetY = 0,
+    this.transformOffsetX = const Emu(0),
+    this.transformOffsetY = const Emu(0),
   }) : super(child: data);
 
   /// Whether the image should be rendered inline with text.
   bool asInline;
 
   /// Horizontal transformation offset in EMU units.
-  final int transformOffsetX;
+  final UnitValue transformOffsetX;
 
   /// Vertical transformation offset in EMU units.
-  final int transformOffsetY;
+  final UnitValue transformOffsetY;
 
   int? elementId;
 
@@ -97,18 +95,20 @@ class Image extends DocxNode<ImageData<Uint8List>> {
     DocxNode<dynamic>? parent,
     int? elementId,
     bool? asInline,
-    int? transformOffsetX,
-    int? transformOffsetY,
+    UnitValue? transformOffsetX,
+    UnitValue? transformOffsetY,
   }) {
     return Image(
+      id: id ?? this.id,
       data: child ?? this.child,
-      elementId: elementId ?? this.elementId,
+      parent: parent ?? this.parent,
       asInline: asInline ?? this.asInline,
+      elementId: elementId ?? this.elementId,
       transformOffsetX: transformOffsetX ?? this.transformOffsetX,
       transformOffsetY: transformOffsetY ?? this.transformOffsetY,
-      id: id ?? this.id,
-      parent: parent ?? this.parent,
-    );
+    )
+      .._imgWidthEmu = _imgWidthEmu
+      .._imgHeightEmu = _imgHeightEmu;
   }
 
   String get getImageName => child.name ?? '';
@@ -252,8 +252,8 @@ class Image extends DocxNode<ImageData<Uint8List>> {
                 y: transformOffsetY,
               ),
               extents: AnnotationExtents(
-                cx: _imgWidthEmu!.toEmu(),
-                cy: _imgHeightEmu!.toEmu(),
+                cx: _imgWidthEmu!,
+                cy: _imgHeightEmu!,
               ),
             ),
             //NOTE: should be customizable?

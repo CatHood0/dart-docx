@@ -1,8 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
-import '../shared/effects.dart';
-import '../shared/fill.dart';
-import '../shared/geometry.dart';
 
 /// Visual properties of a shape (wps:spPr).
 ///

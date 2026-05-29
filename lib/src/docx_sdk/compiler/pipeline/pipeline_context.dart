@@ -1,4 +1,5 @@
 import 'package:archive/archive.dart';
+import 'package:meta/meta.dart';
 
 import '../../../../docx.dart';
 import '../../sdk.dart';
@@ -22,6 +23,13 @@ class PipelineContext {
 
   final DocxDocument document;
 
+  /// This is the element used by the compiler
+  /// to build the document
+  ///
+  /// Can be modified during pipeline stages
+  /// since it sometimes requires injecting
+  /// some references as part of its parent rels 
+  @internal
   DocxNode tree;
 
   final Map<Type, Store> _stores;

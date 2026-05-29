@@ -51,7 +51,7 @@ Future<void> main() async {
         margins: margins,
       ),
     ),
-    root: DocxRoot(
+    root: RootBody(
       sections: <DocxNode<dynamic>>[
         // Document title
         Paragraph.text(
@@ -350,7 +350,7 @@ class ShapeExample extends StatelessWidget {
     );
 
     // Create anchor to position the shape
-    final int size = 150.ptToEmu();
+    final size = Point(150);
 
     // Build shape properties with custom geometry
     final ShapeProperties shapeProperties = ShapeProperties.custom(

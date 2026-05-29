@@ -4,9 +4,7 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
-import '../../compiler/inherited/compiler_config_provider.dart';
 import '../../exceptions/docx_compilation_exception.dart';
-import '../../stores/inherited_stores/drawing_counter_provider.dart';
 import '../../stores/inherited_stores/media_provider.dart';
 
 class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
@@ -14,8 +12,8 @@ class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
     required ImageData<File> data,
     super.parent,
     super.id,
-    this.transformOffsetX = 0,
-    this.transformOffsetY = 0,
+    this.transformOffsetX = const Emu(0),
+    this.transformOffsetY = const Emu(0),
   })  : assert(
           data.anchorConfig.wrapType != WrapType.asCharacter,
           'the wrapping strategy '
@@ -25,14 +23,14 @@ class LazyFloatingImage extends DocxNode<ImageData<File>> with IgnorableMixin {
     super.length = 1;
   }
 
-  final int transformOffsetX;
-  final int transformOffsetY;
+  final UnitValue transformOffsetX;
+  final UnitValue transformOffsetY;
 
   @override
   LazyFloatingImage copyWith({
     ImageData<File>? data,
-    int? transformOffsetX,
-    int? transformOffsetY,
+    UnitValue? transformOffsetX,
+    UnitValue? transformOffsetY,
     String? id,
     DocxNode<dynamic>? parent,
   }) {

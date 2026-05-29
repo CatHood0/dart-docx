@@ -3,7 +3,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/num_extensions.dart';
 import '../../../core/extensions/string_ext.dart';
-import '../../stores/inherited_stores/drawing_counter_provider.dart';
 
 /// Anchor element for floating content positioning.
 ///
@@ -144,8 +143,8 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
             isSelfClosing: true,
           ),
           ...Extent(
-            cx: width.toEmu(),
-            cy: height.toEmu(),
+            cx: width,
+            cy: height,
           ).buildXml(),
           ...DocProperties(
             docPrId: elementId.toString(),

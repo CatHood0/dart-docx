@@ -5,27 +5,42 @@ import 'package:docx/docx.dart';
 const String orderedKey = 'ordered';
 const String unorderedKey = 'unordered';
 
+final DocumentOptions options = DocumentOptions.standard(
+  title: 'Numbering document',
+  styles: DocumentStyles.base().withNewStyles([
+    StyleBuilder.paragraph('title')
+        .name('Title')
+        .fontSize(Point(16))
+        .bold()
+        .spacing(
+          before: Point(12),
+          after: Point(6),
+        )
+        .qFormat(true)
+        .uiPriority(8)
+        .build(),
+  ]),
+);
+
 Future<void> main() async {
   final File outFile = File('test_resources/numbering.docx');
+  final Uint8List? bytes = await runCompilation(
+    MyApp(),
+    logAll: false,
+    options: options,
+  );
 
-  final DocxDocument doc = DocxDocument(
-    options: DocumentOptions.standard(
-      title: 'Numbering document',
-      styles: DocumentStyles.base().withNewStyles([
-        StyleBuilder.paragraph('title')
-            .name('Title')
-            .fontSize(Point(16))
-            .bold()
-            .spacing(
-              before: Point(12),
-              after: Point(6),
-            )
-            .qFormat(true)
-            .uiPriority(8)
-            .build(),
-      ]),
-    ),
-    root: DocxRoot(
+  if (bytes != null) {
+    await outFile.writeAsBytes(bytes);
+  }
+}
+
+class MyApp extends StatelessWidget {
+  MyApp({super.key});
+
+  @override
+  DocxNode<dynamic> build() {
+    return RootBody(
       sections: <DocxNode<dynamic>>[
         SdtRichText(
           alias: 'alias',
@@ -84,24 +99,6 @@ Future<void> main() async {
           ],
         ),
       ],
-    ),
-  );
-
-  final Uint8List? bytes = await DocxPacker()
-      .autoRegisterFonts(true)
-      .noTrimRuns()
-      // .logPath(DocxPaths.numberingXmlFilePath)
-      .normalStyleIfNeeded()
-      .logLevel(LogLevel.all)
-      .log(print)
-      .setStandardStores()
-      .execute(
-        doc,
-        applyCustomTheme: false,
-        stages: DocxPipeline.defaultStages,
-      );
-
-  if (bytes != null) {
-    await outFile.writeAsBytes(bytes);
+    );
   }
 }

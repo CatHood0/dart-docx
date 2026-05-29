@@ -47,6 +47,9 @@ class DocxPipeline {
   final ExecutionFlags _defaultFlags;
   ExecutionFlags _effectiveFlags;
 
+  //TODO: stores are still "harcoded"
+  // since we don't support yet wrapping
+  // custom providers
   final Map<Type, Store> _stores;
 
   final List<PreCompileHook> _preCompileHooks = [];
@@ -222,12 +225,12 @@ class DocxPipeline {
       );
     }
 
-    try {
-      for (final hook in _preCompileHooks) {
-        hook(context);
-      }
+    for (final PreCompileHook hook in _preCompileHooks) {
+      hook(context);
+    }
 
-      final List<dynamic> effectiveStages =
+    try {
+      final List<PipelineStage> effectiveStages =
           List.from(stages ?? DocxPipeline.defaultStages)
             ..sort((a, b) {
               final categoryCompare =
@@ -236,21 +239,21 @@ class DocxPipeline {
               return a.order.compareTo(b.order);
             });
 
-      for (final stage in effectiveStages) {
+      for (final PipelineStage stage in effectiveStages) {
         if (stage.shouldExecute(context)) {
-          for (final hook in _preStageHooks) {
+          for (final StageHook hook in _preStageHooks) {
             hook(context, stage);
           }
 
           stage.execute(context);
 
-          for (final hook in _postStageHooks) {
+          for (final StageHook hook in _postStageHooks) {
             hook(context, stage);
           }
         }
       }
 
-      for (final hook in _postCompileHooks) {
+      for (final PostCompileHook hook in _postCompileHooks) {
         hook(context, context.archive);
       }
 
@@ -338,7 +341,6 @@ class DocxPipeline {
 
   static List<PipelineStage> get registerElementsInStoreStages {
     return <PipelineStage>[
-      const StyleValidationStage(),
       const RelationsRegistrationStage(),
       const ImageRegistrationStage(),
       const HyperlinkRegistrationStage(),
@@ -349,6 +351,8 @@ class DocxPipeline {
 
   static List<PipelineStage> get preCompileDiscoveryAndSetup {
     return <PipelineStage>[
+      const StoresInjectionStage(),
+      const StyleValidationStage(),
       const EnvironmentSetupStage(),
       const OptionsValidationStage(),
       const ConfigInitStage(),

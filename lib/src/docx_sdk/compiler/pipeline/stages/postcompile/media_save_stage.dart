@@ -1,7 +1,4 @@
-import '../../../../events/docx_event.dart';
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
 /// Stage que guarda los archivos de medios al archive.
 ///

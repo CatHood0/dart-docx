@@ -5,19 +5,15 @@ import '../../../docx.dart';
 import '../../core/extensions/cast_ext.dart';
 import '../exceptions/docx_compilation_exception.dart';
 
-abstract class Widget extends DocxNode {
-  Widget({String? key}) : super(id: key, child: null);
-
-  DocxNode build();
+abstract class Widget extends DocxNode<DocxNode> {
+  Widget({String? key}) : super(id: key, child: EmptyNode());
 
   @override
-  List<DocxNode<dynamic>> repeat(
-    int times, {
-    DocxNode<dynamic>? Function(int index, DocxNode<dynamic> element)?
-        overrideCopy,
-  }) {
-    return [this];
+  DocxNode<dynamic> get child {
+    return build()..parent = this;
   }
+
+  DocxNode build();
 }
 
 abstract class StatelessWidget extends Widget {
@@ -44,23 +40,77 @@ abstract class StatelessWidget extends Widget {
   @mustCallSuper
   @override
   List<XmlNode> buildXml() {
-    return build().buildXml();
+    final DocxNode<dynamic> s = build()..parent = this;
+    return s.buildXml();
   }
 
   @mustCallSuper
   @override
-  DocxNode<dynamic> get copy => build().copy;
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    if (shouldGetElement(this)) return [this];
+    final DocxNode<dynamic> el = build()..parent = this;
+    return shouldGetElement(el) ? el.toList() : null;
+  }
 
   @mustCallSuper
   @override
-  DocxNode<dynamic> copyWith({
-    String? id,
-    DocxNode<dynamic>? parent,
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode<dynamic> element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
   }) {
-    return build().copyWith(
-      id: id ?? this.id,
-      parent: parent ?? this.parent,
-    );
+    if (shouldGetElement(this)) return this;
+    final DocxNode<dynamic> el = build()..parent = this;
+    return shouldGetElement(el) ? el : null;
+  }
+}
+
+abstract class StatefulWidget extends Widget {
+  StatefulWidget({super.key});
+
+  State? _lastState;
+
+  State<StatefulWidget> createElement();
+
+  @override
+  void init() {
+    super.init();
+    _cacheElement();
+    _lastState!._owner = this;
+    _lastState!.initState();
+  }
+
+  @override
+  void deactivate() {
+    super.init();
+    _lastState!.deactivate();
+    _lastState = null;
+  }
+
+  @override
+  DocxNode<dynamic> build() {
+    if (_lastState != null && _lastState!._child != null) {
+      return _lastState!._child!;
+    }
+    final DocxNode<dynamic> el = _lastState!.build()..parent = this;
+
+    if (_lastState!._child == null) {
+      _lastState!._child = el;
+    }
+
+    return _lastState!._child!;
+  }
+
+  void _cacheElement() {
+    _lastState ??= createElement();
+  }
+
+  @mustCallSuper
+  @override
+  List<XmlNode> buildXml() {
+    return build().buildXml();
   }
 
   @mustCallSuper
@@ -86,77 +136,32 @@ abstract class StatelessWidget extends Widget {
   }
 }
 
-// abstract class StatefulWidget extends Widget {
-//   StatefulWidget({required super.key});
+abstract class State<T extends StatefulWidget> {
+  DocxNode? _child;
+  DocxNode? _owner;
 
-//   @override
-//   DocxNode<dynamic> build();
+  @mustCallSuper
+  DocxNode get context {
+    if (_owner?.parent == null) {
+      throw DocxCompilationException(
+        message: 'Try to access to the '
+            'context value before insert this '
+            'element in the tree as expected',
+        cause: 'No assigned child to a parent into the nodes tree',
+        node: _owner,
+      );
+    }
 
-//   @mustCallSuper
-//   @override
-//   List<XmlNode> buildXml() {
-//     return build().buildXml();
-//   }
+    return _owner!;
+  }
 
-//   @mustCallSuper
-//   @override
-//   DocxNode<dynamic> get copy => build().copy;
+  void initState() {}
 
-//   @mustCallSuper
-//   @override
-//   DocxNode<dynamic> copyWith({
-//     String? id,
-//     DocxNode<dynamic>? parent,
-//   }) {
-//     return build().copyWith(
-//       id: id ?? this.id,
-//       parent: parent ?? this.parent,
-//     );
-//   }
+  @mustCallSuper
+  void deactivate() {
+    _owner = null;
+    _child = null;
+  }
 
-//   @mustCallSuper
-//   @override
-//   List<DocxNode<dynamic>>? visitAllElement(
-//     bool Function(DocxNode<dynamic> element) shouldGetElement, {
-//     bool visitChildrenIfNeeded = true,
-//   }) {
-//     if (shouldGetElement(this)) return [this];
-//     final DocxNode<dynamic> el = build();
-//     return shouldGetElement(el) ? el.toList() : null;
-//   }
-
-//   @mustCallSuper
-//   @override
-//   DocxNode<dynamic>? visitElement(
-//     bool Function(DocxNode<dynamic> element) shouldGetElement, {
-//     bool visitChildrenIfNeeded = true,
-//   }) {
-//     if (shouldGetElement(this)) return this;
-//     final DocxNode<dynamic> el = build();
-//     return shouldGetElement(el) ? el : null;
-//   }
-// }
-
-// class State<T extends StatefulWidget> {
-//   @mustCallSuper
-//   @override
-//   List<XmlNode> buildXml() {
-//     return build().buildXml();
-//   }
-
-//   @mustCallSuper
-//   @override
-//   DocxNode<dynamic> get copy => build().copy;
-
-//   @mustCallSuper
-//   @override
-//   DocxNode<dynamic> copyWith({
-//     String? id,
-//     DocxNode<dynamic>? parent,
-//   }) {
-//     return build().copyWith(
-//       id: id ?? this.id,
-//       parent: parent ?? this.parent,
-//     );
-//   }
-// }
+  DocxNode build();
+}

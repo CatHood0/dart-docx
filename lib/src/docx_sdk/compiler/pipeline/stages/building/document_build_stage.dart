@@ -4,7 +4,6 @@ import 'package:archive/archive.dart';
 
 import '../../../../sdk.dart';
 import '../../../../xml_components/document/xml_body_component.dart';
-import '../../../inherited/compiler_config_provider.dart';
 
 class DocumentBuildStage extends PipelineStage {
   const DocumentBuildStage();
@@ -26,35 +25,13 @@ class DocumentBuildStage extends PipelineStage {
 
   @override
   void execute(PipelineContext context) {
-    // Obtener theme ID resuelto en DocumentRelsBuildStage
+    CompilerLogger.root.debug('Starting $description');
     final String? themeId = context.metadata['themeId'] as String?;
 
     final XmlBodyComponent bodyComponent = XmlBodyComponent(
       options: context.options,
       // Should we wrap in a ThemeData?
-      body: CompilerConfigProvider(
-        options: context.options,
-        normalStyleIfNeeded: context.config.normalStyleIfNeeded,
-        normalStyle: context.config.normalStyle,
-        noTrim: context.config.noTrim,
-        checkStyleRefExistence: context.config.checkStyleRefExistence,
-        child: DocxApp(
-          docRelsStore:
-              context.getStoreOfExactType<DocumentRelsCounterStore>() ??
-                  DocumentRelsCounterStore(),
-          numberingStore:
-              context.getStoreOfExactType<NumberingStore>() ?? NumberingStore(),
-          mediaStore: context.getStoreOfExactType<MediaStore>() ?? MediaStore(),
-          drawingStore:
-              context.getStoreOfExactType<DrawingElementCounterStore>() ??
-                  DrawingElementCounterStore(),
-          fontStore: context.getStoreOfExactType<FontStore>() ?? FontStore(),
-          sdtStore: context.getStoreOfExactType<SdtStore>() ?? SdtStore(),
-          hyperlinkStore: context.getStoreOfExactType<HyperlinkStore>()!,
-          styles: context.document.options.docStyles,
-          child: context.tree,
-        ),
-      ),
+      body: context.tree,
       themeId: themeId,
     );
 

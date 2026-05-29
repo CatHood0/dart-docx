@@ -4,8 +4,8 @@ import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 
 //TODO: ensure that parents really are correctly referenced
-class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
-  DocxRoot({
+class RootBody extends DocxNode<List<DocxNode<dynamic>>> {
+  RootBody({
     required Iterable<DocxNode<dynamic>> sections,
     super.parent,
     super.id,
@@ -186,19 +186,19 @@ class DocxRoot extends DocxNode<List<DocxNode<dynamic>>> {
   }
 
   @override
-  DocxRoot get copy => DocxRoot(
+  RootBody get copy => RootBody(
         id: id,
         sections: child,
         parent: parent,
       );
 
   @override
-  DocxRoot copyWith({
+  RootBody copyWith({
     Iterable<DocxNode<dynamic>>? child,
     String? id,
     DocxNode<dynamic>? parent,
   }) {
-    return DocxRoot(
+    return RootBody(
       sections: child ?? this.child,
       id: id ?? this.id,
       parent: parent ?? this.parent,

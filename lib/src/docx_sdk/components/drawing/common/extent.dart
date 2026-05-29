@@ -3,22 +3,37 @@ import '../../../../../docx.dart';
 
 // Represents wp:extent
 class Extent extends DocxNode<dynamic> {
-  Extent({required this.cx, required this.cy}) : super(child: null);
+  Extent({
+    required this.cx,
+    required this.cy,
+    super.id,
+    super.parent,
+  }) : super(child: null);
 
-  final num cx;
-  final num cy;
+  final UnitValue cx;
+  final UnitValue cy;
 
   @override
-  Extent get copy => Extent(cx: cx, cy: cy);
+  Extent get copy => Extent(
+        id: id,
+        cx: cx,
+        cy: cy,
+        parent: parent,
+      );
 
   @override
   Extent copyWith({
     String? id,
     DocxNode<dynamic>? parent,
-    num? cx,
-    num? cy,
+    UnitValue? cx,
+    UnitValue? cy,
   }) {
-    return Extent(cx: cx ?? this.cx, cy: cy ?? this.cy);
+    return Extent(
+      id: id ?? this.id,
+      cx: cx ?? this.cx,
+      cy: cy ?? this.cy,
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
@@ -27,8 +42,8 @@ class Extent extends DocxNode<dynamic> {
       XmlElement.tag(
         'wp:extent',
         attributes: [
-          XmlAttribute(XmlName.fromString('cx'), cx.toString()),
-          XmlAttribute(XmlName.fromString('cy'), cy.toString()),
+          XmlAttribute(XmlName.fromString('cx'), cx.toEmu().toString()),
+          XmlAttribute(XmlName.fromString('cy'), cy.toEmu().toString()),
         ],
         isSelfClosing: true,
       ),
@@ -51,4 +66,3 @@ class Extent extends DocxNode<dynamic> {
     return shouldGetElement(this) ? this : null;
   }
 }
-

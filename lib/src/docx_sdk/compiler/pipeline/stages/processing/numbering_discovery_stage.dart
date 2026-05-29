@@ -48,7 +48,7 @@ class NumberingDiscoveryStage extends PipelineStage {
     // Creates Cache
     context
         .getStoreOfExactType<NumberingStore>()!
-        .discoverAndRegister(context.document);
+        .discoverAndRegister(context.tree);
 
     CompilerLogger.root.debug(
       'Numbering store initialized. '

@@ -3,8 +3,50 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import '../../../docx.dart';
-import '../events/docx_event.dart';
-import '../utils/logger/logger_configs.dart';
+
+Future<Uint8List?> runCompilation(
+  Widget node, {
+  DocumentOptions? options,
+  ExecutionFlags? flags,
+  List<PipelineStage> stages = const [],
+  List<Store> stores = const [],
+  bool noTrim = true,
+  bool logAll = false,
+  bool registerFonts = true,
+  bool checkStylReferences = true,
+  Style? defaultStyle,
+}) {
+  DocxElements.instance.ensureInitialized();
+  DocxPacker.instance.autoRegisterFonts(registerFonts);
+  if (noTrim) {
+    DocxPacker.instance.noTrimRuns();
+  }
+  if (logAll) {
+    DocxPacker.instance.logAllPaths();
+  }
+  if (checkStylReferences) {
+    DocxPacker.instance.checkStylReferences();
+  }
+  if (defaultStyle != null) {
+    DocxPacker.instance.normalStyle(defaultStyle);
+  }
+
+  stores.isEmpty
+      ? DocxPacker.instance.setStandardStores()
+      : DocxPacker.instance.configureStores(
+          newStores: List<Store>.from(stores),
+        );
+
+  return DocxPacker.instance.execute(
+    DocxDocument(
+      root: node,
+      options: options ?? DocumentOptions.standard(),
+    ),
+    flags: flags,
+    stages: List<PipelineStage>.from(
+        stages.isEmpty ? DocxPipeline.defaultStages : stages),
+  );
+}
 
 class XmlOverrideFile {
   XmlOverrideFile({required this.data, required this.path});

@@ -75,7 +75,7 @@ Future<void> main() async {
         ],
       ),
     ),
-    root: DocxRoot(
+    root: RootBody(
       sections: <DocxNode<dynamic>>[
         PageColumn(
           children: <DocxNode<dynamic>>[

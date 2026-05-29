@@ -3,14 +3,20 @@ import '../../../../../docx.dart';
 
 // Represents a:fillRect
 class FillRectangle extends DocxNode<dynamic> {
-  FillRectangle() : super(child: null);
+  FillRectangle({super.id, super.parent}) : super(child: null);
 
   @override
-  FillRectangle get copy => FillRectangle();
+  FillRectangle get copy => FillRectangle(
+        id: id,
+        parent: parent,
+      );
 
   @override
   FillRectangle copyWith({String? id, DocxNode<dynamic>? parent}) {
-    return FillRectangle();
+    return FillRectangle(
+      id: id ?? this.id,
+      parent: parent ?? this.parent,
+    );
   }
 
   @override

@@ -127,8 +127,8 @@ class InlineGraphic extends DocxNode<Iterable<DocxNode>> {
         isSelfClosing: children.isEmpty,
         children: <XmlNode>[
           ...Extent(
-            cx: width.toEmu(),
-            cy: height.toEmu(),
+            cx: width,
+            cy: height,
           ).buildXml(),
           ...DocProperties(
             docPrId: elementId!.toString(),

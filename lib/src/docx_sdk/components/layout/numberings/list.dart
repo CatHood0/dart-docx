@@ -219,6 +219,20 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     // lastNumberingIds = { "unordered": 1, "ordered": 3, "bullet": 10 }
     refId = _lastNumberingIds[key]!;
 
+    if (mounted && isChildOf<NumberingStoreProvider>()) {
+      NumberingStoreProvider.of(this).registerConcreteInstance(
+        key,
+        refId,
+        nodeId: id,
+      );
+    } else {
+      CompilerLogger.root.debug(
+        '$runtimeType:$id => Not found '
+        'NumberingStoreProvider to register concrete instance '
+        'of this list element',
+      );
+    }
+
     CompilerLogger.root.info('Numbering Map: $_lastNumberingIds');
 
     //TODO: ensure that DocumentStyles has this style
@@ -233,6 +247,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
         );
         _temp.add(
           element.copyWith(
+            parent: this,
             styles: <Style>[...element.styles, listStyleRef],
             numbering: Numbering(
               level: level,
@@ -244,8 +259,8 @@ class NumberingList extends DocxNode<List<DocxNode>> {
       } else if (element is RunBase) {
         _temp.add(
           element.paragraph(
-            styles: <Style>[listStyleRef],
             parent: this,
+            styles: <Style>[listStyleRef],
             numbering: Numbering(
               level: level,
               refId: refId,
@@ -257,8 +272,8 @@ class NumberingList extends DocxNode<List<DocxNode>> {
         final Paragraph pr = element.toParagraph();
         _temp.add(
           pr.copyWith(
-            styles: <Style>[listStyleRef],
             parent: this,
+            styles: <Style>[listStyleRef],
             numbering: Numbering(
               level: level,
               refId: refId,
@@ -267,11 +282,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
           ),
         );
       } else if (element is Builder<NumberingList>) {
-        if (!mounted) {
-          _temp.add(element.copyWith(parent: this));
-          continue;
-        }
-        _temp.add(element.cast<Builder>().build().copyWith(parent: this));
+        _temp.add(element.build().copyWith(parent: this));
       } else {
         _temp.add(element.copyWith(parent: this));
       }

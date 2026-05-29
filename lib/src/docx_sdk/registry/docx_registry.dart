@@ -156,14 +156,16 @@ class DocxRegistry {
     DocxRegistry().setToJson<Extent>(
       (Extent node) {
         return <String, dynamic>{
-          'cx': node.cx,
-          'cy': node.cy,
+          'id': node.id,
+          'cx': node.cx.toEmu(),
+          'cy': node.cy.toEmu(),
         };
       },
     );
     DocxRegistry().setFromJson<Extent>(
       (Map<String, dynamic> body, metadata) {
         return Extent(
+          id: body['id'],
           cx: body['cx'],
           cy: body['cy'],
         );
@@ -173,16 +175,18 @@ class DocxRegistry {
     DocxRegistry().setToJson<Offset>(
       (Offset node) {
         return <String, dynamic>{
-          'x': node.x,
-          'y': node.y,
+          'id': node.id,
+          'x': node.x.toEmu(),
+          'y': node.y.toEmu(),
         };
       },
     );
     DocxRegistry().setFromJson<Offset>(
       (Map<String, dynamic> body, metadata) {
         return Offset(
-          x: body['x'],
-          y: body['y'],
+          id: body['id'],
+          x: Emu(body['x']),
+          y: Emu(body['y']),
         );
       },
     );
@@ -1792,7 +1796,9 @@ class DocxRegistry {
     );
     DocxRegistry().setFromJson<FillRectangle>(
       (Map<String, dynamic> body, metadata) {
-        return FillRectangle();
+        return FillRectangle(
+          id: body['id'],
+        );
       },
     );
 
@@ -1800,16 +1806,16 @@ class DocxRegistry {
       (AnnotationExtents node) {
         return <String, dynamic>{
           'id': node.id,
-          'cx': node.cx,
-          'cy': node.cy,
+          'cx': node.cx.toEmu(),
+          'cy': node.cy.toEmu(),
         };
       },
     );
     DocxRegistry().setFromJson<AnnotationExtents>(
       (Map<String, dynamic> body, metadata) {
         return AnnotationExtents(
-          cx: body['cx'] ?? 0,
-          cy: body['cy'] ?? 0,
+          cx: Emu(body['cx'] ?? 0),
+          cy: Emu(body['cy'] ?? 0),
         );
       },
     );
@@ -1842,7 +1848,7 @@ class DocxRegistry {
       (Blip node) {
         return <String, dynamic>{
           'id': node.id,
-          'child': node.child, // String embedRelId
+          'child': node.child,
         };
       },
     );
@@ -1993,8 +1999,8 @@ class DocxRegistry {
         return InlineGraphic(
           id: body['id'],
           name: body['name'] as String? ?? '',
-          width: Emu(body['width']) ,
-          height: Emu(body['height'] ),
+          width: Emu(body['width']),
+          height: Emu(body['height']),
           distance: DocxRegistry().fromJson<TextDistance>(
                   body['distance'] as Map<String, dynamic>) ??
               TextDistance(),

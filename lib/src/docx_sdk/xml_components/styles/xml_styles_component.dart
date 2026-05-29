@@ -49,7 +49,7 @@ class XmlStylesComponent extends XmlComponentBase<void> {
         latent.buildXml(),
         ...styles
             .where(_avoidInvalidStyles)
-            .map<XmlElement>((Style e) => e.toXmlNode()!),
+            .map<XmlElement>((Style e) => e.buldXml()!),
       ],
     );
   }

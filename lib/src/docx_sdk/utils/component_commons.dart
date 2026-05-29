@@ -873,129 +873,735 @@ extension PathCommandExtensions on PathCommand {
   }
 }
 
-/// Predefined shapes (for prstGeom prst="...")
+/// Predefined shapes for DrawingML (`<a:prstGeom prst="...">`) in Word documents.
+///
+/// These shapes can be used for autoshapes, text boxes, and drawing objects.
+/// When rendered, each shape appears as a specific geometric form that can be
+/// resized, rotated, and styled with fills, gradients, and borders.
+///
+/// Example usage in Word:
+/// ```xml
+/// <a:prstGeom prst="heart">
+///   <a:avLst/>
+/// </a:prstGeom>
+/// ```
 enum PresetShapeType {
+  /// A standard rectangle with four 90-degree corners.
+  ///
+  /// **Visual:** □
+  ///
+  /// Most common shape. All corners are sharp right angles.
   rectangle('rect'),
+
+  /// A rectangle with rounded corners.
+  ///
+  /// **Visual:** □ (with curved corners)
+  ///
+  /// All four corners are replaced with quarter-circles of equal radius.
   roundRectangle('roundRect'),
+
+  /// An oval or circle shape.
+  ///
+  /// **Visual:** ○
+  ///
+  /// When width equals height, appears as a perfect circle.
   ellipse('ellipse'),
+
+  /// A triangle with a horizontal base and apex pointing up.
+  ///
+  /// **Visual:** ▲
+  ///
+  /// Base is at the bottom, apex at the top center.
   triangle('triangle'),
+
+  /// A right triangle.
+  ///
+  /// **Visual:** ◤ (shape varies)
+  ///
+  /// Triangle with one 90-degree corner.
   rightTriangle('rtTriangle'),
+
+  /// A slanted rectangle (parallelogram).
+  ///
+  /// **Visual:** ▱
+  ///
+  /// Opposite sides are parallel and equal, but corners are not 90 degrees.
   parallelogram('parallelogram'),
+
+  /// A trapezoid.
+  ///
+  /// **Visual:** ⏢
+  ///
+  /// Quadrilateral with one pair of parallel sides. Typically looks like a
+  /// truncated pyramid or a house roof when viewed from the side.
   trapezoid('trapezoid'),
+
+  /// A diamond (rotated square).
+  ///
+  /// **Visual:** ♦
+  ///
+  /// A square rotated 45 degrees. All sides equal length, corners at top,
+  /// bottom, left, and right.
   diamond('diamond'),
+
+  /// A five-sided pentagon.
+  ///
+  /// **Visual:** ⬟ (five-sided shape)
+  ///
+  /// Regular pentagon with all sides and angles equal.
   pentagon('pentagon'),
+
+  /// A six-sided hexagon.
+  ///
+  /// **Visual:** ⬡
+  ///
+  /// Regular hexagon with all sides equal. Often used for honeycomb patterns.
   hexagon('hexagon'),
+
+  /// A seven-sided heptagon.
+  ///
+  /// **Visual:** 7-sided polygon, less common than hexagon or octagon.
   heptagon('heptagon'),
+
+  /// An eight-sided octagon.
+  ///
+  /// **Visual:** ⬠
+  ///
+  /// Regular octagon. Commonly used for stop signs in diagrams.
   octagon('octagon'),
+
+  /// A ten-sided decagon.
+  ///
+  /// **Visual:** 10-sided polygon.
   decagon('decagon'),
+
+  /// A twelve-sided dodecagon.
+  ///
+  /// **Visual:** 12-sided polygon. Very close to a circle visually.
   dodecagon('dodecagon'),
+
+  /// A 4-pointed star.
+  ///
+  /// **Visual:** ★ with 4 points (like a sparkle)
+  ///
+  /// Often used for sparkles or glitter effects.
   star4('star4'),
+
+  /// A 5-pointed star.
+  ///
+  /// **Visual:** ★ (standard five-point star)
+  ///
+  /// The classic star shape, similar to the US flag star or sheriff badge.
   star5('star5'),
+
+  /// A 6-pointed star.
+  ///
+  /// **Visual:** ✶ (Star of David style)
+  ///
+  /// Two overlapping triangles forming a six-pointed star.
   star6('star6'),
+
+  /// A 7-pointed star.
+  ///
+  /// **Visual:** 7-point star, less common, used for unique decorative effects.
   star7('star7'),
+
+  /// An 8-pointed star.
+  ///
+  /// **Visual:** ✸
+  ///
+  /// Often used as a compass rose or decorative element.
   star8('star8'),
+
+  /// A 10-pointed star.
+  ///
+  /// **Visual:** 10-point star, highly decorative.
   star10('star10'),
+
+  /// A 12-pointed star.
+  ///
+  /// **Visual:** 12-point star, can appear nearly circular.
   star12('star12'),
+
+  /// A 16-pointed star.
+  ///
+  /// **Visual:** 16-point star, very detailed.
   star16('star16'),
+
+  /// A 24-pointed star.
+  ///
+  /// **Visual:** 24-point star, appears almost like a sunburst.
   star24('star24'),
+
+  /// A 32-pointed star.
+  ///
+  /// **Visual:** 32-point star, very fine detail, appears as a spoked wheel.
   star32('star32'),
+
+  /// Rectangle with one corner rounded, others square.
+  ///
+  /// **Visual:** □ with one rounded corner (typically top-right)
+  ///
+  /// Useful for callout boxes or speech bubbles.
   round1Rect('round1Rect'),
+
+  /// Rectangle with two adjacent corners rounded.
+  ///
+  /// **Visual:** □ with two rounded corners on same side.
   round2SameRect('round2SameRect'),
+
+  /// Rectangle with two diagonal corners rounded.
+  ///
+  /// **Visual:** □ with opposite corners rounded.
   round2DiagRect('round2DiagRect'),
+
+  /// Rectangle with one corner "snip" (chamfered, not rounded).
+  ///
+  /// **Visual:** □ with one clipped corner (like a corner cut off).
   snip1Rect('snip1Rect'),
+
+  /// Rectangle with two adjacent snipped corners.
+  ///
+  /// **Visual:** □ with two clipped corners on same side.
   snip2SameRect('snip2SameRect'),
+
+  /// Rectangle with two diagonal snipped corners.
+  ///
+  /// **Visual:** □ with opposite corners clipped.
   snip2DiagRect('snip2DiagRect'),
+
+  /// Rectangle with snipped corners that also have rounding.
+  ///
+  /// **Visual:** □ with clipped-then-rounded corners, a complex effect.
   snipRoundRect('snipRoundRect'),
+
+  /// Plaque shape (a rounded rectangle with vertical sides).
+  ///
+  /// **Visual:** ▭ (similar to a rounded rectangle but with straighter sides)
+  ///
+  /// Often used for plaques or labels.
   plaque('plaque'),
+
+  /// A cylinder (can shape).
+  ///
+  /// **Visual:** ⏁ (shape like a soda can, rounded top and bottom).
+  ///
+  /// Gives a 3D cylindrical appearance.
   cylinder('cylinder'),
+
+  /// A can (similar to cylinder but with different proportions).
+  ///
+  /// **Visual:** Can/cylinder shape, often shown with perspective.
+  ///
+  /// Used for drawing cans, containers, or drums.
   can('can'),
+
+  /// A 3D cube.
+  ///
+  /// **Visual:** 3D cube with visible top and two sides.
+  ///
+  /// Creates an isometric cube appearance.
   cube('cube'),
+
+  /// A beveled shape.
+  ///
+  /// **Visual:** A rectangle with beveled (angled) edges.
+  ///
+  /// Often used for buttons or frames with 3D effect.
   bevel('bevel'),
+
+  /// A donut (ring) shape.
+  ///
+  /// **Visual:** ○ with a hole in the middle (like a donut).
+  ///
+  /// Two concentric circles, outer circle with inner hole.
   donut('donut'),
+
+  /// No Smoking symbol.
+  ///
+  /// **Visual:** 🚫 (circle with diagonal line through it).
+  ///
+  /// Standard prohibition or "no" symbol.
   noSmoking('noSmoking'),
+
+  /// Block arc (partial circle/pie shape).
+  ///
+  /// **Visual:** Arc or pie slice of a circle.
+  ///
+  /// Useful for progress indicators or pie charts.
   blockArc('blockArc'),
+
+  /// Heart shape.
+  ///
+  /// **Visual:** ❤ (standard heart symbol).
+  ///
+  /// Classic valentine heart shape.
   heart('heart'),
+
+  /// Lightning bolt shape.
+  ///
+  /// **Visual:** ⚡ (zigzag lightning bolt).
+  ///
+  /// Often used for electricity or power symbols.
   lightningBolt('lightningBolt'),
+
+  /// Sun shape.
+  ///
+  /// **Visual:** ☀ (circle with rays emanating outward).
+  ///
+  /// Used for weather, brightness, or summer themes.
   sun('sun'),
+
+  /// Moon shape.
+  ///
+  /// **Visual:** ☾ (crescent moon).
+  ///
+  /// Often used for night, dark mode, or lunar themes.
   moon('moon'),
+
+  /// Cloud shape.
+  ///
+  /// **Visual:** ☁ (fluffy cloud silhouette).
+  ///
+  /// Used for weather, cloud computing, or soft effects.
   cloud('cloud'),
+
+  /// Arc (curved line shape).
+  ///
+  /// **Visual:** ⌒ (open curve, like a parenthesis but wider).
+  ///
+  /// A simple curved line, no fill.
   arc('arc'),
+
+  /// Paired brackets: [ ]
+  ///
+  /// **Visual:** [  ] (left and right brackets together).
+  ///
+  /// Creates a shape that looks like a pair of square brackets.
   bracketPair('bracketPair'),
+
+  /// Paired braces: { }
+  ///
+  /// **Visual:** {  } (left and right curly braces together).
+  ///
+  /// Creates a shape that looks like a pair of curly braces.
   bracePair('bracePair'),
+
+  /// Left bracket only: [
+  ///
+  /// **Visual:** [ (single left square bracket as a shape).
+  ///
+  /// Useful for making diagrams or structural elements.
   leftBracket('leftBracket'),
+
+  /// Right bracket only: ]
+  ///
+  /// **Visual:** ] (single right square bracket as a shape).
   rightBracket('rightBracket'),
+
+  /// Left brace only: {
+  ///
+  /// **Visual:** { (single left curly brace as a shape).
+  ///
+  /// Useful for making diagrams or structural elements in math/flowcharts.
   leftBrace('leftBrace'),
+
+  /// Right brace only: }
+  ///
+  /// **Visual:** } (single right curly brace as a shape).
+  ///
+  /// Paired with left brace for grouping or spanning multiple lines.
   rightBrace('rightBrace'),
+
+  /// A single arrow pointing right.
+  ///
+  /// **Visual:** → (right-pointing arrow).
+  ///
+  /// Standard arrow indicating direction or progression.
   arrow('arrow'),
+
+  /// Left-pointing arrow.
+  ///
+  /// **Visual:** ← (arrow pointing left).
   leftArrow('leftArrow'),
+
+  /// Down-pointing arrow.
+  ///
+  /// **Visual:** ↓ (arrow pointing down).
   downArrow('downArrow'),
+
+  /// Up-pointing arrow.
+  ///
+  /// **Visual:** ↑ (arrow pointing up).
   upArrow('upArrow'),
+
+  /// Left-right double arrow.
+  ///
+  /// **Visual:** ↔ (arrow pointing both left and right).
+  ///
+  /// Indicates bidirectional flow or width expansion.
   leftRightArrow('leftRightArrow'),
+
+  /// Up-down double arrow.
+  ///
+  /// **Visual:** ↕ (arrow pointing both up and down).
+  ///
+  /// Indicates bidirectional vertical flow or height expansion.
   upDownArrow('upDownArrow'),
+
+  /// Four-way (quad) arrow.
+  ///
+  /// **Visual:** ➕ shape with arrows on all four ends.
+  ///
+  /// Indicates movement or resizing in all directions.
   quadArrow('quadArrow'),
-  leftArrowCallout('leftArrowCallout'),
-  rightArrowCallout('rightArrowCallout'),
-  upArrowCallout('upArrowCallout'),
-  downArrowCallout('downArrowCallout'),
-  leftRightArrowCallout('leftRightArrowCallout'),
-  upDownArrowCallout('upDownArrowCallout'),
-  quadArrowCallout('quadArrowCallout'),
-  bentArrow('bentArrow'),
-  uturnArrow('uturnArrow'),
-  circularArrow('circularArrow'),
-  leftCircularArrow('leftCircularArrow'),
-  leftRightCircularArrow('leftRightCircularArrow'),
-  curvedRightArrow('curvedRightArrow'),
-  curvedLeftArrow('curvedLeftArrow'),
-  curvedUpArrow('curvedUpArrow'),
-  curvedDownArrow('curvedDownArrow'),
-  swooshArrow('swooshArrow'),
-  homePlate('homePlate'),
-  chevron('chevron'),
+
+  /// Right arrow (duplicate of arrow? but preserved for compatibility).
+  ///
+  /// **Visual:** → (right-pointing arrow).
+  ///
+  /// Identical to `arrow` in appearance. Exists for API completeness.
   rightArrow('rightArrow'),
+
+  /// Left-up pointing arrow (diagonal).
+  ///
+  /// **Visual:** ↖ (arrow pointing diagonally up and left).
+  ///
+  /// Indicates movement or direction toward top-left.
   leftUpArrow('leftUpArrow'),
+
+  /// Bent arrow pointing up.
+  ///
+  /// **Visual:** Arrow that goes right then bends upward.
+  ///
+  /// Used for flowcharts showing a rightward then upward flow.
   bentUpArrow('bentUpArrow'),
+
+  /// Curved left-right arrow.
+  ///
+  /// **Visual:** Curved arrow that goes left then right (or vice versa).
+  ///
+  /// Indicates a looping or reciprocating motion horizontally.
   curvedLeftRightArrow('curvedLeftRightArrow'),
+
+  /// Curved up-down arrow.
+  ///
+  /// **Visual:** Curved arrow that goes up then down (or vice versa).
+  ///
+  /// Indicates a looping or reciprocating motion vertically.
   curvedUpDownArrow('curvedUpDownArrow'),
+
+  /// Left arrow with callout bubble.
+  ///
+  /// **Visual:** ← (arrow combined with speech bubble shape).
+  ///
+  /// Used for annotations or labels pointing from the left.
+  leftArrowCallout('leftArrowCallout'),
+
+  /// Right arrow with callout bubble.
+  ///
+  /// **Visual:** → (arrow combined with speech bubble).
+  ///
+  /// Used for annotations or labels pointing from the right.
+  rightArrowCallout('rightArrowCallout'),
+
+  /// Up arrow with callout bubble.
+  ///
+  /// **Visual:** ↑ (arrow combined with speech bubble).
+  ///
+  /// Used for annotations or labels pointing from above.
+  upArrowCallout('upArrowCallout'),
+
+  /// Down arrow with callout bubble.
+  ///
+  /// **Visual:** ↓ (arrow combined with speech bubble).
+  ///
+  /// Used for annotations or labels pointing from below.
+  downArrowCallout('downArrowCallout'),
+
+  /// Left-right arrow with callout bubble.
+  ///
+  /// **Visual:** ↔ (double arrow combined with speech bubble).
+  leftRightArrowCallout('leftRightArrowCallout'),
+
+  /// Up-down arrow with callout bubble.
+  ///
+  /// **Visual:** ↕ (double arrow combined with speech bubble).
+  upDownArrowCallout('upDownArrowCallout'),
+
+  /// Four-way arrow with callout bubble.
+  ///
+  /// **Visual:** Quad arrow combined with speech bubble.
+  quadArrowCallout('quadArrowCallout'),
+
+  /// Bent arrow (right then down or similar).
+  ///
+  /// **Visual:** ⤵ (arrow that turns a corner).
+  ///
+  /// Indicates change of direction or wrapping.
+  bentArrow('bentArrow'),
+
+  /// U-turn arrow.
+  ///
+  /// **Visual:** ↶ or ↷ (arrow that makes a 180-degree turn).
+  ///
+  /// Indicates reversal or turning around.
+  uturnArrow('uturnArrow'),
+
+  /// Circular arrow (clockwise).
+  ///
+  /// **Visual:** ⟳ (arrow forming a full circle).
+  ///
+  /// Indicates rotation, refresh, or cycle.
+  circularArrow('circularArrow'),
+
+  /// Leftward circular arrow.
+  ///
+  /// **Visual:** ⟲ (counter-clockwise circular arrow).
+  leftCircularArrow('leftCircularArrow'),
+
+  /// Left-right circular arrow.
+  ///
+  /// **Visual:** Circular arrow with both directions.
+  leftRightCircularArrow('leftRightCircularArrow'),
+
+  /// Curved arrow pointing right.
+  ///
+  /// **Visual:** ⤻ (arrow curving to the right).
+  curvedRightArrow('curvedRightArrow'),
+
+  /// Curved arrow pointing left.
+  ///
+  /// **Visual:** ⤺ (arrow curving to the left).
+  curvedLeftArrow('curvedLeftArrow'),
+
+  /// Curved arrow pointing up.
+  ///
+  /// **Visual:** Arrow curving upward.
+  curvedUpArrow('curvedUpArrow'),
+
+  /// Curved arrow pointing down.
+  ///
+  /// **Visual:** Arrow curving downward.
+  curvedDownArrow('curvedDownArrow'),
+
+  /// Swoosh arrow (sweeping curved arrow).
+  ///
+  /// **Visual:** Elegant sweeping arrow, often used for logos.
+  swooshArrow('swooshArrow'),
+
+  /// Home plate shape (pentagon with a flat top).
+  ///
+  /// **Visual:** ⬟ (pentagon used in baseball home plate).
+  ///
+  /// Actually a pentagon shape, named for baseball home plate.
+  homePlate('homePlate'),
+
+  /// Chevron shape (> or <).
+  ///
+  /// **Visual:** » (double-angle bracket shape, like V but thicker).
+  ///
+  /// Often used for navigation or directional indicators.
+  chevron('chevron'),
+
+  /// Simple rectangular callout.
+  ///
+  /// **Visual:** ▭ with a pointer (speech bubble shape).
+  ///
+  /// Basic speech or thought bubble with rectangular body.
   callout1('callout1'),
+
+  /// Callout with rounded corners.
+  ///
+  /// **Visual:** Speech bubble with rounded rectangle body.
   callout2('callout2'),
+
+  /// Callout with oval shape.
+  ///
+  /// **Visual:** Speech bubble with oval/elliptical body.
   callout3('callout3'),
+
+  /// Accent callout style 1.
+  ///
+  /// **Visual:** callout1 with additional accent line or styling.
   accentCallout1('accentCallout1'),
+
+  /// Accent callout style 2.
+  ///
+  /// **Visual:** callout2 with additional accent line or styling.
   accentCallout2('accentCallout2'),
+
+  /// Accent callout style 3.
+  ///
+  /// **Visual:** callout3 with additional accent line or styling.
   accentCallout3('accentCallout3'),
+
+  /// Bordered callout style 1.
+  ///
+  /// **Visual:** callout1 with thick border.
   borderCallout1('borderCallout1'),
+
+  /// Bordered callout style 2.
+  ///
+  /// **Visual:** callout2 with thick border.
   borderCallout2('borderCallout2'),
+
+  /// Bordered callout style 3.
+  ///
+  /// **Visual:** callout3 with thick border.
   borderCallout3('borderCallout3'),
+
+  /// Accent bordered callout style 1.
+  ///
+  /// **Visual:** callout1 with accent and border.
   accentBorderCallout1('accentBorderCallout1'),
+
+  /// Accent bordered callout style 2.
+  ///
+  /// **Visual:** callout2 with accent and border.
   accentBorderCallout2('accentBorderCallout2'),
+
+  /// Accent bordered callout style 3.
+  ///
+  /// **Visual:** callout3 with accent and border.
   accentBorderCallout3('accentBorderCallout3'),
+
+  /// Wedge-shaped rectangle callout.
+  ///
+  /// **Visual:** Rectangle with wedge pointer.
   wedgeRectCallout('wedgeRectCallout'),
+
+  /// Wedge-shaped rounded rectangle callout.
+  ///
+  /// **Visual:** Rounded rectangle with wedge pointer.
   wedgeRoundRectCallout('wedgeRoundRectCallout'),
+
+  /// Wedge-shaped ellipse callout.
+  ///
+  /// **Visual:** Ellipse with wedge pointer.
   wedgeEllipseCallout('wedgeEllipseCallout'),
+
+  /// Cloud-shaped callout.
+  ///
+  /// **Visual:** Speech bubble shaped like a cloud ☁.
+  ///
+  /// Often used for thoughts or dream sequences.
   cloudCallout('cloudCallout'),
+
+  /// Ribbon shape (award style).
+  ///
+  /// **Visual:** 🎀 (ribbon with folded ends).
+  ///
+  /// Often used for awards, achievements, or badges.
   ribbon('ribbon'),
+
+  /// Ribbon shape style 2.
+  ///
+  /// **Visual:** Alternative ribbon with different proportions.
   ribbon2('ribbon2'),
+
+  /// Ellipse-based ribbon.
+  ///
+  /// **Visual:** Ribbon with elliptical center.
   ellipseRibbon('ellipseRibbon'),
+
+  /// Ellipse-based ribbon style 2.
+  ///
+  /// **Visual:** Alternative elliptical ribbon.
   ellipseRibbon2('ellipseRibbon2'),
-  chord('chord'),
+
+  /// Plus sign: +
+  ///
+  /// **Visual:** ➕ (addition symbol).
   mathPlus('plus'),
-  mathMinus('minus'),
-  mathMultiply('mathMultiply'),
-  mathDivide('mathDivide'),
-  mathEqual('mathEqual'),
+
+  /// Not equals sign: ≠
+  ///
+  /// **Visual:** ≠ (inequality symbol, equal sign with slash).
+  ///
+  /// Mathematical symbol for "not equal to".
   mathNotEqual('mathNotEqual'),
+
+  /// Minus sign: −
+  ///
+  /// **Visual:** ➖ (subtraction symbol).
+  mathMinus('minus'),
+
+  /// Multiplication sign: ×
+  ///
+  /// **Visual:** ✕ (multiplication symbol).
+  mathMultiply('mathMultiply'),
+
+  /// Division sign: ÷
+  ///
+  /// **Visual:** ➗ (division symbol).
+  mathDivide('mathDivide'),
+
+  /// Equals sign: =
+  ///
+  /// **Visual:** ＝ (equality symbol).
+  mathEqual('mathEqual'),
+
+  /// Corner shape (L-shape).
+  ///
+  /// **Visual:** ⌜ or ⌞ (right-angle corner piece).
+  ///
+  /// Useful for decorative borders or frame corners.
   corner('corner'),
+
+  /// Corner tabs shape.
+  ///
+  /// **Visual:** Tabs at corners of a shape.
   cornerTabs('cornerTabs'),
+
+  /// Square tabs shape.
+  ///
+  /// **Visual:** Square tabs extending from edges.
   squareTabs('squareTabs'),
+
+  /// Plaque with tabs.
+  ///
+  /// **Visual:** Plaque shape with tabs on edges.
   plaqueTabs('plaqueTabs'),
+
+  /// Frame shape.
+  ///
+  /// **Visual:** □ (rectangular frame, hollow center).
+  ///
+  /// Like a picture frame or border-only rectangle.
   frame('frame'),
+
+  /// Funnel shape.
+  ///
+  /// **Visual:** ⏤ (triangle with top cut off, like a filter funnel).
   funnel('funnel'),
+
+  /// 6-tooth gear.
+  ///
+  /// **Visual:** ⚙ (gear with 6 teeth).
+  ///
+  /// Used for mechanical or settings icons.
   gear6('gear6'),
+
+  /// 9-tooth gear.
+  ///
+  /// **Visual:** Gear shape with 9 teeth.
   gear9('gear9'),
+
+  /// Half-frame shape.
+  ///
+  /// **Visual:** Half of a picture frame.
   halfFrame('halfFrame'),
+
+  /// Teardrop shape.
+  ///
+  /// **Visual:** 💧 (water droplet shape).
+  ///
+  /// Resembles a falling drop of liquid.
   teardrop('teardrop');
 
   const PresetShapeType(this.xmlValue);
 
+  /// The XML string value used in `prst` attribute of `<a:prstGeom>`.
   final String xmlValue;
 }

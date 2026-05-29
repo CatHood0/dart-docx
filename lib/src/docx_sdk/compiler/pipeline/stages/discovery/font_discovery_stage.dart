@@ -36,6 +36,7 @@ class FontDiscoveryStage extends PipelineStage {
 
     context.getStoreOfExactType<FontStore>()!.discoverFonts(
           context.document,
+          context.tree,
           dynamicSearchEnabled: context.flags.dynamicFontSearch,
         );
 

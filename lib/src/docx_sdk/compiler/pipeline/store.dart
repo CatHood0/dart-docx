@@ -1,4 +1,6 @@
-import 'pipeline_context.dart';
+import 'package:meta/meta.dart';
+
+import '../../../../docx.dart';
 
 /// Base interface for all compiler stores.
 ///
@@ -48,6 +50,61 @@ abstract class Store {
   /// Called after [reset] and before executing any
   /// stage that uses the store.
   void initialize(PipelineContext context);
+
+  List<int>? _path;
+  String? _id;
+
+  @mustCallSuper
+  List<DocxNode>? resolveRoot(DocxNode node) {
+    final List<DocxNode> sections = <DocxNode<dynamic>>[];
+
+    /// Uses cache to avoid re-computing too many times a root element
+    /// that wont be moved during execution of stores
+    if (_path != null) {
+      final DocxNode<dynamic>? root = node.queryPath(_path!);
+      if (root != null && root.id == _id) {
+        return root.child.cast();
+      } else {
+        _path = null;
+        _id = null;
+      }
+    }
+
+    final RootBody? root = node.visitElement(
+      (e) => e is RootBody,
+      visitChildrenIfNeeded: true,
+    ) as RootBody?;
+    if (root == null) {
+      CompilerLogger.root.warning(
+        'Not found RootBody in any point of the tree. '
+        'We will visit any element that contains a child of '
+        'type List<DocxNode>',
+      );
+      final DocxNode<List<DocxNode>>? element = node.visitElement(
+        (DocxNode<dynamic> e) => e.child is List<DocxNode>,
+        visitChildrenIfNeeded: true,
+      ) as DocxNode<List<DocxNode>>?;
+
+      if (element != null) {
+        sections.addAll(element.child);
+        _path = element.path;
+        _id = element.id;
+      } else {
+        CompilerLogger.root.warning(
+          'Skipping discovery of '
+          '$runtimeType instance. Couldn\'t be founded '
+          'any RootBody or DocxNode<List<DocxNode>> '
+          'in the tree',
+        );
+        return null;
+      }
+    } else {
+      sections.addAll(root.child);
+      _path = root.path;
+      _id = root.id;
+    }
+    return sections;
+  }
 }
 
 /// Mixin for stores that can be configured before initialize.

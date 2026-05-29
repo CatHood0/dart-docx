@@ -1,4 +1,4 @@
-import 'package:meta/meta.dart';
+// import 'package:meta/meta.dart';
 
 import '../../../docx.dart';
 
@@ -16,7 +16,6 @@ extension NumToUnit on num {
 /// Provides a comprehensive set of unit conversion methods as extensions on [num].
 /// This allows converting between various sizing units like DXA, EMU, Twips,
 /// inches, centimeters, millimeters, points, and pixels.
-@internal
 extension SizingConversions on num {
   /// Converts inches to line spacing units.
   int inchesToLineSpacing() => (this * lineSpacingPerInch).round();

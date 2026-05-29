@@ -30,7 +30,7 @@ class SdtDiscoveryStage extends PipelineStage {
     context.emit(DocxEvent.searching(subject: 'Detecting SDTs'));
     CompilerLogger.root.debug('Initiating SDT discovery.');
 
-    final List<Sdt>? sdts = context.document.root
+    final List<Sdt>? sdts = context.tree
         .visitAllElement(
           visitChildrenIfNeeded: true,
           (DocxNode<dynamic> el) => el is Sdt,

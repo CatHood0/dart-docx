@@ -1,6 +1,7 @@
 import '../../components/inheriteds/inherited_node.dart';
 import '../../sdk.dart';
 
+//TODO: create themedata to make this more light
 class Theme extends InheritedNode {
   Theme({
     required super.child,

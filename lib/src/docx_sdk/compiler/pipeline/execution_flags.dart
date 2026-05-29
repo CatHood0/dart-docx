@@ -35,6 +35,7 @@ class ExecutionFlags {
     this.skipSdtDiscovery = false,
     this.skipColumnDiscovery = false,
     this.skipDocumentBuild = false,
+    this.skipTreeValidations = false,
     this.forceNormalStyle = true,
     this.dynamicFontSearch = true,
     this.checkStyleRefExistence = false,
@@ -92,6 +93,9 @@ class ExecutionFlags {
 
   /// Skips style validation.
   final bool skipStyleValidation;
+
+  /// Skips tree validation.
+  final bool skipTreeValidations;
 
   /// Forces Normal style on paragraphs without style.
   final bool forceNormalStyle;

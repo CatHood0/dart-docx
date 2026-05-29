@@ -35,11 +35,13 @@ class HyperlinkStore extends Store {
   ///
   /// This method clears any previously discovered hyperlinks before starting.
   /// [data] is the [DocxDocument] to scan.
-  void discoverHyperlinks(DocxDocument data) {
+  void discoverHyperlinks(DocxNode node) {
     _hyperlinks.clear();
+    final List<DocxNode<dynamic>>? sections = resolveRoot(node);
+    if (sections == null) return;
 
     //TODO: use parent methods of DocumentRoot
-    for (final DocxNode parent in data.root.child) {
+    for (final DocxNode parent in sections) {
       final List<HyperlinkRun> foundHyperlinks = List<HyperlinkRun>.from(
         parent.visitAllElement(
               (DocxNode el) => el is HyperlinkRun,

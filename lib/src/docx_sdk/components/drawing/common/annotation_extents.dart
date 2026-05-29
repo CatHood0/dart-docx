@@ -3,27 +3,47 @@ import '../../../../../docx.dart';
 
 // Represents a:ext
 class AnnotationExtents extends DocxNode<dynamic> {
-  AnnotationExtents({required this.cx, required this.cy}) : super(child: null);
+  AnnotationExtents({
+    required this.cx,
+    required this.cy,
+    super.id,
+    super.parent,
+  }) : super(child: null);
 
   AnnotationExtents.zero()
-      : cx = 0,
-        cy = 0,
+      : cx = Emu(0),
+        cy = Emu(0),
         super(child: null);
 
-  AnnotationExtents.same(num value)
+  AnnotationExtents.same(UnitValue value)
       : cx = value,
         cy = value,
         super(child: null);
 
-  final num cx;
-  final num cy;
+  final UnitValue cx;
+  final UnitValue cy;
 
   @override
-  AnnotationExtents get copy => AnnotationExtents(cx: cx, cy: cy);
+  AnnotationExtents get copy => AnnotationExtents(
+        id: id,
+        cx: cx,
+        cy: cy,
+        parent: parent,
+      );
 
   @override
-  AnnotationExtents copyWith({String? id, DocxNode<dynamic>? parent, num? cx, num? cy}) {
-    return AnnotationExtents(cx: cx ?? this.cx, cy: cy ?? this.cy);
+  AnnotationExtents copyWith({
+    UnitValue? cx,
+    UnitValue? cy,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return AnnotationExtents(
+      id: id ?? this.id,
+      cx: cx ?? this.cx,
+      cy: cy ?? this.cy,
+      parent: parent ?? this.parent,
+    );
   }
 
   @override
@@ -33,8 +53,8 @@ class AnnotationExtents extends DocxNode<dynamic> {
         'a:ext',
         isSelfClosing: true,
         attributes: [
-          XmlAttribute(XmlName.fromString('cx'), cx.toString()),
-          XmlAttribute(XmlName.fromString('cy'), cy.toString()),
+          XmlAttribute(XmlName.fromString('cx'), cx.toEmu().toString()),
+          XmlAttribute(XmlName.fromString('cy'), cy.toEmu().toString()),
         ],
       ),
     ];

@@ -50,7 +50,7 @@ extension StyleConfiguratorToXmlNode on StyleConfigurator {
   List<XmlElement> childrenToXmlNodes() {
     final List<XmlElement> childrenNodes = configurators
         .map(
-          (StyleConfigurator e) => e.toXmlNode(),
+          (StyleConfigurator e) => e.buildXml(),
         )
         .whereType<XmlElement>()
         .toList();

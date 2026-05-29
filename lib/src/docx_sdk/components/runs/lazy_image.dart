@@ -46,18 +46,18 @@ class LazyImage extends DocxNode<ImageData<File>> {
     super.id,
     this.elementId,
     this.asInline = false,
-    this.transformOffsetX = 0,
-    this.transformOffsetY = 0,
+    this.transformOffsetX = const Emu(0),
+    this.transformOffsetY = const Emu(0),
   }) : super(child: data);
 
   /// Whether the image should be rendered inline with text.
   bool asInline;
 
   /// Horizontal transformation offset in EMU units.
-  final int transformOffsetX;
+  final UnitValue transformOffsetX;
 
   /// Vertical transformation offset in EMU units.
-  final int transformOffsetY;
+  final UnitValue transformOffsetY;
   int? elementId;
 
   @override
@@ -71,6 +71,7 @@ class LazyImage extends DocxNode<ImageData<File>> {
           height: child.height,
           name: child.name,
           alt: child.alt,
+          anchorConfig: child.anchorConfig,
         ),
         transformOffsetY: transformOffsetY,
         transformOffsetX: transformOffsetX,
@@ -86,8 +87,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
     DocxNode<dynamic>? parent,
     int? elementId,
     bool? asInline,
-    int? transformOffsetX,
-    int? transformOffsetY,
+    UnitValue? transformOffsetX,
+    UnitValue? transformOffsetY,
   }) {
     return LazyImage(
       data: child ?? this.child,
@@ -97,7 +98,10 @@ class LazyImage extends DocxNode<ImageData<File>> {
       transformOffsetY: transformOffsetY ?? this.transformOffsetY,
       id: id ?? this.id,
       parent: parent ?? this.parent,
-    );
+    )
+      .._imgWidthEmu = _imgWidthEmu
+      .._imgHeightEmu = _imgHeightEmu
+      ..relationshipId = relationshipId;
   }
 
   String get getImageName =>
@@ -199,8 +203,8 @@ class LazyImage extends DocxNode<ImageData<File>> {
               // basically is mandatory, since word needs that
               // them have the same digit value
               extents: AnnotationExtents(
-                cx: _imgWidthEmu!.toEmu(),
-                cy: _imgHeightEmu!.toEmu(),
+                cx: _imgWidthEmu!,
+                cy: _imgHeightEmu!,
               ),
             ),
             // NOTE: should be customizable?

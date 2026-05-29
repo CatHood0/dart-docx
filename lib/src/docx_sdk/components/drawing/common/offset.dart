@@ -1,36 +1,48 @@
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
-//TODO: tenemos que:
-// 1. Chequear por que los offsets no funcionan
-// 2. Chequear los offsets de Anchor y que hacen con los shapes
-// 3. Generar más demos con diferentes tipos de figuras geometricas
-// 4. Crear más pruebas complejas con documentos de investigación cortos
-// 5. Generar documentación
+//TODO: 
+// 1. check exactly why makes offsets not working for graphics 
+// 2. check how offsets behaves when using Anchor and WPShape
 //
 // Represents a:off
 class Offset extends DocxNode<dynamic> {
-  Offset({required this.x, required this.y}) : super(child: null);
+  Offset({
+    required this.x,
+    required this.y,
+    super.id,
+    super.parent,
+  }) : super(child: null);
 
   Offset.zero()
-      : x = 0,
-        y = 0,
+      : x = const Emu(0),
+        y = const Emu(0),
         super(child: null);
 
-  final num x;
-  final num y;
+  final UnitValue x;
+  final UnitValue y;
 
   @override
-  Offset get copy => Offset(x: x, y: y);
+  Offset get copy => Offset(
+        id: id,
+        x: x,
+        y: y,
+        parent: parent,
+      );
 
   @override
   Offset copyWith({
     String? id,
     DocxNode<dynamic>? parent,
-    num? x,
-    num? y,
+    UnitValue? x,
+    UnitValue? y,
   }) {
-    return Offset(x: x ?? this.x, y: y ?? this.y);
+    return Offset(
+      id: id ?? this.id,
+      x: x ?? this.x,
+      y: y ?? this.y,
+      parent: parent ?? this.parent,
+    );
   }
 
   @override

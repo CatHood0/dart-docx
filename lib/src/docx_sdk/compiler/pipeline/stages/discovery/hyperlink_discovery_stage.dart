@@ -43,9 +43,9 @@ class HyperlinkDiscoveryStage extends PipelineStage {
 
     CompilerLogger.root.debug('Initiating hyperlink search.');
 
-    context.getStoreOfExactType<HyperlinkStore>()!.discoverHyperlinks(
-          context.document,
-        );
+    context
+        .getStoreOfExactType<HyperlinkStore>()!
+        .discoverHyperlinks(context.tree);
 
     CompilerLogger.root.debug(
       'Hyperlink search completed. '

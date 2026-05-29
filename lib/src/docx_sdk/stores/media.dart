@@ -13,7 +13,7 @@ import '../../core/extensions/string_ext.dart';
 ///
 /// Implements [Store] to integrate with the pipeline system.
 /// Call [initialize] before using this store in the pipeline.
-class MediaStore implements Store {
+class MediaStore extends Store {
   MediaStore();
 
   @override
@@ -68,11 +68,13 @@ class MediaStore implements Store {
 
   /// Store all the media in the tree
   void discoverMedia(
-    DocxDocument data, [
+    DocxNode root, [
     Set<String> supportedFileExtensions = const <String>{},
   ]) {
-    //TODO: use parent methods of DocumentRoot
-    for (final DocxNode parent in data.root.child) {
+    final List<DocxNode<dynamic>>? sections = resolveRoot(root);
+    if (sections == null) return;
+
+    for (final DocxNode parent in sections) {
       CompilerLogger.root.debug(
         'Discovering images in '
         'parent ${parent.runtimeType}:${parent.id}',

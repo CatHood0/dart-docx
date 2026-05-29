@@ -2,6 +2,7 @@ import 'package:meta/meta.dart'
     show experimental, visibleForOverriding, mustCallSuper;
 import 'package:xml/xml.dart' show XmlNode;
 
+import '../../../core/extensions/cast_ext.dart';
 import '../../registry/docx_registry.dart';
 import '../../sdk.dart';
 
@@ -103,9 +104,45 @@ abstract class DocxNode<T> {
     }
   }
 
-  DocxNode<T> get copy;
+  DocxNode<T> get copy => this;
 
-  DocxNode<T> copyWith({String? id, DocxNode<T>? parent});
+  DocxNode<T> copyWith({String? id, DocxNode<T>? parent}) => this;
+
+  DocxNode? queryPath(List<int> path) {
+    if ((child == null || child is! DocxNode) && path.isNotEmpty) return null;
+    if (path.isEmpty) return this;
+    if (child is DocxNode && path.first == 0) {
+      return child!.cast<DocxNode>().queryPath(path.sublist(1));
+    }
+    if (child is DocxNode && path.first != 0) {
+      return null;
+    }
+
+    final List<int> tempPath = <int>[...path];
+    final List<DocxNode<dynamic>> cList = child!.cast<List<DocxNode>>();
+    if (tempPath.first > cList.length) return null;
+    DocxNode? cur = cList[tempPath.removeAt(0)];
+    while (cur != null) {
+      if (tempPath.isEmpty) break;
+
+      if ((cur.child == null || cur.child is! DocxNode) && path.isNotEmpty) {
+        return null;
+      }
+      if (cur.child is DocxNode && tempPath.first == 0) {
+        tempPath.removeAt(0);
+        cur = cur.child!.cast<DocxNode>().queryPath(tempPath);
+        continue;
+      }
+      if (cur.child is DocxNode && tempPath.first != 0) {
+        return null;
+      }
+
+      final List<DocxNode> t = cur.child.cast<List<DocxNode>>();
+      if (tempPath.first > t.length) return null;
+      cur = t[tempPath.removeAt(0)];
+    }
+    return cur;
+  }
 
   List<int> get path {
     if (!mounted || parent == null) {
@@ -114,7 +151,7 @@ abstract class DocxNode<T> {
     final List<int> indexes = [index];
 
     DocxNode? owner = parent;
-    while (owner != null && owner is! DocxRoot) {
+    while (owner != null && owner is! RootBody) {
       indexes.add(owner.index);
       owner = owner.parent;
     }
@@ -147,13 +184,15 @@ abstract class DocxNode<T> {
   @mustCallSuper
   void init() {
     // Does not requires
-    if (mounted && !dirty) {
+    if (mounted || dirty) {
       CompilerLogger.root.config(
           '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: hit diff. Avoiding re-initialization');
       return;
     }
+
     CompilerLogger.root.config(
-      '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: initializated correctly into ${parent!.runtimeType}:${parent!.id}',
+      '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: '
+      'initializated correctly into ${parent?.runtimeType}:${parent?.id}',
     );
   }
 
@@ -201,27 +240,22 @@ abstract class DocxNode<T> {
 
   R? getAncestorOfExactType<R extends DocxNode<dynamic>>() {
     DocxNode? current = parent;
+
+    if (current == null) {
+      return null;
+    }
+
     CompilerLogger.root.debug('$runtimeType:$id will try to ');
     CompilerLogger.root.debug(
       '${' ' * depth} | search ancestor '
       'of type $R',
     );
+
     if (current is R) {
       CompilerLogger.root.debug(
         '${' ' * depth} |_ $R found at ${current.depth}',
       );
       return current;
-    }
-
-    if (current is DocxRoot) {
-      CompilerLogger.root.debug(
-        '${' ' * depth} |_ $R not found by root limitation',
-      );
-      return null;
-    }
-
-    if (current == null) {
-      return null;
     }
 
     int countTries = 0;

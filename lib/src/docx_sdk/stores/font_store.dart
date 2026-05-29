@@ -72,7 +72,8 @@ class FontStore extends Store {
   /// [document] The [DocxDocument] to scan for fonts (if dynamic search).
   /// [options] The [DocumentOptions] which might contain predefined fonts.
   void discoverFonts(
-    DocxDocument document, {
+    DocxDocument document,
+    DocxNode root, {
     bool dynamicSearchEnabled = false,
   }) {
     // Add predefined fonts from options
@@ -84,7 +85,10 @@ class FontStore extends Store {
 
     // Discover fonts from content if dynamic search is enabled
     if (dynamicSearchEnabled) {
-      _discoverFontsFromDocumentContent(document);
+      _discoverFontsFromDocumentContent(
+        root,
+        document.options.docStyles,
+      );
     }
 
     _checkForDefaultFontsExistence();
@@ -93,12 +97,16 @@ class FontStore extends Store {
   /// Scans the document's content (paragraphs, runs, styles)
   /// to find referenced font names and adds them as basic [FontProperties].
   void _discoverFontsFromDocumentContent(
-    DocxDocument document,
+    DocxNode root,
+    DocumentStyles docStyles,
   ) {
     final Set<String> discoveredFontNames = <String>{};
 
+    final List<DocxNode<dynamic>>? sections = resolveRoot(root);
+    if (sections == null) return;
+
     //TODO: use parent methods of DocumentRoot
-    for (final DocxNode parent in document.root.child) {
+    for (final DocxNode parent in sections) {
       final List<DocxNode> elementsWithFonts = parent.visitAllElement(
             (
               DocxNode el,
@@ -117,8 +125,7 @@ class FontStore extends Store {
         }
 
         for (final Style style in styles) {
-          final Style deepStyle =
-              style.resolveStyle(document.options.docStyles);
+          final Style deepStyle = style.resolveStyle(docStyles);
           final StyleConfigurator? rPr =
               deepStyle.getConfiguratorOrNull('w:rPr', fullName: true);
           if (rPr != null) {
@@ -136,14 +143,14 @@ class FontStore extends Store {
       }
     }
 
-    for (final Style style in document.options.docStyles.styles.values) {
-      final Style deepStyle = style.resolveStyle(document.options.docStyles);
+    for (final Style style in docStyles.styles.values) {
+      final Style deepStyle = style.resolveStyle(docStyles);
       final StyleConfigurator? runProperties = deepStyle.runProperties;
       if (runProperties != null) {
         final StyleConfigurator? fontFamilyProperties =
             runProperties.fontFamily;
         if (fontFamilyProperties != null) {
-        //TODO: we need to improve this
+          //TODO: we need to improve this
           final String? fontFamily =
               fontFamilyProperties.attributes?['w:ascii'] as String?;
           if (fontFamily != null && fontFamily.isNotEmpty) {

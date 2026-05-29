@@ -205,13 +205,13 @@ class NumberingStore extends Store {
   /// This method visits the document tree looking for Paragraphs with numbering
   /// and NumberingList components, then registers concrete instances for each unique
   /// node ID + reference + instance ID combination found.
-  void discoverAndRegister(DocxDocument document) {
+  void discoverAndRegister(DocxNode node) {
     CompilerLogger.root.debug('Starting numbering auto-discovery');
 
     // Collect all unique (reference, refId) combinations
     final Set<(String?, String, int)> uniqueNumberings = {};
 
-    document.root.visitAllElement(
+    node.visitAllElement(
       visitChildrenIfNeeded: true,
       (DocxNode<dynamic> element) {
         if (element is Paragraph && element.numbering != null) {

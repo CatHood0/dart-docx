@@ -4,14 +4,14 @@ import 'package:docx/docx.dart';
 
 Future<void> main() async {
   final File outFile = File('test_resources/heart_shape.docx');
-  final int size = 200.ptToEmu();
+  final  Point size = Point(200);
 
   final DocxDocument doc = DocxDocument(
     options: DocumentOptions.standard(
       title: 'My Heart Shape Document',
       styles: DocumentStyles.base(),
     ),
-    root: DocxRoot(
+    root: RootBody(
       sections: <DocxNode<dynamic>>[
         Anchor(
           width: size,

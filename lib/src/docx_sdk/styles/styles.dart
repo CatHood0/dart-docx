@@ -142,6 +142,13 @@ class Style extends IterableConfigurators {
     );
   }
 
+  // Style type constants
+  static const String paragraphType = 'paragraph';
+  static const String listType = 'list';
+  static const String numberingType = 'numbering';
+  static const String characterType = 'character';
+  static const String tableType = 'table';
+
   List<StyleConfigurator> prioritySort() {
     configurators.sort((StyleConfigurator a, StyleConfigurator b) {
       if (a.qualifiedName == xmlStyleName) {
@@ -151,13 +158,6 @@ class Style extends IterableConfigurators {
     });
     return configurators;
   }
-
-  // Style type constants
-  static const String paragraphType = 'paragraph';
-  static const String listType = 'list';
-  static const String numberingType = 'numbering';
-  static const String characterType = 'character';
-  static const String tableType = 'table';
 
   Style? mergeBuilder(StyleBuilder styleBuilder) {
     if (styleBuilder.type != type) return null;

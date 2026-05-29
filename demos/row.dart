@@ -24,7 +24,7 @@ Future<void> main() async {
         margins: margins,
       ),
     ),
-    root: DocxRoot(
+    root: RootBody(
       sections: <DocxNode<dynamic>>[
         Paragraph.text(
           text: '1. MainAxisAlignment.spaceBetween',

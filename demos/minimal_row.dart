@@ -23,7 +23,7 @@ Future<void> main() async {
         ),
       ),
     ),
-    root: DocxRoot(
+    root: RootBody(
       sections: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         minHeight: Point(5),

@@ -31,9 +31,9 @@ class MediaDiscoveryStage extends PipelineStage {
     CompilerLogger.root.debug('Initiating media search.');
 
     final MediaStore store =
-        context.getStoreOfExactType<MediaStore>() ?? MediaStore()
+        (context.getStoreOfExactType<MediaStore>() ?? MediaStore())
           ..discoverMedia(
-            context.document,
+            context.tree,
             context.options.supportedFileExtensions,
           );
 

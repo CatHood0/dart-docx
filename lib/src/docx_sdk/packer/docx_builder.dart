@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import '../../../docx.dart' show DocxRoot, DocxNode;
+import '../../../docx.dart' show RootBody, DocxNode;
 
 class DocumentBuilder {
-  final DocxRoot doc = DocxRoot(sections: <DocxNode<dynamic>>[]);
+  final RootBody doc = RootBody(sections: <DocxNode<dynamic>>[]);
 
   DocumentBuilder element({required DocxNode node}) {
     return this;

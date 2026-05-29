@@ -23,11 +23,13 @@ class StyleValidationStage extends PipelineStage {
   StageCategory get category => StageCategory.discovery;
 
   @override
-  String get description => 'Validates that document Style.refs exist in DocumentStylesSheet.';
+  String get description =>
+      'Validates that document Style.refs exist in DocumentStylesSheet.';
 
   @override
   bool shouldExecute(PipelineContext context) {
-    return !context.flags.skipStyleValidation && context.flags.checkStyleRefExistence;
+    return !context.flags.skipStyleValidation &&
+        context.flags.checkStyleRefExistence;
   }
 
   @override
@@ -37,7 +39,7 @@ class StyleValidationStage extends PipelineStage {
 
     final missingStyles = <String>[];
 
-    context.document.root
+    context.tree
         .visitAllElement(
       visitChildrenIfNeeded: true,
       (DocxNode<dynamic> el) => el is Paragraph,
