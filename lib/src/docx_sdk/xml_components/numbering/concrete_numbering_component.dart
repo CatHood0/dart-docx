@@ -57,9 +57,11 @@ class XmlConcreteNumberingComponent
             ) {
               CompilerLogger.root.debug(
                 'Building concrete numbering '
-                'instance for ${options.abstractRefId} '
-                'with indent: ${ele.indentLevel}, '
-                'and start: ${ele.startAt}',
+                'using abstractRefId "${options.abstractRefId}" '
+                'for the "${options.numId}". List instance: '
+                '"${options.refKey}-${options.copyId}" '
+                '(indent: ${ele.indentLevel} '
+                'and start: ${ele.startAt})',
               );
               return ConcreteLevelOverrideComponent(
                 indentLevel: ele.indentLevel,

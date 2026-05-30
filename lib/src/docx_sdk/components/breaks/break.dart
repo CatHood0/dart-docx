@@ -54,7 +54,6 @@ class Break extends RunBase<BreakType> {
   @override
   Break get copy => Break(child: child);
 
-
   @override
   bool canMerge(RunBase<dynamic> node) => false;
 
@@ -68,7 +67,7 @@ class Break extends RunBase<BreakType> {
     bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return null;
+    return shouldGetElement(this) ? <DocxNode<dynamic>>[this] : null;
   }
 
   @override
@@ -76,7 +75,7 @@ class Break extends RunBase<BreakType> {
     bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
-    return null;
+    return shouldGetElement(this) ? this : null;
   }
 
   @override

@@ -4,16 +4,13 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
 
-//TODO: we should have a way to define a stuff like the DocumentStyles but for Numberings
-// to allow reusing constants to avoid magic strings
 /// Represent a more easy version that manages all stuff related with the references and ids
-//TODO: i think that numbering store does not know about NumberingList and requires a
-// fix to allow making more simple get the NumberingOption configured
-//TODO: yeah, the store does not know about NumberingList
 class NumberingList extends DocxNode<List<DocxNode>> {
   NumberingList({
     required this.refKey,
     required List<DocxNode> children,
+    this.noRestartCount = false,
+    this.listStyle,
     super.id,
     super.parent,
   })  : inheritFromParent = false,
@@ -28,6 +25,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
+        assert(
+          listStyle == null || listStyle.type == Style.listType,
+          'listStyle must be of type Style.listType',
+        ),
         super(child: List.from(children)) {
     int index = 0;
     for (final DocxNode<dynamic> c in child) {
@@ -43,6 +44,8 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   NumberingList.one({
     required this.refKey,
     required DocxNode child,
+    this.noRestartCount = false,
+    this.listStyle,
     super.id,
     super.parent,
   })  : inheritFromParent = false,
@@ -55,6 +58,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
+        assert(
+          listStyle == null || listStyle.type == Style.listType,
+          'listStyle must be of type Style.listType',
+        ),
         super(child: List.from(<DocxNode>[child])) {
     int index = 0;
     for (final DocxNode<dynamic> c in this.child) {
@@ -69,6 +76,8 @@ class NumberingList extends DocxNode<List<DocxNode>> {
 
   NumberingList.inheritOne({
     required DocxNode child,
+    this.noRestartCount = false,
+    this.listStyle,
     super.id,
     super.parent,
   })  : refKey = '',
@@ -81,6 +90,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
+        assert(
+          listStyle == null || listStyle.type == Style.listType,
+          'listStyle must be of type Style.listType',
+        ),
         super(child: List.from(<DocxNode>[child])) {
     int index = 0;
     for (final DocxNode<dynamic> c in this.child) {
@@ -98,6 +111,8 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     required this.refKey,
     required this.inheritFromParent,
     required List<DocxNode> children,
+    this.noRestartCount = false,
+    this.listStyle,
     super.id,
     super.parent,
   })  : assert(inheritFromParent || !inheritFromParent && refKey.isNotEmpty,
@@ -111,6 +126,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
+        assert(
+          listStyle == null || listStyle.type == Style.listType,
+          'listStyle must be of type Style.listType',
+        ),
         super(child: List.from(children)) {
     int index = 0;
     for (final DocxNode<dynamic> c in child) {
@@ -125,6 +144,8 @@ class NumberingList extends DocxNode<List<DocxNode>> {
 
   NumberingList.inherit({
     required List<DocxNode> children,
+    this.noRestartCount = false,
+    this.listStyle,
     super.id,
     super.parent,
   })  : refKey = '',
@@ -138,6 +159,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
             'all the '
             'children for NumberingList must '
             'be Paragraph or Text objects'),
+        assert(
+          listStyle == null || listStyle.type == Style.listType,
+          'listStyle must be of type Style.listType',
+        ),
         super(child: List.from(children)) {
     int index = 0;
     for (final DocxNode<dynamic> c in child) {
@@ -150,11 +175,31 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     }
   }
 
-  /// The id of the NumberingOption that we are referencing
+  /// The list style reference key
+  ///
+  /// Commonly references to a [NumberingOptions]
+  /// provided to the document before compilation
   final String refKey;
+
+  /// Whether this list will inherited the [refKey]
+  /// from its parent [NumberingList]
+  ///
+  /// It will throws an [exception] if parent
+  /// of type [NumberingList] is not founded
   final bool inheritFromParent;
 
+  /// Whether this list will use the last [refId]
+  /// registered for its [refKey]
+  ///
+  /// Default to [false] to always using a new [refId]
+  /// by every new [NumberingList] instance that its
+  /// not a child of another one
+  final bool noRestartCount;
+
+  final Style? listStyle;
+
   static final Map<String, int> _lastNumberingIds = <String, int>{};
+
   static final Style listStyleRef = Style.ref('ListParagraph');
 
   static void clearReferences() {
@@ -163,11 +208,12 @@ class NumberingList extends DocxNode<List<DocxNode>> {
 
   final List<DocxNode> _temp = <DocxNode<dynamic>>[];
 
-  int getRefId() {
-    // perfom was not executed
-    if (_temp.isEmpty || inheritFromParent || refKey.isEmpty) return -1;
-    // lastNumberingIds = { "unordered": 1, "ordered": 3, "bullet": 10 }
-    return _lastNumberingIds[refKey]!;
+  @override
+  void markAsDirty() {
+    super.markAsDirty();
+    _temp.clear();
+    //TODO: we should decrease the count for the current
+    // refKey of this instance
   }
 
   @override
@@ -177,19 +223,32 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     int level = 0;
     int refId = 0;
 
-    CompilerLogger.root.debug('Start perfom initialization');
-    NumberingList? ownerList = getAncestorOfExactType<NumberingList>();
-    NumberingList? lastOwner = ownerList;
+    CompilerLogger.root.debug(
+      '$runtimeType:$id Start perform execution',
+    );
+
+    if (_temp.isNotEmpty) {
+      CompilerLogger.root.debug(
+        '$runtimeType:$id ($depth) Hit diff. '
+        'Avoiding unnecessary perfom',
+      );
+      return;
+    }
+
+    DocxNode? ownerList = getAncestorOfExactType<NumberingList>();
+    NumberingList? lastOwner = !inheritFromParent ? null : ownerList?.cast();
 
     while (ownerList != null) {
-      CompilerLogger.root.debug(
-        'Increasing '
-        'level ($level -> ${level + 1}) of '
-        'depth for list "$id"',
-      );
-      level++;
-      lastOwner = ownerList;
-      ownerList = ownerList.getAncestorOfExactType<NumberingList>();
+      ownerList = ownerList.parent;
+      if (ownerList is NumberingList) {
+        CompilerLogger.root.debug(
+          'Increasing '
+          'level ($level -> ${level + 1}) of '
+          'depth for list "$id"',
+        );
+        lastOwner = !inheritFromParent ? null : ownerList;
+        level++;
+      }
     }
 
     if (lastOwner == null && inheritFromParent) {
@@ -203,12 +262,9 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     }
 
     key = inheritFromParent ? lastOwner!.refKey : refKey;
-    CompilerLogger.root.info(
-        'Decided Key: $key${lastOwner != null ? ' (Nested)' : ''} => Numbering Map: $_lastNumberingIds');
-
     // nested lists uses the same refId
-    _lastNumberingIds[key] = lastOwner != null
-        ? _lastNumberingIds[key] ?? (refId + 1)
+    _lastNumberingIds[key] = inheritFromParent || noRestartCount
+        ? _lastNumberingIds[key]!
         : (_lastNumberingIds[key] ?? refId) + 1;
     // Since every refId is start in a different point when the
     // key is different, then we use this to allow sharing correctly
@@ -218,15 +274,20 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     //
     // lastNumberingIds = { "unordered": 1, "ordered": 3, "bullet": 10 }
     refId = _lastNumberingIds[key]!;
+    CompilerLogger.root.info(
+      'Decided Key: $key'
+      '${lastOwner != null ? ' (Nested - $level)' : ''} => '
+      'Numbering Map: $_lastNumberingIds',
+    );
 
-    if (mounted && isChildOf<NumberingStoreProvider>()) {
+    if (isChildOf<NumberingStoreProvider>()) {
       NumberingStoreProvider.of(this).registerConcreteInstance(
         key,
         refId,
         nodeId: id,
       );
     } else {
-      CompilerLogger.root.debug(
+      CompilerLogger.root.warning(
         '$runtimeType:$id => Not found '
         'NumberingStoreProvider to register concrete instance '
         'of this list element',
@@ -235,11 +296,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
 
     CompilerLogger.root.info('Numbering Map: $_lastNumberingIds');
 
-    //TODO: ensure that DocumentStyles has this style
     for (DocxNode<dynamic> element in child) {
-      CompilerLogger.root.debug(
-        'Setting numbering for element ${element.runtimeType}:${element.id}',
-      );
       if (element is Paragraph) {
         assert(
           element.numbering == null,
@@ -248,7 +305,11 @@ class NumberingList extends DocxNode<List<DocxNode>> {
         _temp.add(
           element.copyWith(
             parent: this,
-            styles: <Style>[...element.styles, listStyleRef],
+            styles: <Style>[
+              ...element.styles,
+              listStyleRef,
+              if (listStyle != null) listStyle!,
+            ],
             numbering: Numbering(
               level: level,
               refId: refId,
@@ -258,22 +319,30 @@ class NumberingList extends DocxNode<List<DocxNode>> {
         );
       } else if (element is RunBase) {
         _temp.add(
-          element.paragraph(
-            parent: this,
-            styles: <Style>[listStyleRef],
-            numbering: Numbering(
-              level: level,
-              refId: refId,
-              reference: key,
-            ),
-          ),
+          element.copyWith(id: DocxElements.instance.createId()).paragraph(
+                id: element.id,
+                parent: this,
+                styles: <Style>[
+                  listStyleRef,
+                  if (listStyle != null) listStyle!,
+                ],
+                numbering: Numbering(
+                  level: level,
+                  refId: refId,
+                  reference: key,
+                ),
+              ),
         );
       } else if (element is Text) {
         final Paragraph pr = element.toParagraph();
         _temp.add(
           pr.copyWith(
+            id: element.id,
             parent: this,
-            styles: <Style>[listStyleRef],
+            styles: <Style>[
+              listStyleRef,
+              if (listStyle != null) listStyle!,
+            ],
             numbering: Numbering(
               level: level,
               refId: refId,
@@ -283,8 +352,18 @@ class NumberingList extends DocxNode<List<DocxNode>> {
         );
       } else if (element is Builder<NumberingList>) {
         _temp.add(element.build().copyWith(parent: this));
-      } else {
+      } else if (element is NumberingList) {
         _temp.add(element.copyWith(parent: this));
+      } else {
+        _temp.add(element.copyWith(
+          id: element.id,
+          parent: this,
+        ));
+      }
+      if (_temp.last.dirty) {
+        _temp.last
+          ..init()
+          ..perform();
       }
     }
   }
@@ -292,10 +371,10 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   @override
   List<XmlNode> buildXml() {
     List<XmlNode> nodes = <XmlNode>[];
+    CompilerLogger.root.debug(
+      'NumberingList: _temp: $_temp, children: $child',
+    );
     for (DocxNode<dynamic> e in _temp) {
-      if (!e.mounted) {
-        e;
-      }
       if (e is Builder) {
         nodes.addAll(e.build().buildXml());
         continue;
@@ -309,9 +388,11 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   NumberingList get copy => NumberingList(
         id: id,
         parent: parent,
-        children: child,
         refKey: refKey,
-      );
+        children: child,
+        noRestartCount: noRestartCount,
+        listStyle: listStyle,
+      ).._temp.addAll(_temp);
 
   @override
   NumberingList copyWith({
@@ -320,25 +401,36 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     DocxNode<dynamic>? parent,
     String? refKey,
     bool? inheritFromParent,
-  }) {
-    return NumberingList.raw(
-      id: id ?? this.id,
-      parent: parent ?? this.parent,
-      children: child ?? this.child,
-      refKey: refKey ?? this.refKey,
-      inheritFromParent: inheritFromParent ?? this.inheritFromParent,
-    );
-  }
+    bool? noRestartCount,
+    Style? listStyle,
+  }) =>
+      NumberingList.raw(
+        id: id ?? this.id,
+        parent: parent ?? this.parent,
+        children: child ?? this.child,
+        refKey: refKey ?? this.refKey,
+        inheritFromParent: inheritFromParent ?? this.inheritFromParent,
+        noRestartCount: noRestartCount ?? this.noRestartCount,
+        listStyle: listStyle ?? this.listStyle,
+      ).._temp.addAll(_temp);
 
   @override
   DocxNode? visitElement(
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
-    for (final DocxNode<dynamic> element in child) {
-      if (shouldGetElement(element)) {
+    if (shouldGetElement(this)) return this;
+    final List<DocxNode<dynamic>> children =
+        DocxElements.instance.initializeByCompile
+            ? child
+            : _temp.isEmpty
+                ? child
+                : _temp;
+    for (final DocxNode<dynamic> element in children) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         return element;
-      } else if (visitChildrenIfNeeded) {
+      }
+      if (visitChildrenIfNeeded) {
         final DocxNode? foundedEl = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
@@ -356,12 +448,20 @@ class NumberingList extends DocxNode<List<DocxNode>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
+    if (shouldGetElement(this)) return toList();
     if (child.isEmpty) return <DocxNode>[];
+    final List<DocxNode<dynamic>> children =
+        DocxElements.instance.initializeByCompile
+            ? child
+            : _temp.isEmpty
+                ? child
+                : _temp;
     final List<DocxNode> elements = <DocxNode>[];
-    for (final DocxNode element in child) {
-      if (shouldGetElement(element)) {
+    for (final DocxNode element in children) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         elements.add(element);
-      } else if (visitChildrenIfNeeded) {
+      }
+      if (visitChildrenIfNeeded) {
         final List<DocxNode>? foundedEl = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,

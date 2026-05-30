@@ -207,23 +207,7 @@ class DocxPipeline {
       stores: _stores,
     );
 
-    if (DocxElements.instance.needsPreviousInitialization) {
-      final Stopwatch watch = Stopwatch()..start();
-      CompilerLogger.root.debug('Ensuring initializatin start');
-      context.document.options.docStyles.index();
-      context.tree.visitAllElement(
-        visitChildrenIfNeeded: true,
-        (DocxNode<dynamic> e) {
-          e.init();
-          return false;
-        },
-      );
-      watch.stop();
-      CompilerLogger.root.debug(
-        'Ensuring initializatin end '
-        'time ${watch.elapsedMilliseconds > 0 ? '${watch.elapsedMilliseconds}ms' : '${watch.elapsedMicroseconds}ns'}',
-      );
-    }
+    _context!.logConfig.init();
 
     for (final PreCompileHook hook in _preCompileHooks) {
       hook(context);
@@ -355,7 +339,6 @@ class DocxPipeline {
       const StyleValidationStage(),
       const EnvironmentSetupStage(),
       const OptionsValidationStage(),
-      const ConfigInitStage(),
       const ArchiveInitStage(),
       const ColumnDiscoveryStage(),
       const NumberingDiscoveryStage(),

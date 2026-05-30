@@ -5,6 +5,7 @@ import 'package:xml/xml.dart' show XmlNode;
 import '../../../core/extensions/cast_ext.dart';
 import '../../registry/docx_registry.dart';
 import '../../sdk.dart';
+import '../inheriteds/inherited_node.dart';
 
 abstract class DocxNode<T> {
   DocxNode({
@@ -87,7 +88,7 @@ abstract class DocxNode<T> {
   String? rId;
 
   // Not used yet
-  bool dirty = false;
+  bool dirty = true;
 
   /// The internal random id of this component
   final String id;
@@ -151,7 +152,7 @@ abstract class DocxNode<T> {
     final List<int> indexes = [index];
 
     DocxNode? owner = parent;
-    while (owner != null && owner is! RootBody) {
+    while (owner != null) {
       indexes.add(owner.index);
       owner = owner.parent;
     }
@@ -181,19 +182,13 @@ abstract class DocxNode<T> {
     dirty = true;
   }
 
+  //TODO: we should implement a way to add properties to avoid
+  // using unnecessary string concatenation every time for every node
+  dynamic debugProperties() {}
+
   @mustCallSuper
   void init() {
-    // Does not requires
-    if (mounted || dirty) {
-      CompilerLogger.root.config(
-          '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: hit diff. Avoiding re-initialization');
-      return;
-    }
-
-    CompilerLogger.root.config(
-      '${' ' * (depth + 1)} [$runtimeType:$id:${path.length}]: '
-      'initializated correctly into ${parent?.runtimeType}:${parent?.id}',
-    );
+    dirty = false;
   }
 
   void deactivate() {
@@ -208,7 +203,6 @@ abstract class DocxNode<T> {
 
   /// Performs all the required stuff that need to be ready
   /// before the `build` pahase
-  @visibleForOverriding
   @experimental
   void perform() {
     CompilerLogger.root.config(
@@ -245,15 +239,16 @@ abstract class DocxNode<T> {
       return null;
     }
 
-    CompilerLogger.root.debug('$runtimeType:$id will try to ');
+    final indent = ' ' * (depth / 2).round();
+    CompilerLogger.root.debug('$runtimeType:$id:$depth will try to ');
     CompilerLogger.root.debug(
-      '${' ' * depth} | search ancestor '
+      '$indent | search ancestor '
       'of type $R',
     );
 
     if (current is R) {
       CompilerLogger.root.debug(
-        '${' ' * depth} |_ $R found at ${current.depth}',
+        '$indent${this is InheritedNode ? '' : ' ' * depth} |_ $R found at ${current.depth}',
       );
       return current;
     }
@@ -264,14 +259,14 @@ abstract class DocxNode<T> {
     while (current != null) {
       if (current is R) {
         CompilerLogger.root.debug(
-          '${' ' * depth} |_ $R found at ${current.depth}',
+          '$indent |_ $R found at ${current.depth}',
         );
         return current;
       }
 
       if (loopTraverse > 0 && lastId == current.id) {
         CompilerLogger.root.debug(
-          '${' ' * depth} | Hit element id again. Count: $countTries -> ${countTries + 1}',
+          '$indent | Hit element id again. Count: $countTries -> ${countTries + 1}',
         );
         countTries++;
       } else {
@@ -285,7 +280,7 @@ abstract class DocxNode<T> {
       // repeated every time
       if (countTries > 3) {
         CompilerLogger.root.debug(
-          '${' ' * depth} |_ Hit element ${current.runtimeType} '
+          '$indent |_ Hit element ${current.runtimeType} '
           'with id $id too many times. '
           'Breaking loop...',
         );
@@ -294,7 +289,7 @@ abstract class DocxNode<T> {
       loopTraverse++;
       current = current.parent;
     }
-    CompilerLogger.root.debug('${' ' * depth} |_ $R was not found');
+    CompilerLogger.root.debug('$indent |_ $R was not found');
     return null;
   }
 

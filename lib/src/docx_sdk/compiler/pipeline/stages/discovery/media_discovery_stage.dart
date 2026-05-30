@@ -30,12 +30,9 @@ class MediaDiscoveryStage extends PipelineStage {
     context.emit(DocxEvent.searching(subject: 'Searching media (images)'));
     CompilerLogger.root.debug('Initiating media search.');
 
-    final MediaStore store =
-        (context.getStoreOfExactType<MediaStore>() ?? MediaStore())
-          ..discoverMedia(
-            context.tree,
-            context.options.supportedFileExtensions,
-          );
+    final MediaStore store = (context.getStoreOfExactType<MediaStore>() ??
+        MediaStore())
+      ..discoverMedia(context.tree, context.options.supportedFileExtensions);
 
     //TODO: later add more debug info
     if (store.mediaComponents.isNotEmpty &&

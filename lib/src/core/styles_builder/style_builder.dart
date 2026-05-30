@@ -632,16 +632,16 @@ class StyleBuilder {
   StyleBuilder borders({
     BorderStyle? top,
     UnitValue? topSize,
-    String? topColor,
+    Color? topColor,
     BorderStyle? bottom,
     UnitValue? bottomSize,
-    String? bottomColor,
+    Color? bottomColor,
     BorderStyle? left,
     UnitValue? leftSize,
-    String? leftColor,
+    Color? leftColor,
     BorderStyle? right,
     UnitValue? rightSize,
-    String? rightColor,
+    Color? rightColor,
   }) {
     if (type != Style.paragraphType) return this;
 
@@ -649,28 +649,28 @@ class StyleBuilder {
       _borders['top'] = <String, String>{
         'w:val': top.value,
         'w:sz': (topSize ?? Point(4)).toEightOfPt().toString(),
-        'w:color': topColor ?? 'auto',
+        'w:color': topColor?.toColorValue()?.toUpperCase() ?? 'auto',
       };
     }
     if (bottom != null) {
       _borders['bottom'] = <String, String>{
         'w:val': bottom.value,
         'w:sz': (bottomSize ?? Point(4)).toEightOfPt().toString(),
-        'w:color': bottomColor ?? 'auto',
+        'w:color': bottomColor?.toColorValue()?.toUpperCase() ?? 'auto',
       };
     }
     if (left != null) {
       _borders['left'] = <String, String>{
         'w:val': left.value,
         'w:sz': (leftSize ?? Point(4)).toEightOfPt().toString(),
-        'w:color': leftColor ?? 'auto',
+        'w:color': leftColor?.toColorValue()?.toUpperCase() ?? 'auto',
       };
     }
     if (right != null) {
       _borders['right'] = <String, String>{
         'w:val': right.value,
         'w:sz': (rightSize ?? Point(4)).toEightOfPt().toString(),
-        'w:color': rightColor ?? 'auto',
+        'w:color': rightColor?.toColorValue()?.toUpperCase() ?? 'auto',
       };
     }
     return this;

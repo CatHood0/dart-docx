@@ -190,28 +190,28 @@ class Text extends ComponentContainer<String> {
   Text get copy => Text(
         child,
         id: id,
-        textAlign: textAlign,
         parent: parent,
         styles: styles,
         textStyle: textStyle,
+        textAlign: textAlign,
       );
 
   @override
   Text copyWith({
     String? child,
     String? id,
-    DocxNode<dynamic>? parent,
     Iterable<Style>? styles,
     TextAlign? textAlign,
     TextStyle? textStyle,
+    DocxNode<dynamic>? parent,
   }) {
     return Text(
       child ?? this.child,
-      styles: styles ?? this.styles,
-      textAlign: textAlign ?? this.textAlign,
       id: id ?? this.id,
+      styles: styles ?? this.styles,
       parent: parent ?? this.parent,
       textStyle: textStyle ?? this.textStyle,
+      textAlign: textAlign ?? this.textAlign,
     );
   }
 

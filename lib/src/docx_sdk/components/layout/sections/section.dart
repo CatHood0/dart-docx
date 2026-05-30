@@ -97,7 +97,8 @@ class Section extends DocxNode<List<DocxNode>> {
     final List<XmlNode> elements = <XmlNode>[];
     for (final DocxNode<dynamic> e in child) {
       final List<XmlNode> element = e.buildXml();
-      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() || element.isEmpty) {
+      if (e is IgnorableMixin && e.cast<IgnorableMixin>().shouldIgnore() ||
+          element.isEmpty) {
         continue;
       }
       elements.addAll(element);
@@ -142,9 +143,10 @@ class Section extends DocxNode<List<DocxNode>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
+    if (shouldGetElement(this)) return this;
     for (final DocxNode<dynamic> element in child) {
       if (element.isEmptyNode()) continue;
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
         final DocxNode? foundedEl = element.visitElement(
@@ -164,6 +166,7 @@ class Section extends DocxNode<List<DocxNode>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
+    if (shouldGetElement(this)) return toList();
     if (child.isEmpty) return <DocxNode>[];
     final List<DocxNode> elements = <DocxNode>[];
     for (final DocxNode element in child) {

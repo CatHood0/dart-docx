@@ -148,7 +148,7 @@ extension WrapNode on DocxNode {
         pageBreak: pageBreak,
         numbering: numbering,
         alignment: align,
-        parent: parent,
+        parent: parent ?? this.parent,
         textStyle: textStyle,
       );
     }
@@ -160,7 +160,7 @@ extension WrapNode on DocxNode {
       pageBreak: pageBreak,
       numbering: numbering,
       align: align,
-      parent: parent,
+      parent: parent ?? this.parent,
       textStyle: textStyle,
     );
   }

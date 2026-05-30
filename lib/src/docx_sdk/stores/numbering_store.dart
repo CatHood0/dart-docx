@@ -151,42 +151,54 @@ class NumberingStore extends Store {
   ///
   /// Parameters:
   /// - [ref]: The reference key of the abstract numbering template.
-  /// - [numRefId]: The instance ID for this concrete numbering.
+  /// - [instanceId]: The instance ID for this concrete numbering.
   /// - [level]: Optional level override.
-  void registerConcreteInstance(String ref, int numRefId,
-      {String? nodeId, int? level}) {
+  void registerConcreteInstance(
+    String ref,
+    int instanceId, {
+    String? nodeId,
+    int? level,
+  }) {
+    CompilerLogger.root.debug(
+      'Start of Registering concrete instance: "$ref"',
+    );
     final XmlAbstractNumComponent? abstractN = _abstractNumberings[ref];
     if (abstractN == null) {
-      CompilerLogger.root.warning(
-        'Cannot register concrete instance: no abstract numbering found for "$ref"',
+      CompilerLogger.root.debug(
+        'Cannot register concrete instance: '
+        'no abstract numbering found for "$ref"',
       );
       return;
     }
 
-    final String effectiveReference =
-        '$ref-$numRefId${nodeId != null && nodeId.isNotEmpty ? '-$nodeId' : ''}';
+    final String effectiveReference = '$ref-$instanceId-${nodeId ?? ''}';
     if (_concreteNumberings.containsKey(effectiveReference)) {
       CompilerLogger.root.debug(
-        'Concrete instance "$effectiveReference" already registered, skipping',
+        'Concrete instance "$effectiveReference" already '
+        'registered, skipping',
       );
       return;
     }
 
     final List<LevelOptions>? referenceConfig = _referenceConfigMap[ref];
     final int? firstLevelStartNumber = referenceConfig?.firstOrNull?.start;
+    final int concreteId = _generateConcreteId();
 
     CompilerLogger.root.debug(
-      'Registering concrete: $effectiveReference of level $level',
+      'Registering concrete: "$effectiveReference" ($concreteId) '
+      'of level ${level ?? 0} '
+      ' using abstract reference: $ref-${abstractN.id} '
+      'for instance  $instanceId',
     );
     CompilerLogger.root.debug(
       'Overrides: first level number => $firstLevelStartNumber',
     );
 
     final ConcreteNumberingOptions concreteOptions = ConcreteNumberingOptions(
-      numId: _generateConcreteId(),
+      numId: concreteId,
       abstractRefId: abstractN.id.toInt(),
       refKey: ref,
-      copyId: numRefId,
+      copyId: instanceId,
       overrides: <ConcreteLevelOverride>[
         if (firstLevelStartNumber != null)
           ConcreteLevelOverride(
@@ -196,6 +208,7 @@ class NumberingStore extends Store {
       ],
     );
 
+    CompilerLogger.root.debug('Stored "$effectiveReference" correctly');
     _concreteNumberings[effectiveReference] =
         XmlConcreteNumberingComponent(concreteOptions);
   }
@@ -206,34 +219,29 @@ class NumberingStore extends Store {
   /// and NumberingList components, then registers concrete instances for each unique
   /// node ID + reference + instance ID combination found.
   void discoverAndRegister(DocxNode node) {
-    CompilerLogger.root.debug('Starting numbering auto-discovery');
+    CompilerLogger.root.debug(
+        'Starting numbering auto-discovery in ${node.runtimeType}:${node.id}');
 
-    // Collect all unique (reference, refId) combinations
-    final Set<(String?, String, int)> uniqueNumberings = {};
-
-    node.visitAllElement(
+    node.visitElement(
       visitChildrenIfNeeded: true,
       (DocxNode<dynamic> element) {
-        if (element is Paragraph && element.numbering != null) {
-          final num = element.numbering!;
-          uniqueNumberings.add((element.id, num.reference, num.refId!));
+        if (element.parent is! NumberingList &&
+            element is Paragraph &&
+            element.numbering != null) {
+          final Numbering num = element.numbering!;
+          registerConcreteInstance(
+            num.reference,
+            num.refId!,
+            nodeId: element.id,
+          );
         }
-        //TODO: numberings are not being registered
-        // NumberingList will not count, since will register the concrete instances
-        // in compilation time. At this point, the implementation replaces
-        // some elements automatically, and cannot be do it in another way
-        // so, letting to the Paragraph the task of registering the concrete instance
         return false;
       },
     );
 
-    // Register each unique combination
-    for (final (id, ref, refId) in uniqueNumberings) {
-      registerConcreteInstance(ref, refId, nodeId: id);
-    }
-
     CompilerLogger.root.debug(
-      'Numbering auto-discovery complete. Registered ${_concreteNumberings.length} concrete instances',
+      'Numbering auto-discovery complete. '
+      'Registered ${_concreteNumberings.length} concrete instances',
     );
   }
 

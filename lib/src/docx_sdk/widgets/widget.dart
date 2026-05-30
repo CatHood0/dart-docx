@@ -8,12 +8,20 @@ import '../exceptions/docx_compilation_exception.dart';
 abstract class Widget extends DocxNode<DocxNode> {
   Widget({String? key}) : super(id: key, child: EmptyNode());
 
+  DocxNode? _child;
+
   @override
   DocxNode<dynamic> get child {
-    return build()..parent = this;
+    return _child ??= build()..parent = this;
   }
 
   DocxNode build();
+
+  @mustCallSuper
+  @override
+  List<XmlNode> buildXml() {
+    return child.buildXml();
+  }
 }
 
 abstract class StatelessWidget extends Widget {
@@ -39,20 +47,19 @@ abstract class StatelessWidget extends Widget {
 
   @mustCallSuper
   @override
-  List<XmlNode> buildXml() {
-    final DocxNode<dynamic> s = build()..parent = this;
-    return s.buildXml();
-  }
-
-  @mustCallSuper
-  @override
   List<DocxNode<dynamic>>? visitAllElement(
     bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return [this];
-    final DocxNode<dynamic> el = build()..parent = this;
-    return shouldGetElement(el) ? el.toList() : null;
+    final DocxNode<dynamic> el = child;
+    if (!visitChildrenIfNeeded && shouldGetElement(el)) {
+      return el.toList();
+    }
+    return el.visitAllElement(
+      shouldGetElement,
+      visitChildrenIfNeeded: visitChildrenIfNeeded,
+    );
   }
 
   @mustCallSuper
@@ -62,8 +69,14 @@ abstract class StatelessWidget extends Widget {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
-    final DocxNode<dynamic> el = build()..parent = this;
-    return shouldGetElement(el) ? el : null;
+    final DocxNode<dynamic> el = child;
+    if (!visitChildrenIfNeeded && shouldGetElement(el)) {
+      return el;
+    }
+    return el.visitElement(
+      shouldGetElement,
+      visitChildrenIfNeeded: visitChildrenIfNeeded,
+    );
   }
 }
 
@@ -109,19 +122,19 @@ abstract class StatefulWidget extends Widget {
 
   @mustCallSuper
   @override
-  List<XmlNode> buildXml() {
-    return build().buildXml();
-  }
-
-  @mustCallSuper
-  @override
   List<DocxNode<dynamic>>? visitAllElement(
     bool Function(DocxNode<dynamic> element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return [this];
-    final DocxNode<dynamic> el = build();
-    return shouldGetElement(el) ? el.toList() : null;
+    final DocxNode<dynamic> el = child;
+    if (!visitChildrenIfNeeded && shouldGetElement(el)) {
+      return el.toList();
+    }
+    return el.visitAllElement(
+      shouldGetElement,
+      visitChildrenIfNeeded: visitChildrenIfNeeded,
+    );
   }
 
   @mustCallSuper
@@ -131,8 +144,14 @@ abstract class StatefulWidget extends Widget {
     bool visitChildrenIfNeeded = true,
   }) {
     if (shouldGetElement(this)) return this;
-    final DocxNode<dynamic> el = build();
-    return shouldGetElement(el) ? el : null;
+    final DocxNode<dynamic> el = child;
+    if (!visitChildrenIfNeeded && shouldGetElement(el)) {
+      return el;
+    }
+    return el.visitElement(
+      shouldGetElement,
+      visitChildrenIfNeeded: visitChildrenIfNeeded,
+    );
   }
 }
 

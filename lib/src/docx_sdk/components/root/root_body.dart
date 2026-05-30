@@ -150,10 +150,26 @@ class RootBody extends DocxNode<List<DocxNode<dynamic>>> {
   List<XmlNode> buildXml() {
     final List<XmlNode> content = <XmlNode>[];
     for (final DocxNode<dynamic> section in child) {
+      if (section.parent != this) {
+        throw 'section parent is not equals than $runtimeType. '
+            'Found: ${section.runtimeType}:${section.id} '
+            '(${section.parent?.runtimeType}:${section.parent?.id})';
+      }
+      if (section.dirty) {
+        section
+          ..init()
+          ..perform();
+      }
       if (section is IgnorableMixin &&
           (section as IgnorableMixin).shouldIgnore()) {
+        CompilerLogger.root.debug(
+          '$runtimeType:$id skipping '
+          'element ${section.runtimeType}:${section.id}',
+        );
         continue;
       }
+      CompilerLogger.root.debug(
+          'Element: ${section.runtimeType}:${section.id} (child: ${section.child})');
       content.addAll(section.buildXml());
     }
 
@@ -213,16 +229,16 @@ class RootBody extends DocxNode<List<DocxNode<dynamic>>> {
     if (shouldGetElement(this)) return <DocxNode<dynamic>>[this];
     final List<DocxNode> elements = <DocxNode<dynamic>>[];
     for (final DocxNode element in child) {
-      if (element.isEmptyNode()) continue;
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         elements.add(element);
-      } else if (visitChildrenIfNeeded) {
+      }
+      if (visitChildrenIfNeeded) {
         final List<DocxNode<dynamic>>? els = element.visitAllElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,
         );
         if (els != null) {
-          return els;
+          elements.addAll(els);
         }
       }
     }
@@ -237,9 +253,10 @@ class RootBody extends DocxNode<List<DocxNode<dynamic>>> {
     if (shouldGetElement(this)) return this;
     for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         return element;
-      } else if (visitChildrenIfNeeded) {
+      }
+      if (visitChildrenIfNeeded) {
         final DocxNode<dynamic>? els = element.visitElement(
           shouldGetElement,
           visitChildrenIfNeeded: true,

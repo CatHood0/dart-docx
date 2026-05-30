@@ -5,7 +5,6 @@ import 'package:xml/xml.dart';
 import '../../../../docx.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../../core/extensions/style_to_from_node.dart';
-import '../../compiler/inherited/compiler_config_provider.dart';
 import '../../exceptions/docx_compilation_exception.dart';
 
 /// Fundamental document unit for organizing text content.
@@ -261,10 +260,10 @@ class Paragraph extends DocxNode<List<RunBase>> {
     }
 
     for (final RunBase e in elements) {
-      final List<XmlNode> element = e.buildXml();
-      if (e.shouldIgnore() || element.isEmpty || e.isEmptyNode()) {
+      if (e.shouldIgnore() || e.isEmptyNode()) {
         continue;
       }
+      final List<XmlNode> element = e.buildXml();
       paragraphChildren.addAll(element);
     }
 
@@ -308,27 +307,37 @@ class Paragraph extends DocxNode<List<RunBase>> {
         );
       }
       final NumberingStore provider = NumberingStoreProvider.of(this);
-      if (isChildOf<NumberingList>()) {
+      bool isChildOfNumberingList = isChildOf<NumberingList>();
+      if (!isChildOfNumberingList) {
+        CompilerLogger.root.info(
+          'Not found parent of type NumberingList '
+          'manual check being executed',
+        );
         final bool hasConcreteId =
             provider.hasConcreteInstance(numbering!.concreteRef, id);
         if (!hasConcreteId) {
           CompilerLogger.root.debug(
-              'Registering concrete instance: ${numbering!.concreteRef}-$id');
+            'Registering concrete instance for '
+            '$runtimeType:$id => ${numbering!.concreteRef}-$id',
+          );
           provider.registerConcreteInstance(
-            numbering!.concreteRef,
+            numbering!.reference,
             numbering!.refId ?? 0,
             nodeId: id,
           );
         }
-      } else {
-        CompilerLogger.root.debug('Checking if abstract reference exist');
-        provider.validateAbstractNumberingExistence(numbering!.reference);
       }
-      pPrChildren.add(numbering!.build(
-        provider.getConcreteNumId(
-          numbering!.concreteRef,
-        )!,
-      ));
+      final int concreteId = provider.getConcreteNumId(
+        numbering!.concreteRef,
+        nodeId: isChildOfNumberingList
+            ? getAncestorOfExactType<NumberingList>()!.id
+            : id,
+      )!;
+      CompilerLogger.root.info(
+        'Getting concrete id reference for $runtimeType:$id '
+        '"${numbering!.reference}" ($concreteId)',
+      );
+      pPrChildren.add(numbering!.build(concreteId));
     }
 
     bool alreadyHasReference = false;
@@ -371,7 +380,6 @@ class Paragraph extends DocxNode<List<RunBase>> {
     // style, so...
     // do you want to apply the 'Normal' style 3 times?
     // right, you don't!
-    //TODO: we need to register configurators
     final Map<String, Style> appliedStyles = <String, Style>{};
 
     if (styles.isEmpty && configs?.normalStyleIfNeeded == true) {
@@ -382,7 +390,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
         'setting a reference style',
       );
       Style? st = configs?.normalStyle;
-      if (alreadyHasReference || configs?.checkStyleRefExistence == true) {
+      if (alreadyHasReference) {
         final Style? normal = configs!.options.docStyles
             .getStyleById(configs.normalStyle.styleId);
         if (normal != null && !normal.isInvalid) {
@@ -410,16 +418,23 @@ class Paragraph extends DocxNode<List<RunBase>> {
 
     for (final Style style in styles) {
       if (style.isInvalid || appliedStyles.containsKey(style.styleId)) {
+        CompilerLogger.root.warning(
+          'Skipping invalid or '
+          'already applied style in $runtimeType:$id',
+        );
         continue;
       }
       Style? st = style;
       // Resolve references
-      if (alreadyHasReference && st.isReference ||
-          configs?.checkStyleRefExistence == true) {
+      if (alreadyHasReference && st.isReference) {
         final Style? stemp =
             configs!.options.docStyles.getStyleById(style.styleId);
         if (stemp != null && !stemp.isInvalid) {
           st = stemp;
+          CompilerLogger.root.warning('Found style "${style.styleId}". '
+              'Reference style provided will be replaced with '
+              'its defined version in styles.xml to avoid conflitcts '
+              '$runtimeType:$id at $index');
         } else {
           st = null;
           CompilerLogger.root.warning(
@@ -440,6 +455,10 @@ class Paragraph extends DocxNode<List<RunBase>> {
       );
       // Set always the style ref at first index
       if (st.isReference) {
+        CompilerLogger.root.warning(
+          'Moving reference "${style.styleId}" to '
+          '0 position for $runtimeType:$id',
+        );
         pPrChildren.insertAll(0, xml);
         continue;
       }
@@ -504,6 +523,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
       pageBreak: pageBreak ?? this.pageBreak,
       numbering: numbering ?? this.numbering,
       textStyle: textStyle ?? this.textStyle,
+      parent: parent ?? this.parent,
     );
   }
 
@@ -512,8 +532,9 @@ class Paragraph extends DocxNode<List<RunBase>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
+    if (shouldGetElement(this)) return this;
     for (final RunBase<dynamic> element in child) {
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
         final DocxNode? foundedEl = element.visitElement(
@@ -533,10 +554,11 @@ class Paragraph extends DocxNode<List<RunBase>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
+    if (shouldGetElement(this)) return toList();
     if (child.isEmpty) return <RunBase>[];
     final List<DocxNode> elements = <DocxNode>[];
     for (final RunBase element in child) {
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
         final List<DocxNode>? foundedEl = element.visitAllElement(

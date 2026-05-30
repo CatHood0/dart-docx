@@ -16,7 +16,6 @@ Future<Uint8List?> runCompilation(
   bool checkStylReferences = true,
   Style? defaultStyle,
 }) {
-  DocxElements.instance.ensureInitialized();
   DocxPacker.instance.autoRegisterFonts(registerFonts);
   if (noTrim) {
     DocxPacker.instance.noTrimRuns();
@@ -111,6 +110,7 @@ class DocxPacker {
   DocxPacker logAllPaths() {
     _compiler.config = LoggablePhaseConfig(
       enabled: true,
+      level: LogLevel.all,
       loggablePhases: <String>{
         ...DocxPaths.paths,
       },
