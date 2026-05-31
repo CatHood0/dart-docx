@@ -108,9 +108,10 @@ class PageColumn extends DocxNode<List<DocxNode>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
+    if (shouldGetElement(this)) return this;
     for (final DocxNode<dynamic> element in child) {
       if (element.isEmptyNode()) continue;
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
         final DocxNode? foundedEl = element.visitElement(
@@ -130,11 +131,12 @@ class PageColumn extends DocxNode<List<DocxNode>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
+    if (shouldGetElement(this)) return toList();
     if (child.isEmpty) return <DocxNode>[];
     final List<DocxNode> elements = <DocxNode>[];
     for (final DocxNode element in child) {
       if (element.isEmptyNode()) continue;
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
         final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(

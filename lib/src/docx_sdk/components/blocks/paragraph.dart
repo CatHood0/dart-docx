@@ -286,15 +286,20 @@ class Paragraph extends DocxNode<List<RunBase>> {
     final List<XmlElement> pPrChildren = <XmlElement>[];
 
     final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
-    if (DocxElements.instance.initializeByCompile && configs == null) {
-      throw DocxCompilationException(
-        message: 'Not found required CompilerConfigProvider '
-            'build of styles in $runtimeType:$id => ${parent != null ? 'Parent defined' : '$parent'}',
-        node: this,
-        cause:
-            'Not found required provider in tree ${parent == null ? 'with no parent definition' : ''}',
-      );
-    }
+    // TODO: we need to find a way to know
+    // when require this provider and when just
+    // ignore it 
+    // if (DocxElements.instance.initializeByCompile &&
+    //     configs == null &&
+    //     (numbering != null || styles.isNotEmpty)) {
+    //   throw DocxCompilationException(
+    //     message: 'Not found required CompilerConfigProvider '
+    //         'build of styles in $runtimeType:$id => ${parent != null ? 'Parent defined' : '$parent'}',
+    //     node: this,
+    //     cause:
+    //         'Not found required provider in tree ${parent == null ? 'with no parent definition' : ''}',
+    //   );
+    // }
     if (numbering != null && isChildOf<NumberingStoreProvider>()) {
       if (numbering!.level > 9) {
         throw DocxCompilationException(
@@ -497,16 +502,19 @@ class Paragraph extends DocxNode<List<RunBase>> {
   }
 
   @override
-  Paragraph get copy => Paragraph(
-        id: id,
-        children: child,
-        alignment: alignment,
-        pageBreak: pageBreak,
-        numbering: numbering,
-        styles: styles,
-        textStyle: textStyle,
-        parent: parent,
-      );
+  Paragraph get copy {
+    CompilerLogger.root.debug('Copy: $runtimeType:$id');
+    return Paragraph(
+      id: id,
+      children: child,
+      alignment: alignment,
+      pageBreak: pageBreak,
+      numbering: numbering,
+      styles: styles,
+      textStyle: textStyle,
+      parent: parent,
+    );
+  }
 
   @override
   Paragraph copyWith({
@@ -519,6 +527,7 @@ class Paragraph extends DocxNode<List<RunBase>> {
     Alignment? alignment,
     TextStyle? textStyle,
   }) {
+    CompilerLogger.root.debug('CopyWith: $runtimeType:${this.id}');
     return Paragraph(
       id: id ?? this.id,
       children: children ?? child,
