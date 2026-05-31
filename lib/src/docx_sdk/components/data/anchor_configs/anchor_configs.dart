@@ -22,7 +22,7 @@ class AnchorConfig {
     this.anchorOffsetX = const Emu(0),
     this.anchorOffsetY = const Emu(0),
     this.distanceFromText = const TextDistance(),
-    this.horizontalAnchor = HorizontalAnchorPosition.paragraph,
+    this.horizontalAnchor = HorizontalAnchorPosition.margin,
     this.verticalAnchor = VerticalAnchorPosition.paragraph,
     this.horizontalPosition = AnchorPosition.left,
     this.verticalPosition = AnchorPosition.top,
@@ -32,8 +32,7 @@ class AnchorConfig {
             // side configurations
             final bool isSquare = wrapType == WrapType.square;
             final bool isTight = wrapType == WrapType.tight;
-            return (isSquare && isTight) ||
-                (isSquare || isTight) && wrapSide != null;
+            return (isSquare && isTight) || (isSquare || isTight) && wrapSide != null;
           }(),
           'wrapSide must be defined when '
           'the wrapType is setted to '
@@ -42,7 +41,10 @@ class AnchorConfig {
 
   /// Creates an inline anchor configuration (simple, in-text).
   ///
-  /// For images that should behave like text characters.
+  /// The object behaves like a character in the text flow. It does not float.
+  /// This is the default for images inserted directly into a paragraph.
+  ///
+  /// **When to use:** When you want the object to move with the text as if it were a large letter.
   factory AnchorConfig.inline() {
     return AnchorConfig(
       wrapType: WrapType.asCharacter,
@@ -51,7 +53,12 @@ class AnchorConfig {
     );
   }
 
-  /// Creates a block anchor config.
+  /// Creates a block anchor configuration.
+  ///
+  /// The object is placed as a block element, with no text wrapping on its sides.
+  /// Text appears only above and below the object. Useful for full-width images or diagrams.
+  ///
+  /// **When to use:** When you want the object to break the text flow and occupy its own line.
   factory AnchorConfig.block({
     bool locked = false,
   }) {
@@ -64,9 +71,16 @@ class AnchorConfig {
     );
   }
 
-  /// Creates a square wrap configuration with text on specified side.
+  /// Creates a square wrap configuration with text on the specified side.
   ///
-  /// Most common floating image configuration.
+  /// This is the most common floating image configuration. Text flows around the object's
+  /// rectangular bounding box. You can control which side(s) text wraps on.
+  ///
+  /// **When to use:** For most floating images where you want text to fill the space around them.
+  ///
+  /// - [side] determines which side text can appear on: `WrapSide.largest` (default, automatic),
+  ///   `left`, `right`, or `bothSides`.
+  /// - [locked] prevents the object from being repositioned by the user.
   factory AnchorConfig.square({
     WrapSide side = WrapSide.largest,
     bool locked = false,
@@ -80,7 +94,10 @@ class AnchorConfig {
 
   /// Creates a top-and-bottom wrap configuration.
   ///
-  /// Text appears only above and below, not on sides.
+  /// Text appears only above and below the object, leaving empty space on its left and right.
+  /// The object behaves like a block element but remains floating.
+  ///
+  /// **When to use:** For wide objects that should not share horizontal space with text.
   factory AnchorConfig.topAndBottom({bool locked = false}) {
     return AnchorConfig(
       wrapType: WrapType.topAndBottom,
@@ -89,7 +106,12 @@ class AnchorConfig {
     );
   }
 
-  /// Creates a watermark configuration (behind document).
+  /// Creates a watermark configuration (behind document text).
+  ///
+  /// The object is placed behind the text, semi-transparent typically.
+  /// It uses `zOrder` 0 and `behindDoc = true`.
+  ///
+  /// **When to use:** For watermarks or background images that should not interfere with text reading.
   factory AnchorConfig.watermark() {
     return AnchorConfig(
       wrapType: WrapType.none,
@@ -100,6 +122,11 @@ class AnchorConfig {
   }
 
   /// Creates a callout/annotation configuration (in front of text).
+  ///
+  /// The object floats on top of the text with a high `zOrder` (9999).
+  /// Useful for callouts, comments, or annotations that must stay above the content.
+  ///
+  /// **When to use:** For sticky notes, markup elements, or overlays that should always be visible.
   factory AnchorConfig.callout() {
     return AnchorConfig(
       wrapType: WrapType.none,
@@ -187,8 +214,7 @@ class AnchorConfig {
   bool get isInline => wrapType == WrapType.asCharacter;
 
   /// Whether this is a floating object with text wrapping.
-  bool get isFloating =>
-      wrapType != WrapType.asCharacter && wrapType != WrapType.none;
+  bool get isFloating => wrapType != WrapType.asCharacter && wrapType != WrapType.none;
 
   /// Whether text wraps through the object (behind/inFront).
   bool get isThrough => zOrder == -1 || zOrder > 0;
@@ -231,6 +257,16 @@ class AnchorConfig {
     );
   }
 
+  /// Converts the current configuration to use page-relative positioning.
+  ///
+  /// The object’s horizontal position is relative to the page (`HorizontalAnchorPosition.page`),
+  /// and vertical position also relative to the page (`VerticalAnchorPosition.page`).
+  /// Other properties (wrap type, lock, offsets) remain unchanged unless overridden.
+  ///
+  /// Use this when you want the object to stay at a fixed absolute location on the page,
+  /// independent of paragraph or text flow.
+  ///
+  /// **Example:** Placing a logo in the same corner on every page.
   AnchorConfig toPageAnchorPosition({
     WrapType? wrapType,
     WrapSide? wrapSide,
@@ -267,6 +303,13 @@ class AnchorConfig {
     );
   }
 
+  /// Converts the current configuration to use paragraph-relative positioning.
+  ///
+  /// The object’s position is tied to the paragraph where its anchor is placed.
+  /// If the paragraph moves (e.g., due to added or removed text), the object moves with it.
+  /// This is the default for most floating objects.
+  ///
+  /// **When to use:** For images or shapes that belong to a specific paragraph (e.g., a diagram next to a description).
   AnchorConfig toParagraphAnchorPosition({
     WrapType? wrapType,
     WrapSide? wrapSide,
@@ -296,13 +339,22 @@ class AnchorConfig {
       anchorOffsetX: anchorOffsetX ?? this.anchorOffsetX,
       anchorOffsetY: anchorOffsetY ?? this.anchorOffsetY,
       distanceFromText: distanceFromText ?? this.distanceFromText,
-      horizontalAnchor: HorizontalAnchorPosition.paragraph,
+      horizontalAnchor: HorizontalAnchorPosition.margin,
       verticalAnchor: VerticalAnchorPosition.paragraph,
       horizontalPosition: horizontalPosition ?? this.horizontalPosition,
       verticalPosition: verticalPosition ?? this.verticalPosition,
     );
   }
 
+  /// Converts the current configuration to use character/line-relative positioning.
+  ///
+  /// Horizontal anchor: `HorizontalAnchorPosition.character`
+  /// Vertical anchor: `VerticalAnchorPosition.line`
+  ///
+  /// This ties the object to a specific character (e.g., a footnote marker or an inline icon)
+  /// and aligns it relative to the line.
+  ///
+  /// **When to use:** For small icons or annotations that should move with a particular text position.
   AnchorConfig toCharAnchorPosition({
     WrapType? wrapType,
     WrapSide? wrapSide,
@@ -339,6 +391,15 @@ class AnchorConfig {
     );
   }
 
+  /// Converts the current configuration to use column-relative positioning.
+  ///
+  /// Horizontal anchor: `HorizontalAnchorPosition.column`
+  /// Vertical anchor: `VerticalAnchorPosition.page`
+  ///
+  /// Useful in multi‑column layouts where the object should stay inside a specific column
+  /// but can move vertically with the page.
+  ///
+  /// **When to use:** For figures placed inside a newspaper‑style column layout.
   AnchorConfig toColumnAnchorPosition({
     WrapType? wrapType,
     WrapSide? wrapSide,
@@ -484,11 +545,6 @@ enum HorizontalAnchorPosition {
   ///
   /// Useful in multi-column layouts.
   column('column'),
-
-  /// Relative to paragraph position.
-  ///
-  /// Positions relative to specific paragraph.
-  paragraph('paragraph'),
 
   /// Relative to text position.
   ///
@@ -649,8 +705,7 @@ class TextDistance {
   final UnitValue bottom;
 
   /// Whether any distance is set (non-zero).
-  bool get hasDistance =>
-      left != Emu(0) || right != Emu(0) || top != Emu(0) || bottom != Emu(0);
+  bool get hasDistance => left != Emu(0) || right != Emu(0) || top != Emu(0) || bottom != Emu(0);
 
   TextDistance copyWith({
     UnitValue? left,

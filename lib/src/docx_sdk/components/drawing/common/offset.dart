@@ -1,8 +1,8 @@
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 
-//TODO: 
-// 1. check exactly why makes offsets not working for graphics 
+//TODO:
+// 1. check exactly why makes offsets not working for graphics
 // 2. check how offsets behaves when using Anchor and WPShape
 //
 // Represents a:off
@@ -52,8 +52,14 @@ class Offset extends DocxNode<dynamic> {
         'a:off',
         isSelfClosing: true,
         attributes: [
-          XmlAttribute(XmlName.fromString('x'), x.toString()),
-          XmlAttribute(XmlName.fromString('y'), y.toString()),
+          XmlAttribute(
+            XmlName.fromString('x'),
+            x.toEmu().toString(),
+          ),
+          XmlAttribute(
+            XmlName.fromString('y'),
+            y.toEmu().toString(),
+          ),
         ],
       ),
     ];

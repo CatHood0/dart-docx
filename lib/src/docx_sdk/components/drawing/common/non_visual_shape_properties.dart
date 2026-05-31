@@ -1,6 +1,5 @@
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
-import '../../../../core/extensions/num_extensions.dart';
 import '../../../../core/extensions/string_ext.dart';
 
 /// Non-visual properties of a shape (wps:nvSpPr).
@@ -13,6 +12,7 @@ class NonVisualShapeProperties extends DocxNode<void> {
     required this.description,
     this.shapeLocks = true,
     super.id,
+    super.parent,
   }) : super(child: null);
 
   /// Display name (appears in selection pane and alt text).
@@ -30,6 +30,7 @@ class NonVisualShapeProperties extends DocxNode<void> {
         name: name,
         description: description,
         shapeLocks: shapeLocks,
+        parent: parent,
       );
 
   @override
@@ -45,6 +46,7 @@ class NonVisualShapeProperties extends DocxNode<void> {
       name: name ?? this.name,
       description: description ?? this.description,
       shapeLocks: shapeLocks ?? this.shapeLocks,
+      parent: parent ?? this.parent,
     );
   }
 
@@ -52,33 +54,23 @@ class NonVisualShapeProperties extends DocxNode<void> {
   List<XmlNode> buildXml() {
     return <XmlNode>[
       XmlElement.tag(
-        'wps:nvSpPr',
-        children: <XmlNode>[
-          // Common non-visual properties (id, name, description)
+        'wps:cNvPr',
+        attributes: [
+          XmlAttribute('id'.toName(), id),
+          XmlAttribute('name'.toName(), name),
+          XmlAttribute('descr'.toName(), description),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'wps:cNvSpPr',
+        children: [
           XmlElement.tag(
-            'wps:cNvPr',
-            attributes: <XmlAttribute>[
-              XmlAttribute('id'.toName(), id),
-              XmlAttribute('name'.toName(), name),
-              XmlAttribute('descr'.toName(), description),
+            'a:spLocks',
+            attributes: [
+              XmlAttribute('noChangeShapeType'.toName(), shapeLocks ? '1' : '0'),
             ],
             isSelfClosing: true,
-          ),
-          // Shape-specific non-visual properties
-          XmlElement.tag(
-            'wps:cNvSpPr',
-            children: <XmlNode>[
-              XmlElement.tag(
-                'a:spLocks',
-                attributes: <XmlAttribute>[
-                  XmlAttribute(
-                    'noChangeShapeType'.toName(),
-                    shapeLocks.toInt().toString(),
-                  ),
-                ],
-                isSelfClosing: true,
-              ),
-            ],
           ),
         ],
       ),

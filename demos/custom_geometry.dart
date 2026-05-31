@@ -45,9 +45,6 @@ final DocumentOptions options = DocumentOptions.standard(
   ),
 );
 
-//TODO: this doesnt work
-// I'm working in this yet, since
-// shape properties are too weird
 Future<void> main() async {
   final File outFile = File('test_resources/custom_geometry.docx');
   DocxElements.instance.ensureInitialized();
@@ -80,8 +77,8 @@ class MyApp extends StatelessWidget {
           styles: <Style>[Style.ref('ShapeDescription')],
         ),
 
-        Run.lineBreak(),
-        Run.lineBreak(),
+        Run.lineBreak().paragraph(),
+        Run.lineBreak().paragraph(),
 
         // Example 1: Triangle shape
         ShapeExample(
@@ -89,13 +86,11 @@ class MyApp extends StatelessWidget {
           description: 'Created with MoveToCommand and LineToCommand',
           shapePath: ShapePath(
             commands: <PathCommand>[
-              MoveToCommand(250000, 0),
-              LineToCommand(500000, 450000),
-              LineToCommand(0, 450000),
+              MoveToCommand(Point(20), Point(0)),
+              LineToCommand(Point(40), Point(40)),
+              LineToCommand(Point(0), Point(40)),
               ClosePathCommand(),
             ],
-            width: 500000,
-            height: 500000,
             fill: PathFill.normal,
             stroke: true,
           ),
@@ -110,15 +105,13 @@ class MyApp extends StatelessWidget {
           description: 'Pentagon with 5 sides using LineToCommand',
           shapePath: ShapePath(
             commands: <PathCommand>[
-              MoveToCommand(250000, 0),
-              LineToCommand(475000, 150000),
-              LineToCommand(400000, 450000),
-              LineToCommand(100000, 450000),
-              LineToCommand(25000, 150000),
+              MoveToCommand(Point(20), Point(0)),
+              LineToCommand(Point(38), Point(12)),
+              LineToCommand(Point(32), Point(40)),
+              LineToCommand(Point(8), Point(40)),
+              LineToCommand(Point(2), Point(12)),
               ClosePathCommand(),
             ],
-            width: 500000,
-            height: 500000,
             fill: PathFill.normal,
             stroke: true,
           ),
@@ -133,16 +126,14 @@ class MyApp extends StatelessWidget {
           description: 'Directional arrow using LineToCommand',
           shapePath: ShapePath(
             commands: <PathCommand>[
-              MoveToCommand(0, 250000),
-              LineToCommand(400000, 250000),
-              LineToCommand(400000, 100000),
-              LineToCommand(500000, 250000),
-              LineToCommand(400000, 400000),
-              LineToCommand(400000, 250000),
+              MoveToCommand(Point(0), Point(20)),
+              LineToCommand(Point(32), Point(20)),
+              LineToCommand(Point(32), Point(8)),
+              LineToCommand(Point(40), Point(20)),
+              LineToCommand(Point(32), Point(32)),
+              LineToCommand(Point(32), Point(20)),
               ClosePathCommand(),
             ],
-            width: 500000,
-            height: 500000,
             fill: PathFill.normal,
             stroke: true,
           ),
@@ -157,14 +148,12 @@ class MyApp extends StatelessWidget {
           description: 'Rotated square using LineToCommand',
           shapePath: ShapePath(
             commands: <PathCommand>[
-              MoveToCommand(250000, 0),
-              LineToCommand(500000, 250000),
-              LineToCommand(250000, 500000),
-              LineToCommand(0, 250000),
+              MoveToCommand(Point(20), Point(0)),
+              LineToCommand(Point(40), Point(20)),
+              LineToCommand(Point(20), Point(40)),
+              LineToCommand(Point(0), Point(20)),
               ClosePathCommand(),
             ],
-            width: 500000,
-            height: 500000,
             fill: PathFill.normal,
             stroke: true,
           ),
@@ -179,15 +168,13 @@ class MyApp extends StatelessWidget {
           description: 'House with roof using LineToCommand',
           shapePath: ShapePath(
             commands: <PathCommand>[
-              MoveToCommand(250000, 0),
-              LineToCommand(500000, 180000),
-              LineToCommand(500000, 500000),
-              LineToCommand(0, 500000),
-              LineToCommand(0, 180000),
+              MoveToCommand(Point(20), Point(0)),
+              LineToCommand(Point(40), Point(14)),
+              LineToCommand(Point(40), Point(40)),
+              LineToCommand(Point(0), Point(40)),
+              LineToCommand(Point(0), Point(14)),
               ClosePathCommand(),
             ],
-            width: 500000,
-            height: 500000,
             fill: PathFill.normal,
             stroke: true,
           ),
@@ -202,22 +189,20 @@ class MyApp extends StatelessWidget {
           description: 'Plus/cross shape using LineToCommand',
           shapePath: ShapePath(
             commands: <PathCommand>[
-              MoveToCommand(180000, 0),
-              LineToCommand(320000, 0),
-              LineToCommand(320000, 180000),
-              LineToCommand(500000, 180000),
-              LineToCommand(500000, 320000),
-              LineToCommand(320000, 320000),
-              LineToCommand(320000, 500000),
-              LineToCommand(180000, 500000),
-              LineToCommand(180000, 320000),
-              LineToCommand(0, 320000),
-              LineToCommand(0, 180000),
-              LineToCommand(180000, 180000),
+              MoveToCommand(Point(14), Point(0)),
+              LineToCommand(Point(26), Point(0)),
+              LineToCommand(Point(26), Point(14)),
+              LineToCommand(Point(40), Point(14)),
+              LineToCommand(Point(40), Point(26)),
+              LineToCommand(Point(26), Point(26)),
+              LineToCommand(Point(26), Point(40)),
+              LineToCommand(Point(14), Point(40)),
+              LineToCommand(Point(14), Point(26)),
+              LineToCommand(Point(0), Point(26)),
+              LineToCommand(Point(0), Point(14)),
+              LineToCommand(Point(14), Point(14)),
               ClosePathCommand(),
             ],
-            width: 500000,
-            height: 500000,
             fill: PathFill.normal,
             stroke: true,
           ),
@@ -232,16 +217,14 @@ class MyApp extends StatelessWidget {
           description: 'Six-sided polygon using LineToCommand',
           shapePath: ShapePath(
             commands: <PathCommand>[
-              MoveToCommand(250000, 0),
-              LineToCommand(450000, 125000),
-              LineToCommand(450000, 375000),
-              LineToCommand(250000, 500000),
-              LineToCommand(50000, 375000),
-              LineToCommand(50000, 125000),
+              MoveToCommand(Point(20), Point(0)),
+              LineToCommand(Point(36), Point(10)),
+              LineToCommand(Point(36), Point(30)),
+              LineToCommand(Point(20), Point(40)),
+              LineToCommand(Point(4), Point(30)),
+              LineToCommand(Point(4), Point(10)),
               ClosePathCommand(),
             ],
-            width: 500000,
-            height: 500000,
             fill: PathFill.normal,
             stroke: true,
           ),
@@ -256,20 +239,18 @@ class MyApp extends StatelessWidget {
           description: 'Five-pointed star using LineToCommand',
           shapePath: ShapePath(
             commands: <PathCommand>[
-              MoveToCommand(250000, 0),
-              LineToCommand(309000, 162000),
-              LineToCommand(480000, 162000),
-              LineToCommand(360000, 262000),
-              LineToCommand(400000, 450000),
-              LineToCommand(250000, 350000),
-              LineToCommand(100000, 450000),
-              LineToCommand(140000, 262000),
-              LineToCommand(20000, 162000),
-              LineToCommand(191000, 162000),
+              MoveToCommand(Point(20), Point(0)),
+              LineToCommand(Point(25), Point(13)),
+              LineToCommand(Point(38), Point(13)),
+              LineToCommand(Point(29), Point(21)),
+              LineToCommand(Point(32), Point(36)),
+              LineToCommand(Point(20), Point(28)),
+              LineToCommand(Point(8), Point(36)),
+              LineToCommand(Point(11), Point(21)),
+              LineToCommand(Point(2), Point(13)),
+              LineToCommand(Point(15), Point(13)),
               ClosePathCommand(),
             ],
-            width: 500000,
-            height: 500000,
             fill: PathFill.normal,
             stroke: true,
           ),
@@ -278,7 +259,7 @@ class MyApp extends StatelessWidget {
           borderWidth: 2,
         ),
 
-        Run.lineBreak(),
+        Run.lineBreak().paragraph(),
         Paragraph.text(
           text: 'Custom Geometry Components Used:',
           styles: <Style>[
@@ -340,35 +321,8 @@ class ShapeExample extends StatelessWidget {
 
   @override
   DocxNode<dynamic> build() {
-    // Build the custom geometry component
-    final CustomGeometryComponent geometry = CustomGeometryComponent(
-      paths: <ShapePath>[shapePath],
-      boundingBox: Rect(0, 0, shapePath.width, shapePath.height),
-      guide: GeometryGuideList(),
-      adjustValue: AdjustValueList(),
-      handle: HandlesList(),
-    );
-
     // Create anchor to position the shape
-    final Point size = Point(150);
-
-    // Build shape properties with custom geometry
-    final ShapeProperties shapeProperties = ShapeProperties.custom(
-      transform: Transform2D.zero(extents: AnnotationExtents.same(size)),
-      geometry: geometry,
-      fill: SolidFill(color: fillColor),
-      border: ShapeBorder(
-        width: Point(borderWidth),
-        color: borderColor,
-      ),
-    );
-
-    // Build the wordprocessing shape
-    final WPShape shape = WPShape(
-      shapeProperties: shapeProperties,
-      name: title,
-      description: description,
-    );
+    final Point size = Point(40);
 
     // Create column with centered content
     return Column(
@@ -385,12 +339,30 @@ class ShapeExample extends StatelessWidget {
           name: title,
           width: size,
           height: size,
-          config: AnchorConfig.square().toPageAnchorPosition(
-            horizontalPosition: AnchorPosition.center,
-            verticalPosition: AnchorPosition.center,
-          ),
+          // so, yeah, using toParagraphAnchorPosition instead
+          // toPageAnchorPosition makes that every forms
+          // behaves properly positiong themselves as we expect
+          config: AnchorConfig.block().toParagraphAnchorPosition(),
           child: Graphic.shape(
-            child: shape,
+            child: WPShape(
+              name: title,
+              description: description,
+              shapeProperties: ShapeProperties.custom(
+                transform:
+                    Transform2D.zero(extents: AnnotationExtents.same(size)),
+                geometry: CustomGeometryComponent(
+                  paths: <ShapePath>[shapePath],
+                  guide: GeometryGuideList(),
+                  adjustValue: AdjustValueList(),
+                  handle: HandlesList(),
+                ),
+                fill: SolidFill(color: fillColor),
+                border: ShapeBorder(
+                  width: Point(borderWidth),
+                  color: borderColor,
+                ),
+              ),
+            ),
           ),
         ).drawing().run().paragraph(),
         Paragraph.text(
@@ -399,7 +371,9 @@ class ShapeExample extends StatelessWidget {
             StyleBuilder.paragraph('Body')
                 .fontSize(Point(10))
                 .alignment(Alignment.center)
-                .spacing(after: Twip(200))
+                .spacing(
+                  after: Twip(200),
+                )
                 .build(),
           ],
         ),

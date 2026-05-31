@@ -1,5 +1,6 @@
 import 'package:xml/xml.dart';
 import '../../../../../../docx.dart';
+import '../../../../../core/extensions/cast_ext.dart';
 
 /// Custom geometry defined by vector paths (a:custGeom).
 ///
@@ -9,31 +10,43 @@ import '../../../../../../docx.dart';
 class CustomGeometryComponent extends Geometry<void> {
   CustomGeometryComponent({
     required this.paths,
-    required this.boundingBox,
     required this.guide,
     required this.adjustValue,
     required this.handle,
+    this.boundingBox,
     this.connectionPoints = const <ConnectionPoint>[],
     super.id,
-    super.parent,
-  })  : assert(
-          paths.every((ShapePath e) => e.width <= boundingBox.width),
-          'All the paths provided must be have and less or same '
-          'equals width from the specified in boundingBox: $boundingBox',
-        ),
-        assert(
-          paths.every((ShapePath e) => e.height <= boundingBox.height),
-          'All the paths provided must be have and less or same '
-          'equals height from the specified in boundingBox: $boundingBox',
-        ),
-        super(child: null);
+    ShapeProperties? super.parent,
+  }) : super(child: null);
+
+  factory CustomGeometryComponent.basic({
+    required List<ShapePath> paths,
+    String? id,
+    Rect? boundingBox,
+    ShapeProperties? parent,
+    List<ConnectionPoint> connectionPoints = const <ConnectionPoint>[],
+  }) {
+    return CustomGeometryComponent(
+      id: id,
+      paths: paths,
+      guide: GeometryGuideList(),
+      adjustValue: AdjustValueList(),
+      handle: HandlesList(),
+      boundingBox: boundingBox,
+      parent: parent,
+      connectionPoints: List.from(connectionPoints),
+    );
+  }
 
   final List<ShapePath> paths;
-  final Rect boundingBox;
+  final Rect? boundingBox;
   final AdjustValueList adjustValue;
   final GeometryGuideList guide;
   final List<ConnectionPoint> connectionPoints;
   final HandlesList handle;
+
+  @override
+  ShapeProperties? get parent => super.parent?.castOrNull();
 
   @override
   CustomGeometryComponent get copy => CustomGeometryComponent(
@@ -44,13 +57,13 @@ class CustomGeometryComponent extends Geometry<void> {
         guide: guide,
         connectionPoints: connectionPoints,
         handle: handle,
-        parent: parent,
+        parent: parent?.castOrNull(),
       );
 
   @override
   CustomGeometryComponent copyWith({
     String? id,
-    DocxNode<void>? parent,
+    DocxNode? parent,
     List<ShapePath>? paths,
     Rect? boundingBox,
     AdjustValueList? adjustValue,
@@ -66,7 +79,7 @@ class CustomGeometryComponent extends Geometry<void> {
       connectionPoints: connectionPoints ?? this.connectionPoints,
       handle: handle ?? this.handle,
       id: id ?? this.id,
-      parent: parent ?? this.parent,
+      parent: parent?.castOrNull() ?? this.parent,
     );
   }
 
@@ -85,22 +98,49 @@ class CustomGeometryComponent extends Geometry<void> {
       children.add(XmlElement.tag('a:cxnLst', isSelfClosing: true));
     }
 
+    final AnnotationExtents extent = parent!.transform.extents;
+    Rect? rect = boundingBox ??
+        Rect(
+          0,
+          0,
+          extent.cx.toEmu().toInt(),
+          extent.cy.toEmu().toInt(),
+        );
+
+    assert(
+      rect.right == extent.cx.toEmu() && rect.bottom == extent.cy.toEmu(),
+      'rect.right and rect.bottom must be equals '
+      'than the total size '
+      'of the shape specified in the '
+      'AnnotationExtents instance',
+    );
+
     // Text rectangle (a:rect)
     children
       ..add(
         XmlElement.tag(
           'a:rect',
           attributes: <XmlAttribute>[
-            XmlAttribute(XmlName.fromString('l'), boundingBox.left.toString()),
-            XmlAttribute(XmlName.fromString('t'), boundingBox.top.toString()),
-            XmlAttribute(XmlName.fromString('r'), boundingBox.right.toString()),
-            XmlAttribute(XmlName.fromString('b'), boundingBox.bottom.toString()),
+            XmlAttribute(
+              XmlName.fromString('l'),
+              rect.left.toString(),
+            ),
+            XmlAttribute(
+              XmlName.fromString('t'),
+              rect.top.toString(),
+            ),
+            XmlAttribute(
+              XmlName.fromString('r'),
+              rect.right.toString(),
+            ),
+            XmlAttribute(
+              XmlName.fromString('b'),
+              rect.bottom.toString(),
+            ),
           ],
           isSelfClosing: true,
         ),
       )
-
-      // Path list (a:pathLst)
       ..add(_buildPathList());
 
     return <XmlNode>[
@@ -118,9 +158,18 @@ class CustomGeometryComponent extends Geometry<void> {
         return XmlElement.tag(
           'a:cxn',
           attributes: <XmlAttribute>[
-            XmlAttribute(XmlName.fromString('id'), point.id.toString()),
-            XmlAttribute(XmlName.fromString('x'), point.x.toString()),
-            XmlAttribute(XmlName.fromString('y'), point.y.toString()),
+            XmlAttribute(
+              XmlName.fromString('id'),
+              point.id.toString(),
+            ),
+            XmlAttribute(
+              XmlName.fromString('x'),
+              point.x.toEmu().toString(),
+            ),
+            XmlAttribute(
+              XmlName.fromString('y'),
+              point.y.toEmu().toString(),
+            ),
           ],
           isSelfClosing: true,
         );
@@ -129,6 +178,7 @@ class CustomGeometryComponent extends Geometry<void> {
   }
 
   XmlElement _buildPathList() {
+    final AnnotationExtents extent = parent!.transform.extents;
     final List<XmlElement> pathElements = paths.map((ShapePath path) {
       final List<XmlNode> commandElements = <XmlNode>[];
       for (final PathCommand command in path.commands) {
@@ -138,8 +188,14 @@ class CustomGeometryComponent extends Geometry<void> {
       return XmlElement.tag(
         'a:path',
         attributes: <XmlAttribute>[
-          XmlAttribute(XmlName.fromString('w'), path.width.toString()),
-          XmlAttribute(XmlName.fromString('h'), path.height.toString()),
+          XmlAttribute(
+            XmlName.fromString('w'),
+            extent.cx.toEmu().toString(),
+          ),
+          XmlAttribute(
+            XmlName.fromString('h'),
+            extent.cy.toEmu().toString(),
+          ),
           XmlAttribute(XmlName.fromString('fill'), path.fill.xmlValue),
           if (path.stroke) XmlAttribute(XmlName.fromString('stroke'), 'true'),
         ],
@@ -174,24 +230,16 @@ class CustomGeometryComponent extends Geometry<void> {
 
 /// Vector path for custom geometry.
 class ShapePath {
-  const ShapePath({
+  ShapePath({
     required this.commands,
-    this.width = maxGeometryPathSize,
-    this.height = maxGeometryPathSize,
     this.fill = PathFill.normal,
     this.stroke = false,
-  })  : assert(
-          width >= 0 && width <= maxGeometryPathSize,
-          'width cannot be less than zero and major than $maxGeometryPathSize',
-        ),
-        assert(
-          height >= 0 && height <= maxGeometryPathSize,
-          'height cannot be less than zero and major than $maxGeometryPathSize',
+  }) : assert(
+          commands.last is ClosePathCommand,
+          'commands must end with a CloseCommand instance',
         );
 
   final List<PathCommand> commands;
-  final int width;
-  final int height;
   final PathFill fill;
   final bool stroke;
 }
@@ -205,6 +253,6 @@ class ConnectionPoint {
   });
 
   final int id;
-  final int x; // 0-1000000
-  final int y; // 0-1000000
+  final UnitValue x;
+  final UnitValue y;
 }

@@ -1,7 +1,6 @@
 import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 import '../../../../core/extensions/cast_ext.dart';
-import '../../../stores/inherited_stores/drawing_counter_provider.dart';
 
 /// Wordprocessing Shape (wps:wsp).
 class WPShape extends DocxNode<DocxNode> {

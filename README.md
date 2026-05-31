@@ -307,8 +307,6 @@ class SmartListItem extends StatelessWidget {
   
   @override
   DocxNode build() {
-    final indent = depth * 20.ptToTwips();
-    
     return Paragraph.text(
       text: text,
       numbering: Numbering(
@@ -317,7 +315,7 @@ class SmartListItem extends StatelessWidget {
       ),
       styles: [
         Style.ref('ListParagraph'),
-        StyleBuilder.up().indent(left: indent).build(),
+        StyleBuilder.up().indent(left: Point(20 * depth)).build(),
       ],
     );
   }
@@ -546,14 +544,10 @@ final Paragraph pr =  LazyFloatingImage(
   data: ImageData.fileSized(
     file: File('assets/image.png'),
     size: Inch(1.5),
-    // Configure anchoring relative to the paragraph
-    anchorConfig: AnchorConfig(
-      wrapType: WrapType.noWrap,
-      wrapSide: null,
-      verticalAnchor: VerticalAnchorPosition.paragraph,
-      horizontalAnchor: HorizontalAnchorPosition.paragraph,
+    config: AnchorConfig.block().toParagraphAnchorPosition(
       horizontalPosition: AnchorPosition.left,
-      verticalPosition: AnchorPosition.top,  
+      verticalPosition: AnchorPosition.top,
+      allowOverlap: false,
     ),
   ),
 ).drawing().paragraph();
@@ -575,11 +569,9 @@ final paragraph = Paragraph(
       data: ImageData.fileSized(
         file: File('assets/image.png'),
         size: Inch(1.5),
-        anchorConfig: AnchorConfig(
-          wrapType: WrapType.square,
+        anchorConfig: AnchorConfig.square(
           wrapSide: WrapSide.bothSides,
-          horizontalAnchor: HorizontalAnchorPosition.paragraph,
-          verticalAnchor: VerticalAnchorPosition.paragraph,
+        ).toParagraphAnchorPosition(
           horizontalPosition: AnchorPosition.center,
           verticalPosition: AnchorPosition.center,
         ),
@@ -627,14 +619,11 @@ final paragraph = Paragraph(
       data: ImageData.fileSized(
         file: File('assets/image.png'),
         size: Inch(0.85),
-        anchorConfig: AnchorConfig(
-          wrapType: WrapType.square,
+        anchorConfig: AnchorConfig.square(
           wrapSide: WrapSide.bothSides,
-          // Anchor relative to a character. 
-          // This requires careful positioning.
-          horizontalAnchor: HorizontalAnchorPosition.character,
-          // Anchor to the line of the character
-          verticalAnchor: VerticalAnchorPosition.line,
+        ).
+        // Anchor relative to a character. 
+        toCharAnchorPosition(
           // Explicit offsets from the anchor point (character).
           // Adjust these values to precisely place the image.
           anchorOffsetX: Inch(0.1), 
@@ -990,8 +979,8 @@ final text = Text(
 final text = Text(
   'Custom font text',
   style: TextStyle(
-    size: Point(12),
-    family: 'Arial',
+    fontSize: Point(12),
+    fontFamily: 'Arial',
     color: Colors.blue,
     backgroundColor: Colors.yellow,
   ),
@@ -1018,7 +1007,7 @@ final text = Text(
 
 ```dart
 final text = Text(
-  text: 'Centered text',
+  'Centered text',
   textAlign: TextAlign.center,
 );
 ```
@@ -1043,7 +1032,8 @@ final row = Row(
 
 ### Shapes
 
-_Under active development_
+> [!NOTE]
+> Test have a great output, we will do some more and we will document this as soon as possible  
 
 ### SDT Content Controls
 

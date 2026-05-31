@@ -19,6 +19,7 @@ export 'components/blocks/sdt/sdt.dart';
 export 'components/breaks/break.dart';
 export 'components/data/anchor_configs/anchor_configs.dart';
 export 'components/data/image/image_data.dart';
+export 'components/data/shape/path_commands.dart';
 export 'components/data/table/table_cell_config.dart';
 export 'components/data/table/table_enums.dart';
 export 'components/data/text_style/text_style.dart';

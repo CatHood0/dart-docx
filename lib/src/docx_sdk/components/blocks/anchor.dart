@@ -62,6 +62,12 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
       XmlElement.tag(
         'wp:anchor',
         attributes: <XmlAttribute>[
+          // required for standard
+          //TODO: decide what we will do with this
+          XmlAttribute(
+            XmlName.fromString('relativeHeight'),
+            '0',
+          ),
           XmlAttribute(
             XmlName.fromString('behindDoc'),
             config.zOrder.toString(),
@@ -96,8 +102,14 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
           ),
         ],
         children: <XmlNode>[
+          // required position to pass
+          // every validation
+          ...Extent(
+            cx: width,
+            cy: height,
+          ).buildXml(),
           XmlElement.tag(
-            'w:simplePos',
+            'wp:simplePos',
             attributes: <XmlAttribute>{
               XmlAttribute(
                 'x'.toName(),
@@ -125,8 +137,7 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
               relativeFrom: config.verticalAnchor.name,
               x: false,
             ).buildXml(),
-          if ((config.wrapType != WrapType.noWrap) &&
-              config.wrapType != WrapType.asCharacter)
+          if ((config.wrapType != WrapType.noWrap) && config.wrapType != WrapType.asCharacter)
             XmlElement.tag(
               'wp:wrap${config.wrapType.name.capitalize()}',
               isSelfClosing: true,
@@ -138,18 +149,14 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
                   ),
               ],
             ),
-          XmlElement.tag(
-            'wp:cNvGraphicFramePr',
-            isSelfClosing: true,
-          ),
-          ...Extent(
-            cx: width,
-            cy: height,
-          ).buildXml(),
+
+          // XmlElement.tag(
+          //   'wp:cNvGraphicFramePr',
+          //   isSelfClosing: true,
+          // ),
           ...DocProperties(
             docPrId: elementId.toString(),
             name: name.toString(),
-            relativeHeight: '0',
           ).buildXml(),
           ...child.buildXml(),
         ],

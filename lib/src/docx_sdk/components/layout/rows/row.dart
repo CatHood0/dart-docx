@@ -6,6 +6,54 @@ import '../../../../core/extensions/cast_ext.dart';
 import '../../../../core/extensions/skippable_iterations_ext.dart';
 import '../../../compiler/inherited/compiler_config_provider.dart';
 
+enum MainAxisAlignment {
+  start('start'),
+  center('center'),
+  spaceBetween('spaceBetween'),
+  end('end');
+
+  const MainAxisAlignment(this.value);
+
+  //TODO: we need to manage RTL
+  Alignment align() {
+    return switch (this) {
+      start => Alignment.left,
+      center => Alignment.center,
+      end => Alignment.right,
+      _ => Alignment.left,
+    };
+  }
+
+  Alignment reversed() {
+    return switch (this) {
+      start => Alignment.right,
+      center => Alignment.center,
+      end => Alignment.left,
+      _ => Alignment.right,
+    };
+  }
+
+  final String value;
+}
+
+enum CrossAxisAlignment {
+  start('start'),
+  center('center'),
+  end('end');
+
+  const CrossAxisAlignment(this.value);
+
+  VerticalAlignment vertical() {
+    return switch (this) {
+      start => VerticalAlignment.top,
+      center => VerticalAlignment.center,
+      end => VerticalAlignment.bottom,
+    };
+  }
+
+  final String value;
+}
+
 /// A container that groups multiple elements to be rendered in a row layout
 /// using tables internally
 @experimental

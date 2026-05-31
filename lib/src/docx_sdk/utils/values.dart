@@ -497,3 +497,32 @@ class Emu extends UnitValue {
     return value;
   }
 }
+
+/// Rotation angle for text in Word documents.
+///
+/// Converts degrees to Word's internal format (60,000ths of a degree).
+///
+/// Example:
+/// ```dart
+/// // 90 degrees clockwise
+/// final rotation = TextRotation(90);
+/// 
+/// // Direct Word format (advanced)
+/// const rotation = TextRotation.wordAngle(5400000);
+/// ```
+class Rotation {
+  /// Creates a rotation from degrees (clockwise = positive)
+  Rotation(num degrees) : wordAngle = (degrees * 60000).round();
+
+  /// Creates a rotation directly from Word's internal format
+  const Rotation.wordAngle(this.wordAngle);
+
+  /// The rotation angle in Word's internal format (60,000ths of a degree)
+  final int wordAngle;
+
+  /// Returns the rotation in degrees
+  num get degrees => wordAngle / 60000;
+
+  @override
+  String toString() => 'TextRotation($degrees°)';
+}
