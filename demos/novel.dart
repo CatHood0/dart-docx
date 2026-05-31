@@ -435,7 +435,7 @@ Future<void> main() async {
               text: '© 2023 Midnight Press',
               textStyle: TextStyle(
                 fontSize: Point(9),
-                fontColor: Color(0x999999),
+                color: Color(0x999999),
               ),
             ),
             Run(component: Break.lineBreak()),
@@ -443,7 +443,7 @@ Future<void> main() async {
               text: 'All rights reserved',
               textStyle: TextStyle(
                 fontSize: Point(8),
-                fontColor: Color(0x999999),
+                color: Color(0x999999),
               ),
             ),
           ],

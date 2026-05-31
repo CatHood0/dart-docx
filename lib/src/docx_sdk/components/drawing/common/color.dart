@@ -2,9 +2,11 @@ import 'package:xml/xml.dart';
 import '../../../../../docx.dart';
 export '../utils/colors.dart';
 
-enum ColorType { bgr, rgb, theme, system }
+enum ColorType { rgb, theme, system }
 
 enum SystemColor { window, windowText, highlight, highlightText }
+
+const int _maxAlpha = 100000;
 
 /// Color representation in DrawingML.
 ///
@@ -21,19 +23,10 @@ class Color extends DocxNode<void> {
 
   Color.raw(int value, [int? alpha])
       : type = ColorType.rgb,
-        alpha = alpha ?? -1,
+        alpha = alpha ?? _maxAlpha,
         // this fixes something that haves if you just pass
         // 0x<ColorHex>
-        rgbValue = int.parse('$value'),
-        themeColor = null,
-        systemColor = null,
-        super(child: null);
-
-  // Constructor for build hex like: #BBGGRR
-  Color.bgr(int value, [int? alpha])
-      : type = ColorType.bgr,
-        alpha = alpha ?? -1,
-        rgbValue = int.parse('$value'),
+        rgbValue = value,
         themeColor = null,
         systemColor = null,
         super(child: null);
@@ -122,7 +115,7 @@ class Color extends DocxNode<void> {
             6,
             '0',
           );
-      return value;
+      return value.toUpperCase();
     }
     return null;
   }
@@ -161,7 +154,6 @@ class Color extends DocxNode<void> {
   @override
   Color get copy => switch (type) {
         ColorType.rgb => Color.raw(rgbValue!, alpha),
-        ColorType.bgr => Color.bgr(rgbValue!, alpha),
         ColorType.theme => Color.theme(themeColor!),
         ColorType.system => Color.system(systemColor!),
       };
@@ -180,8 +172,6 @@ class Color extends DocxNode<void> {
     return switch (currentType) {
       ColorType.rgb =>
         Color.raw(rgbValue ?? this.rgbValue ?? 0, alpha ?? this.alpha),
-      ColorType.bgr =>
-        Color.bgr(rgbValue ?? this.rgbValue ?? 0, alpha ?? this.alpha),
       ColorType.theme => Color.theme(themeColor ?? this.themeColor ?? ''),
       ColorType.system =>
         Color.system(systemColor ?? this.systemColor ?? SystemColor.window),
@@ -197,7 +187,7 @@ class Color extends DocxNode<void> {
             attributes: <XmlAttribute>[
               XmlAttribute(
                 XmlName.fromString('val'),
-                toColorValue()!.toUpperCase(),
+                toColorValue().toString(),
               ),
             ],
             children: <XmlNode>[
@@ -207,32 +197,10 @@ class Color extends DocxNode<void> {
                   attributes: <XmlAttribute>[
                     XmlAttribute(
                       XmlName.fromString('val'),
-                      alpha.toString(),
-                    ),
-                  ],
-                  isSelfClosing: true,
-                ),
-            ],
-            isSelfClosing: alpha == -1,
-          ),
-        ],
-      ColorType.bgr => <XmlElement>[
-          XmlElement.tag(
-            'a:srgbClr',
-            attributes: <XmlAttribute>[
-              XmlAttribute(
-                XmlName.fromString('val'),
-                toColorValue()!.toUpperCase(),
-              ),
-            ],
-            children: <XmlNode>[
-              if (alpha != -1)
-                XmlElement.tag(
-                  'a:alpha',
-                  attributes: <XmlAttribute>[
-                    XmlAttribute(
-                      XmlName.fromString('val'),
-                      alpha.toString(),
+                      (((alpha / 255) * _maxAlpha).round().clamp(
+                            0,
+                            _maxAlpha,
+                          )).toString(),
                     ),
                   ],
                   isSelfClosing: true,
@@ -388,5 +356,10 @@ class Color extends DocxNode<void> {
     final int blue = ((b1 + m) * 255).round();
 
     return (red << 16) | (green << 8) | blue;
+  }
+
+  @override
+  String toString() {
+    return '$runtimeType(color: ${toColorValue()}, alpha: $alpha)';
   }
 }

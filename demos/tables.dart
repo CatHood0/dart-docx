@@ -439,7 +439,7 @@ Table _buildComplexContentTable() {
                     text: 'special',
                     textStyle: TextStyle(
                       bold: true,
-                      fontColor: Color(0xFF0000),
+                      color: Color(0xFF0000),
                     ),
                   ),
                 ],

@@ -119,7 +119,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
                 strikethrough: strikethrough,
                 fontSize: fontSize,
                 fontFamily: fontFamily,
-                fontColor: color,
+                color: color,
                 backgroundColor: backgroundColor,
               ).toStyle().toList().skipNulls<Style>(),
             ],

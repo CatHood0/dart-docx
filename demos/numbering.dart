@@ -44,12 +44,6 @@ class MyApp extends StatelessWidget {
   DocxNode<dynamic> build() {
     return RootBody(
       sections: <DocxNode<dynamic>>[
-        // SdtRichText(
-        //   alias: 'alias',
-        //   tag: 'tag',
-        //   placeholder: 'placeholder',
-        //   showingPlacHdr: true,
-        // ).run().paragraph(),
         Paragraph.text(
           id: 'paragraph-1',
           text: 'First list',

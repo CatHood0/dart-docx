@@ -349,8 +349,8 @@ class DocxRegistry {
         'caps': node.caps,
         'fontSize': node.fontSize?.toPt(),
         'fontFamily': node.fontFamily,
-        'fontColor': node.fontColor != null
-            ? DocxRegistry().toJson(node.fontColor!)
+        'fontColor': node.color != null
+            ? DocxRegistry().toJson(node.color!)
             : null,
         'backgroundColor': node.backgroundColor != null
             ? DocxRegistry().toJson(node.backgroundColor!)
@@ -393,7 +393,7 @@ class DocxRegistry {
         fontSize:
             body['fontSize'] != null ? Point(body['fontSize'] as num) : null,
         fontFamily: body['fontFamily'] as String?,
-        fontColor: body['fontColor'] != null
+        color: body['fontColor'] != null
             ? DocxRegistry()
                 .fromJson<Color>(body['fontColor'] as Map<String, dynamic>)
             : null,

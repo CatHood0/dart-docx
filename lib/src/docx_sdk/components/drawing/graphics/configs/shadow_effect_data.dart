@@ -506,8 +506,6 @@ class ShadowEffectData {
 
   static String _colorToString(Color color) {
     return switch (color.type) {
-      ColorType.bgr =>
-        '#${color.rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase()}',
       ColorType.rgb =>
         '#${color.rgbValue!.toRadixString(16).padLeft(6, '0').toUpperCase()}',
       ColorType.theme => 'Theme(${color.themeColor})',

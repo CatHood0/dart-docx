@@ -10,7 +10,7 @@ class TextStyle {
     this.caps = false,
     this.fontSize,
     this.fontFamily,
-    this.fontColor,
+    this.color,
     this.backgroundColor,
     this.spacingBefore,
     this.spacingAfter,
@@ -42,7 +42,7 @@ class TextStyle {
   // Font properties
   final UnitValue? fontSize;
   final String? fontFamily;
-  final Color? fontColor;
+  final Color? color;
   final Color? backgroundColor;
 
   // Spacing properties
@@ -111,7 +111,7 @@ class TextStyle {
     bool? caps,
     UnitValue? fontSize,
     String? fontFamily,
-    Color? fontColor,
+    Color? color,
     Color? backgroundColor,
     UnitValue? spacingBefore,
     UnitValue? spacingAfter,
@@ -139,7 +139,7 @@ class TextStyle {
       caps: caps ?? this.caps,
       fontSize: fontSize ?? this.fontSize,
       fontFamily: fontFamily ?? this.fontFamily,
-      fontColor: fontColor ?? this.fontColor,
+      color: color ?? this.color,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       spacingBefore: spacingBefore ?? this.spacingBefore,
       spacingAfter: spacingAfter ?? this.spacingAfter,
@@ -164,7 +164,7 @@ class TextStyle {
   //TODO: we need to detect during compilation if more than two elements share the same text_style has
   // when them share it, we can just create a custom style and inject directly that styles reference to the paragraph
   // to optimize the final file
-  //_ 
+  //_
   // We can call it: "deduplication optimization"
   /// Builds a Style from direct paragraph properties.
   ///
@@ -181,14 +181,14 @@ class TextStyle {
 
     if (fontSize != null) builder.fontSize(fontSize!);
     if (fontFamily != null) builder.fontFamily(fontFamily!);
-    if (fontColor != null) builder.runColor(fontColor!);
+    if (color != null) builder.runColor(color!);
     if (backgroundColor != null) builder.highlight(backgroundColor!);
 
     if (spacingBefore != null || spacingAfter != null || lineSpacing != null) {
       builder.spacing(
-        before: spacingBefore!,
-        after: spacingAfter!,
-        line: lineSpacing!,
+        before: spacingBefore,
+        after: spacingAfter,
+        line: lineSpacing,
         rule: lineSpacingRule ?? LineRule.auto,
       );
     }
@@ -198,9 +198,9 @@ class TextStyle {
         firstLineIndent != null ||
         hangingIndent != null) {
       builder.indent(
-        left: indentLeft!,
-        right: indentRight!,
-        firstLine: firstLineIndent!,
+        left: indentLeft,
+        right: indentRight,
+        firstLine: firstLineIndent,
         hanging: hangingIndent,
       );
     }

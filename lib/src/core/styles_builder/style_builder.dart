@@ -393,7 +393,6 @@ class StyleBuilder {
   ///
   /// [hexColor] is the hexadecimal color code (e.g., 'FF0000' for red).
   StyleBuilder runColor(Color color) {
-    assert(color.rgbValue != null, 'run color must have a valid RGB value');
     _color = color;
     return this;
   }
@@ -967,7 +966,7 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'color',
-          value: _color!.toColorValue()!.toUpperCase(),
+          value: _color!.toColorValue()!,
         ),
       );
     }

@@ -268,6 +268,9 @@ class TextRun extends RunBase<TextPart> {
     // inline properties defined and show that errors as stacktraces using exceptions
     if (textStyle != null) {
       final Style? style = textStyle?.toStyle();
+      CompilerLogger.root.debug(
+        '$runtimeType:$id has textstyle = $style',
+      );
       if (style != null) styles.add(style);
     }
     final List<XmlElement> xmlStyles = <XmlElement>[];
