@@ -232,7 +232,8 @@ abstract class DocxNode<T> {
 
   bool isChildOf<R extends DocxNode>() => getAncestorOfExactType<R>() != null;
 
-  R? getAncestorOfExactType<R extends DocxNode<dynamic>>() {
+  R? getAncestorOfExactType<R extends DocxNode<dynamic>>(
+      [bool Function(R)? predicate]) {
     DocxNode? current = parent;
 
     if (current == null) {
@@ -246,10 +247,11 @@ abstract class DocxNode<T> {
       'of type $R',
     );
 
-    if (current is R) {
+    if (current is R && (predicate?.call(current) ?? true)) {
       CompilerLogger.root.debug(
         '$indent${this is InheritedNode ? '' : ' ' * depth} |_ $R found at ${current.depth}',
       );
+
       return current;
     }
 
@@ -257,7 +259,7 @@ abstract class DocxNode<T> {
     String lastId = current.id;
     int loopTraverse = 0;
     while (current != null) {
-      if (current is R) {
+      if (current is R && (predicate?.call(current) ?? true)) {
         CompilerLogger.root.debug(
           '$indent |_ $R found at ${current.depth}',
         );

@@ -115,14 +115,6 @@ class MyApp extends StatelessWidget {
         NumberingList(
           id: 'list-3',
           refKey: unorderedKey,
-          listStyle: StyleBuilder.ul()
-              .lineSpacing(SpacingInch(1.5))
-              .borders(
-                left: BorderStyle.dotted,
-                leftSize: Point(2),
-                leftColor: Colors.navy,
-              )
-              .build(),
           children: [
             Text(
               id: 'text-4',
@@ -130,7 +122,7 @@ class MyApp extends StatelessWidget {
             ),
             Text(
               id: 'text-5',
-              'Nested bulleted list element',
+              'Second bulleted list element',
             ),
           ],
         ),

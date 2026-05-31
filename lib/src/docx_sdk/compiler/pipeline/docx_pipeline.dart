@@ -323,18 +323,9 @@ class DocxPipeline {
     ];
   }
 
-  static List<PipelineStage> get registerElementsInStoreStages {
-    return <PipelineStage>[
-      const RelationsRegistrationStage(),
-      const ImageRegistrationStage(),
-      const HyperlinkRegistrationStage(),
-      const FontProcessingStage(),
-      const ThemeResolutionStage(),
-    ];
-  }
-
   static List<PipelineStage> get preCompileDiscoveryAndSetup {
     return <PipelineStage>[
+      const NumberingUsageDiscoveryStage(),
       const StoresInjectionStage(),
       const StyleValidationStage(),
       const EnvironmentSetupStage(),
@@ -347,6 +338,16 @@ class DocxPipeline {
       const FontDiscoveryStage(),
       const SdtDiscoveryStage(),
       const NumberingDiscoveryStage(),
+    ];
+  }
+
+  static List<PipelineStage> get registerElementsInStoreStages {
+    return <PipelineStage>[
+      const RelationsRegistrationStage(),
+      const ImageRegistrationStage(),
+      const HyperlinkRegistrationStage(),
+      const FontProcessingStage(),
+      const ThemeResolutionStage(),
     ];
   }
 

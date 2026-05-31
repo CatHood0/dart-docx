@@ -30,7 +30,7 @@ class RelationsRegistrationStage extends PipelineStage {
 
   @override
   void execute(PipelineContext context) {
-    final hasNumberingUsage = context.metadata['hasNumberingUsage'] as bool? ?? false;
+    final hasNumberingUsage = context.metadata['hasNumberingUsage'] as bool? ?? true;
     final applyCustomTheme = context.config.applyCustomTheme;
 
     // Generate base document relationships

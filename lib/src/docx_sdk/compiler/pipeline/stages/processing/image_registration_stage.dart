@@ -1,8 +1,5 @@
 import '../../../../../core/namespaces.dart';
-import '../../../../events/docx_event.dart';
 import '../../../../sdk.dart';
-import '../../pipeline_context.dart';
-import '../../pipeline_stage.dart';
 
 /// Stage that registers discovered images.
 ///

@@ -330,7 +330,11 @@ class Paragraph extends DocxNode<List<RunBase>> {
       final int concreteId = provider.getConcreteNumId(
         numbering!.concreteRef,
         nodeId: isChildOfNumberingList
-            ? getAncestorOfExactType<NumberingList>()!.id
+            ? getAncestorOfExactType<NumberingList>((
+                NumberingList l,
+              ) =>
+                    !l.inheritFromParent)!
+                .id
             : id,
       )!;
       CompilerLogger.root.info(

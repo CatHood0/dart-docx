@@ -1266,6 +1266,8 @@ class StyleBuilder {
   static Style get listParagraph => StyleBuilder.paragraph('ListParagraph')
       .name('List Paragraph')
       .basedOn('Normal')
+      .spacing(before: Twip(0), after: Twip(0))
+      .indent(left: Twip(720), hanging: Twip(360))
       .keepNext()
       .keepLines()
       .activateWindowControl()

@@ -219,6 +219,7 @@ class NumberingList extends DocxNode<List<DocxNode>> {
   @override
   void perform() {
     String key = refKey;
+    String keyId = id;
 
     int level = 0;
     int refId = 0;
@@ -235,25 +236,26 @@ class NumberingList extends DocxNode<List<DocxNode>> {
       return;
     }
 
-    DocxNode? ownerList = getAncestorOfExactType<NumberingList>();
-    NumberingList? lastOwner = !inheritFromParent ? null : ownerList?.cast();
+    DocxNode? owner = this;
+    NumberingList? lastOwner;
 
-    while (ownerList != null) {
-      ownerList = ownerList.parent;
-      if (ownerList is NumberingList) {
-        CompilerLogger.root.debug(
-          'Increasing '
-          'level ($level -> ${level + 1}) of '
-          'depth for list "$id"',
-        );
-        lastOwner = !inheritFromParent ? null : ownerList;
-        level++;
+    while (owner != null && inheritFromParent) {
+      owner = owner.parent;
+      if (owner is! NumberingList) {
+        break;
       }
+      CompilerLogger.root.debug(
+        'Increasing '
+        'level ($level -> ${level + 1}) of '
+        'depth for list "$id"',
+      );
+      lastOwner = !inheritFromParent ? null : owner;
+      level++;
     }
 
     if (lastOwner == null && inheritFromParent) {
       throw Exception(
-        'Not found parent $runtimeType for '
+        'Not found parent $runtimeType (Found: ${parent?.runtimeType}) for '
         '$runtimeType:$id at $depth when '
         'was specified that will inherited key from parent. '
         'Please, ensure that you only use $runtimeType.inherit() '
@@ -261,11 +263,18 @@ class NumberingList extends DocxNode<List<DocxNode>> {
       );
     }
 
-    key = inheritFromParent ? lastOwner!.refKey : refKey;
+    if (lastOwner != null) {
+      key = lastOwner.refKey;
+      keyId = lastOwner.id;
+    }
+
     // nested lists uses the same refId
-    _lastNumberingIds[key] = inheritFromParent || noRestartCount
-        ? _lastNumberingIds[key]!
-        : (_lastNumberingIds[key] ?? refId) + 1;
+    if (!inheritFromParent && !noRestartCount) {
+      _lastNumberingIds[key] = (_lastNumberingIds[key] ?? 0) + 1;
+    } else if (!_lastNumberingIds.containsKey(key)) {
+      _lastNumberingIds[key] = 1;
+    }
+    refId = _lastNumberingIds[key]!;
     // Since every refId is start in a different point when the
     // key is different, then we use this to allow sharing correctly
     // the count
@@ -284,7 +293,8 @@ class NumberingList extends DocxNode<List<DocxNode>> {
       NumberingStoreProvider.of(this).registerConcreteInstance(
         key,
         refId,
-        nodeId: id,
+        nodeId: keyId,
+        level: level,
       );
     } else {
       CompilerLogger.root.warning(
