@@ -213,50 +213,50 @@ class DocxPipeline {
       hook(context);
     }
 
-    try {
-      final List<PipelineStage> effectiveStages =
-          List.from(stages ?? DocxPipeline.defaultStages)
-            ..sort((a, b) {
-              final categoryCompare =
-                  a.category.index.compareTo(b.category.index);
-              if (categoryCompare != 0) return categoryCompare;
-              return a.order.compareTo(b.order);
-            });
+    // try {
+    final List<PipelineStage> effectiveStages =
+        List.from(stages ?? DocxPipeline.defaultStages)
+          ..sort((a, b) {
+            final categoryCompare =
+                a.category.index.compareTo(b.category.index);
+            if (categoryCompare != 0) return categoryCompare;
+            return a.order.compareTo(b.order);
+          });
 
-      for (final PipelineStage stage in effectiveStages) {
-        if (stage.shouldExecute(context)) {
-          for (final StageHook hook in _preStageHooks) {
-            hook(context, stage);
-          }
+    for (final PipelineStage stage in effectiveStages) {
+      if (stage.shouldExecute(context)) {
+        for (final StageHook hook in _preStageHooks) {
+          hook(context, stage);
+        }
 
-          stage.execute(context);
+        stage.execute(context);
 
-          for (final StageHook hook in _postStageHooks) {
-            hook(context, stage);
-          }
+        for (final StageHook hook in _postStageHooks) {
+          hook(context, stage);
         }
       }
-
-      for (final PostCompileHook hook in _postCompileHooks) {
-        hook(context, context.archive);
-      }
-
-      context.isCompiled = true;
-      _eventController.add(DocxEvent.end(result: context.archive));
-      return context.archive;
-    } catch (e, s) {
-      context
-        ..registerError(
-          e,
-          s,
-          true,
-        )
-        ..isCompiled = false;
-      _eventController.add(DocxEvent.end(error: e));
-      return null;
-    } finally {
-      DocxElements.instance.initializeCompilation(false);
     }
+
+    for (final PostCompileHook hook in _postCompileHooks) {
+      hook(context, context.archive);
+    }
+
+    context.isCompiled = true;
+    _eventController.add(DocxEvent.end(result: context.archive));
+    DocxElements.instance.initializeCompilation(false);
+    return context.archive;
+    // } catch (e, s) {
+    //   context
+    //     ..registerError(
+    //       e,
+    //       s,
+    //       true,
+    //     )
+    //     ..isCompiled = false;
+    //   _eventController.add(DocxEvent.end(error: e));
+    //   return null;
+    // } finally {
+    // }
   }
 
   /// Compiles the document from an existing ZIP file (template).
@@ -387,10 +387,18 @@ class DocxElements {
   final Map<String, dynamic> _metadata = <String, dynamic>{'dpi': _imageDpi};
 
   static const int _imageDpi = 96;
+  static bool _kDebugMode = false;
 
+  static bool get kDebugMode => _kDebugMode;
+
+  bool get kIsDebugMode => _metadata['ensureInitialize'] == true;
   bool get needsPreviousInitialization => _metadata['ensureInitialize'] == true;
 
   bool get initializeByCompile => _metadata['isCompiling'] == true;
+
+  void debugMode([bool debug = true]) {
+    _kDebugMode = debug;
+  }
 
   void ensureInitialized() {
     _metadata['ensureInitialize'] = true;

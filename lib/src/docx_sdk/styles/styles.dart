@@ -56,7 +56,7 @@ class Style extends IterableConfigurators {
     this.revisionIdRun,
     this.revisionIdRPr,
     String? id,
-  })  : id = id ?? nanoid(10),
+  })  : id = id ?? nanoid(10, ignoreDebug: true),
         _ref = false,
         super(
           configurators: List.from(
@@ -88,7 +88,7 @@ class Style extends IterableConfigurators {
   Style.ref(this.styleId, [String? id])
       : type = '',
         revisionIdDefault = null,
-        id = id ?? nanoid(10),
+        id = id ?? nanoid(10, ignoreDebug: true),
         defaultValue = null,
         revisionIdRPr = null,
         revisionIdRun = null,
@@ -102,7 +102,7 @@ class Style extends IterableConfigurators {
       : type = '',
         styleId = '$idx',
         revisionIdDefault = null,
-        id = id ?? nanoid(10),
+        id = id ?? nanoid(10, ignoreDebug: true),
         defaultValue = null,
         revisionIdRPr = null,
         revisionIdRun = null,
@@ -123,7 +123,7 @@ class Style extends IterableConfigurators {
     this.revisionIdPPr,
     this.revisionIdRun,
     this.revisionIdRPr,
-  })  : id = id ?? nanoid(10),
+  })  : id = id ?? nanoid(10, ignoreDebug: true),
         _ref = asRef,
         super(
           configurators: List.from(
@@ -682,7 +682,7 @@ class StyleConfigurator<T extends Object> extends IterableConfigurators {
     return 'StyleConfigurator(name: $qualifiedName, '
         'value: $value, '
         'attributes: $attributes, '
-        'children: ${_configurators.length})';
+        'children: $_configurators)';
   }
 
   XmlElement buildXml() {

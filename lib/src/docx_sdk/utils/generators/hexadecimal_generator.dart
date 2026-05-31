@@ -1,8 +1,19 @@
 import 'dart:math';
 
+import '../../compiler/pipeline/docx_pipeline.dart';
+
 const String _hexDigits = '0123456789ABCDEF';
 
-String nanoid(int length, {String charset = _hexDigits}) {
+int _count = 0;
+
+String nanoid(
+  int length, {
+  String charset = _hexDigits,
+  bool ignoreDebug = false,
+}) {
+  if (DocxElements.kDebugMode && !ignoreDebug) {
+    return '${_count++}';
+  }
   assert(
       charset.isNotEmpty,
       'current charset '
