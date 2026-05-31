@@ -69,11 +69,16 @@ Each example is available as runnable code under the `demos/` directory.
 
 → [rows_alignment.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/row_alignments.dart)
 
-### Vector shapes (DrawingML)
+### Preset Vector shapes (DrawingML)
 ![](./assets/heart_shape.png)
 
 → [heart_shape.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/heart_shape.dart)
 → [heart_with_border.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/heart_with_border.dart)
+
+### Custom Geometry Shapes (Canvas like using DrawingML)
+![](./assets/custom_geom_screenshot.png)
+
+→ [custom_geometry.dart](https://github.com/Flutter-Document-Kit/dart-docx-toolkit/blob/master/demos/custom_geomtry.dart)
 
 
 ## Key Features
@@ -101,10 +106,6 @@ dependencies:
 > [!IMPORTANT]
 >
 > Since we are changing the way on how we build documents and how compiler is used, this part is partially outdated. I will work as fast as I can to update it! 
-
-Your document content is structured using classes that extend `DocxContent` and `ComponentContainer`. `DocxDocument` is the, and within it you can add `Paragraph`s, `TextRun`s, `Image`s, `HyperlinkRun`s, etc.
-
-Here is an example of how to create a simple document:
 
 ```dart
 import 'dart:io';
@@ -165,81 +166,6 @@ Future<void> main() async {
 }
 ```
 
-### 2. Stream-Based Document Generation
-
-For larger document operations or to display progress to the user, you can use `stream` which returns a `Stream<DocxEvent>`:
-
-> [!NOTE]
-> This section need to be updated with the most recent way to use `stream`
-
-```dart
-import 'dart:io';
-import 'dart:typed_data';
-import 'package:docx/docx.dart';
-
-Future<void> main() async {
-  final DocxDocument doc = DocxDocument(
-    // ...
-  );
-
-  final Uint8List? bytes = await DocxPacker()
-      .autoRegisterFonts()
-      .noTrimRuns()
-      .setStandardStores()
-      .normalStyleIfNeeded()
-      .normalStyle(Style.ref('body'))
-      .stream(
-        (Stream<DocxEvent> eventStream) {
-          final subscription = eventStream.listen((DocxEvent event) {
-            switch (event) {
-              case DocxEventStart():
-                print('Initializating compilation...');
-                break;
-              
-              case DocxEventSearching(:final subject):
-                print('Searching: $subject');
-                break;
-              
-              case DocxEventProgress(:final subject, :final current, :final total):
-                final progress = ((current / total) * 100).toStringAsFixed(1);
-                print('$subject: $current/$total ($progress%)');
-                break;
-              
-              case DocxEventUnknownProgress(:final subject):
-                print('⚙️ $subject...');
-                break;
-              
-              case DocxEventEnd(:final result, :final error):
-                if (error != null) {
-                  print('❌ Error: $error');
-                } else {
-                  print('✅ Compilation end sucessfully');
-                }
-                break;
-              
-              default:
-                print('📨 Event: $event');
-            }
-          });
-
-          subscription.onError((error) {
-            print('⚠️ Stream-error: $error');
-          });
-          
-          // El stream will be closed when compilation ends 
-       })
-      .execute(
-        doc, 
-        applyCustomTheme: false,
-        flags: ExecutionFlags(skipStyleValidationStage: true),
-        stages: DocxPipeline.defaultStages,
-      );
-
-  if (bytes != null) {
-    await File('document.docx').writeAsBytes(bytes);
-  }
-}
-```
 
 ### "Widgets" 
 
@@ -987,22 +913,6 @@ final text = Text(
 );
 ```
 
-<!-- #### Special Text Features -->
-
-<!-- Subscript and superscript text are supported: -->
-
-<!-- ```dart -->
-<!-- final text = Text( -->
-<!--   text: 'x', -->
-<!--   superscript: true, -->
-<!-- ); -->
-
-<!-- final text2 =Text.text( -->
-<!--   text: 'H2O', -->
-<!--   subscript: true, -->
-<!-- ); -->
-<!-- ``` -->
-
 #### Text Alignment
 
 ```dart
@@ -1032,15 +942,230 @@ final row = Row(
 
 ### Shapes
 
+`dart-docx` supports creating vector shapes using DrawingML. You can create predefined shapes (like hearts, arrows, etc.) or completely custom shapes using path commands similar to a canvas.
+
+
+#### Key Shape Components
+
+| Component | Description |
+|------------|-------------|
+| `WPShape` | Wrapper that contains all shape properties |
+| `ShapeProperties.preset()` | For predefined shapes |
+| `ShapeProperties.custom()` | For shapes with custom geometry |
+| `CustomGeometryComponent.basic()` | Creates geometry from paths |
+| `ShapePath` | Defines a path with commands and fill/stroke properties |
+| `SolidFill` | Solid fill with color |
+| `ShapeBorder` | Border with width and color |
+| `Transform2D` | 2D transformation (position, rotation, scale) |
+| `AnnotationExtents` | Defines the shape's bounding box |
+
+
+#### Preset Vector Shapes (DrawingML)
+
+Preset shapes are predefined forms available in DrawingML. They are ideal for icons, decorations, and common graphic elements.
+
+##### Basic Example: Heart Shape
+
+```dart
+final Point size = Point(200);
+
+Anchor(
+  width: size,
+  height: size,
+  name: 'heart shape',
+  // if you want block behavior use 
+  // toParagraphAnchorPosition
+  config: AnchorConfig.square().toPageAnchorPosition(
+    // centers the element to the middle of the page
+    horizontalPosition: AnchorPosition.center,
+    verticalPosition: AnchorPosition.center,
+  ),
+  child: Graphic.pic(
+    child: WPShape(
+      name: 'heart shape',
+      description: 'A heart shape',
+      shapeLocks: true,
+      shapeProperties: ShapeProperties.preset(
+        preset: PresetShapeType.heart,
+        fill: SolidFill(color: Color(0xFF0000)),
+        transform: Transform2D.zero(),
+      ),
+    ),
+  ),
+).drawing().run().paragraph(),
+```
+
+##### Example with Border
+
+```dart
+Anchor(
+  width: size,
+  height: size,
+  name: 'arrow shape',
+  // if you want block behavior use 
+  // toParagraphAnchorPosition
+  config: AnchorConfig.square().toPageAnchorPosition(
+    horizontalPosition: AnchorPosition.center,
+    verticalPosition: AnchorPosition.center,
+  ),
+  child: Graphic.pic(
+    child: WPShape(
+      name: 'arrow shape',
+      description: 'Curved arrow with border',
+      shapeLocks: true,
+      shapeProperties: ShapeProperties.preset(
+        preset: PresetShapeType.curvedLeftRightArrow,
+        fill: SolidFill(color: Color(0xFFFF0000)),
+        border: ShapeBorder(
+          width: Point(2),
+          color: Color(0x660000),
+        ),
+        transform: Transform2D.zero(),
+      ),
+    ),
+  ),
+).drawing().run().paragraph(),
+```
+
+##### Common PresetShapeType Available
+
+| Category | Types |
+|-----------|-------|
+| **Basic** | `rectangle`, `roundRect`, `ellipse`, `diamond`, `triangle` |
+| **Arrows** | `rightArrow`, `leftArrow`, `upArrow`, `downArrow`, `curvedRightArrow`, `curvedLeftRightArrow` |
+| **Hearts/Stars** | `heart`, `star4`, `star5`, `star6`, `star8`, `star10`, `star12` |
+| **Diagrams** | `flowChartProcess`, `flowChartDecision`, `flowChartData`, `flowChartTerminator` |
+| **Callouts** | `wedgeEllipseCallout`, `wedgeRectCallout`, `wedgeRRectCallout`, `cloudCallout` |
+
+
+#### Custom Geometry Shapes (Canvas-like)
+
+> [!IMPORTANT]
+> At this point, we don't found a way to make this feature working for all editors. We tested in **LibreOffice**, and **Collabora Office**, and works as expected. But not on **OnlyOffice**. We don't know exactly why, but we are following (as far as we know) the standard specifications. 
+> Be careful about using these. Commonly this can be replaced just using presets. 
+
+Custom geometry shapes allow you to create completely personalized forms using path commands. It's similar to working with a canvas in HTML5 or SVG.
+
 > [!NOTE]
-> Test have a great output, we will do some more and we will document this as soon as possible  
+> We are working in a similar implementation like `CustomPainter` to make more easy to create custom shapes (yeah, at this point we knows that we require much code just to do 1 shape).
+
+##### Available Path Commands
+
+| Command | Description | Parameters |
+|---------|-------------|------------|
+| `MoveToCommand(x, y)` | Moves the cursor to the starting point | `Point x`, `Point y` |
+| `LineToCommand(x, y)` | Draws a line to the point | `Point x`, `Point y` |
+| `CubicBezTo(x1, y1, x2, y2, x3, y3)` | Cubic Bezier curve | control points and destination |
+| `ArcTo(...)` | Elliptical arc | multiple parameters |
+| `ClosePathCommand()` | Closes the path returning to the start | - |
+
+##### Simple Example: Triangle
+
+```dart
+final size = Point(40);
+final anchor = Anchor(
+  name: 'triangle',
+  width: size,
+  height: size,
+  // Using this type of anchor config makes this shape
+  // behaving as another common block
+  config: AnchorConfig.block().toParagraphAnchorPosition(),
+  child: Graphic.shape(
+    child: WPShape(
+      name: 'triangle',
+      description: 'Simple triangle',
+      shapeProperties: ShapeProperties.custom(
+        transform: Transform2D.zero(
+          extents: AnnotationExtents.same(size),
+        ),
+        // geometry will inherit the full size
+        // that comes from ShapeProperties in the
+        // AnnotationExtents, so
+        // we don't need to provide it
+        // manually
+        geometry: CustomGeometryComponent.basic(
+          paths: ShapePath(
+            commands: <PathCommand>[
+              MoveToCommand(Point(20), Point(0)),
+              LineToCommand(Point(40), Point(40)),
+              LineToCommand(Point(0), Point(40)),
+              ClosePathCommand(),
+            ],
+            fill: PathFill.normal,
+            stroke: true,
+          ).toList(),
+        ),
+        // you should use Colors instead
+        // of this, to make more simple managing
+        // the color type
+        fill: SolidFill(color: Color(0xFF4169E1)),
+        border: ShapeBorder(
+          width: Point(2),
+          color: Color(0xFF1E3A5F),
+        ),
+      ),
+    ),
+  ),
+).drawing().run().paragraph();
+```
+
+##### Advanced Example: Shape Gallery
+
+```dart
+// Pentagon Shape
+final pentagon = ShapePath(
+  commands: <PathCommand>[
+    MoveToCommand(Point(20), Point(0)),
+    LineToCommand(Point(38), Point(12)),
+    LineToCommand(Point(32), Point(40)),
+    LineToCommand(Point(8), Point(40)),
+    LineToCommand(Point(2), Point(12)),
+    ClosePathCommand(),
+  ],
+  fill: PathFill.normal,
+  stroke: true,
+);
+
+// Arrow Shape
+final arrow = ShapePath(
+  commands: <PathCommand>[
+    MoveToCommand(Point(0), Point(20)),
+    LineToCommand(Point(32), Point(20)),
+    LineToCommand(Point(32), Point(8)),
+    LineToCommand(Point(40), Point(20)),
+    LineToCommand(Point(32), Point(32)),
+    LineToCommand(Point(32), Point(20)),
+    ClosePathCommand(),
+  ],
+  fill: PathFill.normal,
+  stroke: true,
+);
+
+// Star Shape
+final star = ShapePath(
+  commands: <PathCommand>[
+    MoveToCommand(Point(20), Point(0)),
+    LineToCommand(Point(25), Point(13)),
+    LineToCommand(Point(38), Point(13)),
+    LineToCommand(Point(29), Point(21)),
+    LineToCommand(Point(32), Point(36)),
+    LineToCommand(Point(20), Point(28)),
+    LineToCommand(Point(8), Point(36)),
+    LineToCommand(Point(11), Point(21)),
+    LineToCommand(Point(2), Point(13)),
+    LineToCommand(Point(15), Point(13)),
+    ClosePathCommand(),
+  ],
+  fill: PathFill.normal,
+  stroke: true,
+);
+```
 
 ### SDT Content Controls
 
 _SDT (Structured Document Tags) are Word's Content Controls - interactive elements that allow users to input or modify data within a document while maintaining structure._
 
 SDT components enable forms, data binding to Custom XML Parts, and dynamic content in Word documents. This library supports the following SDT types:
-
 
 #### SdtPlainText
 
