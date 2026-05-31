@@ -2,6 +2,33 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
 
+final PageSize pageSize = PageSize.letter;
+final DocumentMargins margins = DocumentMargins.fromCm(
+  top: 2.0,
+  right: 1.5,
+  left: 1.5,
+  bottom: 1.5,
+  header: 1.0,
+  footer: 1.0,
+);
+
+final DocumentOptions options = DocumentOptions.standard(
+  title: 'Daily News',
+  section: DocumentLayout(
+    size: pageSize,
+    margins: margins,
+    columns: ColumnOptions(
+      numColumns: 2,
+      equalWidth: false,
+      columnWidths: <ColumnWidth>[
+        ColumnWidth.points(width: 320.0, spaceAfter: 18),
+        ColumnWidth.points(width: 170.0, spaceAfter: 0),
+      ],
+    ),
+  ),
+  styles: DocumentStyles.base(),
+);
+
 /// Newspaper Demo showing multi-column layout with:
 /// - 2-column layout using PageColumn
 /// - Headlines, articles, and sidebar content
@@ -9,34 +36,24 @@ import 'package:docx/docx.dart';
 Future<void> main() async {
   final File outFile = File('test_resources/newspaper.docx');
 
-  final PageSize pageSize = PageSize.letter;
-  final DocumentMargins margins = DocumentMargins.fromCm(
-    top: 2.0,
-    right: 1.5,
-    left: 1.5,
-    bottom: 1.5,
-    header: 1.0,
-    footer: 1.0,
+  DocxElements.instance.ensureInitialized();
+  DocxElements.instance.debugMode(true);
+  final Uint8List? bytes = await runCompilation(
+    MyApp(),
+    logAll: true,
+    options: options,
+    checkStylReferences: true,
   );
 
-  final DocxDocument doc = DocxDocument(
-    options: DocumentOptions.standard(
-      title: 'Daily News',
-      section: DocumentLayout(
-        size: pageSize,
-        margins: margins,
-        columns: ColumnOptions(
-          numColumns: 2,
-          equalWidth: false,
-          columnWidths: <ColumnWidth>[
-            ColumnWidth.points(width: 320.0, spaceAfter: 18),
-            ColumnWidth.points(width: 170.0, spaceAfter: 0),
-          ],
-        ),
-      ),
-      styles: DocumentStyles.base(),
-    ),
-    root: RootBody(
+  if (bytes != null) {
+    await outFile.writeAsBytes(bytes);
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  DocxNode<dynamic> build() {
+    return RootBody(
       sections: <DocxNode<dynamic>>[
         Paragraph(
           children: <RunBase<dynamic>>[
@@ -401,24 +418,7 @@ Future<void> main() async {
           ],
         ),
       ],
-    ),
-  );
-
-  final Uint8List? bytes = await DocxPacker()
-      .autoRegisterFonts(true)
-      .noTrimRuns()
-      .normalStyleIfNeeded()
-      .logPath(DocxPaths.documentFilePath)
-      .execute(
-        doc,
-        applyCustomTheme: false,
-      );
-
-  if (bytes != null) {
-    await outFile.writeAsBytes(bytes);
-  } else {
-    stderr.writeln('Failed to generate newspaper.docx');
-    exit(1);
+    );
   }
 }
 
