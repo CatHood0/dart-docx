@@ -40,8 +40,7 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
   }) {
     child
       ..parent = this
-      ..index = 0
-      ..depth = depth + 1;
+      ..index = 0;
   }
 
   int? elementId;
@@ -126,7 +125,8 @@ class Anchor extends DocxNode<DocxNode> with IgnorableMixin {
               relativeFrom: config.verticalAnchor.name,
               x: false,
             ).buildXml(),
-          if ((config.wrapType != WrapType.noWrap) && config.wrapType != WrapType.asCharacter)
+          if ((config.wrapType != WrapType.noWrap) &&
+              config.wrapType != WrapType.asCharacter)
             XmlElement.tag(
               'wp:wrap${config.wrapType.name.capitalize()}',
               isSelfClosing: true,

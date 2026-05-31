@@ -8,7 +8,11 @@ class GraphicData extends DocxNode<DocxNode> {
     required this.uri,
     super.id,
     super.parent,
-  });
+  }) {
+    child
+      ..parent = this
+      ..index = 0;
+  }
 
   final String uri;
 
@@ -56,7 +60,8 @@ class GraphicData extends DocxNode<DocxNode> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return child.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitAllElement(shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -66,6 +71,7 @@ class GraphicData extends DocxNode<DocxNode> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return child.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitElement(shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

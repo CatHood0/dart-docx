@@ -7,7 +7,11 @@ class Graphic extends DocxNode<GraphicData> {
     required super.child,
     super.id,
     super.parent,
-  });
+  }) {
+    child
+      ..parent = this
+      ..index = 0;
+  }
 
   Graphic.pic({
     required DocxNode child,
@@ -18,7 +22,11 @@ class Graphic extends DocxNode<GraphicData> {
             child: child,
             uri: namespaces['pic']!,
           ),
-        );
+        ) {
+    child
+      ..parent = this
+      ..index = 0;
+  }
 
   Graphic.shape({
     required DocxNode child,
@@ -29,7 +37,11 @@ class Graphic extends DocxNode<GraphicData> {
             child: child,
             uri: namespaces['wps']!,
           ),
-        );
+        ) {
+    child
+      ..parent = this
+      ..index = 0;
+  }
 
   @override
   Graphic get copy => Graphic(
@@ -69,7 +81,8 @@ class Graphic extends DocxNode<GraphicData> {
   }) {
     if (shouldGetElement(this)) return [this];
     if (!visitChildrenIfNeeded) return null;
-    return child.visitAllElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitAllElement(shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 
   @override
@@ -79,6 +92,7 @@ class Graphic extends DocxNode<GraphicData> {
   }) {
     if (shouldGetElement(this)) return this;
     if (!visitChildrenIfNeeded) return null;
-    return child.visitElement(shouldGetElement, visitChildrenIfNeeded: visitChildrenIfNeeded);
+    return child.visitElement(shouldGetElement,
+        visitChildrenIfNeeded: visitChildrenIfNeeded);
   }
 }

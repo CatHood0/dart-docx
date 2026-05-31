@@ -19,9 +19,6 @@ abstract class RunBase<T> extends DocxNode<T>
 
   bool canMerge(RunBase node);
 
-  @override
-  bool isEmptyNode() => this is EmptyNode || dataLength == 0;
-
   RunBase cut(int offset, int offsetEnd);
   (RunBase, RunBase) cutTwo(int offset, int offsetEnd);
   (RunBase, RunBase, RunBase) cutAll(int offset, int offsetEnd);

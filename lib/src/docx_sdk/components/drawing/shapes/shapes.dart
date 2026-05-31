@@ -47,6 +47,7 @@ class WPShape extends DocxNode<DocxNode> {
 
   @override
   List<XmlNode> buildXml() {
+    //TODO: move these to perform
     final Anchor? anchor = getAncestorOfExactType<Anchor>();
     final InlineGraphic? inline = getAncestorOfExactType<InlineGraphic>();
     final int shapeId = anchor?.elementId?.castOrNull() ??
@@ -70,13 +71,13 @@ class WPShape extends DocxNode<DocxNode> {
     );
 
     assert(
-      width?.toEmu() == shapeProperties.transform.extents.cx,
+      width?.toEmu() == shapeProperties.transform.extents.cx.toEmu(),
       'the ${anchor?.runtimeType ?? inline?.runtimeType ?? 'N/A'} width must be equals than the '
       'ShapeProperties -> Transform2D -> AnnotationExtents -> cx',
     );
 
     assert(
-      height?.toEmu() == shapeProperties.transform.extents.cy,
+      height?.toEmu() == shapeProperties.transform.extents.cy.toEmu(),
       'the ${anchor?.runtimeType ?? inline?.runtimeType ?? 'N/A'} height must be equals than the '
       'ShapeProperties -> Transform2D -> AnnotationExtents -> cy specified',
     );
@@ -121,13 +122,13 @@ class WPShape extends DocxNode<DocxNode> {
     ShapeTextBox? textBox,
   }) {
     return WPShape(
-      shapeProperties: shapeProperties ?? this.shapeProperties,
+      id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
       shapeLocks: shapeLocks ?? this.shapeLocks,
       textBox: textBox ?? this.textBox,
-      id: id ?? this.id,
       parent: parent ?? this.parent,
+      shapeProperties: shapeProperties ?? this.shapeProperties,
     );
   }
 

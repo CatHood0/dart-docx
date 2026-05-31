@@ -2,56 +2,72 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
 
+final PageSize pageSize = PageSize.a4;
+final DocumentMargins margins = DocumentMargins.fromCm(
+  top: 2.0,
+  right: 2.0,
+  left: 2.0,
+  bottom: 2.0,
+  header: 1.0,
+  footer: 1.0,
+);
+
+final DocumentOptions options = DocumentOptions.standard(
+  title: 'Custom Geometry Demo',
+  styles: DocumentStyles.base().withNewStyles(
+    <Style>[
+      StyleBuilder.paragraph('CustomShapeTitle')
+          .name('Custom Shape Gallery')
+          .fontSize(Point(28))
+          .fontFamily('Calibri')
+          .bold()
+          .alignment(Alignment.center)
+          .qFormat(true)
+          .build(),
+      StyleBuilder.paragraph('ShapeDescription')
+          .name('Shape Description')
+          .fontSize(Point(20))
+          .fontFamily('Calibri')
+          .alignment(Alignment.center)
+          .build(),
+      StyleBuilder.paragraph('ShapeLabel')
+          .name('Shape Label')
+          .fontSize(Point(16))
+          .fontFamily('Calibri')
+          .bold()
+          .alignment(Alignment.center)
+          .build(),
+    ],
+  ),
+  section: DocumentLayout(
+    size: pageSize,
+    margins: margins,
+  ),
+);
+
 //TODO: this doesnt work
 // I'm working in this yet, since
 // shape properties are too weird
 Future<void> main() async {
   final File outFile = File('test_resources/custom_geometry.docx');
-
-  final PageSize pageSize = PageSize.a4;
-  final DocumentMargins margins = DocumentMargins.fromCm(
-    top: 2.0,
-    right: 2.0,
-    left: 2.0,
-    bottom: 2.0,
-    header: 1.0,
-    footer: 1.0,
+  DocxElements.instance.ensureInitialized();
+  DocxElements.instance.debugMode(true);
+  final Uint8List? bytes = await runCompilation(
+    MyApp(),
+    logAll: true,
+    options: options,
+    checkStylReferences: true,
   );
 
-  final DocxDocument doc = DocxDocument(
-    options: DocumentOptions.standard(
-      title: 'Custom Geometry Demo',
-      styles: DocumentStyles.base().withNewStyles(
-        <Style>[
-          StyleBuilder.paragraph('CustomShapeTitle')
-              .name('Custom Shape Gallery')
-              .fontSize(Point(28))
-              .fontFamily('Calibri')
-              .bold()
-              .alignment(Alignment.center)
-              .qFormat(true)
-              .build(),
-          StyleBuilder.paragraph('ShapeDescription')
-              .name('Shape Description')
-              .fontSize(Point(20))
-              .fontFamily('Calibri')
-              .alignment(Alignment.center)
-              .build(),
-          StyleBuilder.paragraph('ShapeLabel')
-              .name('Shape Label')
-              .fontSize(Point(16))
-              .fontFamily('Calibri')
-              .bold()
-              .alignment(Alignment.center)
-              .build(),
-        ],
-      ),
-      section: DocumentLayout(
-        size: pageSize,
-        margins: margins,
-      ),
-    ),
-    root: RootBody(
+  if (bytes != null) {
+    await outFile.writeAsBytes(bytes);
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  DocxNode<dynamic> build() {
+    return RootBody(
       sections: <DocxNode<dynamic>>[
         // Document title
         Paragraph.text(
@@ -300,23 +316,7 @@ Future<void> main() async {
           ],
         ),
       ],
-    ),
-  );
-
-  final Uint8List? bytes = await DocxPacker()
-      .autoRegisterFonts(true)
-      .noTrimRuns()
-      .normalStyleIfNeeded()
-      .logPath(DocxPaths.documentFilePath)
-      .execute(
-        doc,
-        applyCustomTheme: true,
-      );
-
-  if (bytes != null) {
-    await outFile.writeAsBytes(bytes);
-  } else {
-    stderr.writeln('Failed to generate custom_geometry.docx');
+    );
   }
 }
 
@@ -350,7 +350,7 @@ class ShapeExample extends StatelessWidget {
     );
 
     // Create anchor to position the shape
-    final size = Point(150);
+    final Point size = Point(150);
 
     // Build shape properties with custom geometry
     final ShapeProperties shapeProperties = ShapeProperties.custom(
@@ -389,7 +389,9 @@ class ShapeExample extends StatelessWidget {
             horizontalPosition: AnchorPosition.center,
             verticalPosition: AnchorPosition.center,
           ),
-          child: Graphic.shape(child: shape),
+          child: Graphic.shape(
+            child: shape,
+          ),
         ).drawing().run().paragraph(),
         Paragraph.text(
           text: description,
