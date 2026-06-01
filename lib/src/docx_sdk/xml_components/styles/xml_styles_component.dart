@@ -1,14 +1,11 @@
 import 'package:xml/xml.dart';
 
-import '../../../core/extensions/cast_ext.dart';
 import '../../sdk.dart';
-import '../../utils/logger/logger_configs.dart';
 import 'xml_default_doc_styles_component.dart';
 
 class XmlStylesComponent extends XmlComponentBase<void> {
   XmlStylesComponent({
     required this.docStyles,
-    this.tree,
   }) : super(
           xmlKey: 'w:styles',
           value: null,
@@ -21,7 +18,6 @@ class XmlStylesComponent extends XmlComponentBase<void> {
         );
 
   final DocumentStyles docStyles;
-  final DocxNode? tree;
 
   @override
   String get name => 'Styles';
@@ -32,45 +28,13 @@ class XmlStylesComponent extends XmlComponentBase<void> {
   @override
   XmlElement buildXml() {
     CompilerLogger.root.info('Analyzing styles to build LatentStyles');
-    final List<Style> styles = [];
-    tree?.visitAllElement(
-      (e) {
-        if (e is Paragraph) {
-          styles.addAll(e.styles.where((Style e) => !e.isReference));
-        }
-
-        if (e is Table) {
-          styles.addAll(
-              e.tableProperties!.styles.where((Style e) => !e.isReference));
-        }
-        if (e.child is ImageData) {
-          styles.addAll(
-              (e.child as ImageData).styles.where((e) => !e.isReference));
-        }
-
-        if (e is TextRun) {
-          styles.addAll(e.child.styles.where((Style e) => !e.isReference));
-        }
-
-        if (e is HyperlinkRun) {
-          styles.addAll(e.child.styles.where((Style e) => !e.isReference));
-        }
-
-        if (e is Text) {
-          styles.addAll(e.styles.where((Style e) => !e.isReference));
-        }
-
-        return false;
-      },
-    );
-
     final (LatentStyles latent) = LatentAnalyzer.analyze(
-      styles,
+      docStyles.styles.values.toList(),
       docStyles.latentStyles,
     );
     CompilerLogger.root.info(
       'Building styles.xml component. '
-      'Built-in styles count: ${styles.length}. '
+      'Built-in styles count: ${docStyles.styles.length}. '
       'latentStyles processed count: ${latent.count}, '
       'exceptions: ${latent.exceptions.length}',
     );
@@ -83,7 +47,7 @@ class XmlStylesComponent extends XmlComponentBase<void> {
           value: docStyles,
         ).buildXml(),
         latent.buildXml(),
-        ...styles
+        ...docStyles.styles.values
             .where(_avoidInvalidStyles)
             .map<XmlElement>((Style e) => e.buldXml()!),
       ],
