@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/glossary_provider.dart';
 import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Drop-down list SDT component for selecting from fixed options.
@@ -62,6 +63,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
     this.showingPlacHdr = true,
     this.lock,
     this.temporary = false,
+    this.glossaryEntry,
     super.parent,
     super.id,
     super.sdtId,
@@ -103,6 +105,26 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
   /// If true, the SDT is temporary and not saved permanently.
   final bool temporary;
 
+  /// Glossary entry for placeholder content.
+  ///
+  /// When provided, this entry is auto-registered to the [GlossaryStore]
+  /// and its name is used as the placeholder reference.
+  final GlossaryEntry? glossaryEntry;
+
+  /// Returns the placeholder name to use in XML.
+  ///
+  /// If [glossaryEntry] is provided, uses its name; otherwise uses [placeholder].
+  String? get placeholderName => glossaryEntry?.name ?? placeholder;
+
+  @override
+  void perform() {
+    // Auto-register glossary entry if provided
+    if (glossaryEntry != null && isChildOf<GlossaryProvider>()) {
+      GlossaryProvider.of(this).addEntry(glossaryEntry!);
+    }
+    super.perform();
+  }
+
   /// Helper to compute display text from items and selected value.
   static String _computeDisplayText(List<SdtListItem> items, String? selectedValue) {
     if (selectedValue == null) return '';
@@ -124,6 +146,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
           _buildContentXml(),
         ],
       ),
+      ...Run.lineBreak().paragraph().buildXml(),
     ];
   }
 
@@ -140,6 +163,13 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
       ),
       XmlElement.tag(
         'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:label',
         attributes: <XmlAttribute>[
           XmlAttribute('w:val'.toName(), _alias),
         ],
@@ -167,7 +197,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
     );
 
     // Add placeholder
-    if (placeholder != null) {
+    if (placeholderName != null) {
       children.add(
         XmlElement.tag(
           'w:placeholder',
@@ -175,7 +205,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
             XmlElement.tag(
               'w:docPart',
               attributes: <XmlAttribute>[
-                XmlAttribute('w:val'.toName(), placeholder!),
+                XmlAttribute('w:val'.toName(), placeholderName!),
               ],
               isSelfClosing: true,
             ),
@@ -246,6 +276,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
         showingPlacHdr: showingPlacHdr,
         lock: lock,
         temporary: temporary,
+        glossaryEntry: glossaryEntry,
         parent: parent,
       );
 
@@ -261,6 +292,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
     bool? showingPlacHdr,
     StdLock? lock,
     bool? temporary,
+    GlossaryEntry? glossaryEntry,
     List<SdtListItem>? items,
     int? sdtId,
   }) {
@@ -274,6 +306,7 @@ class SdtDropDownList extends Sdt<RunBase> with PrintableMixin {
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,
       lock: lock ?? this.lock,
       temporary: temporary ?? this.temporary,
+      glossaryEntry: glossaryEntry ?? this.glossaryEntry,
       parent: parent ?? this.parent,
     );
   }

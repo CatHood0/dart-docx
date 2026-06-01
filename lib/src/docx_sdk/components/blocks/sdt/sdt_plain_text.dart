@@ -2,7 +2,6 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
-import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Plain text SDT component for single-line text input fields.
 ///
@@ -17,7 +16,21 @@ import '../../../stores/inherited_stores/sdt_store_provider.dart';
 /// final sdt = SdtPlainText(
 ///   alias: 'client_name',
 ///   tag: 'client_name',
-///   placeholder: '[Enter name]',
+///   placeholder: 'PlcHdr_Nombre',
+///   content: 'John Doe',
+/// );
+/// ```
+///
+/// ## Using with GlossaryEntry:
+/// ```dart
+/// final sdt = SdtPlainText(
+///   alias: 'client_name',
+///   tag: 'client_name',
+///   glossaryEntry: GlossaryEntry(
+///     name: 'PlcHdr_Nombre',
+///     type: GlossaryEntryType.placeholder,
+///     body: [Paragraph(children: [TextRun.text(text: 'Enter name...', styles: [italic])])],
+///   ),
 ///   content: 'John Doe',
 /// );
 /// ```
@@ -33,6 +46,7 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
     this.maxLength,
     this.lock,
     this.temporary = false,
+    this.glossaryEntry,
     List<RunBase> content = const [],
     super.parent,
     super.id,
@@ -72,8 +86,28 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
   /// If true, the SDT is temporary and not saved permanently.
   final bool temporary;
 
+  /// Glossary entry for placeholder content.
+  ///
+  /// When provided, this entry is auto-registered to the [GlossaryStore]
+  /// and its name is used as the placeholder reference.
+  final GlossaryEntry? glossaryEntry;
+
   /// The content runs displayed in the SDT.
   final List<RunBase> _content;
+
+  /// Returns the placeholder name to use in XML.
+  ///
+  /// If [glossaryEntry] is provided, uses its name; otherwise uses [placeholder].
+  String? get placeholderName => glossaryEntry?.name ?? placeholder;
+
+  @override
+  void perform() {
+    // Auto-register glossary entry if provided
+    if (glossaryEntry != null && isChildOf<GlossaryProvider>()) {
+      GlossaryProvider.of(this).addEntry(glossaryEntry!);
+    }
+    super.perform();
+  }
 
   @override
   List<XmlElement> buildXml() {
@@ -85,6 +119,7 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
           _buildContentXml(),
         ],
       ),
+      ...Run.lineBreak().paragraph().buildXml(),
     ];
   }
 
@@ -93,6 +128,13 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
       XmlElement.tag('w:plainText', isSelfClosing: true),
       XmlElement.tag(
         'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:label',
         attributes: <XmlAttribute>[
           XmlAttribute('w:val'.toName(), _alias),
         ],
@@ -120,7 +162,7 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
     );
 
     // Add placeholder
-    if (placeholder != null) {
+    if (placeholderName != null) {
       children.add(
         XmlElement.tag(
           'w:placeholder',
@@ -128,7 +170,7 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
             XmlElement.tag(
               'w:docPart',
               attributes: <XmlAttribute>[
-                XmlAttribute('w:val'.toName(), placeholder!),
+                XmlAttribute('w:val'.toName(), placeholderName!),
               ],
               isSelfClosing: true,
             ),
@@ -155,6 +197,17 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
           'w:text',
           attributes: <XmlAttribute>[
             XmlAttribute('w:maxLength'.toName(), maxLength.toString()),
+            XmlAttribute('w:multiLine'.toName(), '1'),
+          ],
+          isSelfClosing: true,
+        ),
+      );
+    } else {
+      children.add(
+        XmlElement.tag(
+          'w:text',
+          attributes: <XmlAttribute>[
+            XmlAttribute('w:multiLine'.toName(), '1'),
           ],
           isSelfClosing: true,
         ),
@@ -217,6 +270,7 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
         maxLength: maxLength,
         lock: lock,
         temporary: temporary,
+        glossaryEntry: glossaryEntry,
         content: _content,
         parent: parent,
       );
@@ -233,6 +287,7 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
     int? maxLength,
     StdLock? lock,
     bool? temporary,
+    GlossaryEntry? glossaryEntry,
     List<RunBase>? content,
     int? sdtId,
   }) {
@@ -245,6 +300,7 @@ class SdtPlainText extends Sdt<List<RunBase>> with PrintableMixin {
       maxLength: maxLength ?? this.maxLength,
       lock: lock ?? this.lock,
       temporary: temporary ?? this.temporary,
+      glossaryEntry: glossaryEntry ?? this.glossaryEntry,
       content: content ?? _content,
       parent: parent ?? this.parent,
     );

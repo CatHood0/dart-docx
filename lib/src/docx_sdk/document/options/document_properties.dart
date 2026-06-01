@@ -1,5 +1,4 @@
 import '../../../../docx.dart';
-import '../../xml_components/settings/entities/settings.dart';
 
 /// Defines the physical layout and structure of a document section.
 ///
@@ -134,10 +133,12 @@ class DocumentOptions {
     WebSettingsOptions? webSettings,
     List<NumberingOptions>? numberingOptions,
     ThemeOptions? theme,
+    List<GlossaryEntry>? glossaryEntries,
   })  : settings = settings ?? SettingsOptions.base(),
         webSettings = webSettings ?? const WebSettingsOptions(),
         theme = theme ?? ThemeOptions.officeTheme(font: 'Arial'),
         numberingOptions = numberingOptions ?? <NumberingOptions>[],
+        glossaryEntries = glossaryEntries ?? <GlossaryEntry>[],
         supportedFileExtensions =
             supportedFileExtensions ?? kDefaultAcceptedFileExtensions,
         docStyles = styles ?? DocumentStyles.base(),
@@ -191,6 +192,7 @@ class DocumentOptions {
     ThemeOptions? theme,
     Set<String>? supportedFileExtensions,
     List<NumberingOptions>? numberingOptions,
+    List<GlossaryEntry>? glossaryEntries,
     PageSize? pageSize,
     List<String> keywords = const <String>[],
     DocumentMargins? margins,
@@ -210,6 +212,7 @@ class DocumentOptions {
       sharedDoc: sharedDoc,
       settings: settings,
       numberingOptions: numberingOptions,
+      glossaryEntries: glossaryEntries,
       webSettings: webSettings,
       layoutOptions: section ??
           DocumentLayout(
@@ -329,6 +332,12 @@ class DocumentOptions {
   /// List numbering/outline configurations.
   final List<NumberingOptions> numberingOptions;
 
+  /// Glossary entries (building blocks) for the document.
+  ///
+  /// These are reusable content blocks that can be referenced
+  /// from SDT placeholders using their unique names.
+  final List<GlossaryEntry> glossaryEntries;
+
   DocumentOptions copyWith({
     String? lastModifiedBy,
     String? author,
@@ -350,6 +359,7 @@ class DocumentOptions {
     SettingsOptions? settings,
     WebSettingsOptions? webSettings,
     List<NumberingOptions>? numberingOptions,
+    List<GlossaryEntry>? glossaryEntries,
     ThemeOptions? theme,
   }) {
     return DocumentOptions(
@@ -375,6 +385,7 @@ class DocumentOptions {
       settings: settings ?? this.settings,
       webSettings: webSettings ?? this.webSettings,
       numberingOptions: numberingOptions ?? this.numberingOptions,
+      glossaryEntries: glossaryEntries ?? this.glossaryEntries,
       theme: theme ?? this.theme,
     );
   }

@@ -36,6 +36,7 @@ class XmlDocumentComponent extends XmlComponentBase<XmlBodyComponent> {
             cx5: true,
             cx6: true,
             cx7: true,
+            
             cx8: true,
             aink: true,
             am3d: true,

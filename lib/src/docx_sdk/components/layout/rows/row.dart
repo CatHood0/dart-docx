@@ -93,13 +93,11 @@ class Row extends DocxNode<List<DocxNode>> {
   void perform() {
     // Some dumb diffing
     if (_table != null) {
-      UnitValue maxWidth =
-          getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
+      UnitValue maxWidth = getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
       if (maxWidth == Dxa(0)) {
         maxWidth = Dxa(
-          CompilerConfigProvider.of(this)?.options.availablePageWidth ??
-              PageSize.a4.width.value,
+          CompilerConfigProvider.of(this)?.options.availablePageWidth ?? PageSize.a4.width.value,
         );
       }
 
@@ -125,16 +123,13 @@ class Row extends DocxNode<List<DocxNode>> {
 
   /// Converts this [Row] in a [Table] equivalent version
   DocxNode toTable() {
-    UnitValue maxWidth =
-        getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
+    UnitValue maxWidth = getAncestorOfExactType<LayoutConstraints>()?.maxWidth ?? width;
 
-    final EdgeInsets padding =
-        getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
+    final EdgeInsets padding = getAncestorOfExactType<Padding>()?.padding ?? EdgeInsets.zero();
 
     if (maxWidth == Dxa(0)) {
       maxWidth = Dxa(
-        CompilerConfigProvider.of(this)?.options.availablePageWidth ??
-            PageSize.a4.width.value,
+        CompilerConfigProvider.of(this)?.options.availablePageWidth ?? PageSize.a4.width.value,
       );
     }
 
@@ -217,19 +212,15 @@ class Row extends DocxNode<List<DocxNode>> {
     });
 
     Table table = Table(
-      id: id,
-      parent: this,
       tableProperties: TableProperties(
         layout: true,
         width: maxWidth.value.toInt(),
         alignment: mainAxisAlignment?.align(),
-        widthType:
-            maxWidth.value == 0 ? TableWidthType.auto : TableWidthType.dxa,
+        widthType: maxWidth.value == 0 ? TableWidthType.auto : TableWidthType.dxa,
         padding: padding,
       ),
       columns: maxWidth > Dxa(0)
-          ? GridColumn(width: (maxWidth.value / cells.length).toInt())
-              .repeat(cells.length)
+          ? GridColumn(width: (maxWidth.value / cells.length).toInt()).repeat(cells.length)
           : GridColumn.intrintric().repeat(cells.length),
       rows: TableRow(
         canSplit: true,
@@ -244,6 +235,8 @@ class Row extends DocxNode<List<DocxNode>> {
 
     // This fixes the issue where the nested rows, break all the layout
     return LayoutConstraints(
+      id: id,
+      parent: this,
       maxWidth: Dxa((maxWidth.value / cells.length)),
       children: table.toList(),
     );

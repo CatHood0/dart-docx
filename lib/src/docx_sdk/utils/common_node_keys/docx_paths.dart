@@ -22,6 +22,8 @@ class DocxPaths {
   /// document file
   static const String documentFilePath = 'word/document.xml';
 
+  static const String glossaryFilePath = 'word/glossary/document.xml';
+
   /// document font table file
   static const String fontTableXmlFilePath = 'word/fontTable.xml';
 

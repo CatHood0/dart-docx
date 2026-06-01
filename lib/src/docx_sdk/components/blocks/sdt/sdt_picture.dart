@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/glossary_provider.dart';
 import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Picture SDT component for image content controls.
@@ -50,6 +51,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
     this.showingPlacHdr = true,
     this.lock,
     this.temporary = false,
+    this.glossaryEntry,
     RunBase? content,
     super.parent,
     super.id,
@@ -80,6 +82,27 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
 
   /// If true, the SDT is temporary and not saved permanently.
   final bool temporary;
+
+  /// Glossary entry for placeholder content.
+  ///
+  /// When provided, this entry is auto-registered to the [GlossaryStore]
+  /// and its name is used as the placeholder reference.
+  final GlossaryEntry? glossaryEntry;
+
+  /// Returns the placeholder name to use in XML.
+  ///
+  /// If [glossaryEntry] is provided, uses its name; otherwise uses [placeholder].
+  String? get placeholderName => glossaryEntry?.name ?? placeholder;
+
+  @override
+  void perform() {
+    // Auto-register glossary entry if provided
+    if (glossaryEntry != null && isChildOf<GlossaryProvider>()) {
+      GlossaryProvider.of(this).addEntry(glossaryEntry!);
+    }
+    super.perform();
+  }
+
   @override
   List<XmlElement> buildXml() {
     return <XmlElement>[
@@ -90,6 +113,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
           _buildContentXml(),
         ],
       ),
+      ...Run.lineBreak().paragraph().buildXml(),
     ];
   }
 
@@ -99,6 +123,13 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
       XmlElement.tag('w:picture', isSelfClosing: true),
       XmlElement.tag(
         'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:label',
         attributes: <XmlAttribute>[
           XmlAttribute('w:val'.toName(), _alias),
         ],
@@ -126,7 +157,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
     );
 
     // Add placeholder
-    if (placeholder != null) {
+    if (placeholderName != null) {
       children.add(
         XmlElement.tag(
           'w:placeholder',
@@ -134,7 +165,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
             XmlElement.tag(
               'w:docPart',
               attributes: <XmlAttribute>[
-                XmlAttribute('w:val'.toName(), placeholder!),
+                XmlAttribute('w:val'.toName(), placeholderName!),
               ],
               isSelfClosing: true,
             ),
@@ -198,6 +229,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
         showingPlacHdr: showingPlacHdr,
         lock: lock,
         temporary: temporary,
+        glossaryEntry: glossaryEntry,
         content: child,
         parent: parent,
       );
@@ -213,6 +245,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
     bool? showingPlacHdr,
     StdLock? lock,
     bool? temporary,
+    GlossaryEntry? glossaryEntry,
     RunBase? content,
     int? sdtId,
   }) {
@@ -224,6 +257,7 @@ class SdtPicture extends Sdt<RunBase> with PrintableMixin {
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,
       lock: lock ?? this.lock,
       temporary: temporary ?? this.temporary,
+      glossaryEntry: glossaryEntry ?? this.glossaryEntry,
       content: content ?? child,
       parent: parent ?? this.parent,
     );

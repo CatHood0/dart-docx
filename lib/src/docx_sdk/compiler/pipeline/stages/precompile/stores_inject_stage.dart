@@ -1,4 +1,5 @@
 import '../../../../../../docx.dart';
+import '../../../../stores/glossary_store.dart';
 
 class StoresInjectionStage extends PipelineStage {
   const StoresInjectionStage();
@@ -42,6 +43,7 @@ class StoresInjectionStage extends PipelineStage {
         fontStore: context.getStoreOfExactType<FontStore>() ?? FontStore(),
         sdtStore: context.getStoreOfExactType<SdtStore>() ?? SdtStore(),
         hyperlinkStore: context.getStoreOfExactType<HyperlinkStore>()!,
+        glossaryStore: context.getStoreOfExactType<GlossaryStore>() ?? GlossaryStore(),
         styles: context.document.options.docStyles,
         root: context.tree,
       ),

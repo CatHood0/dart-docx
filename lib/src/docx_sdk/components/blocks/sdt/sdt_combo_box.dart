@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/glossary_provider.dart';
 import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Combo-box SDT component for editable drop-down selection.
@@ -63,6 +64,7 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
     this.showingPlacHdr = true,
     this.lock,
     this.temporary = false,
+    this.glossaryEntry,
     super.parent,
     super.id,
     super.sdtId,
@@ -97,9 +99,28 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
   /// If true, the SDT is temporary and not saved permanently.
   final bool temporary;
 
+  /// Glossary entry for placeholder content.
+  ///
+  /// When provided, this entry is auto-registered to the [GlossaryStore]
+  /// and its name is used as the placeholder reference.
+  final GlossaryEntry? glossaryEntry;
+
+  /// Returns the placeholder name to use in XML.
+  ///
+  /// If [glossaryEntry] is provided, uses its name; otherwise uses [placeholder].
+  String? get placeholderName => glossaryEntry?.name ?? placeholder;
+
+  @override
+  void perform() {
+    // Auto-register glossary entry if provided
+    if (glossaryEntry != null && isChildOf<GlossaryProvider>()) {
+      GlossaryProvider.of(this).addEntry(glossaryEntry!);
+    }
+    super.perform();
+  }
+
   /// Helper to compute display text from items and selected value.
-  static String _computeDisplayText(
-      List<SdtListItem> items, String? selectedValue) {
+  static String _computeDisplayText(List<SdtListItem> items, String? selectedValue) {
     if (selectedValue == null) return '';
     for (final SdtListItem item in items) {
       if (item.value == selectedValue) {
@@ -120,6 +141,7 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
           _buildContentXml(),
         ],
       ),
+      ...Run.lineBreak().paragraph().buildXml(),
     ];
   }
 
@@ -144,6 +166,13 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
         isSelfClosing: true,
       ),
       XmlElement.tag(
+        'w:label',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
         'w:tag',
         attributes: <XmlAttribute>[
           XmlAttribute('w:val'.toName(), tag),
@@ -153,22 +182,18 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
       XmlElement.tag(
         'w:id',
         attributes: <XmlAttribute>[
-          XmlAttribute(
-              'w:val'.toName(),
-              SdtStoreProvider.of(this)
-                  .getNextId(nodeId: id, preferredId: sdtId)
-                  .toString()),
+          XmlAttribute('w:val'.toName(), SdtStoreProvider.of(this).getNextId(nodeId: id, preferredId: sdtId).toString()),
         ],
         isSelfClosing: true,
       ),
-      if (placeholder != null)
+      if (placeholderName != null)
         XmlElement.tag(
           'w:placeholder',
           children: <XmlNode>[
             XmlElement.tag(
               'w:docPart',
               attributes: <XmlAttribute>[
-                XmlAttribute('w:val'.toName(), placeholder!),
+                XmlAttribute('w:val'.toName(), placeholderName!),
               ],
               isSelfClosing: true,
             ),
@@ -226,6 +251,7 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
         showingPlacHdr: showingPlacHdr,
         lock: lock,
         temporary: temporary,
+        glossaryEntry: glossaryEntry,
         parent: parent,
       );
 
@@ -240,6 +266,7 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
     bool? showingPlacHdr,
     StdLock? lock,
     bool? temporary,
+    GlossaryEntry? glossaryEntry,
     List<SdtListItem>? items,
     int? sdtId,
   }) {
@@ -253,6 +280,7 @@ class SdtComboBox extends Sdt<List<SdtListItem>> with PrintableMixin {
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,
       lock: lock ?? this.lock,
       temporary: temporary ?? this.temporary,
+      glossaryEntry: glossaryEntry ?? this.glossaryEntry,
       parent: parent ?? this.parent,
     );
   }

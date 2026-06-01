@@ -1,4 +1,6 @@
 import '../../sdk.dart';
+import '../../stores/glossary_store.dart';
+import '../../stores/inherited_stores/glossary_provider.dart';
 
 class DocxStandardStores extends StatelessWidget {
   DocxStandardStores({
@@ -9,6 +11,7 @@ class DocxStandardStores extends StatelessWidget {
     required this.fontStore,
     required this.sdtStore,
     required this.hyperlinkStore,
+    required this.glossaryStore,
     required this.root,
     required this.styles,
     super.key,
@@ -21,6 +24,7 @@ class DocxStandardStores extends StatelessWidget {
   final FontStore fontStore;
   final SdtStore sdtStore;
   final HyperlinkStore hyperlinkStore;
+  final GlossaryStore glossaryStore;
   final DocumentStyles? styles;
   final DocxNode root;
 
@@ -37,11 +41,14 @@ class DocxStandardStores extends StatelessWidget {
             store: hyperlinkStore,
             child: SdtStoreProvider(
               store: sdtStore,
-              child: FontsProvider(
-                store: fontStore,
-                child: DocumentRelsProvider(
-                  store: docRelsStore,
-                  child: root,
+              child: GlossaryProvider(
+                store: glossaryStore,
+                child: FontsProvider(
+                  store: fontStore,
+                  child: DocumentRelsProvider(
+                    store: docRelsStore,
+                    child: root,
+                  ),
                 ),
               ),
             ),

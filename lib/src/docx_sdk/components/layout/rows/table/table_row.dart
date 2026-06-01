@@ -285,7 +285,7 @@ class TableRow extends DocxNode<List<TableCell>> {
   }) {
     return TableRow(
       id: id ?? this.id,
-      cells: cells ?? this.child,
+      cells: cells ?? child,
       canSplit: canSplit ?? this.canSplit,
       hidden: hidden ?? this.hidden,
       height: height ?? this.height,
@@ -302,8 +302,9 @@ class TableRow extends DocxNode<List<TableCell>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
+    if (shouldGetElement(this)) return this;
     for (final TableCell element in child) {
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
         final DocxNode? foundedEl = element.visitElement(
@@ -323,10 +324,11 @@ class TableRow extends DocxNode<List<TableCell>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
+    if (shouldGetElement(this)) return toList();
     if (child.isEmpty) return <DocxNode>[];
     final List<DocxNode> elements = <DocxNode>[];
     for (final TableCell element in child) {
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
         final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(

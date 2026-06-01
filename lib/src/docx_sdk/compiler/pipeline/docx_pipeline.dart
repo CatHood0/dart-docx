@@ -6,6 +6,8 @@ import 'package:archive/archive.dart';
 import '../../../core/extensions/cast_ext.dart';
 import '../../registry/docx_registry.dart';
 import '../../sdk.dart';
+import 'stages/building/glossary_build_stage.dart';
+import 'stages/discovery/glossary_usage_discovery_stage.dart';
 
 /// DOCX document compilation pipeline.
 ///
@@ -126,6 +128,7 @@ class DocxPipeline {
         HyperlinkStore(),
         DocumentRelsCounterStore(),
         DrawingElementCounterStore(),
+        GlossaryStore(),
       ],
     );
   }
@@ -327,6 +330,7 @@ class DocxPipeline {
     return <PipelineStage>[
       const NumberingUsageDiscoveryStage(),
       const StoresInjectionStage(),
+      const GlossaryUsageDiscoveryStage(),
       const StyleValidationStage(),
       const EnvironmentSetupStage(),
       const OptionsValidationStage(),
@@ -359,6 +363,7 @@ class DocxPipeline {
       const RelsBuildStage(),
       const DocumentRelsBuildStage(),
       const DocumentBuildStage(),
+      const GlossaryBuildStage(),
       const NumberingBuildStage(),
       const StylesBuildStage(),
       const FontTableBuildStage(),

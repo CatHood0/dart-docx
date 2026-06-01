@@ -2,6 +2,7 @@ import 'package:xml/xml.dart';
 
 import '../../../../../docx.dart';
 import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/glossary_provider.dart';
 import '../../../stores/inherited_stores/sdt_store_provider.dart';
 
 /// Rich text SDT component for multi-paragraph formatted text input.
@@ -44,6 +45,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
     this.showingPlacHdr = true,
     this.lock,
     this.temporary = false,
+    this.glossaryEntry,
     Iterable<DocxNode> content = const [],
     super.parent,
     super.id,
@@ -80,8 +82,28 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
   /// If true, the SDT is temporary and not saved permanently.
   final bool temporary;
 
+  /// Glossary entry for placeholder content.
+  ///
+  /// When provided, this entry is auto-registered to the [GlossaryStore]
+  /// and its name is used as the placeholder reference.
+  final GlossaryEntry? glossaryEntry;
+
   /// The content paragraphs displayed in the SDT.
   final List<DocxNode> _content;
+
+  /// Returns the placeholder name to use in XML.
+  ///
+  /// If [glossaryEntry] is provided, uses its name; otherwise uses [placeholder].
+  String? get placeholderName => glossaryEntry?.name ?? placeholder;
+
+  @override
+  void perform() {
+    // Auto-register glossary entry if provided
+    if (glossaryEntry != null && isChildOf<GlossaryProvider>()) {
+      GlossaryProvider.of(this).addEntry(glossaryEntry!);
+    }
+    super.perform();
+  }
 
   @override
   List<XmlElement> buildXml() {
@@ -93,6 +115,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
           _buildContentXml(),
         ],
       ),
+      ...Run.lineBreak().paragraph().buildXml(),
     ];
   }
 
@@ -101,6 +124,13 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
       XmlElement.tag('w:richText', isSelfClosing: true),
       XmlElement.tag(
         'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:label',
         attributes: <XmlAttribute>[
           XmlAttribute('w:val'.toName(), _alias),
         ],
@@ -116,8 +146,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
     ];
 
     // Add id - use SdtStore to get unique ID
-    final int actualSdtId =
-        SdtStoreProvider.of(this).getNextId(nodeId: id, preferredId: sdtId);
+    final int actualSdtId = SdtStoreProvider.of(this).getNextId(nodeId: id, preferredId: sdtId);
     children.add(
       XmlElement.tag(
         'w:id',
@@ -129,7 +158,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
     );
 
     // Add placeholder
-    if (placeholder != null) {
+    if (placeholderName != null) {
       children.add(
         XmlElement.tag(
           'w:placeholder',
@@ -137,7 +166,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
             XmlElement.tag(
               'w:docPart',
               attributes: <XmlAttribute>[
-                XmlAttribute('w:val'.toName(), placeholder!),
+                XmlAttribute('w:val'.toName(), placeholderName!),
               ],
               isSelfClosing: true,
             ),
@@ -212,6 +241,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
         showingPlacHdr: showingPlacHdr,
         lock: lock,
         temporary: temporary,
+        glossaryEntry: glossaryEntry,
         content: _content,
         parent: parent,
       );
@@ -227,6 +257,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
     bool? showingPlacHdr,
     StdLock? lock,
     bool? temporary,
+    GlossaryEntry? glossaryEntry,
     Iterable<DocxNode>? content,
     int? sdtId,
   }) {
@@ -238,6 +269,7 @@ class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
       showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,
       lock: lock ?? this.lock,
       temporary: temporary ?? this.temporary,
+      glossaryEntry: glossaryEntry ?? this.glossaryEntry,
       content: content ?? _content,
       parent: parent ?? this.parent,
     );
