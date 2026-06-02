@@ -36,7 +36,6 @@ final DocumentOptions options = DocumentOptions.standard(
 Future<void> main() async {
   final File outFile = File('test_resources/custom_geometry.docx');
   DocxElements.instance.ensureInitialized();
-  DocxElements.instance.debugMode(true);
   final Uint8List? bytes = await runCompilation(
     MyApp(),
     logAll: true,

@@ -59,133 +59,150 @@ const String epilogue =
     'Some journeys end; others simply change direction.\n'
     'He turned toward the rising sun and began to walk again.';
 
+final options = DocumentOptions(
+  title: 'Whispers in the Fog',
+  author: 'Midnight Writer',
+  revisions: 0,
+  createdAt: DateTime.now(),
+  modifiedAt: DateTime.now(),
+  lastModifiedBy: 'Me',
+  editorSettings: EditorOptions(
+    fontFamily: 'Arial',
+    fontSize: Point(12),
+    complexScriptFontSize: Point(12),
+    //TODO:  we need to work of headers and footers
+    headerType: 'default',
+    footerType: 'default',
+    metadata: EditorMetadata.zero(),
+    showHeader: false,
+    showFooter: false,
+    language: DocxLanguage(
+      language: LanguageCodes.englishUS,
+      eastAsia: LanguageCodes.chineseCN,
+      bidi: LanguageCodes.arabicSA,
+    ),
+    defaultOrderedListStyleType: LevelFormat.decimal.name,
+    showPageNumber: false,
+    showLineNumber: false,
+    decodeUnicode: false,
+  ),
+  layoutOptions: DocumentLayout(columns: ColumnOptions()),
+  description: 'A psychological thriller about memory and redemption',
+  subject: 'Fiction / Thriller',
+  keywords: <String>['noir', 'mystery', 'psychological', 'thriller'],
+  styles: DocumentStyles.base().withNewStyles(
+    <Style>[
+      StyleBuilder.paragraph('Title')
+          .name('Title')
+          .fontSize(Point(28))
+          .fontFamily('Georgia')
+          .bold()
+          .alignment(Alignment.center)
+          .qFormat(true)
+          .spacing(
+            before: Point(12),
+            after: Point(6),
+          )
+          .uiPriority(20)
+          .build(),
+      StyleBuilder.paragraph('Subtitle')
+          .name('Subtitle')
+          .fontSize(Point(14))
+          .fontFamily('Georgia')
+          .italic()
+          .runColor(Color(0x666666))
+          .alignment(Alignment.center)
+          .qFormat(true)
+          .spacing(before: Twip(60), after: Twip(300))
+          .uiPriority(19)
+          .build(),
+      StyleBuilder.paragraph('Chapter')
+          .name('Chapter')
+          .fontSize(Point(20))
+          .fontFamily('Georgia')
+          .bold()
+          .smallCaps()
+          .alignment(Alignment.center)
+          .qFormat(true)
+          .spacing(before: Twip(240), after: Twip(120))
+          .uiPriority(18)
+          .basedOn('Normal')
+          .next('BodyText')
+          .build(),
+      StyleBuilder.paragraph('BodyText')
+          .name('Body Text')
+          .fontSize(Point(13))
+          .fontFamily('Times New Roman')
+          .alignment(Alignment.left)
+          .qFormat(true)
+          .spacing(line: Twip(276))
+          .indent(firstLine: Twip(360))
+          .uiPriority(10)
+          .basedOn('Normal')
+          .build(),
+      StyleBuilder.paragraph('Quote')
+          .name('Quote')
+          .fontSize(Point(12))
+          .fontFamily('Times New Roman')
+          .italic()
+          .runColor(Color(0x444444))
+          .alignment(Alignment.left)
+          .qFormat(true)
+          .indent(left: Twip(360), right: Twip(360))
+          .spacing(
+            before: Twip(120),
+            after: Twip(120),
+            line: SpacingInch(1.0),
+          )
+          .uiPriority(15)
+          .basedOn('Normal')
+          .build(),
+      StyleBuilder.paragraph('Epilogue')
+          .name('Epilogue')
+          .fontSize(Point(12))
+          .fontFamily('Times New Roman')
+          .italic()
+          .alignment(Alignment.left)
+          .qFormat(true)
+          .spacing(
+            before: Twip(240),
+            after: Twip(240),
+            line: SpacingInch(1.0),
+          )
+          .uiPriority(17)
+          .basedOn('Normal')
+          .build(),
+    ],
+  ),
+  settings: SettingsOptions.base(
+    defaultTabStop: 0.5.inchesToTwips().toString(),
+    zoomPercent: '100',
+    trackRevisions: false,
+    autoHyphenation: false,
+  ),
+);
+
 Future<void> main() async {
   final File outFile = File('test_resources/novel.docx');
 
-  final DocxDocument document = DocxDocument(
-    options: DocumentOptions(
-      title: 'Whispers in the Fog',
-      author: 'Midnight Writer',
-      revisions: 0,
-      createdAt: DateTime.now(),
-      modifiedAt: DateTime.now(),
-      lastModifiedBy: 'Me',
-      editorSettings: EditorOptions(
-        fontFamily: 'Arial',
-        fontSize: Point(12),
-        complexScriptFontSize: Point(12),
-        //TODO:  we need to work of headers and footers
-        headerType: 'default',
-        footerType: 'default',
-        metadata: EditorMetadata.zero(),
-        showHeader: false,
-        showFooter: false,
-        language: DocxLanguage(
-          language: LanguageCodes.englishUS,
-          eastAsia: LanguageCodes.chineseCN,
-          bidi: LanguageCodes.arabicSA,
-        ),
-        defaultOrderedListStyleType: LevelFormat.decimal.name,
-        showPageNumber: false,
-        showLineNumber: false,
-        decodeUnicode: false,
-      ),
-      layoutOptions: DocumentLayout(columns: ColumnOptions()),
-      description: 'A psychological thriller about memory and redemption',
-      subject: 'Fiction / Thriller',
-      keywords: <String>['noir', 'mystery', 'psychological', 'thriller'],
-      styles: DocumentStyles.base().withNewStyles(
-        <Style>[
-          StyleBuilder.paragraph('Title')
-              .name('Title')
-              .fontSize(Point(28))
-              .fontFamily('Georgia')
-              .bold()
-              .alignment(Alignment.center)
-              .qFormat(true)
-              .spacing(
-                before: Point(12),
-                after: Point(6),
-              )
-              .uiPriority(20)
-              .build(),
-          StyleBuilder.paragraph('Subtitle')
-              .name('Subtitle')
-              .fontSize(Point(14))
-              .fontFamily('Georgia')
-              .italic()
-              .runColor(Color(0x666666))
-              .alignment(Alignment.center)
-              .qFormat(true)
-              .spacing(before: Twip(60), after: Twip(300))
-              .uiPriority(19)
-              .build(),
-          StyleBuilder.paragraph('Chapter')
-              .name('Chapter')
-              .fontSize(Point(20))
-              .fontFamily('Georgia')
-              .bold()
-              .smallCaps()
-              .alignment(Alignment.center)
-              .qFormat(true)
-              .spacing(before: Twip(240), after: Twip(120))
-              .uiPriority(18)
-              .basedOn('Normal')
-              .next('BodyText')
-              .build(),
-          StyleBuilder.paragraph('BodyText')
-              .name('Body Text')
-              .fontSize(Point(13))
-              .fontFamily('Times New Roman')
-              .alignment(Alignment.left)
-              .qFormat(true)
-              .spacing(line: Twip(276))
-              .indent(firstLine: Twip(360))
-              .uiPriority(10)
-              .basedOn('Normal')
-              .build(),
-          StyleBuilder.paragraph('Quote')
-              .name('Quote')
-              .fontSize(Point(12))
-              .fontFamily('Times New Roman')
-              .italic()
-              .runColor(Color(0x444444))
-              .alignment(Alignment.left)
-              .qFormat(true)
-              .indent(left: Twip(360), right: Twip(360))
-              .spacing(
-                before: Twip(120),
-                after: Twip(120),
-                line: SpacingInch(1.0),
-              )
-              .uiPriority(15)
-              .basedOn('Normal')
-              .build(),
-          StyleBuilder.paragraph('Epilogue')
-              .name('Epilogue')
-              .fontSize(Point(12))
-              .fontFamily('Times New Roman')
-              .italic()
-              .alignment(Alignment.left)
-              .qFormat(true)
-              .spacing(
-                before: Twip(240),
-                after: Twip(240),
-                line: SpacingInch(1.0),
-              )
-              .uiPriority(17)
-              .basedOn('Normal')
-              .build(),
-        ],
-      ),
-      settings: SettingsOptions.base(
-        defaultTabStop: 0.5.inchesToTwips().toString(),
-        zoomPercent: '100',
-        trackRevisions: false,
-        autoHyphenation: false,
-      ),
-    ),
-    root: RootBody(
+  DocxElements.instance.ensureInitialized();
+  DocxElements.instance.debugMode(true);
+  final Uint8List? bytes = await runCompilation(
+    MyApp(),
+    logAll: true,
+    options: options,
+    checkStylReferences: true,
+  );
+
+  if (bytes != null) {
+    await outFile.writeAsBytes(bytes);
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  DocxNode<dynamic> build() {
+    return RootBody(
       sections: <DocxNode<dynamic>>[
         Paragraph(
           children: <RunBase<dynamic>>[
@@ -277,24 +294,17 @@ Future<void> main() async {
           ],
         ),
 
-        Paragraph(
-          children: _textWithBreaks(chapter1Part1),
-          styles: <Style>[
-            Style.ref('BodyText'),
-          ],
-        ),
-
-        Paragraph(
-          children: <RunBase<dynamic>>[
-            TextRun(
-              textPart: TextPart(
-                text: '"Sometimes the past doesn\'t stay buried. '
-                    'Sometimes it walks beside you."',
-              ),
+        Table(
+          columns: GridColumn.intrintric().repeat(2),
+          rows: [
+            TableRow.two(
+              cell: Text('Cell 1').tableCell(),
+              cell2: Text('Cell 2').tableCell(),
             ),
-          ],
-          styles: <Style>[
-            Style.ref('Quote'),
+            TableRow.two(
+              cell: Text('Cell 1-2').tableCell(),
+              cell2: Text('Cell 2-2').tableCell(),
+            ),
           ],
         ),
 
@@ -453,17 +463,7 @@ Future<void> main() async {
           alignment: Alignment.center,
         ),
       ],
-    ),
-  );
-
-  final Uint8List? bytes = await DocxPacker()
-      .autoRegisterFonts(true)
-      .execute(document, applyCustomTheme: false);
-
-  if (bytes != null) {
-    await outFile.writeAsBytes(bytes);
-  } else {
-    stderr.writeln('Couldnt generate .docx file');
+    );
   }
 }
 

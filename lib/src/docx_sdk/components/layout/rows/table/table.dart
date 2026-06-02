@@ -47,21 +47,22 @@ class Table extends DocxNode<List<TableRow>> {
   Table({
     required List<TableRow> rows,
     required this.columns,
-    this.tableProperties,
+    TableProperties? tableProperties,
     super.id,
     super.parent,
   })  : assert(columns.length == rows.length, 'grid'),
         super(child: rows) {
+    this.tableProperties = tableProperties ?? TableProperties();
     // check the configurations to avoid assertions being ignored
     // when we're not in debug mode
-    if (tableProperties != null && tableProperties!.widthType.needsWidth && tableProperties!.width <= 0) {
+    if (this.tableProperties.widthType.needsWidth && this.tableProperties.width <= 0) {
       throw Exception(
         '$runtimeType:$id => TableWidthType.pct or TableWidthType.dxa '
         'requires a non zero and non negative [width]. ',
       );
     }
 
-    if (tableProperties != null && tableProperties!.widthType.isNilOrAuto && tableProperties!.width > 0) {
+    if (this.tableProperties.widthType.isNilOrAuto && this.tableProperties.width > 0) {
       throw Exception(
         '$runtimeType:$id => TableWidthType.auto or '
         'TableWidthType.nil only can be used when '
@@ -70,7 +71,9 @@ class Table extends DocxNode<List<TableRow>> {
     }
 
     int rowIndex = 0;
-    tableProperties?.parent = this;
+    this.tableProperties
+      ..parent = this
+      ..index = -1;
     for (final TableRow row in child) {
       row
         ..parent = this
@@ -88,13 +91,13 @@ class Table extends DocxNode<List<TableRow>> {
       id: id,
       rows: <TableRow>[],
       columns: <GridColumn>[],
-      tableProperties: tableConfig,
+      tableProperties: tableConfig ?? TableProperties(),
     );
   }
 
   /// Configuration for the entire table, including styles,
   /// borders, alignment, and layout properties.
-  final TableProperties? tableProperties;
+  late final TableProperties tableProperties;
 
   /// Definition of column widths for the table.
   ///
@@ -108,7 +111,7 @@ class Table extends DocxNode<List<TableRow>> {
     final List<XmlNode> tableChildren = <XmlNode>[];
 
     // Build table properties (tblPr) if configuration exists
-    final List<XmlNode> tblPrNodes = tableProperties == null ? <XmlNode>[] : tableProperties!.buildXml();
+    final List<XmlNode> tblPrNodes = tableProperties.buildXml();
     if (tblPrNodes.isNotEmpty) {
       tableChildren.add(
         XmlElement.tag(
@@ -169,9 +172,11 @@ class Table extends DocxNode<List<TableRow>> {
   Table get copy => Table(
         id: id,
         rows: child,
-        tableProperties: tableProperties,
         columns: columns,
         parent: parent,
+        tableProperties: tableProperties.copyWith(
+          parent: this,
+        ),
       );
 
   @override
@@ -196,9 +201,10 @@ class Table extends DocxNode<List<TableRow>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = false,
   }) {
+    if (shouldGetElement(this)) return this;
     for (final TableRow element in child) {
       if (element.isEmptyNode()) continue;
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         return element;
       } else if (visitChildrenIfNeeded) {
         final DocxNode? foundedEl = element.visitElement(
@@ -218,11 +224,12 @@ class Table extends DocxNode<List<TableRow>> {
     bool Function(DocxNode element) shouldGetElement, {
     bool visitChildrenIfNeeded = true,
   }) {
+    if (shouldGetElement(this)) return [this];
     if (child.isEmpty) return <DocxNode>[];
     final List<DocxNode> elements = <DocxNode>[];
     for (final TableRow element in child) {
       if (element.isEmptyNode()) continue;
-      if (shouldGetElement(element)) {
+      if (!visitChildrenIfNeeded && shouldGetElement(element)) {
         elements.add(element);
       } else if (visitChildrenIfNeeded) {
         final List<DocxNode<dynamic>>? foundedEl = element.visitAllElement(

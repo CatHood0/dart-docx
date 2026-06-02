@@ -37,7 +37,9 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.isHeader = false,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
         super(child: List.from(cells)) {
     int cellIndex = 0;
     for (final TableCell cell in child) {
@@ -60,7 +62,9 @@ class TableRow extends DocxNode<List<TableCell>> {
     super.id,
     super.parent,
   })  : isHeader = true,
-        heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
+        heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
         super(child: List.from(cells)) {
     int cellIndex = 0;
     for (final TableCell cell in child) {
@@ -82,7 +86,9 @@ class TableRow extends DocxNode<List<TableCell>> {
     this.isHeader = false,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
         super(child: List.from(<dynamic>[]));
 
   TableRow.one({
@@ -96,8 +102,19 @@ class TableRow extends DocxNode<List<TableCell>> {
     TableHeightRule? heightRule,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
-        super(child: List.from(<dynamic>[cell]));
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(<dynamic>[cell])) {
+    int cellIndex = 0;
+    for (final TableCell cell in child) {
+      cell
+        ..parent = this
+        ..index = cellIndex
+        ..depth = depth + 1;
+      cellIndex++;
+    }
+  }
 
   TableRow.two({
     required TableCell cell,
@@ -111,8 +128,19 @@ class TableRow extends DocxNode<List<TableCell>> {
     TableHeightRule? heightRule,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
-        super(child: List.from(<dynamic>[cell, cell2]));
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(<dynamic>[cell, cell2])) {
+    int cellIndex = 0;
+    for (final TableCell cell in child) {
+      cell
+        ..parent = this
+        ..index = cellIndex
+        ..depth = depth + 1;
+      cellIndex++;
+    }
+  }
 
   TableRow.three({
     required TableCell cell,
@@ -127,8 +155,19 @@ class TableRow extends DocxNode<List<TableCell>> {
     TableHeightRule? heightRule,
     super.id,
     super.parent,
-  })  : heightRule = height != null && heightRule == null ? TableHeightRule.atLeast : heightRule,
-        super(child: List.from(<dynamic>[cell, cell2, cell3]));
+  })  : heightRule = height != null && heightRule == null
+            ? TableHeightRule.atLeast
+            : heightRule,
+        super(child: List.from(<dynamic>[cell, cell2, cell3])) {
+    int cellIndex = 0;
+    for (final TableCell cell in child) {
+      cell
+        ..parent = this
+        ..index = cellIndex
+        ..depth = depth + 1;
+      cellIndex++;
+    }
+  }
 
   final bool? canSplit;
   final bool? hidden;
@@ -157,6 +196,7 @@ class TableRow extends DocxNode<List<TableCell>> {
       )
     ];
 
+    //TODO: some parts has cells with no defined parent rel
     // Build all cells in the row
     for (final TableCell cell in child) {
       if (cell.cellConfig.widthType.needsWidth && cell.cellConfig.width <= 0) {
@@ -191,7 +231,8 @@ class TableRow extends DocxNode<List<TableCell>> {
 
   @override
   List<XmlNode> buildXmlStyle() {
-    final Alignment? align = alignment ?? getAncestorOfExactType<Align>()?.alignment;
+    final Alignment? align =
+        alignment ?? getAncestorOfExactType<Align>()?.alignment;
     assert(
       align == null || align.isCenterLeftOrRight(),
       'TableRow alignment only supports: '

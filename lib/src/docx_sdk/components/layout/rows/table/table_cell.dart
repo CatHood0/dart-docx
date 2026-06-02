@@ -227,7 +227,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
         'founded CompilerConfigProvider in the tree',
       );
     }
-    final CompilerConfigProvider configs = CompilerConfigProvider.of(this)!;
+    final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
     final List<XmlNode> nodes = <XmlNode>[
       XmlElement.tag(
         'w:tcW',
@@ -240,7 +240,7 @@ class TableCell extends DocxNode<List<DocxNode>> {
           else if (cellConfig.widthType.isExpand)
             XmlAttribute(
               'w:w'.toName(),
-              (configs.options.pageSize.width.toDxa() -
+              (configs!.options.pageSize.width.toDxa() -
                       (configs.options.margins.left +
                           configs.options.margins.right))
                   .floor()
@@ -329,7 +329,10 @@ class TableCell extends DocxNode<List<DocxNode>> {
       if (cellConfig.borders!.top != null) {
         borderNodes.add(_buildBorder('top', cellConfig.borders!.top!));
       }
-      final int cells = parent!.cast<TableRow>().child.length - 1;
+      if (parent != null) {
+        throw '$runtimeType:$id has not parent relationship';
+      }
+      final int cells = parent!.child.length - 1;
       if (cellConfig.borders!.right != null && index == cells) {
         borderNodes.add(_buildBorder('right', cellConfig.borders!.right!));
       }

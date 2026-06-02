@@ -176,13 +176,13 @@ class TableProperties extends DocxNode<void> {
     if (isChildOf<Padding>()) {
       CompilerLogger.root.debug('Founded Padding($padding) parent for $id in ${parent.runtimeType}');
     }
-    // if (widthType.isExpand && isChildOf<CompilerConfigProvider>()) {
-    //   throw Exception(
-    //     'Cannot build style '
-    //     'properties of $runtimeType:$id since was not '
-    //     'founded CompilerConfigProvider in the tree',
-    //   );
-    // }
+    if (widthType.isExpand && isChildOf<CompilerConfigProvider>()) {
+      throw Exception(
+        'Cannot build style '
+        'properties of $runtimeType:$id since was not '
+        'founded CompilerConfigProvider in the tree',
+      );
+    }
     // TODO: We need to find why sometimes even when provided TableProperties has not relation with the tree
     final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
     final List<XmlNode> nodes = <XmlNode>[
