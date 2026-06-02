@@ -112,12 +112,8 @@ extension StyleToNode on Style {
     bool shouldShowStyleRef = true,
     bool useConfigurators = true,
   }) {
-    final StyleConfigurator runConfigs = !useConfigurators
-        ? StyleConfigurator.invalid()
-        : getConfigurator(
-            xmlParagraphInlineAttsrNode,
-            fullName: true,
-          );
+    final StyleConfigurator runConfigs =
+        !useConfigurators ? StyleConfigurator.invalid() : runProperties!;
     assert(
         styleId.isNotEmpty,
         'styleId must not '
@@ -147,9 +143,16 @@ extension StyleToNode on Style {
     bool shouldShowStyleRef = true,
     bool useConfigurators = true,
   }) {
-    final StyleConfigurator runConfigs = !useConfigurators
-        ? StyleConfigurator.invalid()
-        : getConfigurator(xmlParagraphBlockAttrsNode, fullName: true);
+    final StyleConfigurator? prConfigs =
+        !useConfigurators ? StyleConfigurator.invalid() : paragraphProperties;
+    assert(
+        styleId.isNotEmpty,
+        'styleId must not '
+        'have empty string at this build phase.');
+    assert(
+        prConfigs == null || !prConfigs.isInvalid,
+        'runConfigs must not be '
+        'invalid at this build phase.');
 
     return <XmlElement>[
       if (shouldShowStyleRef)
@@ -163,7 +166,8 @@ extension StyleToNode on Style {
           ],
           isSelfClosing: true,
         ),
-      if (useConfigurators) ...runConfigs.childrenToXmlNodes(),
+      if (useConfigurators && prConfigs != null)
+        ...prConfigs.childrenToXmlNodes(),
     ];
   }
 }

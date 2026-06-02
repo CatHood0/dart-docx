@@ -5,7 +5,6 @@ import '../../../../../core/extensions/cast_ext.dart';
 import '../../../../../core/extensions/num_extensions.dart';
 import '../../../../../core/extensions/string_ext.dart';
 import '../../../../../core/extensions/style_to_from_node.dart';
-import '../../../../compiler/inherited/compiler_config_provider.dart';
 
 export '../../../../../core/borders.dart' show BorderSide, TableBorders, TableCellBorders;
 
@@ -177,13 +176,14 @@ class TableProperties extends DocxNode<void> {
     if (isChildOf<Padding>()) {
       CompilerLogger.root.debug('Founded Padding($padding) parent for $id in ${parent.runtimeType}');
     }
-    if (widthType.isExpand && isChildOf<CompilerConfigProvider>()) {
-      throw Exception(
-        'Cannot build style '
-        'properties of $runtimeType:$id since was not '
-        'founded CompilerConfigProvider in the tree',
-      );
-    }
+    // if (widthType.isExpand && isChildOf<CompilerConfigProvider>()) {
+    //   throw Exception(
+    //     'Cannot build style '
+    //     'properties of $runtimeType:$id since was not '
+    //     'founded CompilerConfigProvider in the tree',
+    //   );
+    // }
+    // TODO: We need to find why sometimes even when provided TableProperties has not relation with the tree
     final CompilerConfigProvider? configs = CompilerConfigProvider.of(this);
     final List<XmlNode> nodes = <XmlNode>[
       XmlElement.tag(

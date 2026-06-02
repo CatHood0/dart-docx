@@ -4,13 +4,13 @@ import '../utils/language_codes.dart';
 import 'latent_styles.dart';
 import 'styles.dart';
 
-// Part 1, §17.7.4.5 – Latent Styles.
-// Defines default properties for built-in styles that are not explicitly defined in the document.
-// The `count` attribute indicates how many of these built-in styles the application should consider.
-// `w:lsdException` elements allow you to override these default values for a specific built-in style.
-//
-// We should never modify styles already defined in the document
-// (i.e., `<w:style>` elements) based on the values in `w:latentStyles`.
+/// Part 1, §17.7.4.5 – Latent Styles.
+/// Defines default properties for built-in styles that are not explicitly defined in the document.
+/// The `count` attribute indicates how many of these built-in styles the application should consider.
+/// `w:lsdException` elements allow you to override these default values for a specific built-in style.
+///
+/// We should never modify styles already defined in the document
+/// (i.e., `<w:style>` elements) based on the values in `w:latentStyles`.
 class LatentAnalyzer {
   const LatentAnalyzer._();
 

@@ -1,5 +1,5 @@
 import '../../../docx.dart';
-import '../extensions/num_extensions.dart';
+import '../color.dart';
 
 /// A builder class for creating and configuring [Style] objects.
 ///
@@ -167,8 +167,11 @@ class StyleBuilder {
   // Paragraph properties
   String? _basedOn;
   String? _next;
+  String? _link;
+  String? _aliases;
+  bool? _autoRedefine;
   bool _widowControl = false;
-  Object? _defaultValue;
+  bool? _defaultValue;
   int? _uiPriority;
   bool _qFormat = false;
   bool _semiHidden = false;
@@ -186,7 +189,7 @@ class StyleBuilder {
   UnitValue? _fontEastAsiaSize;
   String? _fontFamily;
   Color? _color;
-  Color? _highlightColor;
+  String? _highlightColor;
   bool isBold = false;
   bool isItalic = false;
   bool isUnderline = false;
@@ -293,7 +296,7 @@ class StyleBuilder {
   /// ```
   /// Useful when creating a writing application to improve readability.
   /// This setting is applicable only to paragraph styles.
-  StyleBuilder activateWindowControl() {
+  StyleBuilder activateWidowControl() {
     _widowControl = true;
     return this;
   }
@@ -327,9 +330,32 @@ class StyleBuilder {
     return this;
   }
 
+  /// The character type style linked to this [style]
+  StyleBuilder link(String styleId) {
+    if (type != Style.paragraphType) return this;
+    _link = styleId;
+    return this;
+  }
+
+  /// Alternative names for the style
+  StyleBuilder aliases(Iterable<String> aliases) {
+    _aliases = aliases.join(',').trim();
+    return this;
+  }
+
+  /// Specifies whether the parent paragraph style should be automatically redefined
+  /// when direct formatting is applied to a paragraph using this style.
+  ///
+  /// This setting is applicable only to paragraph styles.
+  StyleBuilder autoRedefine([bool autoRedefine = true]) {
+    if (type != Style.paragraphType) return this;
+    _autoRedefine = autoRedefine;
+    return this;
+  }
+
   /// Sets whether this style is a default style for the document.
-  StyleBuilder asDefaultStyle([bool value = true]) {
-    _defaultValue = value.toInt();
+  StyleBuilder asDefaultStyle() {
+    _defaultValue = true;
     return this;
   }
 
@@ -338,6 +364,8 @@ class StyleBuilder {
   /// Styles with lower priority values are displayed first.
   /// [priority] is an integer representing the priority level.
   StyleBuilder uiPriority(int priority) {
+    assert(priority >= 0 && priority <= 99,
+        'uiPriority only accepts a range of 0-99');
     _uiPriority = priority;
     return this;
   }
@@ -399,10 +427,32 @@ class StyleBuilder {
 
   /// Sets the highlight color for the text in the style.
   ///
-  /// [hexColor] is the hexadecimal color code.
-  StyleBuilder highlight(Color color) {
+  /// Part 1, §17.3.2.15 – w:highlight.
+  /// The value of w:val must be one of the predefined colors in the simple type `ST_HighlightColor`:
+  ///
+  /// [Colors]:
+  /// * black
+  /// * blue
+  /// * cyan
+  /// * darkblue
+  /// * darkcyan
+  /// * darkgray
+  /// * darkgreen
+  /// * darkmagenta
+  /// * darkred
+  /// * darkyellow
+  /// * green
+  /// * lightgray
+  /// * magenta
+  /// * red
+  /// * white
+  /// * yellow
+  /// * none
+  StyleBuilder highlightColor(String color) {
     assert(
-        color.rgbValue != null, 'highlight color must have a valid RGB value');
+      isValidHighlightColorName(color),
+      'highlightColor must be in the range of named accepted colors',
+    );
     _highlightColor = color;
     return this;
   }
@@ -707,6 +757,35 @@ class StyleBuilder {
       );
     }
 
+    if (_link != null) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'link',
+          value: _link!,
+        ),
+      );
+    }
+
+    if (_autoRedefine != null) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'autoRedefine',
+        ),
+      );
+    }
+
+    if (_aliases != null) {
+      configurators.add(
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'aliases',
+          value: _aliases!,
+        ),
+      );
+    }
+
     if (_qFormat) {
       configurators.add(
         StyleConfigurator.selfClosing(
@@ -976,7 +1055,8 @@ class StyleBuilder {
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'highlight',
-          value: _highlightColor!.toColorValue()!.toUpperCase(),
+          // TODO: only accept named colors (Enumerations)
+          value: _highlightColor,
         ),
       );
     }
@@ -1062,27 +1142,15 @@ class StyleBuilder {
     }
 
     if (_language != null) {
-      textConfigs.addAll(
-        <StyleConfigurator>[
-          StyleConfigurator.selfClosing(
-            prefix: 'w',
-            propertyName: 'lang',
-            attributes: <String, dynamic>{'w:val': _language!.language},
-          ),
-          if (_language!.eastAsia.isNotEmpty)
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'eastAsia',
-              attributes: <String, dynamic>{'w:val': _language!.eastAsia},
-            ),
-          if (_language!.bidi.isNotEmpty)
-            StyleConfigurator.selfClosing(
-              prefix: 'w',
-              propertyName: 'bidi',
-              attributes: <String, dynamic>{'w:val': _language!.bidi},
-            ),
-        ],
-      );
+      textConfigs.add(StyleConfigurator.selfClosing(
+        prefix: 'w',
+        propertyName: 'lang',
+        value: _language!.language,
+        attributes: <String, dynamic>{
+          if (_language!.eastAsia.isNotEmpty) 'w:eastAsia': _language!.eastAsia,
+          if (_language!.bidi.isNotEmpty) 'w:bidi': _language!.bidi,
+        },
+      ));
     }
 
     if (textConfigs.isNotEmpty) {
@@ -1145,14 +1213,13 @@ class StyleBuilder {
           .basedOn('Normal')
           .keepNext()
           .keepLines()
-          .activateWindowControl()
+          .activateWidowControl()
           .contextualSpacing()
           .qFormat();
 
   static StyleBuilder get defaultParagraphFontBuilder =>
       StyleBuilder.character('DefaultParagraphFont')
-          .name('Default Paragraph Font')
-          .asDefaultStyle(true);
+          .name('Default Paragraph Font');
 
   static StyleBuilder get hyperlinkBuilder =>
       StyleBuilder.character('Hyperlink')
@@ -1269,7 +1336,7 @@ class StyleBuilder {
       .indent(left: Twip(720), hanging: Twip(360))
       .keepNext()
       .keepLines()
-      .activateWindowControl()
+      .activateWidowControl()
       .contextualSpacing()
       .qFormat()
       .build();
@@ -1277,7 +1344,6 @@ class StyleBuilder {
   static Style get defaultParagraphFont =>
       StyleBuilder.character('DefaultParagraphFont')
           .name('Default Paragraph Font')
-          .asDefaultStyle(true)
           .build();
 
   static Style get hyperlink => StyleBuilder.character('Hyperlink')

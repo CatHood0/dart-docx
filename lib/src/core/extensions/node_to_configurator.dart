@@ -11,8 +11,8 @@ extension XmlNodeToStyleConfigurator on XmlElement {
     for (final XmlAttribute attr in this.attributes) {
       if (attr.qualifiedName == 'w:val') {
         value = attr.value.toExactValueFromXml();
-        if (qualifiedName == 'w:color' || qualifiedName == 'w:highlight') {
-          value = int.parse('0x${value.toString()}');
+        if (qualifiedName == 'w:color') {
+          value = Color.fromHex('#$value');
         }
         continue;
       }

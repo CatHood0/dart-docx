@@ -250,7 +250,7 @@ class TableRow extends DocxNode<List<TableCell>> {
           'w:trHeight',
           attributes: <XmlAttribute>[
             XmlAttribute('w:val'.toName(), height!.toDxa().toString()),
-            XmlAttribute('w:hRule'.toName(), (heightRule!).toString()),
+            XmlAttribute('w:hRule'.toName(), (heightRule!.name).toString()),
           ],
         ),
     ];

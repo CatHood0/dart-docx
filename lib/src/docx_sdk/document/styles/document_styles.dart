@@ -127,6 +127,30 @@ class DocumentStyles {
 
   void preventIndex() => _preventIndex = true;
 
+  bool add(Style style) {
+    return false;
+  }
+
+  bool addParagraphDocDefaults(Style style) {
+    return false;
+  }
+
+  bool addRunDocDefaults(Style style) {
+    return false;
+  }
+
+  bool removeStyle(String style) {
+    return false;
+  }
+
+  bool removeStyleParagraphDocDefaults(String style) {
+    return false;
+  }
+
+  bool removeStyleRunDocDefaults(String style) {
+    return false;
+  }
+
   /// Index all the elements and cache them to make search more faster during compilations
   void index() {
     if (_preventIndex) {

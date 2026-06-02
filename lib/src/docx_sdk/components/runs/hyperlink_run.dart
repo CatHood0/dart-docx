@@ -105,7 +105,7 @@ class HyperlinkRun extends RunBase<HyperlinkTextPart> {
     UnitValue? fontSize,
     String? fontFamily,
     Color? color,
-    Color? backgroundColor,
+    String? backgroundColor,
   }) : super(
           child: HyperlinkTextPart(
             text: text ?? link,

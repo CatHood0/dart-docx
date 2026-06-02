@@ -43,7 +43,7 @@ class TextStyle {
   final UnitValue? fontSize;
   final String? fontFamily;
   final Color? color;
-  final Color? backgroundColor;
+  final String? backgroundColor;
 
   // Spacing properties
   final UnitValue? spacingBefore;
@@ -112,7 +112,7 @@ class TextStyle {
     UnitValue? fontSize,
     String? fontFamily,
     Color? color,
-    Color? backgroundColor,
+    String? backgroundColor,
     UnitValue? spacingBefore,
     UnitValue? spacingAfter,
     UnitValue? lineSpacing,
@@ -182,7 +182,7 @@ class TextStyle {
     if (fontSize != null) builder.fontSize(fontSize!);
     if (fontFamily != null) builder.fontFamily(fontFamily!);
     if (color != null) builder.runColor(color!);
-    if (backgroundColor != null) builder.highlight(backgroundColor!);
+    if (backgroundColor != null) builder.highlightColor(backgroundColor!);
 
     if (spacingBefore != null || spacingAfter != null || lineSpacing != null) {
       builder.spacing(
@@ -212,7 +212,7 @@ class TextStyle {
 
     // Widow/Orphan control
     if (widowControl != null) {
-      builder.activateWindowControl();
+      builder.activateWidowControl();
     }
 
     // Keep settings

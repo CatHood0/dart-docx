@@ -91,7 +91,11 @@ class XmlToDocxObjects {
         type: type,
         styleId: styleId,
         configurators: configurators,
-        defaultValue: defaultValue,
+        defaultValue: defaultValue is bool
+            ? defaultValue
+            : defaultValue is num
+                ? defaultValue > 0
+                : null,
         revisionIdPPr: revisionIdP,
         revisionIdRun: revisionIdRun,
         revisionIdRPr: revisionIdRPr,

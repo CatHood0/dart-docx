@@ -1323,7 +1323,6 @@ class TableStyleBuilder {
     return Style(
       type: type,
       styleId: id,
-      defaultValue: _defaultValue,
       configurators: configurators,
       styleName: _name,
     );

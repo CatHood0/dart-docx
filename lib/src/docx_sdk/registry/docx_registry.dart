@@ -6,7 +6,8 @@ import '../../core/extensions/cast_ext.dart';
 import '../components/drawing/graphics/effects/shadow_effect.dart';
 
 typedef MapCallback<T> = Map<String, dynamic> Function(T);
-typedef FromMapCallback<T extends Object> = T Function(Map<String, dynamic>, Map<String, dynamic>?);
+typedef FromMapCallback<T extends Object> = T Function(
+    Map<String, dynamic>, Map<String, dynamic>?);
 
 /// Global registry to get all instances to/from json objects
 ///
@@ -21,7 +22,8 @@ class DocxRegistry {
 
   static final Map<String, Function> toJsonRegistry = <String, Function>{};
 
-  static final Map<String, FromMapCallback<Object>> fromJsonRegistry = <String, FromMapCallback<Object>>{};
+  static final Map<String, FromMapCallback<Object>> fromJsonRegistry =
+      <String, FromMapCallback<Object>>{};
 
   /// Transform instance `object` to its json version
   ///
@@ -37,7 +39,8 @@ class DocxRegistry {
         );
       }
     }
-    final Map<String, dynamic> el = toJsonRegistry[object.runtimeType.toString()]!.call(object);
+    final Map<String, dynamic> el =
+        toJsonRegistry[object.runtimeType.toString()]!.call(object);
     el['__runtimeType__'] = object.runtimeType.toString();
     return el;
   }
@@ -54,7 +57,8 @@ class DocxRegistry {
     Map<String, dynamic> map, {
     Map<String, dynamic>? metadata,
   }) {
-    if (fromJsonRegistry[T.toString()] == null && map['__runtimeType__'] == null) {
+    if (fromJsonRegistry[T.toString()] == null &&
+        map['__runtimeType__'] == null) {
       throw Exception(
         'Not found __runtimeType__ property since '
         '"${T.toString()}" is not a valid type for fromJson. '
@@ -62,7 +66,8 @@ class DocxRegistry {
       );
     }
     final FromMapCallback<T>? callback =
-        fromJsonRegistry[map['__runtimeType__'] as String? ?? T.toString()]?.castOrNull<FromMapCallback<T>>();
+        fromJsonRegistry[map['__runtimeType__'] as String? ?? T.toString()]
+            ?.castOrNull<FromMapCallback<T>>();
     return callback?.call(map, metadata);
   }
 
@@ -108,14 +113,17 @@ class DocxRegistry {
   /// );
   /// ```
   bool setFromJson<T extends Object>(FromMapCallback<T> callback) {
-    final FromMapCallback? prev = fromJsonRegistry[T.toString()]?.castOrNull<FromMapCallback>();
+    final FromMapCallback? prev =
+        fromJsonRegistry[T.toString()]?.castOrNull<FromMapCallback>();
     if (prev != null) return false;
     fromJsonRegistry[T.toString()] = callback;
     return true;
   }
 
   bool hasSerialization(Object object) {
-    final FromMapCallback? prev = fromJsonRegistry[object.runtimeType.toString()]?.castOrNull<FromMapCallback>();
+    final FromMapCallback? prev =
+        fromJsonRegistry[object.runtimeType.toString()]
+            ?.castOrNull<FromMapCallback>();
     final Function? el = toJsonRegistry[object.runtimeType.toString()];
     return prev != null && el != null;
   }
@@ -214,12 +222,16 @@ class DocxRegistry {
         'color': node.color != null ? DocxRegistry().toJson(node.color!) : null,
       };
     });
-    DocxRegistry().setFromJson<BorderSide>((Map<String, dynamic> body, metadata) {
+    DocxRegistry()
+        .setFromJson<BorderSide>((Map<String, dynamic> body, metadata) {
       return BorderSide(
         style: BorderStyle.values[body['style'] as int],
         size: Point(body['size'] ?? 4),
         space: Point(body['space'] ?? 0),
-        color: body['color'] != null ? DocxRegistry().fromJson<Color>(body['color'] as Map<String, dynamic>) : null,
+        color: body['color'] != null
+            ? DocxRegistry()
+                .fromJson<Color>(body['color'] as Map<String, dynamic>)
+            : null,
       );
     });
 
@@ -227,10 +239,15 @@ class DocxRegistry {
       return <String, dynamic>{
         'top': node.top != null ? DocxRegistry().toJson(node.top!) : null,
         'right': node.right != null ? DocxRegistry().toJson(node.right!) : null,
-        'bottom': node.bottom != null ? DocxRegistry().toJson(node.bottom!) : null,
+        'bottom':
+            node.bottom != null ? DocxRegistry().toJson(node.bottom!) : null,
         'left': node.left != null ? DocxRegistry().toJson(node.left!) : null,
-        'insideHorizontal': node.insideHorizontal != null ? DocxRegistry().toJson(node.insideHorizontal!) : null,
-        'insideVertical': node.insideVertical != null ? DocxRegistry().toJson(node.insideVertical!) : null,
+        'insideHorizontal': node.insideHorizontal != null
+            ? DocxRegistry().toJson(node.insideHorizontal!)
+            : null,
+        'insideVertical': node.insideVertical != null
+            ? DocxRegistry().toJson(node.insideVertical!)
+            : null,
       };
     });
     DocxRegistry().setFromJson<TableBorders>((
@@ -238,14 +255,30 @@ class DocxRegistry {
       Map<String, dynamic>? metadata,
     ) {
       return TableBorders(
-        top: body['top'] != null ? DocxRegistry().fromJson<BorderSide>(body['top'] as Map<String, dynamic>) : null,
-        right: body['right'] != null ? DocxRegistry().fromJson<BorderSide>(body['right'] as Map<String, dynamic>) : null,
-        bottom: body['bottom'] != null ? DocxRegistry().fromJson<BorderSide>(body['bottom'] as Map<String, dynamic>) : null,
-        left: body['left'] != null ? DocxRegistry().fromJson<BorderSide>(body['left'] as Map<String, dynamic>) : null,
-        insideHorizontal:
-            body['insideHorizontal'] != null ? DocxRegistry().fromJson<BorderSide>(body['insideHorizontal'] as Map<String, dynamic>) : null,
-        insideVertical:
-            body['insideVertical'] != null ? DocxRegistry().fromJson<BorderSide>(body['insideVertical'] as Map<String, dynamic>) : null,
+        top: body['top'] != null
+            ? DocxRegistry()
+                .fromJson<BorderSide>(body['top'] as Map<String, dynamic>)
+            : null,
+        right: body['right'] != null
+            ? DocxRegistry()
+                .fromJson<BorderSide>(body['right'] as Map<String, dynamic>)
+            : null,
+        bottom: body['bottom'] != null
+            ? DocxRegistry()
+                .fromJson<BorderSide>(body['bottom'] as Map<String, dynamic>)
+            : null,
+        left: body['left'] != null
+            ? DocxRegistry()
+                .fromJson<BorderSide>(body['left'] as Map<String, dynamic>)
+            : null,
+        insideHorizontal: body['insideHorizontal'] != null
+            ? DocxRegistry().fromJson<BorderSide>(
+                body['insideHorizontal'] as Map<String, dynamic>)
+            : null,
+        insideVertical: body['insideVertical'] != null
+            ? DocxRegistry().fromJson<BorderSide>(
+                body['insideVertical'] as Map<String, dynamic>)
+            : null,
       );
     });
 
@@ -253,7 +286,8 @@ class DocxRegistry {
       return <String, dynamic>{
         'top': node.top != null ? DocxRegistry().toJson(node.top!) : null,
         'right': node.right != null ? DocxRegistry().toJson(node.right!) : null,
-        'bottom': node.bottom != null ? DocxRegistry().toJson(node.bottom!) : null,
+        'bottom':
+            node.bottom != null ? DocxRegistry().toJson(node.bottom!) : null,
         'left': node.left != null ? DocxRegistry().toJson(node.left!) : null,
       };
     });
@@ -262,10 +296,22 @@ class DocxRegistry {
       Map<String, dynamic>? metadata,
     ) {
       return TableCellBorders(
-        top: body['top'] != null ? DocxRegistry().fromJson<BorderSide>(body['top'] as Map<String, dynamic>) : null,
-        right: body['right'] != null ? DocxRegistry().fromJson<BorderSide>(body['right'] as Map<String, dynamic>) : null,
-        bottom: body['bottom'] != null ? DocxRegistry().fromJson<BorderSide>(body['bottom'] as Map<String, dynamic>) : null,
-        left: body['left'] != null ? DocxRegistry().fromJson<BorderSide>(body['left'] as Map<String, dynamic>) : null,
+        top: body['top'] != null
+            ? DocxRegistry()
+                .fromJson<BorderSide>(body['top'] as Map<String, dynamic>)
+            : null,
+        right: body['right'] != null
+            ? DocxRegistry()
+                .fromJson<BorderSide>(body['right'] as Map<String, dynamic>)
+            : null,
+        bottom: body['bottom'] != null
+            ? DocxRegistry()
+                .fromJson<BorderSide>(body['bottom'] as Map<String, dynamic>)
+            : null,
+        left: body['left'] != null
+            ? DocxRegistry()
+                .fromJson<BorderSide>(body['left'] as Map<String, dynamic>)
+            : null,
       );
     });
 
@@ -282,8 +328,14 @@ class DocxRegistry {
     ) {
       return Shading(
         style: ShadingPattern.values[body['style'] as int? ?? 0],
-        color: body['color'] != null ? DocxRegistry().fromJson<Color>(body['color'] as Map<String, dynamic>) : null,
-        fill: body['fill'] != null ? DocxRegistry().fromJson<Color>(body['fill'] as Map<String, dynamic>) : null,
+        color: body['color'] != null
+            ? DocxRegistry()
+                .fromJson<Color>(body['color'] as Map<String, dynamic>)
+            : null,
+        fill: body['fill'] != null
+            ? DocxRegistry()
+                .fromJson<Color>(body['fill'] as Map<String, dynamic>)
+            : null,
       );
     });
 
@@ -297,8 +349,9 @@ class DocxRegistry {
         'caps': node.caps,
         'fontSize': node.fontSize?.toPt(),
         'fontFamily': node.fontFamily,
-        'fontColor': node.color != null ? DocxRegistry().toJson(node.color!) : null,
-        'backgroundColor': node.backgroundColor != null ? DocxRegistry().toJson(node.backgroundColor!) : null,
+        'fontColor':
+            node.color != null ? DocxRegistry().toJson(node.color!) : null,
+        'backgroundColor': node.backgroundColor,
         'spacingBefore': node.spacingBefore?.toTwips(),
         'spacingAfter': node.spacingAfter?.toTwips(),
         'lineSpacing': node.lineSpacing?.toTwips(),
@@ -308,7 +361,9 @@ class DocxRegistry {
         'firstLineIndent': node.firstLineIndent?.toTwips(),
         'hangingIndent': node.hangingIndent?.toTwips(),
         'headingLevel': node.headingLevel,
-        'shadingColor': node.shadingColor != null ? DocxRegistry().toJson(node.shadingColor!) : null,
+        'shadingColor': node.shadingColor != null
+            ? DocxRegistry().toJson(node.shadingColor!)
+            : null,
         'shadingPattern': node.shadingPattern?.index,
         'textAlign': node.textAlign.index,
         'widowControl': node.widowControl != null
@@ -322,7 +377,8 @@ class DocxRegistry {
         'outlineLevel': node.outlineLevel,
       };
     });
-    DocxRegistry().setFromJson<TextStyle>((Map<String, dynamic> body, metadata) {
+    DocxRegistry()
+        .setFromJson<TextStyle>((Map<String, dynamic> body, metadata) {
       final widowMap = body['widowControl'] as Map<String, dynamic>?;
       return TextStyle(
         bold: body['bold'] as bool? ?? false,
@@ -331,22 +387,45 @@ class DocxRegistry {
         strikethrough: body['strikethrough'] as bool? ?? false,
         smallCaps: body['smallCaps'] as bool? ?? false,
         caps: body['caps'] as bool? ?? false,
-        fontSize: body['fontSize'] != null ? Point(body['fontSize'] as num) : null,
+        fontSize:
+            body['fontSize'] != null ? Point(body['fontSize'] as num) : null,
         fontFamily: body['fontFamily'] as String?,
-        color: body['fontColor'] != null ? DocxRegistry().fromJson<Color>(body['fontColor'] as Map<String, dynamic>) : null,
-        backgroundColor:
-            body['backgroundColor'] != null ? DocxRegistry().fromJson<Color>(body['backgroundColor'] as Map<String, dynamic>) : null,
-        spacingBefore: body['spacingBefore'] != null ? Twip(body['spacingBefore'] as num) : null,
-        spacingAfter: body['spacingAfter'] != null ? Twip(body['spacingAfter'] as num) : null,
-        lineSpacing: body['lineSpacing'] != null ? Twip(body['lineSpacing'] as num) : null,
-        lineSpacingRule: body['lineSpacingRule'] != null ? LineRule.values[body['lineSpacingRule'] as int] : null,
-        indentLeft: body['indentLeft'] != null ? Twip(body['indentLeft'] as num) : null,
-        indentRight: body['indentRight'] != null ? Twip(body['indentRight'] as num) : null,
-        firstLineIndent: body['firstLineIndent'] != null ? Twip(body['firstLineIndent'] as num) : null,
-        hangingIndent: body['hangingIndent'] != null ? Twip(body['hangingIndent'] as num) : null,
+        color: body['fontColor'] != null
+            ? DocxRegistry()
+                .fromJson<Color>(body['fontColor'] as Map<String, dynamic>)
+            : null,
+        backgroundColor: body['backgroundColor'],
+        spacingBefore: body['spacingBefore'] != null
+            ? Twip(body['spacingBefore'] as num)
+            : null,
+        spacingAfter: body['spacingAfter'] != null
+            ? Twip(body['spacingAfter'] as num)
+            : null,
+        lineSpacing: body['lineSpacing'] != null
+            ? Twip(body['lineSpacing'] as num)
+            : null,
+        lineSpacingRule: body['lineSpacingRule'] != null
+            ? LineRule.values[body['lineSpacingRule'] as int]
+            : null,
+        indentLeft:
+            body['indentLeft'] != null ? Twip(body['indentLeft'] as num) : null,
+        indentRight: body['indentRight'] != null
+            ? Twip(body['indentRight'] as num)
+            : null,
+        firstLineIndent: body['firstLineIndent'] != null
+            ? Twip(body['firstLineIndent'] as num)
+            : null,
+        hangingIndent: body['hangingIndent'] != null
+            ? Twip(body['hangingIndent'] as num)
+            : null,
         headingLevel: body['headingLevel'] as int?,
-        shadingColor: body['shadingColor'] != null ? DocxRegistry().fromJson<Color>(body['shadingColor'] as Map<String, dynamic>) : null,
-        shadingPattern: body['shadingPattern'] != null ? ShadingPattern.values[body['shadingPattern'] as int] : null,
+        shadingColor: body['shadingColor'] != null
+            ? DocxRegistry()
+                .fromJson<Color>(body['shadingColor'] as Map<String, dynamic>)
+            : null,
+        shadingPattern: body['shadingPattern'] != null
+            ? ShadingPattern.values[body['shadingPattern'] as int]
+            : null,
         textAlign: TextAlign.values[body['textAlign'] as int? ?? 0],
         widowControl: widowMap != null
             ? WidowOrphanControl(
@@ -471,8 +550,11 @@ class DocxRegistry {
           id: body['id'],
           padding: EdgeInsets(
             top: paddingMap['top'] != null ? Twip(paddingMap['top']) : null,
-            right: paddingMap['right'] != null ? Twip(paddingMap['right']) : null,
-            bottom: paddingMap['bottom'] != null ? Twip(paddingMap['bottom']) : null,
+            right:
+                paddingMap['right'] != null ? Twip(paddingMap['right']) : null,
+            bottom: paddingMap['bottom'] != null
+                ? Twip(paddingMap['bottom'])
+                : null,
             left: paddingMap['left'] != null ? Twip(paddingMap['left']) : null,
           ),
           child: DocxRegistry().fromJson(body['child']) as DocxNode<dynamic>,
@@ -490,7 +572,9 @@ class DocxRegistry {
           'widthType': node.widthType.index,
           'alignment': node.alignment?.index,
           'layout': node.layout,
-          'borders': node.borders != null ? DocxRegistry().toJson(node.borders!) : null,
+          'borders': node.borders != null
+              ? DocxRegistry().toJson(node.borders!)
+              : null,
           'cellMargins': node.cellMargins != null
               ? <String, dynamic>{
                   'top': node.cellMargins!.top?.toTwips(),
@@ -508,18 +592,35 @@ class DocxRegistry {
         final cellMarginsMap = body['cellMargins'] as Map<String, dynamic>?;
 
         return TableProperties(
-          styles: stylesList?.map<Style>((s) => DocxRegistry().fromJson<Style>(s as Map<String, dynamic>)!).toList() ?? [],
+          styles: stylesList
+                  ?.map<Style>((s) => DocxRegistry()
+                      .fromJson<Style>(s as Map<String, dynamic>)!)
+                  .toList() ??
+              [],
           width: body['width'] ?? 0,
           widthType: TableWidthType.values[body['widthType'] ?? 0],
-          alignment: body['alignment'] != null ? Alignment.values[body['alignment']] : null,
+          alignment: body['alignment'] != null
+              ? Alignment.values[body['alignment']]
+              : null,
           layout: body['layout'] ?? false,
-          borders: body['borders'] != null ? DocxRegistry().fromJson<TableBorders>(body['borders'] as Map<String, dynamic>) : null,
+          borders: body['borders'] != null
+              ? DocxRegistry().fromJson<TableBorders>(
+                  body['borders'] as Map<String, dynamic>)
+              : null,
           padding: cellMarginsMap != null
               ? EdgeInsets(
-                  top: cellMarginsMap['top'] != null ? Twip(cellMarginsMap['top']) : null,
-                  right: cellMarginsMap['right'] != null ? Twip(cellMarginsMap['right']) : null,
-                  bottom: cellMarginsMap['bottom'] != null ? Twip(cellMarginsMap['bottom']) : null,
-                  left: cellMarginsMap['left'] != null ? Twip(cellMarginsMap['left']) : null,
+                  top: cellMarginsMap['top'] != null
+                      ? Twip(cellMarginsMap['top'])
+                      : null,
+                  right: cellMarginsMap['right'] != null
+                      ? Twip(cellMarginsMap['right'])
+                      : null,
+                  bottom: cellMarginsMap['bottom'] != null
+                      ? Twip(cellMarginsMap['bottom'])
+                      : null,
+                  left: cellMarginsMap['left'] != null
+                      ? Twip(cellMarginsMap['left'])
+                      : null,
                 )
               : null,
         );
@@ -537,9 +638,10 @@ class DocxRegistry {
                 DocxRegistry().toJson(e)!),
           ],
           'columns': <Map<String, dynamic>>[
-            ...node.columns.map<Map<String, dynamic>>((GridColumn e) => <String, dynamic>{
-                  'width': e.width,
-                }),
+            ...node.columns
+                .map<Map<String, dynamic>>((GridColumn e) => <String, dynamic>{
+                      'width': e.width,
+                    }),
           ],
           'tableProperties': node.tableProperties != null
               ? DocxRegistry().toJson(
@@ -568,7 +670,10 @@ class DocxRegistry {
                 ) =>
                     GridColumn(width: col['width'])),
           ],
-          tableProperties: body['tableProperties'] != null ? DocxRegistry().fromJson(body['tableProperties']) as TableProperties? : null,
+          tableProperties: body['tableProperties'] != null
+              ? DocxRegistry().fromJson(body['tableProperties'])
+                  as TableProperties?
+              : null,
         );
       },
     );
@@ -587,7 +692,8 @@ class DocxRegistry {
           'revisionIdRun': node.revisionIdRun,
           'revisionIdRPr': node.revisionIdRPr,
           'isReference': node.isReference,
-          'configurators': node.configurators.map<Map<String, dynamic>>((StyleConfigurator c) {
+          'configurators': node.configurators
+              .map<Map<String, dynamic>>((StyleConfigurator c) {
             return DocxRegistry().toJson(c)!;
           }).toList(),
         };
@@ -604,7 +710,8 @@ class DocxRegistry {
             body['id'].castOrNull<String>(),
           );
         }
-        final List<dynamic>? configuratorsList = body['configurators'].cast<List<dynamic>>();
+        final List<dynamic>? configuratorsList =
+            body['configurators'].cast<List<dynamic>>();
         return Style(
           id: body['id'] ?? '',
           type: body['type'] ?? '',
@@ -615,7 +722,8 @@ class DocxRegistry {
           revisionIdRun: body['revisionIdRun'],
           revisionIdRPr: body['revisionIdRPr'],
           configurators: configuratorsList
-                  ?.map<StyleConfigurator>((c) => DocxRegistry().fromJson<StyleConfigurator>(c as Map<String, dynamic>)!)
+                  ?.map<StyleConfigurator>((c) => DocxRegistry()
+                      .fromJson<StyleConfigurator>(c as Map<String, dynamic>)!)
                   .toList() ??
               [],
         );
@@ -630,7 +738,8 @@ class DocxRegistry {
           'value': node.value,
           'attributes': node.attributes,
           'isSelfClosing': node.isSelfClosing,
-          'configurators': node.configurators.map<Map<String, dynamic>>((StyleConfigurator c) {
+          'configurators': node.configurators
+              .map<Map<String, dynamic>>((StyleConfigurator c) {
             return DocxRegistry().toJson(c)!;
           }).toList(),
         };
@@ -645,16 +754,21 @@ class DocxRegistry {
             propertyName: body['propertyName'] ?? '',
             prefix: body['prefix'],
             value: body['value'],
-            attributes: body['attributes'] != null ? Map<String, dynamic>.from(body['attributes']) : null,
+            attributes: body['attributes'] != null
+                ? Map<String, dynamic>.from(body['attributes'])
+                : null,
           );
         }
         return StyleConfigurator.noSelfClosing(
           propertyName: body['propertyName'] ?? '',
           prefix: body['prefix'],
           value: body['value'],
-          attributes: body['attributes'] != null ? Map<String, dynamic>.from(body['attributes']) : null,
+          attributes: body['attributes'] != null
+              ? Map<String, dynamic>.from(body['attributes'])
+              : null,
           configurators: configuratorsList
-                  ?.map<StyleConfigurator>((c) => DocxRegistry().fromJson<StyleConfigurator>(c as Map<String, dynamic>)!)
+                  ?.map<StyleConfigurator>((c) => DocxRegistry()
+                      .fromJson<StyleConfigurator>(c as Map<String, dynamic>)!)
                   .toList() ??
               [],
         );
@@ -670,7 +784,8 @@ class DocxRegistry {
           'defQFormat': node.defQFormat,
           'defUIPriority': node.defUIPriority,
           'count': node.count,
-          'exceptions': node.exceptions.map<Map<String, dynamic>>((LatentException e) {
+          'exceptions':
+              node.exceptions.map<Map<String, dynamic>>((LatentException e) {
             return DocxRegistry().toJson(e)!;
           }).toList(),
         };
@@ -686,9 +801,11 @@ class DocxRegistry {
           defQFormat: body['defQFormat'] ?? false,
           defUIPriority: body['defUIPriority'] ?? 9,
           count: body['count'] ?? 0,
-          exceptions:
-              exceptionsList?.map<LatentException>((e) => DocxRegistry().fromJson<LatentException>(e as Map<String, dynamic>)!).toList() ??
-                  [],
+          exceptions: exceptionsList
+                  ?.map<LatentException>((e) => DocxRegistry()
+                      .fromJson<LatentException>(e as Map<String, dynamic>)!)
+                  .toList() ??
+              [],
         );
       },
     );
@@ -696,7 +813,8 @@ class DocxRegistry {
     DocxRegistry().setToJson<LatentException>(
       (LatentException node) {
         return <String, dynamic>{
-          'styleName': node.attributes.xmlAttributes['w:name']?.toString() ?? '',
+          'styleName':
+              node.attributes.xmlAttributes['w:name']?.toString() ?? '',
           'metadata': Map<String, Object>.from(node.attributes.xmlAttributes),
         };
       },
@@ -705,7 +823,9 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return LatentException(
           styleName: body['styleName'] ?? '',
-          metadata: body['metadata'] != null ? Map<String, Object>.from(body['metadata']) : <String, Object>{},
+          metadata: body['metadata'] != null
+              ? Map<String, Object>.from(body['metadata'])
+              : <String, Object>{},
         );
       },
     );
@@ -719,7 +839,9 @@ class DocxRegistry {
             if (s is Style) return DocxRegistry().toJson(s)!;
             return <String, dynamic>{};
           }).toList(),
-          'textStyle': node.textStyle != null ? DocxRegistry().toJson(node.textStyle!) : null,
+          'textStyle': node.textStyle != null
+              ? DocxRegistry().toJson(node.textStyle!)
+              : null,
         };
       },
     );
@@ -738,7 +860,9 @@ class DocxRegistry {
               return style;
             }).toList(),
           ),
-          textStyle: textStyleMap != null ? DocxRegistry().fromJson<TextStyle>(textStyleMap) : null,
+          textStyle: textStyleMap != null
+              ? DocxRegistry().fromJson<TextStyle>(textStyleMap)
+              : null,
         );
       },
     );
@@ -772,8 +896,12 @@ class DocxRegistry {
             ],
             'alignment': node.alignment?.index,
             'pageBreak': node.pageBreak.index,
-            'numbering': node.numbering != null ? DocxRegistry().toJson(node.numbering!) : null,
-            'textStyle': node.textStyle != null ? DocxRegistry().toJson(node.textStyle!) : null,
+            'numbering': node.numbering != null
+                ? DocxRegistry().toJson(node.numbering!)
+                : null,
+            'textStyle': node.textStyle != null
+                ? DocxRegistry().toJson(node.textStyle!)
+                : null,
             'styles': node.styles.map<Map<String, dynamic>>((Style s) {
               return DocxRegistry().toJson(s)!;
             }).toList(),
@@ -793,11 +921,21 @@ class DocxRegistry {
                   ) =>
                       DocxRegistry().fromJson(child)?.cast<RunBase>()),
             ],
-            alignment: body['alignment'] != null ? Alignment.values[body['alignment'] as int] : null,
-            pageBreak: ParagraphPageBreak.values[body['pageBreak'] as int? ?? 2],
-            numbering: numberingMap != null ? DocxRegistry().fromJson<Numbering>(numberingMap) : null,
-            textStyle: textStyleMap != null ? DocxRegistry().fromJson<TextStyle>(textStyleMap) : null,
-            styles: stylesList.map<Style>((s) => DocxRegistry().fromJson<Style>(s as Map<String, dynamic>)!).toList(),
+            alignment: body['alignment'] != null
+                ? Alignment.values[body['alignment'] as int]
+                : null,
+            pageBreak:
+                ParagraphPageBreak.values[body['pageBreak'] as int? ?? 2],
+            numbering: numberingMap != null
+                ? DocxRegistry().fromJson<Numbering>(numberingMap)
+                : null,
+            textStyle: textStyleMap != null
+                ? DocxRegistry().fromJson<TextStyle>(textStyleMap)
+                : null,
+            styles: stylesList
+                .map<Style>((s) =>
+                    DocxRegistry().fromJson<Style>(s as Map<String, dynamic>)!)
+                .toList(),
           );
         },
       );
@@ -832,7 +970,8 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return Run(
           id: body['id'],
-          component: DocxRegistry().fromJson(body['child']) as DocxNode<dynamic>,
+          component:
+              DocxRegistry().fromJson(body['child']) as DocxNode<dynamic>,
           wrapInRunMark: body['wrapInRunMark'] ?? true,
         );
       },
@@ -859,7 +998,8 @@ class DocxRegistry {
         return Anchor(
           id: body['id'],
           child: DocxRegistry().fromJson(body['child']) as DocxNode<dynamic>,
-          config: DocxRegistry().fromJson(body['anchor_config']) as AnchorConfig,
+          config:
+              DocxRegistry().fromJson(body['anchor_config']) as AnchorConfig,
           width: Emu(body['width'] ?? 0),
           height: Emu(body['height'] ?? 0),
           name: body['name'] ?? '',
@@ -893,7 +1033,9 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return AnchorConfig(
           wrapType: WrapType.values[body['wrapType']],
-          wrapSide: body['wrapSide'] != null ? WrapSide.values[body['wrapSide']] : null,
+          wrapSide: body['wrapSide'] != null
+              ? WrapSide.values[body['wrapSide']]
+              : null,
           anchorLock: body['anchorLock'] ?? false,
           behindDoc: body['behindDoc'] ?? false,
           layoutInCell: body['layoutInCell'] ?? false,
@@ -903,11 +1045,17 @@ class DocxRegistry {
           simplePosY: Emu(body['simplePosY']),
           anchorOffsetX: Emu(body['anchorOffsetX']),
           anchorOffsetY: Emu(body['anchorOffsetY']),
-          distanceFromText: DocxRegistry().fromJson<TextDistance>(body['distanceFromText'])!,
-          horizontalAnchor: HorizontalAnchorPosition.values[body['horizontalAnchor']],
+          distanceFromText:
+              DocxRegistry().fromJson<TextDistance>(body['distanceFromText'])!,
+          horizontalAnchor:
+              HorizontalAnchorPosition.values[body['horizontalAnchor']],
           verticalAnchor: VerticalAnchorPosition.values[body['verticalAnchor']],
-          horizontalPosition: body['horizontalPosition'] != null ? AnchorPosition.values[body['horizontalPosition']] : null,
-          verticalPosition: body['verticalPosition'] != null ? AnchorPosition.values[body['verticalPosition']] : null,
+          horizontalPosition: body['horizontalPosition'] != null
+              ? AnchorPosition.values[body['horizontalPosition']]
+              : null,
+          verticalPosition: body['verticalPosition'] != null
+              ? AnchorPosition.values[body['verticalPosition']]
+              : null,
         );
       },
     );
@@ -969,8 +1117,12 @@ class DocxRegistry {
           canSplit: body['canSplit'],
           hidden: body['hidden'],
           height: body['height'],
-          heightRule: body['heightRule'] != null ? TableHeightRule.values[body['heightRule']] : null,
-          alignment: body['alignment'] != null ? Alignment.values[body['alignment']] : null,
+          heightRule: body['heightRule'] != null
+              ? TableHeightRule.values[body['heightRule']]
+              : null,
+          alignment: body['alignment'] != null
+              ? Alignment.values[body['alignment']]
+              : null,
           spacing: Dxa(body['spacing'] ?? 0),
           isHeader: body['isHeader'] ?? false,
         );
@@ -985,8 +1137,12 @@ class DocxRegistry {
           'columnSpan': node.columnSpan,
           'rowSpan': node.rowSpan,
           'verticalAlignment': node.verticalAlignment?.index,
-          'borders': node.borders != null ? DocxRegistry().toJson(node.borders!) : null,
-          'shading': node.shading != null ? DocxRegistry().toJson(node.shading!) : null,
+          'borders': node.borders != null
+              ? DocxRegistry().toJson(node.borders!)
+              : null,
+          'shading': node.shading != null
+              ? DocxRegistry().toJson(node.shading!)
+              : null,
         };
       },
     );
@@ -1001,39 +1157,79 @@ class DocxRegistry {
               width: body['width'] ?? 0,
               columnSpan: body['columnSpan'],
               rowSpan: body['rowSpan'],
-              verticalAlignment: body['verticalAlignment'] != null ? VerticalAlignment.values[body['verticalAlignment']] : null,
-              borders: body['borders'] != null ? DocxRegistry().fromJson<TableCellBorders>(body['borders'] as Map<String, dynamic>) : null,
-              shading: body['shading'] != null ? DocxRegistry().fromJson<Shading>(body['shading'] as Map<String, dynamic>) : null,
+              verticalAlignment: body['verticalAlignment'] != null
+                  ? VerticalAlignment.values[body['verticalAlignment']]
+                  : null,
+              borders: body['borders'] != null
+                  ? DocxRegistry().fromJson<TableCellBorders>(
+                      body['borders'] as Map<String, dynamic>)
+                  : null,
+              shading: body['shading'] != null
+                  ? DocxRegistry().fromJson<Shading>(
+                      body['shading'] as Map<String, dynamic>)
+                  : null,
             ),
           TableWidthType.pct => TableCellConfig.pct(
               width: body['width'] ?? 0,
               columnSpan: body['columnSpan'],
               rowSpan: body['rowSpan'],
-              verticalAlignment: body['verticalAlignment'] != null ? VerticalAlignment.values[body['verticalAlignment']] : null,
-              borders: body['borders'] != null ? DocxRegistry().fromJson<TableCellBorders>(body['borders'] as Map<String, dynamic>) : null,
-              shading: body['shading'] != null ? DocxRegistry().fromJson<Shading>(body['shading'] as Map<String, dynamic>) : null,
+              verticalAlignment: body['verticalAlignment'] != null
+                  ? VerticalAlignment.values[body['verticalAlignment']]
+                  : null,
+              borders: body['borders'] != null
+                  ? DocxRegistry().fromJson<TableCellBorders>(
+                      body['borders'] as Map<String, dynamic>)
+                  : null,
+              shading: body['shading'] != null
+                  ? DocxRegistry().fromJson<Shading>(
+                      body['shading'] as Map<String, dynamic>)
+                  : null,
             ),
           TableWidthType.auto => TableCellConfig.auto(
               columnSpan: body['columnSpan'],
               rowSpan: body['rowSpan'],
-              verticalAlignment: body['verticalAlignment'] != null ? VerticalAlignment.values[body['verticalAlignment']] : null,
-              borders: body['borders'] != null ? DocxRegistry().fromJson<TableCellBorders>(body['borders'] as Map<String, dynamic>) : null,
-              shading: body['shading'] != null ? DocxRegistry().fromJson<Shading>(body['shading'] as Map<String, dynamic>) : null,
+              verticalAlignment: body['verticalAlignment'] != null
+                  ? VerticalAlignment.values[body['verticalAlignment']]
+                  : null,
+              borders: body['borders'] != null
+                  ? DocxRegistry().fromJson<TableCellBorders>(
+                      body['borders'] as Map<String, dynamic>)
+                  : null,
+              shading: body['shading'] != null
+                  ? DocxRegistry().fromJson<Shading>(
+                      body['shading'] as Map<String, dynamic>)
+                  : null,
             ),
           TableWidthType.nil => TableCellConfig.nil(
               columnSpan: body['columnSpan'],
               rowSpan: body['rowSpan'],
-              verticalAlignment: body['verticalAlignment'] != null ? VerticalAlignment.values[body['verticalAlignment']] : null,
-              borders: body['borders'] != null ? DocxRegistry().fromJson<TableCellBorders>(body['borders'] as Map<String, dynamic>) : null,
-              shading: body['shading'] != null ? DocxRegistry().fromJson<Shading>(body['shading'] as Map<String, dynamic>) : null,
+              verticalAlignment: body['verticalAlignment'] != null
+                  ? VerticalAlignment.values[body['verticalAlignment']]
+                  : null,
+              borders: body['borders'] != null
+                  ? DocxRegistry().fromJson<TableCellBorders>(
+                      body['borders'] as Map<String, dynamic>)
+                  : null,
+              shading: body['shading'] != null
+                  ? DocxRegistry().fromJson<Shading>(
+                      body['shading'] as Map<String, dynamic>)
+                  : null,
             ),
           _ => TableCellConfig.dxa(
               width: body['width'] ?? 0,
               columnSpan: body['columnSpan'],
               rowSpan: body['rowSpan'],
-              verticalAlignment: body['verticalAlignment'] != null ? VerticalAlignment.values[body['verticalAlignment']] : null,
-              borders: body['borders'] != null ? DocxRegistry().fromJson<TableCellBorders>(body['borders'] as Map<String, dynamic>) : null,
-              shading: body['shading'] != null ? DocxRegistry().fromJson<Shading>(body['shading'] as Map<String, dynamic>) : null,
+              verticalAlignment: body['verticalAlignment'] != null
+                  ? VerticalAlignment.values[body['verticalAlignment']]
+                  : null,
+              borders: body['borders'] != null
+                  ? DocxRegistry().fromJson<TableCellBorders>(
+                      body['borders'] as Map<String, dynamic>)
+                  : null,
+              shading: body['shading'] != null
+                  ? DocxRegistry().fromJson<Shading>(
+                      body['shading'] as Map<String, dynamic>)
+                  : null,
             ),
         };
       },
@@ -1058,7 +1254,8 @@ class DocxRegistry {
         Map<String, dynamic> body,
         Map<String, dynamic>? metadata,
       ) {
-        final Map<String, dynamic>? cellConfigMap = body['cellConfig'] as Map<String, dynamic>?;
+        final Map<String, dynamic>? cellConfigMap =
+            body['cellConfig'] as Map<String, dynamic>?;
         return TableCell(
           id: body['id'],
           children: <DocxNode<dynamic>>[
@@ -1067,7 +1264,9 @@ class DocxRegistry {
                 ) =>
                     DocxRegistry().fromJson(child)?.cast<DocxNode>()),
           ],
-          cellConfig: cellConfigMap != null ? DocxRegistry().fromJson<TableCellConfig>(cellConfigMap)! : const TableCellConfig.auto(),
+          cellConfig: cellConfigMap != null
+              ? DocxRegistry().fromJson<TableCellConfig>(cellConfigMap)!
+              : const TableCellConfig.auto(),
         );
       },
     );
@@ -1106,7 +1305,10 @@ class DocxRegistry {
           'lock': node.lock?.index,
           'temporary': node.temporary,
           'sdtId': node.sdtId,
-          'content': (node.child).map<Map<String, dynamic>>((RunBase e) => DocxRegistry().toJson(e)!).toList(),
+          'content': (node.child)
+              .map<Map<String, dynamic>>(
+                  (RunBase e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1115,7 +1317,8 @@ class DocxRegistry {
         Map<String, dynamic> body,
         Map<String, dynamic>? metadata,
       ) {
-        final List<dynamic> contentList = body['content'] as List<dynamic>? ?? [];
+        final List<dynamic> contentList =
+            body['content'] as List<dynamic>? ?? [];
         return SdtPlainText(
           id: body['id'],
           alias: body['alias'] ?? '',
@@ -1123,10 +1326,15 @@ class DocxRegistry {
           placeholder: body['placeholder'],
           showingPlacHdr: body['showingPlacHdr'] ?? true,
           maxLength: body['maxLength'],
-          lock: body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
+          lock:
+              body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
           temporary: body['temporary'] ?? false,
           sdtId: body['sdtId'],
-          content: contentList.map<RunBase>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!.cast<RunBase>()).toList(),
+          content: contentList
+              .map<RunBase>((e) => DocxRegistry()
+                  .fromJson(e as Map<String, dynamic>)!
+                  .cast<RunBase>())
+              .toList(),
         );
       },
     );
@@ -1142,7 +1350,10 @@ class DocxRegistry {
           'lock': node.lock?.index,
           'temporary': node.temporary,
           'sdtId': node.sdtId,
-          'content': (node.child).map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'content': (node.child)
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1151,17 +1362,23 @@ class DocxRegistry {
         Map<String, dynamic> body,
         Map<String, dynamic>? metadata,
       ) {
-        final List<dynamic> contentList = body['content'] as List<dynamic>? ?? [];
+        final List<dynamic> contentList =
+            body['content'] as List<dynamic>? ?? [];
         return SdtRichText(
           id: body['id'],
           alias: body['alias'] ?? '',
           tag: body['tag'] ?? '',
           placeholder: body['placeholder'],
           showingPlacHdr: body['showingPlacHdr'] ?? true,
-          lock: body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
+          lock:
+              body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
           temporary: body['temporary'] ?? false,
           sdtId: body['sdtId'],
-          content: contentList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!.cast<DocxNode>()).toList(),
+          content: contentList
+              .map<DocxNode>((e) => DocxRegistry()
+                  .fromJson(e as Map<String, dynamic>)!
+                  .cast<DocxNode>())
+              .toList(),
         );
       },
     );
@@ -1178,7 +1395,10 @@ class DocxRegistry {
           'lock': node.lock?.index,
           'temporary': node.temporary,
           'sdtId': node.sdtId,
-          'items': node.items.map<Map<String, dynamic>>((SdtListItem e) => DocxRegistry().toJson(e)!).toList(),
+          'items': node.items
+              .map<Map<String, dynamic>>(
+                  (SdtListItem e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1189,11 +1409,16 @@ class DocxRegistry {
           id: body['id'],
           alias: body['alias'] ?? '',
           tag: body['tag'] ?? '',
-          items: itemsList.map<SdtListItem>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!.cast<SdtListItem>()).toList(),
+          items: itemsList
+              .map<SdtListItem>((e) => DocxRegistry()
+                  .fromJson(e as Map<String, dynamic>)!
+                  .cast<SdtListItem>())
+              .toList(),
           selectedValue: body['selectedValue'],
           placeholder: body['placeholder'],
           showingPlacHdr: body['showingPlacHdr'] ?? true,
-          lock: body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
+          lock:
+              body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
           temporary: body['temporary'] ?? false,
           sdtId: body['sdtId'],
         );
@@ -1212,7 +1437,10 @@ class DocxRegistry {
           'lock': node.lock?.index,
           'temporary': node.temporary,
           'sdtId': node.sdtId,
-          'items': node.child.map<Map<String, dynamic>>((SdtListItem e) => DocxRegistry().toJson(e)!).toList(),
+          'items': node.child
+              .map<Map<String, dynamic>>(
+                  (SdtListItem e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1223,11 +1451,16 @@ class DocxRegistry {
           id: body['id'],
           alias: body['alias'] ?? '',
           tag: body['tag'] ?? '',
-          items: itemsList.map<SdtListItem>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!.cast<SdtListItem>()).toList(),
+          items: itemsList
+              .map<SdtListItem>((e) => DocxRegistry()
+                  .fromJson(e as Map<String, dynamic>)!
+                  .cast<SdtListItem>())
+              .toList(),
           selectedValue: body['selectedValue'],
           placeholder: body['placeholder'],
           showingPlacHdr: body['showingPlacHdr'] ?? true,
-          lock: body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
+          lock:
+              body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
           temporary: body['temporary'] ?? false,
           sdtId: body['sdtId'],
         );
@@ -1263,10 +1496,13 @@ class DocxRegistry {
           locale: body['locale'] ?? 'en-US',
           storeMappedDataAs: body['storeMappedDataAs'] ?? 'dateTime',
           calendar: SdtCalendar.values[body['calendar'] as int? ?? 0],
-          value: body['value'] != null ? DateTime.tryParse(body['value'] as String) : null,
+          value: body['value'] != null
+              ? DateTime.tryParse(body['value'] as String)
+              : null,
           placeholder: body['placeholder'],
           showingPlacHdr: body['showingPlacHdr'] ?? true,
-          lock: body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
+          lock:
+              body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
           temporary: body['temporary'] ?? false,
           sdtId: body['sdtId'],
         );
@@ -1297,11 +1533,14 @@ class DocxRegistry {
           alias: body['alias'] ?? '',
           tag: body['tag'] ?? '',
           checked: body['checked'] ?? false,
-          checkedState: SdtCheckboxState.values[body['checkedState'] as int? ?? 0],
-          uncheckedState: SdtCheckboxState.values[body['uncheckedState'] as int? ?? 1],
+          checkedState:
+              SdtCheckboxState.values[body['checkedState'] as int? ?? 0],
+          uncheckedState:
+              SdtCheckboxState.values[body['uncheckedState'] as int? ?? 1],
           placeholder: body['placeholder'],
           showingPlacHdr: body['showingPlacHdr'] ?? true,
-          lock: body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
+          lock:
+              body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
           temporary: body['temporary'] ?? false,
           sdtId: body['sdtId'],
         );
@@ -1331,10 +1570,15 @@ class DocxRegistry {
           tag: body['tag'] ?? '',
           placeholder: body['placeholder'],
           showingPlacHdr: body['showingPlacHdr'] ?? true,
-          lock: body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
+          lock:
+              body['lock'] != null ? StdLock.values[body['lock'] as int] : null,
           temporary: body['temporary'] ?? false,
           sdtId: body['sdtId'],
-          content: body['content'] != null ? DocxRegistry().fromJson(body['content'] as Map<String, dynamic>)?.cast<RunBase>() : null,
+          content: body['content'] != null
+              ? DocxRegistry()
+                  .fromJson(body['content'] as Map<String, dynamic>)
+                  ?.cast<RunBase>()
+              : null,
         );
       },
     );
@@ -1513,8 +1757,10 @@ class DocxRegistry {
       (NonVisualPictureProperties node) {
         return <String, dynamic>{
           'id': node.id,
-          'nonVisualDrawingProperties': DocxRegistry().toJson(node.nonVisualDrawingProperties),
-          'nonVisualPictureDrawingProperties': DocxRegistry().toJson(node.nonVisualPictureDrawingProperties),
+          'nonVisualDrawingProperties':
+              DocxRegistry().toJson(node.nonVisualDrawingProperties),
+          'nonVisualPictureDrawingProperties':
+              DocxRegistry().toJson(node.nonVisualPictureDrawingProperties),
         };
       },
     );
@@ -1522,11 +1768,15 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return NonVisualPictureProperties(
           nonVisualDrawingProperties: body['nonVisualDrawingProperties'] != null
-              ? DocxRegistry().fromJson(body['nonVisualDrawingProperties'] as Map<String, dynamic>)!
+              ? DocxRegistry().fromJson(
+                  body['nonVisualDrawingProperties'] as Map<String, dynamic>)!
               : NonVisualDrawingProperties(id: '0', name: ''),
-          nonVisualPictureDrawingProperties: body['nonVisualPictureDrawingProperties'] != null
-              ? DocxRegistry().fromJson(body['nonVisualPictureDrawingProperties'] as Map<String, dynamic>)!
-              : NonVisualPictureDrawingProperties(),
+          nonVisualPictureDrawingProperties:
+              body['nonVisualPictureDrawingProperties'] != null
+                  ? DocxRegistry().fromJson(
+                      body['nonVisualPictureDrawingProperties']
+                          as Map<String, dynamic>)!
+                  : NonVisualPictureDrawingProperties(),
         );
       },
     );
@@ -1568,7 +1818,10 @@ class DocxRegistry {
       (Stretch node) {
         return <String, dynamic>{
           'id': node.id,
-          'child': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'child': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1577,7 +1830,10 @@ class DocxRegistry {
         final childList = body['child'] as List<dynamic>? ?? [];
         return Stretch(
           id: body['id'],
-          child: childList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!).toList(),
+          child: childList
+              .map<DocxNode>(
+                  (e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -1603,7 +1859,10 @@ class DocxRegistry {
       (Picture node) {
         return <String, dynamic>{
           'id': node.id,
-          'children': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'children': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1612,7 +1871,10 @@ class DocxRegistry {
         final childrenList = body['children'] as List<dynamic>? ?? [];
         return Picture(
           id: body['id'],
-          components: childrenList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!).toList(),
+          components: childrenList
+              .map<DocxNode>(
+                  (e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -1639,7 +1901,9 @@ class DocxRegistry {
           'style': node.style.index,
           'cap': node.cap.index,
           'join': node.join.index,
-          'dashPattern': node.dashPattern != null ? DocxRegistry().toJson(node.dashPattern!) : null,
+          'dashPattern': node.dashPattern != null
+              ? DocxRegistry().toJson(node.dashPattern!)
+              : null,
         };
       },
     );
@@ -1647,13 +1911,16 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return ShapeBorder(
           id: body['id'],
-          color: DocxRegistry().fromJson<Color>(body['color'] as Map<String, dynamic>)!,
+          color: DocxRegistry()
+              .fromJson<Color>(body['color'] as Map<String, dynamic>)!,
           width: Point(body['width'] ?? 1),
           style: LineStyle.values[body['style'] as int? ?? 0],
           cap: LineCap.values[body['cap'] as int? ?? 0],
           join: LineJoin.values[body['join'] as int? ?? 0],
-          dashPattern:
-              body['dashPattern'] != null ? DocxRegistry().fromJson<DashPattern>(body['dashPattern'] as Map<String, dynamic>) : null,
+          dashPattern: body['dashPattern'] != null
+              ? DocxRegistry().fromJson<DashPattern>(
+                  body['dashPattern'] as Map<String, dynamic>)
+              : null,
         );
       },
     );
@@ -1674,8 +1941,10 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return Transform2D(
           id: body['id'],
-          offset: DocxRegistry().fromJson<Offset>(body['offset'] as Map<String, dynamic>)!,
-          extents: DocxRegistry().fromJson<AnnotationExtents>(body['extents'] as Map<String, dynamic>)!,
+          offset: DocxRegistry()
+              .fromJson<Offset>(body['offset'] as Map<String, dynamic>)!,
+          extents: DocxRegistry().fromJson<AnnotationExtents>(
+              body['extents'] as Map<String, dynamic>)!,
           rotation: body['rotation'] as int? ?? 0,
           flipHorizontal: body['flipHorizontal'] as bool? ?? false,
           flipVertical: body['flipVertical'] as bool? ?? false,
@@ -1695,7 +1964,9 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return Drawing(
           id: body['id'],
-          child: DocxRegistry().fromJson(body['child'] as Map<String, dynamic>)!.cast<DocxNode<dynamic>>(),
+          child: DocxRegistry()
+              .fromJson(body['child'] as Map<String, dynamic>)!
+              .cast<DocxNode<dynamic>>(),
         );
       },
     );
@@ -1709,7 +1980,10 @@ class DocxRegistry {
           'height': node.height.toEmu(),
           'distance': DocxRegistry().toJson(node.distance),
           'elementId': node.elementId,
-          'children': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'children': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1721,9 +1995,14 @@ class DocxRegistry {
           name: body['name'] as String? ?? '',
           width: Emu(body['width']),
           height: Emu(body['height']),
-          distance: DocxRegistry().fromJson<TextDistance>(body['distance'] as Map<String, dynamic>) ?? TextDistance(),
+          distance: DocxRegistry().fromJson<TextDistance>(
+                  body['distance'] as Map<String, dynamic>) ??
+              TextDistance(),
           elementId: body['elementId'] as int?,
-          components: childrenList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!).toList(),
+          components: childrenList
+              .map<DocxNode>(
+                  (e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -1732,7 +2011,10 @@ class DocxRegistry {
       (TextFrame node) {
         return <String, dynamic>{
           'id': node.id,
-          'children': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'children': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
           'width': node.width,
           'height': node.height,
           'wrap': node.wrap.index,
@@ -1742,7 +2024,8 @@ class DocxRegistry {
           'yAlign': node.yAlign.index,
           'offsetX': node.offsetX,
           'offsetY': node.offsetY,
-          'border': node.border != null ? DocxRegistry().toJson(node.border!) : null,
+          'border':
+              node.border != null ? DocxRegistry().toJson(node.border!) : null,
         };
       },
     );
@@ -1751,17 +2034,24 @@ class DocxRegistry {
         final childrenList = body['children'] as List<dynamic>? ?? [];
         return TextFrame(
           id: body['id'],
-          data: childrenList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!).toList(),
+          data: childrenList
+              .map<DocxNode>(
+                  (e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!)
+              .toList(),
           width: body['width'] ?? 0,
           height: body['height'] ?? 0,
           wrap: FrameWrap.values[body['wrap'] as int? ?? 0],
           vAnchor: VerticalAnchorPosition.values[body['vAnchor'] as int? ?? 0],
-          hAnchor: HorizontalAnchorPosition.values[body['hAnchor'] as int? ?? 0],
+          hAnchor:
+              HorizontalAnchorPosition.values[body['hAnchor'] as int? ?? 0],
           xAlign: AnchorPosition.values[body['xAlign'] as int? ?? 0],
           yAlign: AnchorPosition.values[body['yAlign'] as int? ?? 0],
           offsetX: body['offsetX'] as int?,
           offsetY: body['offsetY'] as int?,
-          border: body['border'] != null ? DocxRegistry().fromJson<Style>(body['border'] as Map<String, dynamic>) : null,
+          border: body['border'] != null
+              ? DocxRegistry()
+                  .fromJson<Style>(body['border'] as Map<String, dynamic>)
+              : null,
         );
       },
     );
@@ -1770,7 +2060,10 @@ class DocxRegistry {
       (PageColumn node) {
         return <String, dynamic>{
           'id': node.id,
-          'children': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'children': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1779,7 +2072,10 @@ class DocxRegistry {
         final childrenList = body['children'] as List<dynamic>? ?? [];
         return PageColumn(
           id: body['id'],
-          children: childrenList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!).toList(),
+          children: childrenList
+              .map<DocxNode>(
+                  (e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -1788,7 +2084,10 @@ class DocxRegistry {
       (LayoutConstraints node) {
         return <String, dynamic>{
           'id': node.id,
-          'children': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'children': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
           'minWidth': node.minWidth?.toDxa(),
           'maxWidth': node.maxWidth?.toDxa(),
         };
@@ -1799,7 +2098,10 @@ class DocxRegistry {
         final childrenList = body['children'] as List<dynamic>? ?? [];
         return LayoutConstraints(
           id: body['id'],
-          children: childrenList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!).toList(),
+          children: childrenList
+              .map<DocxNode>(
+                  (e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!)
+              .toList(),
           minWidth: body['minWidth'] != null ? Dxa(body['minWidth']) : null,
           maxWidth: body['maxWidth'] != null ? Dxa(body['maxWidth']) : null,
         );
@@ -1812,7 +2114,10 @@ class DocxRegistry {
           'id': node.id,
           'refKey': node.refKey,
           'inheritFromParent': node.inheritFromParent,
-          'children': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'children': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1823,7 +2128,10 @@ class DocxRegistry {
           id: body['id'],
           refKey: body['refKey'] as String? ?? '',
           inheritFromParent: body['inheritFromParent'] as bool? ?? false,
-          children: childrenList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!).toList(),
+          children: childrenList
+              .map<DocxNode>(
+                  (e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -1835,7 +2143,10 @@ class DocxRegistry {
           'width': node.width.toDxa(),
           'minHeight': node.minHeight.toDxa(),
           'spacing': node.spacing.toDxa(),
-          'children': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'children': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
           'mainAxisAlignment': node.mainAxisAlignment?.index,
           'crossAxisAlignment': node.crossAxisAlignment?.index,
         };
@@ -1846,12 +2157,19 @@ class DocxRegistry {
         final childrenList = body['children'] as List<dynamic>? ?? [];
         return Row(
           id: body['id'],
-          children: childrenList.map<DocxNode>((e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!).toList(),
+          children: childrenList
+              .map<DocxNode>(
+                  (e) => DocxRegistry().fromJson(e as Map<String, dynamic>)!)
+              .toList(),
           width: Dxa(body['width'] ?? 0),
           minHeight: Dxa(body['minHeight'] ?? -1),
           spacing: Dxa(body['spacing'] ?? 0),
-          mainAxisAlignment: body['mainAxisAlignment'] != null ? MainAxisAlignment.values[body['mainAxisAlignment'] as int] : null,
-          crossAxisAlignment: body['crossAxisAlignment'] != null ? CrossAxisAlignment.values[body['crossAxisAlignment'] as int] : null,
+          mainAxisAlignment: body['mainAxisAlignment'] != null
+              ? MainAxisAlignment.values[body['mainAxisAlignment'] as int]
+              : null,
+          crossAxisAlignment: body['crossAxisAlignment'] != null
+              ? CrossAxisAlignment.values[body['crossAxisAlignment'] as int]
+              : null,
         );
       },
     );
@@ -1903,7 +2221,10 @@ class DocxRegistry {
         return HyperlinkTextPart(
           text: body['text'] as String? ?? '',
           hyperlink: body['hyperlink'] as String? ?? '',
-          styles: stylesList.map<Style>((s) => DocxRegistry().fromJson<Style>(s as Map<String, dynamic>)!).toList(),
+          styles: stylesList
+              .map<Style>((s) =>
+                  DocxRegistry().fromJson<Style>(s as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -1920,7 +2241,8 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return HyperlinkRun(
           id: body['id'],
-          child: DocxRegistry().fromJson<HyperlinkTextPart>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry().fromJson<HyperlinkTextPart>(
+              body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -1967,7 +2289,10 @@ class DocxRegistry {
       (AdjustValueList node) {
         return <String, dynamic>{
           'id': node.id,
-          'values': node.child.map<Map<String, dynamic>>((AdjustValue e) => DocxRegistry().toJson(e)!).toList(),
+          'values': node.child
+              .map<Map<String, dynamic>>(
+                  (AdjustValue e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -1976,7 +2301,10 @@ class DocxRegistry {
         final valuesList = body['values'] as List<dynamic>? ?? [];
         return AdjustValueList(
           id: body['id'],
-          values: valuesList.map<AdjustValue>((e) => DocxRegistry().fromJson<AdjustValue>(e as Map<String, dynamic>)!).toList(),
+          values: valuesList
+              .map<AdjustValue>((e) => DocxRegistry()
+                  .fromJson<AdjustValue>(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -2002,7 +2330,10 @@ class DocxRegistry {
       (GeometryGuideList node) {
         return <String, dynamic>{
           'id': node.id,
-          'values': node.child.map<Map<String, dynamic>>((GeometryGuide e) => DocxRegistry().toJson(e)!).toList(),
+          'values': node.child
+              .map<Map<String, dynamic>>(
+                  (GeometryGuide e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -2010,7 +2341,10 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         final valuesList = body['values'] as List<dynamic>? ?? [];
         return GeometryGuideList(
-          values: valuesList.map<GeometryGuide>((e) => DocxRegistry().fromJson<GeometryGuide>(e as Map<String, dynamic>)!).toList(),
+          values: valuesList
+              .map<GeometryGuide>((e) => DocxRegistry()
+                  .fromJson<GeometryGuide>(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -2038,7 +2372,10 @@ class DocxRegistry {
       (HandlesList node) {
         return <String, dynamic>{
           'id': node.id,
-          'values': node.child.map<Map<String, dynamic>>((AdjustHandle e) => DocxRegistry().toJson(e)!).toList(),
+          'values': node.child
+              .map<Map<String, dynamic>>(
+                  (AdjustHandle e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -2047,7 +2384,10 @@ class DocxRegistry {
         final valuesList = body['values'] as List<dynamic>? ?? [];
         return HandlesList(
           id: body['id'],
-          values: valuesList.map<AdjustHandle>((e) => DocxRegistry().fromJson<AdjustHandle>(e as Map<String, dynamic>)!).toList(),
+          values: valuesList
+              .map<AdjustHandle>((e) => DocxRegistry()
+                  .fromJson<AdjustHandle>(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -2066,7 +2406,8 @@ class DocxRegistry {
         return GraphicData(
           id: body['id'],
           uri: body['uri'] as String? ?? '',
-          child: DocxRegistry().fromJson<DocxNode>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry()
+              .fromJson<DocxNode>(body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2083,7 +2424,8 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return Graphic(
           id: body['id'],
-          child: DocxRegistry().fromJson<GraphicData>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry()
+              .fromJson<GraphicData>(body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2093,7 +2435,10 @@ class DocxRegistry {
         return <String, dynamic>{
           'id': node.id,
           'preset': node.preset.index,
-          'data': node.child.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'data': node.child
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -2103,7 +2448,10 @@ class DocxRegistry {
         return PresetGeometry(
           id: body['id'],
           preset: PresetShapeType.values[body['preset'] as int? ?? 0],
-          data: dataList.map<DocxNode>((e) => DocxRegistry().fromJson<DocxNode>(e as Map<String, dynamic>)!).toList(),
+          data: dataList
+              .map<DocxNode>((e) =>
+                  DocxRegistry().fromJson<DocxNode>(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -2120,7 +2468,8 @@ class DocxRegistry {
     DocxRegistry().setFromJson<GlowEffect>(
       (Map<String, dynamic> body, metadata) {
         return GlowEffect(
-          color: DocxRegistry().fromJson<Color>(body['color'] as Map<String, dynamic>)!,
+          color: DocxRegistry()
+              .fromJson<Color>(body['color'] as Map<String, dynamic>)!,
           radius: body['radius'] as int? ?? 38100,
           transparency: body['transparency'] as int? ?? 0,
         );
@@ -2196,12 +2545,20 @@ class DocxRegistry {
       (Dimensional3DData node) {
         return <String, dynamic>{
           'extrusionHeight': node.extrusionHeight,
-          'extrusionColor': node.extrusionColor != null ? DocxRegistry().toJson(node.extrusionColor!) : null,
+          'extrusionColor': node.extrusionColor != null
+              ? DocxRegistry().toJson(node.extrusionColor!)
+              : null,
           'contourWidth': node.contourWidth,
-          'contourColor': node.contourColor != null ? DocxRegistry().toJson(node.contourColor!) : null,
+          'contourColor': node.contourColor != null
+              ? DocxRegistry().toJson(node.contourColor!)
+              : null,
           'material': node.material.index,
-          'topBevel': node.topBevel != null ? DocxRegistry().toJson(node.topBevel!) : null,
-          'bottomBevel': node.bottomBevel != null ? DocxRegistry().toJson(node.bottomBevel!) : null,
+          'topBevel': node.topBevel != null
+              ? DocxRegistry().toJson(node.topBevel!)
+              : null,
+          'bottomBevel': node.bottomBevel != null
+              ? DocxRegistry().toJson(node.bottomBevel!)
+              : null,
           'lightingAngle': node.lightingAngle,
           'lightingIntensity': node.lightingIntensity,
         };
@@ -2210,16 +2567,29 @@ class DocxRegistry {
     DocxRegistry().setFromJson<Dimensional3DData>(
       (Map<String, dynamic> body, metadata) {
         return Dimensional3DData(
-          extrusionHeight: (body['extrusionHeight'] as num?)?.toDouble() ?? 10.0,
-          extrusionColor:
-              body['extrusionColor'] != null ? DocxRegistry().fromJson<Color>(body['extrusionColor'] as Map<String, dynamic>) : null,
+          extrusionHeight:
+              (body['extrusionHeight'] as num?)?.toDouble() ?? 10.0,
+          extrusionColor: body['extrusionColor'] != null
+              ? DocxRegistry().fromJson<Color>(
+                  body['extrusionColor'] as Map<String, dynamic>)
+              : null,
           contourWidth: (body['contourWidth'] as num?)?.toDouble() ?? 1.0,
-          contourColor: body['contourColor'] != null ? DocxRegistry().fromJson<Color>(body['contourColor'] as Map<String, dynamic>) : null,
+          contourColor: body['contourColor'] != null
+              ? DocxRegistry()
+                  .fromJson<Color>(body['contourColor'] as Map<String, dynamic>)
+              : null,
           material: PresetMaterial.values[body['material'] as int? ?? 0],
-          topBevel: body['topBevel'] != null ? DocxRegistry().fromJson<Bevel>(body['topBevel'] as Map<String, dynamic>) : null,
-          bottomBevel: body['bottomBevel'] != null ? DocxRegistry().fromJson<Bevel>(body['bottomBevel'] as Map<String, dynamic>) : null,
+          topBevel: body['topBevel'] != null
+              ? DocxRegistry()
+                  .fromJson<Bevel>(body['topBevel'] as Map<String, dynamic>)
+              : null,
+          bottomBevel: body['bottomBevel'] != null
+              ? DocxRegistry()
+                  .fromJson<Bevel>(body['bottomBevel'] as Map<String, dynamic>)
+              : null,
           lightingAngle: (body['lightingAngle'] as num?)?.toDouble() ?? 45.0,
-          lightingIntensity: (body['lightingIntensity'] as num?)?.toDouble() ?? 0.8,
+          lightingIntensity:
+              (body['lightingIntensity'] as num?)?.toDouble() ?? 0.8,
         );
       },
     );
@@ -2236,7 +2606,8 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return GlowEffectComponent(
           id: body['id'],
-          child: DocxRegistry().fromJson<GlowEffect>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry()
+              .fromJson<GlowEffect>(body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2252,7 +2623,8 @@ class DocxRegistry {
     DocxRegistry().setFromJson<ReflectionEffectComponent>(
       (Map<String, dynamic> body, metadata) {
         return ReflectionEffectComponent(
-          child: DocxRegistry().fromJson<ReflectionEffect>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry().fromJson<ReflectionEffect>(
+              body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2268,7 +2640,8 @@ class DocxRegistry {
     DocxRegistry().setFromJson<SoftEdgeEffectComponent>(
       (Map<String, dynamic> body, metadata) {
         return SoftEdgeEffectComponent(
-          child: DocxRegistry().fromJson<SoftEdgeEffect>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry()
+              .fromJson<SoftEdgeEffect>(body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2284,7 +2657,8 @@ class DocxRegistry {
     DocxRegistry().setFromJson<ShadowEffect>(
       (Map<String, dynamic> body, metadata) {
         return ShadowEffect(
-          child: DocxRegistry().fromJson<ShadowEffectData>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry().fromJson<ShadowEffectData>(
+              body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2300,7 +2674,8 @@ class DocxRegistry {
     DocxRegistry().setFromJson<Dimensional3DEffect>(
       (Map<String, dynamic> body, metadata) {
         return Dimensional3DEffect(
-          child: DocxRegistry().fromJson<Dimensional3DData>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry().fromJson<Dimensional3DData>(
+              body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2309,8 +2684,12 @@ class DocxRegistry {
       (PatternFill node) {
         return <String, dynamic>{
           'type': node.type.index,
-          'foregroundColor': node.foregroundColor != null ? DocxRegistry().toJson(node.foregroundColor!) : null,
-          'backgroundColor': node.backgroundColor != null ? DocxRegistry().toJson(node.backgroundColor!) : null,
+          'foregroundColor': node.foregroundColor != null
+              ? DocxRegistry().toJson(node.foregroundColor!)
+              : null,
+          'backgroundColor': node.backgroundColor != null
+              ? DocxRegistry().toJson(node.backgroundColor!)
+              : null,
         };
       },
     );
@@ -2318,10 +2697,14 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return PatternFill(
           type: PatternType.values[body['type'] as int? ?? 0],
-          foregroundColor:
-              body['foregroundColor'] != null ? DocxRegistry().fromJson<Color>(body['foregroundColor'] as Map<String, dynamic>) : null,
-          backgroundColor:
-              body['backgroundColor'] != null ? DocxRegistry().fromJson<Color>(body['backgroundColor'] as Map<String, dynamic>) : null,
+          foregroundColor: body['foregroundColor'] != null
+              ? DocxRegistry().fromJson<Color>(
+                  body['foregroundColor'] as Map<String, dynamic>)
+              : null,
+          backgroundColor: body['backgroundColor'] != null
+              ? DocxRegistry().fromJson<Color>(
+                  body['backgroundColor'] as Map<String, dynamic>)
+              : null,
         );
       },
     );
@@ -2337,7 +2720,8 @@ class DocxRegistry {
     DocxRegistry().setFromJson<PatternFillComponent>(
       (Map<String, dynamic> body, metadata) {
         return PatternFillComponent(
-          child: DocxRegistry().fromJson<PatternFill>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry()
+              .fromJson<PatternFill>(body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2397,7 +2781,10 @@ class DocxRegistry {
       (CustomGeometryComponent node) {
         return <String, dynamic>{
           'id': node.id,
-          'paths': node.paths.map<Map<String, dynamic>>((ShapePath e) => DocxRegistry().toJson(e)!).toList(),
+          'paths': node.paths
+              .map<Map<String, dynamic>>(
+                  (ShapePath e) => DocxRegistry().toJson(e)!)
+              .toList(),
           'boundingBox': node.boundingBox == null
               ? null
               : <String, dynamic>{
@@ -2409,7 +2796,10 @@ class DocxRegistry {
           'adjustValue': DocxRegistry().toJson(node.adjustValue),
           'guide': DocxRegistry().toJson(node.guide),
           'handle': DocxRegistry().toJson(node.handle),
-          'connectionPoints': node.connectionPoints.map<Map<String, dynamic>>((ConnectionPoint e) => DocxRegistry().toJson(e)!).toList(),
+          'connectionPoints': node.connectionPoints
+              .map<Map<String, dynamic>>(
+                  (ConnectionPoint e) => DocxRegistry().toJson(e)!)
+              .toList(),
         };
       },
     );
@@ -2420,7 +2810,10 @@ class DocxRegistry {
         final connList = body['connectionPoints'] as List<dynamic>? ?? [];
         return CustomGeometryComponent(
           id: body['id'],
-          paths: pathsList.map<ShapePath>((e) => DocxRegistry().fromJson<ShapePath>(e as Map<String, dynamic>)!).toList(),
+          paths: pathsList
+              .map<ShapePath>((e) => DocxRegistry()
+                  .fromJson<ShapePath>(e as Map<String, dynamic>)!)
+              .toList(),
           boundingBox: body['boundingBox'] == null
               ? null
               : Rect(
@@ -2429,11 +2822,16 @@ class DocxRegistry {
                   (bbox['right'] as num?)?.toInt() ?? 0,
                   (bbox['bottom'] as num?)?.toInt() ?? 0,
                 ),
-          adjustValue: DocxRegistry().fromJson<AdjustValueList>(body['adjustValue'] as Map<String, dynamic>)!,
-          guide: DocxRegistry().fromJson<GeometryGuideList>(body['guide'] as Map<String, dynamic>)!,
-          handle: DocxRegistry().fromJson<HandlesList>(body['handle'] as Map<String, dynamic>)!,
-          connectionPoints:
-              connList.map<ConnectionPoint>((e) => DocxRegistry().fromJson<ConnectionPoint>(e as Map<String, dynamic>)!).toList(),
+          adjustValue: DocxRegistry().fromJson<AdjustValueList>(
+              body['adjustValue'] as Map<String, dynamic>)!,
+          guide: DocxRegistry().fromJson<GeometryGuideList>(
+              body['guide'] as Map<String, dynamic>)!,
+          handle: DocxRegistry()
+              .fromJson<HandlesList>(body['handle'] as Map<String, dynamic>)!,
+          connectionPoints: connList
+              .map<ConnectionPoint>((e) => DocxRegistry()
+                  .fromJson<ConnectionPoint>(e as Map<String, dynamic>)!)
+              .toList(),
         );
       },
     );
@@ -2453,8 +2851,10 @@ class DocxRegistry {
         return BlipFill(
           id: body['id'],
           name: body['name'] as String? ?? 'pic',
-          blip: DocxRegistry().fromJson<Blip>(body['blip'] as Map<String, dynamic>)!,
-          stretch: DocxRegistry().fromJson<Stretch>(body['stretch'] as Map<String, dynamic>)!,
+          blip: DocxRegistry()
+              .fromJson<Blip>(body['blip'] as Map<String, dynamic>)!,
+          stretch: DocxRegistry()
+              .fromJson<Stretch>(body['stretch'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2472,8 +2872,10 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return PictureShapeProperties(
           id: body['id'],
-          transform2D: DocxRegistry().fromJson<Transform2D>(body['transform2D'] as Map<String, dynamic>)!,
-          presetGeometry: DocxRegistry().fromJson<PresetGeometry>(body['presetGeometry'] as Map<String, dynamic>)!,
+          transform2D: DocxRegistry().fromJson<Transform2D>(
+              body['transform2D'] as Map<String, dynamic>)!,
+          presetGeometry: DocxRegistry().fromJson<PresetGeometry>(
+              body['presetGeometry'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2481,7 +2883,10 @@ class DocxRegistry {
     DocxRegistry().setToJson<ShapeTextBoxData>(
       (ShapeTextBoxData node) {
         return <String, dynamic>{
-          'content': node.content.map<Map<String, dynamic>>((DocxNode e) => DocxRegistry().toJson(e)!).toList(),
+          'content': node.content
+              .map<Map<String, dynamic>>(
+                  (DocxNode e) => DocxRegistry().toJson(e)!)
+              .toList(),
           'margin': <String, dynamic>{
             'left': node.margin.left?.toTwips(),
             'top': node.margin.top?.toTwips(),
@@ -2499,16 +2904,29 @@ class DocxRegistry {
         final contentList = body['content'] as List<dynamic>? ?? [];
         final marginMap = body['margin'] as Map<String, dynamic>? ?? {};
         return ShapeTextBoxData(
-          content: contentList.map<DocxNode>((e) => DocxRegistry().fromJson<DocxNode>(e as Map<String, dynamic>)!).toList(),
+          content: contentList
+              .map<DocxNode>((e) =>
+                  DocxRegistry().fromJson<DocxNode>(e as Map<String, dynamic>)!)
+              .toList(),
           margin: EdgeInsets(
-            left: (marginMap['left'] as num?) != null ? Twip((marginMap['left'] as num).toInt()) : null,
-            top: (marginMap['top'] as num?) != null ? Twip((marginMap['top'] as num).toInt()) : null,
-            right: (marginMap['right'] as num?) != null ? Twip((marginMap['right'] as num).toInt()) : null,
-            bottom: (marginMap['bottom'] as num?) != null ? Twip((marginMap['bottom'] as num).toInt()) : null,
+            left: (marginMap['left'] as num?) != null
+                ? Twip((marginMap['left'] as num).toInt())
+                : null,
+            top: (marginMap['top'] as num?) != null
+                ? Twip((marginMap['top'] as num).toInt())
+                : null,
+            right: (marginMap['right'] as num?) != null
+                ? Twip((marginMap['right'] as num).toInt())
+                : null,
+            bottom: (marginMap['bottom'] as num?) != null
+                ? Twip((marginMap['bottom'] as num).toInt())
+                : null,
           ),
           wrapping: WrapType.values[body['wrapping'] as int? ?? 0],
-          verticalAlignment: VerticalAlignment.values[body['verticalAlignment'] as int? ?? 0],
-          horizontalAlignment: Alignment.values[body['horizontalAlignment'] as int? ?? 0],
+          verticalAlignment:
+              VerticalAlignment.values[body['verticalAlignment'] as int? ?? 0],
+          horizontalAlignment:
+              Alignment.values[body['horizontalAlignment'] as int? ?? 0],
         );
       },
     );
@@ -2525,7 +2943,8 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return ShapeTextBox(
           id: body['id'],
-          child: DocxRegistry().fromJson<ShapeTextBoxData>(body['child'] as Map<String, dynamic>)!,
+          child: DocxRegistry().fromJson<ShapeTextBoxData>(
+              body['child'] as Map<String, dynamic>)!,
         );
       },
     );
@@ -2537,8 +2956,11 @@ class DocxRegistry {
           'transform': DocxRegistry().toJson(node.transform),
           'geometryComponent': DocxRegistry().toJson(node.geometryComponent),
           'fill': node.fill != null ? DocxRegistry().toJson(node.fill!) : null,
-          'border': node.border != null ? DocxRegistry().toJson(node.border!) : null,
-          'effects': node.effects != null ? DocxRegistry().toJson(node.effects!) : null,
+          'border':
+              node.border != null ? DocxRegistry().toJson(node.border!) : null,
+          'effects': node.effects != null
+              ? DocxRegistry().toJson(node.effects!)
+              : null,
         };
       },
     );
@@ -2546,12 +2968,23 @@ class DocxRegistry {
       (Map<String, dynamic> body, metadata) {
         return ShapeProperties(
           id: body['id'],
-          transform: DocxRegistry().fromJson<Transform2D>(body['transform'] as Map<String, dynamic>)!,
-          geometryComponent:
-              DocxRegistry().fromJson<Geometry<dynamic>>(body['geometryComponent'] as Map<String, dynamic>) as Geometry<dynamic>,
-          fill: body['fill'] != null ? DocxRegistry().fromJson<Fill<dynamic>>(body['fill'] as Map<String, dynamic>) : null,
-          border: body['border'] != null ? DocxRegistry().fromJson<DocxNode<dynamic>>(body['border'] as Map<String, dynamic>) : null,
-          effects: body['effects'] != null ? DocxRegistry().fromJson<Effect<dynamic>>(body['effects'] as Map<String, dynamic>) : null,
+          transform: DocxRegistry().fromJson<Transform2D>(
+              body['transform'] as Map<String, dynamic>)!,
+          geometryComponent: DocxRegistry().fromJson<Geometry<dynamic>>(
+                  body['geometryComponent'] as Map<String, dynamic>)
+              as Geometry<dynamic>,
+          fill: body['fill'] != null
+              ? DocxRegistry()
+                  .fromJson<Fill<dynamic>>(body['fill'] as Map<String, dynamic>)
+              : null,
+          border: body['border'] != null
+              ? DocxRegistry().fromJson<DocxNode<dynamic>>(
+                  body['border'] as Map<String, dynamic>)
+              : null,
+          effects: body['effects'] != null
+              ? DocxRegistry().fromJson<Effect<dynamic>>(
+                  body['effects'] as Map<String, dynamic>)
+              : null,
         );
       },
     );
@@ -2564,7 +2997,9 @@ class DocxRegistry {
           'description': node.description,
           'shapeLocks': node.shapeLocks,
           'child': DocxRegistry().toJson(node.shapeProperties),
-          'textBox': node.textBox != null ? DocxRegistry().toJson(node.textBox!) : null,
+          'textBox': node.textBox != null
+              ? DocxRegistry().toJson(node.textBox!)
+              : null,
         };
       },
     );
@@ -2575,8 +3010,12 @@ class DocxRegistry {
           name: body['name'] as String? ?? 'unnamed-shape',
           description: body['description'] as String? ?? '',
           shapeLocks: body['shapeLocks'] as bool? ?? true,
-          shapeProperties: DocxRegistry().fromJson<ShapeProperties>(body['child'] as Map<String, dynamic>)!,
-          textBox: body['textBox'] != null ? DocxRegistry().fromJson<ShapeTextBox>(body['textBox'] as Map<String, dynamic>) : null,
+          shapeProperties: DocxRegistry().fromJson<ShapeProperties>(
+              body['child'] as Map<String, dynamic>)!,
+          textBox: body['textBox'] != null
+              ? DocxRegistry().fromJson<ShapeTextBox>(
+                  body['textBox'] as Map<String, dynamic>)
+              : null,
         );
       },
     );

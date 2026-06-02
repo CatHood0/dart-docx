@@ -25,7 +25,8 @@ class GlossaryUsageDiscoveryStage extends PipelineStage {
 
   @override
   void execute(PipelineContext context) {
-    final GlossaryStore store = context.getStoreOfExactType<GlossaryStore>()!;
+    final GlossaryStore? store = context.getStoreOfExactType<GlossaryStore>();
+    if (store == null) return;
     final List<GlossaryEntry> options = context.document.options.glossaryEntries;
 
     if (options.isEmpty) {

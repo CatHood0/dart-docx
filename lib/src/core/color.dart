@@ -53,8 +53,36 @@ bool isValidColor(String? s) {
       return true;
   }
 
-  if (s.startsWith('rgba') || !s.startsWith('#') || s.startsWith('inherit') || s.startsWith('000000')) {
+  if (s.startsWith('rgba') ||
+      !s.startsWith('#') ||
+      s.startsWith('inherit') ||
+      s.startsWith('000000')) {
     return false;
   }
   return true;
+}
+
+bool isValidHighlightColorName(String? s) {
+  if (s == null || s.trim().isEmpty) return false;
+  return switch (s) {
+    'black' ||
+    'blue' ||
+    'cyan' ||
+    'darkBlue' ||
+    'darkCyan' ||
+    'darkGray' ||
+    'darkGreen' ||
+    'darkMagenta' ||
+    'darkRed' ||
+    'darkYellow' ||
+    'green' ||
+    'lightGray' ||
+    'magenta' ||
+    'red' ||
+    'white' ||
+    'yellow' ||
+    'none' =>
+      true,
+    _ => false
+  };
 }

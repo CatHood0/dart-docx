@@ -2,66 +2,83 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:docx/docx.dart';
 
+final PageSize pageSize = PageSize.letter;
+final DocumentMargins margins = DocumentMargins.fromCm(
+  top: 1.52,
+  right: 1.52,
+  left: 1.52,
+  bottom: 1.52,
+  header: 0,
+  footer: 0,
+  gutter: 0,
+);
+
+final options = DocumentOptions.standard(
+  title: 'Advanced Table Examples',
+  numberingOptions: NumberingStore.defaultNumberings,
+  section: DocumentLayout(
+    size: pageSize,
+    margins: margins,
+  ),
+  styles: DocumentStyles.base().withNewStyles(
+    <Style>[
+      StyleBuilder.paragraph('Title')
+          .name('Title')
+          .fontSize(Point(28))
+          .fontFamily('Georgia')
+          .bold()
+          .alignment(Alignment.center)
+          .qFormat(true)
+          .spacing(
+            before: Point(12),
+            after: Point(6),
+          )
+          .uiPriority(20)
+          .build(),
+      StyleBuilder.paragraph('Subtitle')
+          .name('Subtitle')
+          .fontSize(Point(20))
+          .fontFamily('Georgia')
+          .bold()
+          .alignment(Alignment.center)
+          .qFormat(true)
+          .spacing(
+            before: Point(12),
+            after: Point(6),
+          )
+          .uiPriority(20)
+          .build(),
+      StyleBuilder.paragraph('body')
+          .name('Body')
+          .fontFamily('Georgia')
+          .alignment(Alignment.center)
+          .uiPriority(18)
+          .build(),
+    ],
+  ),
+);
+
 Future<void> main() async {
   final File outFile = File('test_resources/tables.docx');
 
-  final PageSize pageSize = PageSize.letter;
-  final DocumentMargins margins = DocumentMargins.fromCm(
-    top: 1.52,
-    right: 1.52,
-    left: 1.52,
-    bottom: 1.52,
-    header: 0,
-    footer: 0,
-    gutter: 0,
+  DocxElements.instance.ensureInitialized();
+  DocxElements.instance.debugMode(true);
+  final Uint8List? bytes = await runCompilation(
+    MyApp(),
+    logAll: true,
+    options: options,
+    checkStylReferences: true,
   );
 
-  final DocxDocument doc = DocxDocument(
-    options: DocumentOptions.standard(
-      title: 'Advanced Table Examples',
-      numberingOptions: NumberingStore.defaultNumberings,
-      section: DocumentLayout(
-        size: pageSize,
-        margins: margins,
-      ),
-      styles: DocumentStyles.base().withNewStyles(
-        <Style>[
-          StyleBuilder.paragraph('Title')
-              .name('Title')
-              .fontSize(Point(28))
-              .fontFamily('Georgia')
-              .bold()
-              .alignment(Alignment.center)
-              .qFormat(true)
-              .spacing(
-                before: Point(12),
-                after: Point(6),
-              )
-              .uiPriority(20)
-              .build(),
-          StyleBuilder.paragraph('Subtitle')
-              .name('Subtitle')
-              .fontSize(Point(20))
-              .fontFamily('Georgia')
-              .bold()
-              .alignment(Alignment.center)
-              .qFormat(true)
-              .spacing(
-                before: Point(12),
-                after: Point(6),
-              )
-              .uiPriority(20)
-              .build(),
-          StyleBuilder.paragraph('body')
-              .name('Body')
-              .fontFamily('Georgia')
-              .alignment(Alignment.center)
-              .uiPriority(18)
-              .build(),
-        ],
-      ),
-    ),
-    root: RootBody(
+  if (bytes != null) {
+    await outFile.writeAsBytes(bytes);
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  DocxNode<dynamic> build() {
+    return RootBody(
       sections: <DocxNode<dynamic>>[
         // Document title
         Paragraph.text(
@@ -166,23 +183,7 @@ Future<void> main() async {
         Paragraph.text(text: 'Example of a table inside a cell.'),
         _buildNestedTable(),
       ],
-    ),
-  );
-
-  final Uint8List? bytes = await DocxPacker()
-      .autoRegisterFonts(true)
-      .noTrimRuns()
-      .normalStyleIfNeeded()
-      .logPath(DocxPaths.documentFilePath)
-      .execute(
-        doc,
-        applyCustomTheme: false,
-      );
-
-  if (bytes != null) {
-    await outFile.writeAsBytes(bytes);
-  } else {
-    stderr.writeln('Error generating the .docx document');
+    );
   }
 }
 

@@ -49,6 +49,7 @@ class Style extends IterableConfigurators {
     required this.type,
     required this.styleId,
     String? styleName,
+    String? aliases,
     this.defaultValue,
     Iterable<StyleConfigurator>? configurators,
     this.revisionIdDefault,
@@ -64,11 +65,28 @@ class Style extends IterableConfigurators {
           ),
         ) {
     if (styleName != null) {
-      add(
+      insertAt(
+        0,
         StyleConfigurator.selfClosing(
           prefix: 'w',
           propertyName: 'name',
           value: styleName,
+        ),
+      );
+    }
+    if (aliases != null) {
+      assert(
+        !aliases.contains(' '),
+        'aliases must be alternative names separated with comma. '
+        'It must not have any whitespace like "my-name,my-name2". '
+        'Found "$aliases"',
+      );
+      insertAt(
+        1,
+        StyleConfigurator.selfClosing(
+          prefix: 'w',
+          propertyName: 'aliases',
+          value: aliases,
         ),
       );
     }
@@ -220,7 +238,7 @@ class Style extends IterableConfigurators {
   final String styleId;
 
   /// Indicates if this style is marked as default in its category.
-  final Object? defaultValue;
+  final bool? defaultValue;
 
   /// Returns true if this is a reference-only style (created with [Style.ref]).
   bool get isReference => _ref;
@@ -460,8 +478,8 @@ class Style extends IterableConfigurators {
       attributes: <XmlAttribute>[
         XmlAttribute('w:type'.toName(), type),
         XmlAttribute('w:styleId'.toName(), styleId),
-        if (defaultValue != null && defaultValue is num)
-          XmlAttribute('w:default'.toName(), defaultValue!.toString()),
+        if (defaultValue != null && defaultValue!)
+          XmlAttribute('w:default'.toName(), ''),
         if (revisionIdDefault != null)
           XmlAttribute(
             'w:rsidDefault'.toName(),
@@ -484,7 +502,7 @@ class Style extends IterableConfigurators {
           ),
       ],
       children: <XmlNode>[
-        ..._configurators.map(
+        ...configMap.values.map(
           (
             StyleConfigurator configurator,
           ) =>
@@ -710,8 +728,11 @@ class StyleConfigurator<T extends Object> extends IterableConfigurators {
         );
       }
     }
-
-    final List<XmlNode> childrenNodes = _configurators
+    
+    // I know that its weird using map
+    // but we ensure in this way that
+    // there are no duplicates 
+    final List<XmlNode> childrenNodes = configMap.values
         .map(
           (StyleConfigurator e) => e.buildXml(),
         )
@@ -772,7 +793,6 @@ abstract class IterableConfigurators {
     invalidateIndex();
     _configurators.insert(index, configurator);
   }
-
 
   void add(StyleConfigurator configurator) {
     invalidateIndex();
@@ -917,7 +937,15 @@ abstract class IterableConfigurators {
   /// The link element connects a character style to a paragraph style.
   /// Returns null if no link configurator exists.
   StyleConfigurator? get link {
-    return getConfiguratorOrNull('link');
+    return getConfiguratorOrNull('w:link');
+  }
+
+  StyleConfigurator? get autoRedefine {
+    return getConfiguratorOrNull('w:autoRedefine');
+  }
+
+  StyleConfigurator? get lang {
+    return getConfiguratorOrNull('w:lang');
   }
 
   StyleConfigurator? get next {
@@ -969,7 +997,8 @@ abstract class IterableConfigurators {
   }
 
   static StyleConfigurator? styleConfiguratorOrNull(
-      StyleConfigurator configurator) {
+    StyleConfigurator configurator,
+  ) {
     return configurator.isInvalid ? null : configurator;
   }
 
@@ -1009,8 +1038,17 @@ abstract class IterableConfigurators {
     return getConfiguratorOrNull('w:basedOn');
   }
 
+  /// Alternative names that can have a [Style]
+  StyleConfigurator? get aliases {
+    return getConfiguratorOrNull('w:aliases');
+  }
+
   /// Gets the first 'name' configurator if present.
   StyleConfigurator? styleName({String? language}) {
+    if (_indexedConfigurators != null) {
+      final StyleConfigurator<Object>? name = _indexedConfigurators!['w:name'];
+      if (name != null) return name;
+    }
     return styleConfiguratorOrNull(_configurators.firstWhere(
       (StyleConfigurator e) {
         final dynamic lang = (e.attributes ?? <String, dynamic>{})['w:lang'];
@@ -1022,13 +1060,24 @@ abstract class IterableConfigurators {
     ));
   }
 
-  /// Gets all the 'name' configurators if present.
+  /// Gets the 'name', and 'aliases' configurators if present.
   ///
   /// Usually we use them to know all names by language
   Iterable<StyleConfigurator> styleNames() {
+    if (_indexedConfigurators != null) {
+      final StyleConfigurator<Object>? name = _indexedConfigurators!['w:name'];
+      final StyleConfigurator<Object>? aliases =
+          _indexedConfigurators!['w:aliases'];
+      if (name != null || aliases != null) {
+        return <StyleConfigurator<Object>>[
+          if (name != null) name,
+          if (aliases != null) aliases,
+        ];
+      }
+    }
     return _configurators.where(
       (StyleConfigurator e) =>
-          e.qualifiedName == 'w:name' || e.propertyName == 'name',
+          e.qualifiedName == 'w:name' || e.qualifiedName == 'w:aliases',
     );
   }
 
@@ -1045,6 +1094,10 @@ abstract class IterableConfigurators {
     bool fullName = false,
     bool Function(StyleConfigurator)? predicate,
   }) {
+    if (_indexedConfigurators != null) {
+      final StyleConfigurator<Object>? config = _indexedConfigurators![matcher];
+      if (config != null && (predicate?.call(config) ?? true)) return config;
+    }
     return styleConfiguratorOrNull(_configurators.firstWhere(
       (StyleConfigurator e) => (fullName || matcher.contains(':'))
           ? e.qualifiedName == matcher &&
@@ -1060,6 +1113,10 @@ abstract class IterableConfigurators {
   /// Similar to [getConfiguratorOrNull] but always returns a StyleConfigurator,
   /// which may be invalid if no match was found.
   StyleConfigurator getConfigurator(String matcher, {bool fullName = false}) {
+    if (_indexedConfigurators != null) {
+      final StyleConfigurator<Object>? config = _indexedConfigurators![matcher];
+      if (config != null) return config;
+    }
     return _configurators.firstWhere(
       (StyleConfigurator e) => fullName || matcher.contains(':')
           ? e.qualifiedName == matcher
