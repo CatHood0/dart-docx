@@ -1,0 +1,160 @@
+import 'package:xml/xml.dart';
+import '../../../docx.dart';
+import '../../core/extensions/string_ext.dart';
+
+class XmlComponentAttributes {
+  const XmlComponentAttributes({required this.xmlAttributes});
+
+  XmlComponentAttributes.empty() : xmlAttributes = <String, Object>{};
+
+  final Map<String, Object> xmlAttributes;
+
+  List<XmlAttribute> buildXml() {
+    return xmlAttributes.entries
+        .map<XmlAttribute>(
+          (MapEntry<String, Object> e) => XmlAttribute(
+            e.key.toName(),
+            e.value.toString(),
+          ),
+        )
+        .toList();
+  }
+}
+
+class Attributes extends XmlComponentAttributes {
+  Attributes({
+    Object? val,
+    String? color,
+    String? fill,
+    String? space,
+    String? sz,
+    String? type,
+    String? rsidR,
+    String? rsidRPr,
+    String? rsidSect,
+    String? w,
+    String? h,
+    String? top,
+    String? right,
+    String? bottom,
+    String? left,
+    String? header,
+    String? footer,
+    String? gutter,
+    String? linePitch,
+    Object? pos,
+  }) : super(xmlAttributes: {
+          if (val != null) 'w:val': val,
+          if (color != null) 'w:color': color,
+          if (fill != null) 'w:fill': fill,
+          if (space != null) 'w:space': space,
+          if (sz != null) 'w:sz': sz,
+          if (type != null) 'w:type': type,
+          if (rsidR != null) 'w:rsidR': rsidR,
+          if (rsidRPr != null) 'w:rsidRPr': rsidRPr,
+          if (rsidSect != null) 'w:rsidSect': rsidSect,
+          if (w != null) 'w:w': w,
+          if (h != null) 'w:h': h,
+          if (top != null) 'w:top': top,
+          if (right != null) 'w:right': right,
+          if (bottom != null) 'w:bottom': bottom,
+          if (left != null) 'w:left': left,
+          if (header != null) 'w:header': header,
+          if (footer != null) 'w:footer': footer,
+          if (gutter != null) 'w:gutter': gutter,
+          if (linePitch != null) 'w:linePitch': linePitch,
+          if (pos != null) 'w:pos': pos,
+        });
+}
+
+class XmlDocAttributes extends XmlComponentAttributes {
+  XmlDocAttributes({
+    bool wpc = false,
+    bool mc = false,
+    bool o = false,
+    bool r = false,
+    bool m = false,
+    bool v = false,
+    bool a = false,
+    bool wp14 = false,
+    bool wp = false,
+    bool w10 = false,
+    bool w = false,
+    bool w14 = false,
+    bool w15 = false,
+    bool wpg = false,
+    bool wpi = false,
+    bool wne = false,
+    bool wps = false,
+    bool cp = false,
+    bool dc = false,
+    bool dcterms = false,
+    bool dcmitype = false,
+    bool xsi = false,
+    bool cx = false,
+    bool cx1 = false,
+    bool cx2 = false,
+    bool cx3 = false,
+    bool cx4 = false,
+    bool cx5 = false,
+    bool cx6 = false,
+    bool cx7 = false,
+    bool cx8 = false,
+    bool aink = false,
+    bool am3d = false,
+    bool w16cex = false,
+    bool w16cid = false,
+    bool w16 = false,
+    bool w16sdtdh = false,
+    bool w16se = false,
+    bool sl = false,
+    bool relations = false,
+    bool pic = false,
+    String ignorables = '',
+    Map<String, String>? extra,
+  }) : super(xmlAttributes: <String, Object>{
+          ...?extra,
+          if (wpc) 'xmlns:wpc': namespaces['wpc']!,
+          if (mc) 'xmlns:mc': namespaces['mc']!,
+          if (a) 'xmlns:a': namespaces['a']!,
+          if (o) 'xmlns:o': namespaces['o']!,
+          if (r) 'xmlns:r': namespaces['r']!,
+          if (m) 'xmlns:m': namespaces['m']!,
+          if (v) 'xmlns:v': namespaces['v']!,
+          if (pic) 'xmlns:pic': namespaces['pic']!,
+          if (sl) 'xmlns:sl': namespaces['sl']!,
+          if (wp14) 'xmlns:wp14': namespaces['wp14']!,
+          if (wp) 'xmlns:wp': namespaces['wp']!,
+          if (w10) 'xmlns:w10': namespaces['w10']!,
+          if (w) 'xmlns:w': namespaces['w']!,
+          if (w14) 'xmlns:w14': namespaces['w14']!,
+          if (w15) 'xmlns:w15': namespaces['w15']!,
+          if (wpg) 'xmlns:wpg': namespaces['wpg']!,
+          if (wpi) 'xmlns:wpi': namespaces['wpi']!,
+          if (wne) 'xmlns:wne': namespaces['wne']!,
+          if (wps) 'xmlns:wps': namespaces['wps']!,
+          if (cp) 'xmlns:cp': namespaces['cp']!,
+          if (dc) 'xmlns:dc': namespaces['dc']!,
+          if (dcterms) 'xmlns:dcterms': namespaces['dcterms']!,
+          if (dcmitype) 'xmlns:dcmitype': namespaces['dcmitype']!,
+          if (relations) 'xmlns': namespaces['relationship']!,
+          if (xsi) 'xmlns:xsi': namespaces['xsi']!,
+          if (cx) 'xmlns:cx': namespaces['cx']!,
+          if (cx1) 'xmlns:cx1': namespaces['cx1']!,
+          if (cx2) 'xmlns:cx2': namespaces['cx2']!,
+          if (cx3) 'xmlns:cx3': namespaces['cx3']!,
+          if (cx4) 'xmlns:cx4': namespaces['cx4']!,
+          if (cx5) 'xmlns:cx5': namespaces['cx5']!,
+          if (cx6) 'xmlns:cx6': namespaces['cx6']!,
+          if (cx7) 'xmlns:cx7': namespaces['cx7']!,
+          if (cx8) 'xmlns:cx8': namespaces['cx8']!,
+          if (aink) 'xmlns:aink': namespaces['aink']!,
+          if (am3d) 'xmlns:am3d': namespaces['am3d']!,
+          if (w16cex) 'xmlns:w16cex': namespaces['w16cex']!,
+          if (w16cid) 'xmlns:w16cid': namespaces['w16cid']!,
+          if (w16) 'xmlns:w16': namespaces['w16']!,
+          if (w16sdtdh) 'xmlns:w16sdtdh': namespaces['w16sdtdh']!,
+          if (w16se) 'xmlns:w16se': namespaces['w16se']!,
+          if (ignorables.isNotEmpty) 'mc:Ignorable': ignorables,
+        });
+}

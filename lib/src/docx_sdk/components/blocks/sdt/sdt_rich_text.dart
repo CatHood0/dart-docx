@@ -1,0 +1,336 @@
+import 'package:xml/xml.dart';
+
+import '../../../../../docx.dart';
+import '../../../../core/extensions/string_ext.dart';
+import '../../../stores/inherited_stores/glossary_provider.dart';
+import '../../../stores/inherited_stores/sdt_store_provider.dart';
+
+/// Rich text SDT component for multi-paragraph formatted text input.
+///
+/// Represents a `<w:sdt>` element with rich text content.
+/// Used for complex text inputs like clauses, descriptions, or notes
+/// that require multiple paragraphs and rich formatting.
+///
+/// This is a Content Control that allows users to edit formatted text
+/// directly within the Word document while maintaining structure.
+///
+/// ## Example usage:
+/// ```dart
+/// final sdt = SdtRichText(
+///   alias: 'contract_clause',
+///   tag: 'clause_1',
+///   content: [
+///     Paragraph(children: [
+///       TextRun(text: 'PRIMERA. ', bold: true),
+///       TextRun(text: 'El presente contrato se rige por...'),
+///     ]),
+///   ],
+/// );
+/// ```
+///
+/// ## Variants:
+/// - Basic richText with paragraphs
+/// - richText with placeholder (when empty)
+/// - richText with formatting properties (rPr)
+/// - richText with dataBinding to Custom XML Parts
+///
+/// See also:
+/// - [SdtPlainText] for single-line plain text SDT
+/// - [docs/sdt_elements.md] for complete SDT documentation
+class SdtRichText extends Sdt<List<DocxNode>> with PrintableMixin {
+  SdtRichText({
+    required String alias,
+    required this.tag,
+    this.placeholder,
+    this.showingPlacHdr = true,
+    this.lock,
+    this.temporary = false,
+    this.glossaryEntry,
+    Iterable<DocxNode> content = const [],
+    super.parent,
+    super.id,
+    super.sdtId,
+  })  : _alias = alias,
+        _content = content.toList(),
+        super(child: content.toList()) {
+    int index = 0;
+    for (final DocxNode node in child) {
+      node
+        ..parent = this
+        ..index = index
+        ..depth = depth + 1;
+      index++;
+    }
+  }
+
+  /// The alias is the visible label in Word's content control UI.
+  final String _alias;
+  String get alias => _alias;
+
+  /// Internal tag for programming reference.
+  final String tag;
+
+  /// Placeholder text shown when the field is empty.
+  final String? placeholder;
+
+  /// Whether to show the placeholder text.
+  final bool showingPlacHdr;
+
+  /// Lock type to prevent editing.
+  final StdLock? lock;
+
+  /// If true, the SDT is temporary and not saved permanently.
+  final bool temporary;
+
+  /// Glossary entry for placeholder content.
+  ///
+  /// When provided, this entry is auto-registered to the [GlossaryStore]
+  /// and its name is used as the placeholder reference.
+  final GlossaryEntry? glossaryEntry;
+
+  /// The content paragraphs displayed in the SDT.
+  final List<DocxNode> _content;
+
+  /// Returns the placeholder name to use in XML.
+  ///
+  /// If [glossaryEntry] is provided, uses its name; otherwise uses [placeholder].
+  String? get placeholderName => glossaryEntry?.name ?? placeholder;
+
+  @override
+  void perform() {
+    // Auto-register glossary entry if provided
+    if (glossaryEntry != null && isChildOf<GlossaryProvider>()) {
+      GlossaryProvider.of(this).addEntry(glossaryEntry!);
+    }
+    super.perform();
+  }
+
+  @override
+  List<XmlElement> buildXml() {
+    return <XmlElement>[
+      XmlElement.tag(
+        'w:sdt',
+        children: <XmlNode>[
+          _buildPropertiesXml(),
+          _buildContentXml(),
+        ],
+      ),
+      ...Run.lineBreak().paragraph().buildXml(),
+    ];
+  }
+
+  XmlElement _buildPropertiesXml() {
+    final List<XmlNode> children = <XmlNode>[
+      XmlElement.tag('w:richText', isSelfClosing: true),
+      XmlElement.tag(
+        'w:alias',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:label',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), _alias),
+        ],
+        isSelfClosing: true,
+      ),
+      XmlElement.tag(
+        'w:tag',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), tag),
+        ],
+        isSelfClosing: true,
+      ),
+    ];
+
+    // Add id - use SdtStore to get unique ID
+    final int actualSdtId = SdtStoreProvider.of(this).getNextId(nodeId: id, preferredId: sdtId);
+    children.add(
+      XmlElement.tag(
+        'w:id',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), actualSdtId.toString()),
+        ],
+        isSelfClosing: true,
+      ),
+    );
+
+    // Add placeholder
+    if (placeholderName != null) {
+      children.add(
+        XmlElement.tag(
+          'w:placeholder',
+          children: <XmlNode>[
+            XmlElement.tag(
+              'w:docPart',
+              attributes: <XmlAttribute>[
+                XmlAttribute('w:val'.toName(), placeholderName!),
+              ],
+              isSelfClosing: true,
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Add showingPlacHdr
+    children.add(
+      XmlElement.tag(
+        'w:showingPlacHdr',
+        attributes: <XmlAttribute>[
+          XmlAttribute('w:val'.toName(), showingPlacHdr ? '1' : '0'),
+        ],
+        isSelfClosing: true,
+      ),
+    );
+
+    // Add lock if provided
+    if (lock != null) {
+      children.add(
+        XmlElement.tag(
+          'w:lock',
+          attributes: <XmlAttribute>[
+            XmlAttribute('w:val'.toName(), lock!.type),
+          ],
+          isSelfClosing: true,
+        ),
+      );
+    }
+
+    // Add temporary if true
+    if (temporary) {
+      children.add(
+        XmlElement.tag(
+          'w:temporary',
+          attributes: <XmlAttribute>[
+            XmlAttribute('w:val'.toName(), '1'),
+          ],
+          isSelfClosing: true,
+        ),
+      );
+    }
+
+    return XmlElement.tag('w:sdtPr', children: children);
+  }
+
+  XmlElement _buildContentXml() {
+    final List<XmlNode> paragraphs = <XmlNode>[];
+
+    if (_content.isEmpty) {
+      // Empty content - show placeholder or empty paragraph
+      paragraphs.addAll(Paragraph.text(text: '').buildXml());
+    } else {
+      // Build paragraphs from content
+      for (final DocxNode node in _content) {
+        paragraphs.addAll(node.buildXml());
+      }
+    }
+
+    return XmlElement.tag('w:sdtContent', children: paragraphs);
+  }
+
+  @override
+  SdtRichText get copy => SdtRichText(
+        id: id,
+        sdtId: sdtId,
+        alias: _alias,
+        tag: tag,
+        placeholder: placeholder,
+        showingPlacHdr: showingPlacHdr,
+        lock: lock,
+        temporary: temporary,
+        glossaryEntry: glossaryEntry,
+        content: _content,
+        parent: parent,
+      );
+
+  @override
+  SdtRichText copyWith({
+    Iterable<DocxNode>? child,
+    DocxNode<dynamic>? parent,
+    String? id,
+    String? alias,
+    String? tag,
+    String? placeholder,
+    bool? showingPlacHdr,
+    StdLock? lock,
+    bool? temporary,
+    GlossaryEntry? glossaryEntry,
+    Iterable<DocxNode>? content,
+    int? sdtId,
+  }) {
+    return SdtRichText(
+      sdtId: sdtId ?? this.sdtId,
+      alias: alias ?? _alias,
+      tag: tag ?? this.tag,
+      placeholder: placeholder ?? this.placeholder,
+      showingPlacHdr: showingPlacHdr ?? this.showingPlacHdr,
+      lock: lock ?? this.lock,
+      temporary: temporary ?? this.temporary,
+      glossaryEntry: glossaryEntry ?? this.glossaryEntry,
+      content: content ?? _content,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  DocxNode<dynamic>? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    if (shouldGetElement(this)) return this;
+    if (!visitChildrenIfNeeded) return null;
+
+    for (final DocxNode node in _content) {
+      if (shouldGetElement(node)) return node;
+      final DocxNode<dynamic>? found = node.visitElement(
+        shouldGetElement,
+        visitChildrenIfNeeded: true,
+      );
+      if (found != null) return found;
+    }
+    return null;
+  }
+
+  @override
+  List<DocxNode<dynamic>>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    final List<DocxNode> elements = <DocxNode>[];
+
+    if (shouldGetElement(this)) elements.add(this);
+
+    if (visitChildrenIfNeeded) {
+      for (final DocxNode node in _content) {
+        if (shouldGetElement(node)) elements.add(node);
+        final List<DocxNode<dynamic>>? found = node.visitAllElement(
+          shouldGetElement,
+          visitChildrenIfNeeded: true,
+        );
+        if (found != null) elements.addAll(found);
+      }
+    }
+
+    return elements.isEmpty ? null : elements;
+  }
+
+  /// Returns the plain text content of this SDT.
+  @override
+  String toPlainText() {
+    final StringBuffer buffer = StringBuffer();
+    for (final DocxNode node in _content) {
+      if (node is PrintableMixin) {
+        buffer.write((node as PrintableMixin).toPlainText());
+      }
+    }
+    return buffer.toString();
+  }
+
+  @override
+  String toString() {
+    return 'SdtRichText(alias: $_alias, tag: $tag, content: ${_content.length} nodes)';
+  }
+}

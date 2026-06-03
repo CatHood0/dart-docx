@@ -1,0 +1,157 @@
+import 'package:xml/xml.dart' as xml;
+
+import '../../../../docx.dart';
+import '../../core/extensions/cast_ext.dart';
+import '../../core/extensions/node_to_configurator.dart';
+import '../../core/extensions/xml_values_to_dart.dart';
+import '../../util/predicate.dart';
+import '../styles/latent_styles.dart';
+import '../xml_components/xml_content_type_component.dart';
+
+//TODO: implement the rest of the components
+class XmlToDocxObjects {
+  const XmlToDocxObjects._();
+  static XmlContentTypeComponent contentType(
+    xml.XmlDocument contentType,
+    bool applyCustomTheme,
+  ) {
+    return XmlContentTypeComponent(
+      applyCustomTheme: applyCustomTheme,
+      extensions: <String>[],
+    );
+  }
+
+//TODO: please, document this
+  static DocumentStyles xmlToDocumentStylesSheet(
+    xml.XmlDocument xmlStyles,
+  ) {
+    final List<Style> paragraphDefaultStyles = [];
+    final List<Style> runDefaultStyles = [];
+    final xml.XmlElement mainStyles = xmlStyles.getElement('w:styles')!;
+    final xml.XmlElement? rawDocDefaults =
+        mainStyles.getElement(xmlDocDefaultsNode);
+    assert(
+      rawDocDefaults != null,
+      'all styles.xml documents should '
+      'have at least $xmlDocDefaultsNode element',
+    );
+    final xml.XmlElement? paragraphStyles =
+        rawDocDefaults!.getElement('w:pPrDefault');
+    final xml.XmlElement? runStyles = rawDocDefaults.getElement('w:rPrDefault');
+    if (paragraphStyles != null) {
+      paragraphDefaultStyles.addAll(
+        _buildConfigurators(paragraphStyles).map(
+          (StyleConfigurator n) {
+            return StyleBuilder.up()
+                .withConfigurators(<StyleConfigurator>[n]).build();
+          },
+        ),
+      );
+    }
+    if (runStyles != null) {
+      runDefaultStyles.addAll(
+        _buildConfigurators(runStyles).map(
+          (StyleConfigurator n) {
+            return StyleBuilder.uc().withConfigurators(<StyleConfigurator>[
+              n,
+            ]).build();
+          },
+        ),
+      );
+    }
+
+    // common styles configured by the user
+    final Iterable<xml.XmlElement> rawStyles =
+        mainStyles.findElements(xmlStyleNode);
+    if (rawStyles.isEmpty) return DocumentStyles.empty();
+    final Iterable<Style> styles =
+        rawStyles.map((xml.XmlElement xmlStyleElement) {
+      // common values
+      final String type = xmlStyleElement.getAttribute('w:type')!;
+      final String styleId = xmlStyleElement.getAttribute('w:styleId')!;
+      final Object? defaultValue =
+          xmlStyleElement.getAttribute('w:default')?.toExactValueFromXml();
+
+      final List<StyleConfigurator> configurators =
+          List<StyleConfigurator>.from(
+        _buildConfigurators(
+          xmlStyleElement,
+        ),
+      );
+
+      // to keep in memory the session editions
+      // usually to avoid loss colaborative feature
+      final String? revisionIdDefault =
+          xmlStyleElement.getAttribute('w:rsidDefault');
+      final String? revisionIdP = xmlStyleElement.getAttribute('w:rsidP');
+      final String? revisionIdRun = xmlStyleElement.getAttribute('w:rsidR');
+      final String? revisionIdRPr = xmlStyleElement.getAttribute('w:rsidRPr');
+
+      return Style(
+        type: type,
+        styleId: styleId,
+        configurators: configurators,
+        defaultValue: defaultValue is bool
+            ? defaultValue
+            : defaultValue is num
+                ? defaultValue > 0
+                : null,
+        revisionIdPPr: revisionIdP,
+        revisionIdRun: revisionIdRun,
+        revisionIdRPr: revisionIdRPr,
+        revisionIdDefault: revisionIdDefault,
+      );
+    });
+    //TODO: now we need to get all latent styles and parse to LatentStyles instance
+    // final LatentStyles latent = LatentStyles.base();
+
+    return DocumentStyles(
+      styles: Map<String, Style>.from(
+        styles.toMap((e) => e.styleId),
+      ),
+      latentStyles: LatentStyles.base(),
+      docDefaultParagraphStyles: Map<String, Style>.from(
+        paragraphDefaultStyles.toMap((e) => e.styleId),
+      ),
+      docDefaultRunStyles: Map<String, Style>.from(
+        runDefaultStyles.toMap((e) => e.styleId),
+      ),
+    );
+  }
+
+  static Iterable<StyleConfigurator> _buildConfigurators(
+    xml.XmlElement? element,
+  ) {
+    final List<StyleConfigurator> configurators = <StyleConfigurator>[];
+    if (element == null) return configurators;
+    for (final xml.XmlElement node
+        in element.children.whereType<xml.XmlElement>()) {
+      configurators.add(node.toStyleConfigurator());
+    }
+    return configurators;
+  }
+}
+
+class ConverterFromXmlContext {
+  ConverterFromXmlContext({
+    required this.ignoreColorWhenNoSupported,
+    required this.defaultTabStop,
+    this.acceptFontValueWhen,
+    this.acceptSizeValueWhen,
+    this.acceptSpacingValueWhen,
+    this.shouldParserSizeToHeading,
+    this.parseSpacing,
+    this.colorBuilder,
+    this.checkColor,
+  });
+
+  ParseSizeToHeadingCallback? shouldParserSizeToHeading;
+  ParseSpacingCallback? parseSpacing;
+  bool Function(String? hex)? checkColor;
+  final Predicate<String>? acceptFontValueWhen;
+  final Predicate<String>? acceptSizeValueWhen;
+  final Predicate<int>? acceptSpacingValueWhen;
+  final bool ignoreColorWhenNoSupported;
+  final String? Function(String? hex)? colorBuilder;
+  final double defaultTabStop;
+}

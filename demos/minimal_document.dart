@@ -1,0 +1,55 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:docx/docx.dart';
+
+Future<void> main() async {
+  final File outFile = File('test_resources/minimal_document.docx');
+
+  final PageSize pageSize = PageSize.letter;
+  final DocumentMargins margins = DocumentMargins.fromCm(
+    top: 1.52,
+    right: 1.52,
+    left: 1.52,
+    bottom: 1.52,
+    header: 1.1,
+    footer: 1.1,
+  );
+
+  final DocxDocument doc = DocxDocument(
+    options: DocumentOptions.standard(
+      title: 'Minimal',
+      styles: DocumentStyles.base(),
+      section: DocumentLayout(
+        size: pageSize,
+        margins: margins,
+      ),
+    ),
+    root: RootBody(
+      sections: <DocxNode<dynamic>>[
+        Paragraph.text(
+          text: 'Hello World',
+          styles: <Style>[
+            Style.ref('Heading1'),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  final Uint8List? bytes = await DocxPacker()
+      .autoRegisterFonts(false)
+      .noTrimRuns()
+      .normalStyleIfNeeded()
+      .normalStyle(Style.ref('body'))
+      .flags(ExecutionFlags(skipErrors: false))
+      .execute(
+        doc,
+        applyCustomTheme: true,
+      );
+
+  if (bytes != null) {
+    await outFile.writeAsBytes(bytes);
+  } else {
+    stderr.writeln('Failed to generate minimal_document.docx');
+  }
+}

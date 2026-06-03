@@ -1,5 +1,6 @@
 import 'package:dart_quill_delta/dart_quill_delta.dart';
-import '../common/styles.dart';
+
+import '../docx_sdk/sdk.dart';
 
 typedef Predicate<T> = bool Function(T value);
 typedef PredicateMisspell = bool Function(List<Operation> operationsMisspelled);

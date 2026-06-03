@@ -1,20 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:dart_quill_delta/dart_quill_delta.dart';
-import 'package:flutter/foundation.dart';
 import 'package:xml/xml.dart' as xml;
 
-import '../../../docx_transformer.dart';
-import '../../common/extensions/styles_extension.dart';
-import '../../common/generators/convert_xml_styles_to_doc.dart';
-import '../../common/internals_vars.dart';
-import '../../common/schemas/common_node_keys/word_files_common.dart';
-import '../../common/schemas/common_node_keys/xml_keys.dart';
-import '../../common/styles.dart';
-import '../../constants.dart';
+import '../../../docx.dart';
+import '../../core/extensions/styles_extension.dart';
+import '../../core/internals_vars.dart';
 
-class DeltaFromDocxParser extends Parser<Uint8List, Future<Delta?>?, DeltaParserOptions> {
+class DeltaFromDocxParser extends Parser<Uint8List, Delta?, DeltaParserOptions> {
   DeltaFromDocxParser({
     required super.options,
   });
@@ -22,7 +17,7 @@ class DeltaFromDocxParser extends Parser<Uint8List, Future<Delta?>?, DeltaParser
   ZipDecoder? _zipDecoder;
 
   @override
-  Future<Delta?>? build({required Uint8List data}) async {
+  Future<Delta?> build({required Uint8List data}) async {
     final Delta delta = Delta();
     _zipDecoder ??= ZipDecoder();
 
@@ -50,15 +45,15 @@ class DeltaFromDocxParser extends Parser<Uint8List, Future<Delta?>?, DeltaParser
 
     // search the necessary files
     for (final ArchiveFile file in archive) {
-      if (file.name == stylesXmlFilePath) {
+      if (file.name == DocxPaths.stylesXmlFilePath) {
         final String fileContent = utf8.decode(file.content);
         styles = xml.XmlDocument.parse(fileContent);
       }
-      if (file.name == documentXmlRelsFilePath) {
+      if (file.name == DocxPaths.documentXmlRelsFilePath) {
         final String fileContent = utf8.decode(file.content);
         documentRels = xml.XmlDocument.parse(fileContent);
       }
-      if (file.name == settingsXmlFilePath) {
+      if (file.name == DocxPaths.settingsXmlFilePath) {
         final String fileContent = utf8.decode(file.content);
         settings = xml.XmlDocument.parse(fileContent);
       }
@@ -68,14 +63,14 @@ class DeltaFromDocxParser extends Parser<Uint8List, Future<Delta?>?, DeltaParser
           rawMedia[file.name] = w.toUint8List();
         }
       }
-      if (file.name == documentFilePath) {
+      if (file.name == DocxPaths.documentFilePath) {
         final String fileContent = utf8.decode(file.content);
         document = xml.XmlDocument.parse(fileContent);
       }
     }
 
     if (document == null) {
-      throw StateError("$documentFilePath couldn't be founded into the File passed");
+      throw StateError("${DocxPaths.documentFilePath} couldn't be founded into the File passed");
     }
 
     _buildTabMultiplierIfNeeded(settings);
@@ -102,7 +97,7 @@ class DeltaFromDocxParser extends Parser<Uint8List, Future<Delta?>?, DeltaParser
       defaultTabStop: kDefaultTabStop,
     );
 
-    final DocumentStylesSheet docStyles = DocumentStylesSheet.fromXmlStyles(
+    final DocumentStyles docStyles = DocumentStyles.fromXmlStyles(
       styles!,
     );
 
@@ -131,7 +126,7 @@ class DeltaFromDocxParser extends Parser<Uint8List, Future<Delta?>?, DeltaParser
       if (style != null) {
         final String? basedOn = style.basedOn?.value as String?;
         if (basedOn != null && basedOn != 'Normal') {
-          final Style parent = docStyles.getParentOf(style);
+          final Style parent = docStyles.getOriginalBasedStyle(style);
           blockAttributes.addAll(<String, dynamic>{
             ...?style.buildBlockAttributesMap(
               computeIndents: false,

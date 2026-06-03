@@ -1,31 +1,31 @@
 import 'dart:typed_data';
 
-import '../../docx_transformer.dart';
-import '../constants.dart';
+import '../../docx.dart';
 import '../util/predicate.dart';
 
 enum ParseTo {
   odt,
   docx,
+  doc,
 }
 
 class ContentParserOptions extends ParserOptions {
   ContentParserOptions({
     required this.title,
-    List<String>? supportedFileExtensions,
+    Set<String>? supportedFileExtensions,
     this.subject = '',
     this.owner = '',
     this.description = '',
     this.lastModifiedBy = '',
     this.keywords = const <String>[],
     this.revisions = 1,
-    this.properties,
-  })  : supportedFileExtensions = supportedFileExtensions ?? kDefaultAcceptedFileExtensions,
+  })  : supportedFileExtensions =
+            supportedFileExtensions ?? kDefaultAcceptedFileExtensions,
         super(
           ignoreColorWhenNoSupported: false,
           onDetectImage: null,
         );
-  final List<String> supportedFileExtensions;
+  final Set<String> supportedFileExtensions;
   final String title;
   final String owner;
   final String subject;
@@ -33,29 +33,12 @@ class ContentParserOptions extends ParserOptions {
   final String lastModifiedBy;
   final List<String> keywords;
   final int revisions;
-  final DocumentProperties? properties;
 }
 
 class BasicParserOptions extends ParserOptions {
-  BasicParserOptions({
-    required this.title,
-    super.onDetectImage,
-    this.subject = '',
-    this.owner = '',
-    this.description = '',
-    this.lastModifiedBy = '',
-    this.keywords = const <String>[],
-    this.revisions = 1,
-    this.properties,
-  }) : super(ignoreColorWhenNoSupported: false);
-  final String title;
-  final String owner;
-  final String subject;
-  final String description;
-  final String lastModifiedBy;
-  final List<String> keywords;
-  final int revisions;
-  final DocumentProperties? properties;
+  BasicParserOptions({required this.documentOptions})
+      : super(ignoreColorWhenNoSupported: false);
+  final DocumentOptions documentOptions;
 }
 
 abstract class ParserOptions {
@@ -132,7 +115,8 @@ class DocxParserOptions extends ParserOptions {
           onDetectImage: _defaultOnDetectImage,
           parseXmlSpacing: null,
         );
-  final DocumentProperties documentProperties;
+  final DocumentOptions documentProperties;
 }
 
-Future<String?> _defaultOnDetectImage(Uint8List bytes, String name) async => null;
+Future<String?> _defaultOnDetectImage(Uint8List bytes, String name) async =>
+    null;

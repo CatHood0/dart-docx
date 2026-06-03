@@ -1,0 +1,88 @@
+import 'package:xml/xml.dart';
+import '../../../../docx.dart';
+import '../../../core/extensions/skippable_iterations_ext.dart';
+import '../../../core/extensions/string_ext.dart';
+
+class AdjustValue {
+  AdjustValue({
+    required this.name,
+    required this.value,
+  });
+
+  final String name;
+  final Object? value;
+}
+
+// Represents a:avLst
+class AdjustValueList extends DocxNode<Iterable<AdjustValue>> {
+  AdjustValueList({
+    Iterable<AdjustValue> values = const <AdjustValue>[],
+    super.id,
+    super.parent,
+  })  : assert(values.length < 9, 'values cannot be major than 8 elements'),
+        super(child: values);
+
+  @override
+  AdjustValueList get copy => AdjustValueList(
+        id: id,
+        values: child,
+        parent: parent,
+      );
+
+  @override
+  AdjustValueList copyWith({
+    Iterable<AdjustValue>? child,
+    String? id,
+    DocxNode<dynamic>? parent,
+  }) {
+    return AdjustValueList(
+      id: id ?? this.id,
+      values: child ?? this.child,
+      parent: parent ?? this.parent,
+    );
+  }
+
+  @override
+  List<XmlNode> buildXml() {
+    return <XmlNode>[
+      XmlElement.tag(
+        'a:avLst',
+        isSelfClosing: child.isEmpty,
+        children: <XmlNode>[
+          // to allow shape compatibility
+          // we build geometric formulas
+          //
+          // them are not useful for images, but for
+          // shapes works
+          ...child.skippableMapIndexed((int index, AdjustValue el) {
+            if (el.value == null) return null;
+
+            return XmlElement.tag(
+              'a:gd',
+              attributes: <XmlAttribute>[
+                XmlAttribute('name'.toName(), 'adj${index + 1}'),
+                XmlAttribute('fmla'.toName(), 'val ${el.value}'),
+              ],
+            );
+          })
+        ],
+      ),
+    ];
+  }
+
+  @override
+  List<AdjustValueList>? visitAllElement(
+    bool Function(DocxNode element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    return shouldGetElement(this) ? <AdjustValueList>[this] : null;
+  }
+
+  @override
+  AdjustValueList? visitElement(
+    bool Function(DocxNode element) shouldGetElement, {
+    bool visitChildrenIfNeeded = true,
+  }) {
+    return shouldGetElement(this) ? this : null;
+  }
+}

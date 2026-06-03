@@ -1,0 +1,128 @@
+import 'package:xml/xml.dart';
+
+import '../../../../docx.dart';
+import '../../utils/values.dart';
+
+class ConcreteNumberingOptions {
+  ConcreteNumberingOptions({
+    required this.numId,
+    required this.abstractRefId,
+    required this.refKey,
+    required this.copyId,
+    this.overrides = const <ConcreteLevelOverride>[],
+  });
+
+  ///
+  final int numId;
+
+  /// The unique id that let us identify reference
+  /// the abstract templates
+  final int abstractRefId;
+
+  /// The unique id that let us identify this option
+  final String refKey;
+
+  /// Define the list id. All the list with this id
+  /// will continue its own numeration rules
+  ///
+  /// Tipically, we use different ids when need reset
+  /// the list numbers
+  final int copyId;
+
+  final List<ConcreteLevelOverride> overrides;
+}
+
+class ConcreteLevelOverride {
+  ConcreteLevelOverride({required this.indentLevel, required this.startAt});
+
+  final int indentLevel;
+  final int startAt;
+}
+
+class XmlConcreteNumberingComponent
+    extends XmlComponentBase<List<XmlComponentBase>> {
+  XmlConcreteNumberingComponent(ConcreteNumberingOptions options)
+      : numId = options.numId,
+        reference = options.refKey,
+        instance = options.copyId,
+        super(
+          xmlKey: 'w:num',
+          value: <XmlComponentBase<dynamic>>[
+            XmlEmptyElementComponent<int>(
+              xmlKey: 'w:abstractNumId',
+              value: options.abstractRefId,
+            ),
+            ...options.overrides.map((
+              ConcreteLevelOverride ele,
+            ) {
+              CompilerLogger.root.debug(
+                'Building concrete numbering '
+                'using abstractRefId "${options.abstractRefId}" '
+                'for the "${options.numId}". List instance: '
+                '"${options.refKey}-${options.copyId}" '
+                '(indent: ${ele.indentLevel} '
+                'and start: ${ele.startAt})',
+              );
+              return ConcreteLevelOverrideComponent(
+                indentLevel: ele.indentLevel,
+                startAt: ele.startAt,
+              );
+            }),
+          ],
+          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
+            'w:numId': ensureInteger(options.numId),
+          }),
+        );
+
+  final String reference;
+  final int numId;
+  final int instance;
+
+  @override
+  XmlElement buildXml() {
+    return XmlElement.tag(
+      xmlKey,
+      attributes: attributes.buildXml(),
+      children: value.map(
+        (
+          XmlComponentBase<dynamic> e,
+        ) =>
+            e.buildXml(),
+      ),
+    );
+  }
+}
+
+class ConcreteLevelOverrideComponent
+    extends XmlComponentBase<List<XmlComponentBase>> {
+  ConcreteLevelOverrideComponent({
+    required int indentLevel,
+    int? startAt,
+  }) : super(
+          xmlKey: 'w:lvlOverride',
+          attrs: XmlComponentAttributes(xmlAttributes: <String, Object>{
+            'w:ilvl': indentLevel,
+          }),
+          value: <XmlComponentBase<dynamic>>[
+            if (startAt != null)
+              XmlEmptyElementComponent(
+                xmlKey: 'w:startOverride',
+                value: '$startAt',
+              ),
+          ],
+        );
+
+  @override
+  XmlElement buildXml() {
+    return XmlElement.tag(
+      xmlKey,
+      attributes: attributes.buildXml(),
+      children: value.map(
+        (
+          XmlComponentBase<dynamic> e,
+        ) =>
+            e.buildXml(),
+      ),
+    );
+  }
+}

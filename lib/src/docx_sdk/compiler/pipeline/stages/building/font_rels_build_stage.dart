@@ -1,0 +1,47 @@
+import 'dart:convert';
+
+import 'package:archive/archive.dart';
+
+import '../../../../sdk.dart';
+
+class FontRelsBuildStage extends PipelineStage {
+  const FontRelsBuildStage();
+
+  @override
+  String get name => 'FontRelsBuild';
+
+  @override
+  int get order => 9;
+
+  @override
+  StageCategory get category => StageCategory.build;
+
+  @override
+  String get description =>
+      'Build word/_rels/fontTable.xml.rels for embedded fonts.';
+
+  @override
+  bool shouldExecute(PipelineContext context) {
+    return !context.flags.skipFontRels &&
+        context.flags.dynamicFontSearch &&
+        context.getStoreOfExactType<FontStore>() != null &&
+        context.getStoreOfExactType<FontStore>()!.fontRelations.isNotEmpty;
+  }
+
+  @override
+  void execute(PipelineContext context) {
+    final component = context
+        .getStoreOfExactType<FontStore>()!
+        .buildFontTableRelsXmlDocument();
+
+    final document = component.buildDocument();
+    context.archive.add(
+      ArchiveFile.bytes(
+        DocxPaths.fontTableXmlRelsFilePath,
+        utf8.encode(document.toXmlString()),
+      ),
+    );
+
+    CompilerLogger.root.debug('FontRels built and added to archive.');
+  }
+}

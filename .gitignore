@@ -12,7 +12,7 @@ migrate_working_dir/
 
 # IntelliJ related
 *.iml
-*.ipr
+*.ip_
 *.iws
 .idea/
 doc/
@@ -29,5 +29,7 @@ doc/
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-build/
+**/build/
 test_resources/
+demos_output/
+AGENTS.md

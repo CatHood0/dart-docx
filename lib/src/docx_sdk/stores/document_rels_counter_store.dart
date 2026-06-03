@@ -1,0 +1,41 @@
+import '../../../docx.dart';
+
+class DocumentRelsCounterStore extends Store {
+  int _lastId = 1;
+
+  @override
+  String get storeName => 'Document Relations Counter Store';
+
+  /// Count all the elements wrapped by a Drawing component.
+  ///
+  /// Commonly used to maintain a count of the internal graphics
+  final Set<int> count = <int>{};
+
+  /// The elements wrapped by a Drawing component.
+  final Map<String, int> elements = <String, int>{};
+
+  int getNextId([String? ref]) {
+    while (count.contains(_lastId)) {
+      _lastId++;
+    }
+    count.add(_lastId);
+    if (ref != null) {
+      elements[ref] = _lastId;
+    }
+    return _lastId++;
+  }
+
+  int? getIdFromRef({required String ref}) => elements[ref];
+
+  @override
+  void reset() {
+    _lastId = 1;
+    count.clear();
+    elements.clear();
+  }
+
+  @override
+  void initialize(PipelineContext context) {
+    // nothing
+  }
+}
