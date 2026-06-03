@@ -168,8 +168,6 @@ class RootBody extends DocxNode<List<DocxNode<dynamic>>> {
         );
         continue;
       }
-      CompilerLogger.root.debug(
-          'Element: ${section.runtimeType}:${section.id} (child: ${section.child})');
       content.addAll(section.buildXml());
     }
 

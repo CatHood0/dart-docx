@@ -111,6 +111,14 @@ class TableCell extends DocxNode<List<DocxNode>> {
   bool _fixed;
 
   @override
+  set parent(DocxNode<dynamic>? parent) {
+    CompilerLogger.root.debug(
+      'Assigning parent => $parent in $runtimeType:$id ($depth)',
+    );
+    super.parent = parent?.castOrNull<TableRow>();
+  }
+
+  @override
   void updateElement(
     DocxNode<dynamic> component, {
     int? index,
@@ -132,20 +140,15 @@ class TableCell extends DocxNode<List<DocxNode>> {
   @override
   void addAll(List<DocxNode<dynamic>> components) {}
 
-  @override
-  void addListItem(
-    String text, {
-    required Numbering numbering,
-    List<Style>? styles,
-    int? path,
-  }) {}
-
   //TODO: make the cache using this
   @override
   void perform() {}
 
   @override
   List<XmlElement> buildXml() {
+    if (parent == null) {
+      throw '$runtimeType:$id has not parent relationship';
+    }
     final List<XmlNode> cellChildren = <XmlNode>[];
     List<DocxNode<dynamic>>? children = _fixed ? child : null;
 
@@ -154,8 +157,11 @@ class TableCell extends DocxNode<List<DocxNode>> {
       for (int i = _start;
           _start > 0 ? i > 0 : i < _length;
           _start > 0 ? i-- : i++) {
-        final DocxNode<dynamic> el = _itemBuilder!(i);
-        children.add(el);
+        children.add(
+          _itemBuilder!(i)
+            ..index = i
+            ..parent = this,
+        );
       }
     }
 
@@ -328,9 +334,6 @@ class TableCell extends DocxNode<List<DocxNode>> {
 
       if (cellConfig.borders!.top != null) {
         borderNodes.add(_buildBorder('top', cellConfig.borders!.top!));
-      }
-      if (parent != null) {
-        throw '$runtimeType:$id has not parent relationship';
       }
       final int cells = parent!.child.length - 1;
       if (cellConfig.borders!.right != null && index == cells) {

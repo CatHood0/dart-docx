@@ -7,6 +7,8 @@ import '../../registry/docx_registry.dart';
 import '../../sdk.dart';
 import '../inheriteds/inherited_node.dart';
 
+//TODO: set auto assign this element as parent
+// to remove unncessary behavior in ALL components
 abstract class DocxNode<T> {
   DocxNode({
     required this.child,
@@ -188,7 +190,47 @@ abstract class DocxNode<T> {
 
   @mustCallSuper
   void init() {
+    if (!dirty) {
+      CompilerLogger.root.debug(
+        '$runtimeType:$id hit already initialized element',
+      );
+      return;
+    }
     dirty = false;
+    if (this is Widget || this is Builder) return;
+
+    if (child is DocxNode && child!.cast<DocxNode>().parent != this) {
+      child!.cast<DocxNode>().parent = this;
+      CompilerLogger.root.debug(
+        'Assigning '
+        'parent for ${child!.cast<DocxNode>().runtimeType}:${child!.cast<DocxNode>().id} '
+        '(${child!.cast<DocxNode>().depth})',
+      );
+    }
+    if (child is List<DocxNode>) {
+      int index = 0;
+      final List<DocxNode<dynamic>> list = child!.cast<List<DocxNode>>();
+      for (final DocxNode<dynamic> el in list) {
+        if (el.parent == parent) {
+          CompilerLogger.root.debug(
+            'Skipping assign of'
+            'parent for ${el.runtimeType}:${el.id} '
+            '(${el.depth})',
+          );
+          index++;
+          continue;
+        }
+        el
+          ..parent = this
+          ..index = index;
+        index++;
+        CompilerLogger.root.debug(
+          'Assigning '
+          'parent for ${el.runtimeType}:${el.id} '
+          '(${el.depth})',
+        );
+      }
+    }
   }
 
   void deactivate() {
@@ -197,7 +239,7 @@ abstract class DocxNode<T> {
       'removed of the tree',
     );
     //TODO: ensure parent remove this element
-    parent = null;
+    // parent = null;
     dirty = true;
   }
 

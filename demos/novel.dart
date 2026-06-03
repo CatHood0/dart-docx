@@ -294,20 +294,6 @@ class MyApp extends StatelessWidget {
           ],
         ),
 
-        Table(
-          columns: GridColumn.intrintric().repeat(2),
-          rows: [
-            TableRow.two(
-              cell: Text('Cell 1').tableCell(),
-              cell2: Text('Cell 2').tableCell(),
-            ),
-            TableRow.two(
-              cell: Text('Cell 1-2').tableCell(),
-              cell2: Text('Cell 2-2').tableCell(),
-            ),
-          ],
-        ),
-
         Paragraph(
           children: _textWithBreaks(chapter1Part2),
           styles: <Style>[
